@@ -1,0 +1,19 @@
+# TokenLedger — AI API Token & Cloud Cost Simulator
+
+> Free, live AI API token counter and monthly cost simulator comparing OpenAI, Anthropic, and Google models with prompt caching and batch API discounts.
+
+## Main Tool
+- Live Calculator: https://tokenledger-six.vercel.app/
+- XML Sitemap: https://tokenledger-six.vercel.app/sitemap.xml
+
+## Key Features
+- Real-time prompt token estimation (paste system prompt or JSON payload)
+- Prompt caching discount modeling (up to 90% off cached input tokens)
+- Async Batch API discount modeling (50% off token rates)
+- Live pricing synced via OpenRouter public model feeds
+
+## Popular Comparisons
+- GPT-6 Luna vs Claude Haiku 5.5: https://tokenledger-six.vercel.app/compare/gpt-6-luna-vs-claude-haiku-5-5
+- GPT-6.1 Sol vs Claude Sonnet 5.5: https://tokenledger-six.vercel.app/compare/gpt-6-1-sol-vs-claude-sonnet-5-5
+- Gemini 3.8 Flash vs GPT-6.1 Sol: https://tokenledger-six.vercel.app/compare/gemini-3-8-flash-vs-gpt-6-1-sol
+- Claude Sonnet 5.5 vs Gemini 4 Argon: https://tokenledger-six.vercel.app/compare/claude-sonnet-5-5-vs-gemini-4-argon
