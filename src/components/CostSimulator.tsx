@@ -1,19 +1,71 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AIModel } from '@/data/fallbackModels';
 import { calculateModelCost, estimateTokensFromText } from '@/lib/calculator';
 
 interface Props {
   models: AIModel[];
   initialHighlightSlugs?: string[];
-  lemonSqueezyCheckoutUrl?: string;
 }
+
+interface Preset {
+  id: string;
+  label: string;
+  desc: string;
+  dailyRequests: number;
+  avgInputTokens: number;
+  avgOutputTokens: number;
+  cacheHitRate: number;
+  useBatchApi: boolean;
+}
+
+const WORKLOAD_PRESETS: Preset[] = [
+  {
+    id: 'support-bot',
+    label: 'Customer Support Bot',
+    desc: '5K req/day · 70% cached',
+    dailyRequests: 5000,
+    avgInputTokens: 1500,
+    avgOutputTokens: 300,
+    cacheHitRate: 0.7,
+    useBatchApi: false,
+  },
+  {
+    id: 'coding-agent',
+    label: 'AI Coding Agent',
+    desc: '2K req/day · 15K in · 80% cached',
+    dailyRequests: 2000,
+    avgInputTokens: 15000,
+    avgOutputTokens: 2000,
+    cacheHitRate: 0.8,
+    useBatchApi: false,
+  },
+  {
+    id: 'rag-search',
+    label: 'RAG Document Search',
+    desc: '10K req/day · 8K in · 50% cached',
+    dailyRequests: 10000,
+    avgInputTokens: 8000,
+    avgOutputTokens: 500,
+    cacheHitRate: 0.5,
+    useBatchApi: false,
+  },
+  {
+    id: 'bulk-extract',
+    label: 'Bulk Data Extraction',
+    desc: '50K req/day · Batch 50% Off',
+    dailyRequests: 50000,
+    avgInputTokens: 2000,
+    avgOutputTokens: 200,
+    cacheHitRate: 0.2,
+    useBatchApi: true,
+  },
+];
 
 export default function CostSimulator({
   models,
   initialHighlightSlugs = [],
-  lemonSqueezyCheckoutUrl = 'https://YOUR_STORE.lemonsqueezy.com',
 }: Props) {
   const [dailyRequests, setDailyRequests] = useState<number>(10000);
   const [avgInputTokens, setAvgInputTokens] = useState<number>(2500);
@@ -22,12 +74,73 @@ export default function CostSimulator({
   const [useBatchApi, setUseBatchApi] = useState<boolean>(false);
   const [samplePrompt, setSamplePrompt] = useState<string>('');
   const [providerFilter, setProviderFilter] = useState<string>('ALL');
+  const [activePreset, setActivePreset] = useState<string>('');
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  // Restore shared estimate parameters from URL if present
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const req = Number(params.get('req'));
+    const inp = Number(params.get('in'));
+    const out = Number(params.get('out'));
+    const cache = Number(params.get('cache'));
+    const batch = params.get('batch');
+    const prov = params.get('provider');
+
+    if (req >= 100 && req <= 250000) setDailyRequests(req);
+    if (inp >= 100 && inp <= 50000) setAvgInputTokens(inp);
+    if (out >= 50 && out <= 8000) setAvgOutputTokens(out);
+    if (!Number.isNaN(cache) && params.has('cache') && cache >= 0 && cache <= 95) {
+      setCacheHitRate(cache / 100);
+    }
+    if (batch === '1') setUseBatchApi(true);
+    if (prov) setProviderFilter(prov);
+  }, []);
+
+  const applyPreset = (preset: Preset) => {
+    setActivePreset(preset.id);
+    setDailyRequests(preset.dailyRequests);
+    setAvgInputTokens(preset.avgInputTokens);
+    setAvgOutputTokens(preset.avgOutputTokens);
+    setCacheHitRate(preset.cacheHitRate);
+    setUseBatchApi(preset.useBatchApi);
+  };
 
   const handlePromptPaste = (text: string) => {
     setSamplePrompt(text);
+    setActivePreset('');
     const tokens = estimateTokensFromText(text);
-    if (tokens > 0) setAvgInputTokens(tokens);
+    if (tokens > 0) setAvgInputTokens(Math.min(50000, Math.max(100, tokens)));
   };
+
+  const copyShareableLink = async () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('req', String(dailyRequests));
+    url.searchParams.set('in', String(avgInputTokens));
+    url.searchParams.set('out', String(avgOutputTokens));
+    url.searchParams.set('cache', String(Math.round(cacheHitRate * 100)));
+    url.searchParams.set('batch', useBatchApi ? '1' : '0');
+    if (providerFilter !== 'ALL') {
+      url.searchParams.set('provider', providerFilter);
+    } else {
+      url.searchParams.delete('provider');
+    }
+
+    window.history.replaceState({}, '', url.toString());
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } catch {
+      // Clipboard blocked in some contexts; URL bar is still updated
+    }
+  };
+
+  const providers = useMemo(() => {
+    return Array.from(new Set(models.map((m) => m.provider)));
+  }, [models]);
 
   const results = useMemo(() => {
     const filtered =
@@ -82,8 +195,105 @@ export default function CostSimulator({
     a.click();
   };
 
+  const exportPdfQuote = () => {
+    const rowsHtml = results
+      .map(
+        (r) => `
+        <tr>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;font-weight:600;">${r.model.name} <span style="color:#64748b;font-weight:400;">(${r.model.provider})</span></td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;">${r.model.tier}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;">$${r.model.inputPer1M.toFixed(2)} / $${r.model.outputPer1M.toFixed(2)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#059669;">$${r.finalMonthlyCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;color:#0284c7;">-$${r.monthlySavings.toFixed(2)}</td>
+        </tr>`
+      )
+      .join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>AI API Cost Estimate — TokenLedger</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #0f172a; padding: 40px; max-width: 900px; margin: auto; }
+            h1 { margin: 0 0 8px 0; font-size: 24px; }
+            .meta { color: #475569; font-size: 13px; margin-bottom: 24px; }
+            .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+            .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+            .box-label { font-size: 11px; text-transform: uppercase; color: #64748b; }
+            .box-val { font-size: 16px; font-weight: 700; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+            th { background: #f1f5f9; padding: 10px; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; }
+            .footer { margin-top: 32px; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+          </style>
+        </head>
+        <body>
+          <h1>AI API Architecture &amp; Monthly Cost Quote</h1>
+          <div class="meta">Generated on ${new Date().toLocaleDateString()} via TokenLedger</div>
+          <div class="grid">
+            <div class="box"><div class="box-label">Monthly Requests</div><div class="box-val">${(dailyRequests * 30).toLocaleString()}</div></div>
+            <div class="box"><div class="box-label">Avg Input / Output</div><div class="box-val">${avgInputTokens.toLocaleString()} / ${avgOutputTokens.toLocaleString()}</div></div>
+            <div class="box"><div class="box-label">Prompt Cache Hit</div><div class="box-val">${Math.round(cacheHitRate * 100)}%</div></div>
+            <div class="box"><div class="box-label">Batch API</div><div class="box-val">${useBatchApi ? 'Enabled' : 'Disabled'}</div></div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Tier</th>
+                <th>Rate (In / Out per 1M)</th>
+                <th>Est. Monthly Bill</th>
+                <th>Cache Savings</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div class="footer">Estimates based on live provider token rates via TokenLedger.</div>
+          <script>window.onload = () => { window.print(); };</script>
+        </body>
+      </html>
+    `;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* 1-Click Workload Presets */}
+      <div>
+        <div className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Quick Workload Presets
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {WORKLOAD_PRESETS.map((preset) => {
+            const isSelected = activePreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className={`rounded-xl border p-3 text-left transition ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-950/30'
+                    : 'border-slate-800 bg-slate-900/60 hover:border-slate-600'
+                }`}
+              >
+                <div className="text-sm font-semibold text-white">
+                  {preset.label}
+                </div>
+                <div className="mt-0.5 text-xs text-slate-400">
+                  {preset.desc}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Controls Grid */}
       <div className="grid gap-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-6 md:grid-cols-2">
         <div className="space-y-5">
@@ -101,7 +311,10 @@ export default function CostSimulator({
               max={250000}
               step={100}
               value={dailyRequests}
-              onChange={(e) => setDailyRequests(Number(e.target.value))}
+              onChange={(e) => {
+                setActivePreset('');
+                setDailyRequests(Number(e.target.value));
+              }}
               className="mt-2 w-full accent-emerald-500"
             />
           </div>
@@ -119,7 +332,10 @@ export default function CostSimulator({
               max={50000}
               step={100}
               value={avgInputTokens}
-              onChange={(e) => setAvgInputTokens(Number(e.target.value))}
+              onChange={(e) => {
+                setActivePreset('');
+                setAvgInputTokens(Number(e.target.value));
+              }}
               className="mt-2 w-full accent-emerald-500"
             />
           </div>
@@ -137,7 +353,10 @@ export default function CostSimulator({
               max={8000}
               step={50}
               value={avgOutputTokens}
-              onChange={(e) => setAvgOutputTokens(Number(e.target.value))}
+              onChange={(e) => {
+                setActivePreset('');
+                setAvgOutputTokens(Number(e.target.value));
+              }}
               className="mt-2 w-full accent-emerald-500"
             />
           </div>
@@ -155,7 +374,10 @@ export default function CostSimulator({
               max={0.95}
               step={0.05}
               value={cacheHitRate}
-              onChange={(e) => setCacheHitRate(Number(e.target.value))}
+              onChange={(e) => {
+                setActivePreset('');
+                setCacheHitRate(Number(e.target.value));
+              }}
               className="mt-2 w-full accent-sky-500"
             />
           </div>
@@ -164,10 +386,13 @@ export default function CostSimulator({
             <input
               type="checkbox"
               checked={useBatchApi}
-              onChange={(e) => setUseBatchApi(e.target.checked)}
+              onChange={(e) => {
+                setActivePreset('');
+                setUseBatchApi(e.target.checked);
+              }}
               className="h-4 w-4 rounded accent-emerald-500"
             />
-            <span>Use Async Batch / Flex API (50% off token rates)</span>
+            <span>Use Async Batch / Flex API (up to 50% off supported models)</span>
           </label>
         </div>
 
@@ -189,40 +414,51 @@ export default function CostSimulator({
             />
           </div>
 
-          {/* Monetization Action Bar */}
+          {/* Share & Export Action Bar */}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-3">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={copyShareableLink}
+                className="rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs font-semibold text-sky-300 hover:bg-sky-500/20"
+              >
+                {copiedLink ? '✓ Link Copied!' : 'Copy Shareable Link'}
+              </button>
+              <button
+                type="button"
+                onClick={exportCsv}
+                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-700"
+              >
+                CSV
+              </button>
+            </div>
             <button
-              onClick={exportCsv}
-              className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-700"
-            >
-              Download Free CSV
-            </button>
-            <a
-              href={lemonSqueezyCheckoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              type="button"
+              onClick={exportPdfQuote}
               className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
             >
-              Export Client-Ready CTO Quote ($9) →
-            </a>
+              Export PDF Quote →
+            </button>
           </div>
         </div>
       </div>
 
       {/* Filter Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
         <h2 className="text-xl font-bold text-white">
-          Monthly Cost Comparison (Cheapest First)
+          Monthly Cost Comparison ({results.length} Models · Cheapest First)
         </h2>
         <select
           value={providerFilter}
           onChange={(e) => setProviderFilter(e.target.value)}
           className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200"
         >
-          <option value="ALL">All Providers</option>
-          <option value="OpenAI">OpenAI</option>
-          <option value="Anthropic">Anthropic</option>
-          <option value="Google">Google</option>
+          <option value="ALL">All Providers ({models.length})</option>
+          {providers.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
         </select>
       </div>
 
