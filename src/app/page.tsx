@@ -2,11 +2,44 @@ import Link from 'next/link';
 import CostSimulator from '@/components/CostSimulator';
 import { getActiveModels } from '@/lib/openrouterSync';
 
+const FAQS = [
+  {
+    q: 'How are LLM API tokens calculated?',
+    a: 'For English text and code, 1,000 tokens is roughly 750 words or 4,000 characters. Providers bill input tokens (your prompt and context) and output tokens (the generated reply) separately per 1 million tokens.',
+  },
+  {
+    q: 'How much does Prompt Caching save on AI API bills?',
+    a: 'Prompt caching discounts repeated system instructions, tools, or RAG context by up to 90% on input tokens across OpenAI, Anthropic, and Google models.',
+  },
+  {
+    q: 'When should I use the Async Batch API?',
+    a: 'If your workload does not require instant real-time responses (such as overnight data extraction, classification, or bulk summarization), Batch APIs cut token costs by 50%.',
+  },
+];
+
 export default async function HomePage() {
   const models = await getActiveModels();
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 text-slate-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       <div className="mb-8">
         <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
           Updated Live via OpenRouter &amp; Official Provider Feeds
@@ -20,6 +53,26 @@ export default async function HomePage() {
       </div>
 
       <CostSimulator models={models} />
+
+      {/* SEO & AI Search FAQ Section */}
+      <section className="mt-16 border-t border-slate-800 pt-10">
+        <h2 className="text-xl font-bold text-white">
+          AI API Pricing &amp; Prompt Caching FAQ
+        </h2>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          {FAQS.map((item) => (
+            <div
+              key={item.q}
+              className="rounded-xl border border-slate-800 bg-slate-900/50 p-5"
+            >
+              <h3 className="text-sm font-semibold text-white">{item.q}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                {item.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Internal SEO Link Grid */}
       <section className="mt-16 border-t border-slate-800 pt-10">
