@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   title: "TokenLedger — AI API Token & Cloud Cost Simulator (2026)",
   description:
     "Compare real monthly API bills across OpenAI, Anthropic, and Google models. Calculate prompt caching discounts, batch API savings, and token costs.",
+  verification: {
+    google: "i9trpcokzTtM4Y2ev",
+  },
 };
+
 
 export default function RootLayout({
   children,
