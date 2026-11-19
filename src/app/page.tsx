@@ -19,11 +19,6 @@ export default async function HomePage() {
         </p>
       </div>
 
-      {/* High-CPM Sponsor / Ad Slot */}
-      <div className="mb-8 rounded-xl border border-dashed border-slate-700 bg-slate-900/40 px-4 py-3 text-center text-xs text-slate-400">
-        Sponsor Slot — Replace with EthicalAds, Carbon Ads, or Google AdSense snippet
-      </div>
-
       <CostSimulator models={models} />
 
       {/* Internal SEO Link Grid */}
