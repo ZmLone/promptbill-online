@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { FALLBACK_MODELS } from '@/data/fallbackModels';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tokenledger.vercel.app';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tokenledger-six.vercel.app';
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
