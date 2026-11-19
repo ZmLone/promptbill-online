@@ -77,7 +77,6 @@ export default function CostSimulator({
   const [activePreset, setActivePreset] = useState<string>('');
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
-  // Restore shared estimate parameters from URL if present
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -134,7 +133,7 @@ export default function CostSimulator({
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     } catch {
-      // Clipboard blocked in some contexts; URL bar is still updated
+      // URL bar is still updated even if clipboard permission is denied
     }
   };
 
@@ -299,13 +298,15 @@ export default function CostSimulator({
         <div className="space-y-5">
           <div>
             <div className="flex justify-between text-sm font-medium text-slate-200">
-              <span>Daily API Requests</span>
+              <label htmlFor="daily-requests-slider">Daily API Requests</label>
               <span className="font-mono text-emerald-400">
                 {dailyRequests.toLocaleString()} / day (
                 {(dailyRequests * 30).toLocaleString()}/mo)
               </span>
             </div>
             <input
+              id="daily-requests-slider"
+              aria-label="Daily API Requests"
               type="range"
               min={100}
               max={250000}
@@ -321,12 +322,16 @@ export default function CostSimulator({
 
           <div>
             <div className="flex justify-between text-sm font-medium text-slate-200">
-              <span>Avg Input Tokens / Request</span>
+              <label htmlFor="input-tokens-slider">
+                Avg Input Tokens / Request
+              </label>
               <span className="font-mono text-emerald-400">
                 {avgInputTokens.toLocaleString()} tokens
               </span>
             </div>
             <input
+              id="input-tokens-slider"
+              aria-label="Average Input Tokens per Request"
               type="range"
               min={100}
               max={50000}
@@ -342,12 +347,16 @@ export default function CostSimulator({
 
           <div>
             <div className="flex justify-between text-sm font-medium text-slate-200">
-              <span>Avg Output Tokens / Request</span>
+              <label htmlFor="output-tokens-slider">
+                Avg Output Tokens / Request
+              </label>
               <span className="font-mono text-emerald-400">
                 {avgOutputTokens.toLocaleString()} tokens
               </span>
             </div>
             <input
+              id="output-tokens-slider"
+              aria-label="Average Output Tokens per Request"
               type="range"
               min={50}
               max={8000}
@@ -363,12 +372,14 @@ export default function CostSimulator({
 
           <div>
             <div className="flex justify-between text-sm font-medium text-slate-200">
-              <span>Prompt Cache Hit Rate</span>
+              <label htmlFor="cache-hit-slider">Prompt Cache Hit Rate</label>
               <span className="font-mono text-sky-400">
                 {Math.round(cacheHitRate * 100)}% cached
               </span>
             </div>
             <input
+              id="cache-hit-slider"
+              aria-label="Prompt Cache Hit Rate"
               type="range"
               min={0}
               max={0.95}
@@ -382,8 +393,12 @@ export default function CostSimulator({
             />
           </div>
 
-          <label className="flex items-center gap-3 text-sm text-slate-300">
+          <label
+            htmlFor="batch-api-checkbox"
+            className="flex items-center gap-3 text-sm text-slate-300"
+          >
             <input
+              id="batch-api-checkbox"
               type="checkbox"
               checked={useBatchApi}
               onChange={(e) => {
@@ -399,13 +414,17 @@ export default function CostSimulator({
         {/* Live Prompt Token Counter */}
         <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950 p-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-200">
+            <label
+              htmlFor="prompt-token-input"
+              className="block text-sm font-semibold text-slate-200"
+            >
               Paste Real System Prompt / JSON Payload
             </label>
             <p className="mt-1 text-xs text-slate-400">
               Automatically updates input tokens above using real-time length estimation.
             </p>
             <textarea
+              id="prompt-token-input"
               rows={6}
               value={samplePrompt}
               onChange={(e) => handlePromptPaste(e.target.value)}
@@ -449,6 +468,8 @@ export default function CostSimulator({
           Monthly Cost Comparison ({results.length} Models · Cheapest First)
         </h2>
         <select
+          id="provider-filter"
+          aria-label="Filter AI models by provider"
           value={providerFilter}
           onChange={(e) => setProviderFilter(e.target.value)}
           className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200"
