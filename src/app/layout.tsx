@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -53,17 +54,54 @@ export default function RootLayout({
       priceCurrency: "USD",
     },
     description:
-      "Interactive AI API token counter and monthly cost calculator comparing OpenAI, Anthropic, and Google models with prompt caching and batch discounts.",
+      "Interactive AI API token counter and monthly cost calculator comparing 22 models with prompt caching and batch discounts.",
   };
 
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
+      <body className="flex min-h-screen flex-col bg-slate-950 text-slate-100 antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
         />
-        {children}
+
+        <div className="flex-1">{children}</div>
+
+        <footer className="mt-16 border-t border-slate-800 bg-slate-950/90">
+          <div className="mx-auto max-w-6xl px-4 py-8 text-xs text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="font-semibold text-slate-200">
+                TokenLedger · AI API Cost Simulator
+              </div>
+              <nav
+                aria-label="Footer navigation"
+                className="flex flex-wrap gap-5"
+              >
+                <Link href="/" className="hover:text-emerald-400">
+                  Cost Simulator
+                </Link>
+                <Link href="/compare" className="hover:text-emerald-400">
+                  All 231 Model Comparisons
+                </Link>
+                <a href="/sitemap.xml" className="hover:text-emerald-400">
+                  Sitemap
+                </a>
+                <a href="/llms.txt" className="hover:text-emerald-400">
+                  llms.txt
+                </a>
+              </nav>
+            </div>
+            <p className="mt-4 max-w-4xl leading-relaxed text-slate-500">
+              Pricing Disclaimer &amp; Privacy: Token rates are synced from
+              public provider feeds for estimation purposes; always verify final
+              billing with your API provider. Prompts pasted into the token
+              counter are processed locally in your browser and are never stored
+              on our servers. Some outbound infrastructure links may include
+              affiliate tracking at no additional cost to you.
+            </p>
+          </div>
+        </footer>
+
         <Analytics />
       </body>
     </html>
