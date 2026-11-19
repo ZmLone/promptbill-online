@@ -1,7 +1,7 @@
 import { AIModel, FALLBACK_MODELS } from '@/data/fallbackModels';
 import { redis } from './redis';
 
-const CACHE_KEY = 'tokenledger:models:v1';
+const CACHE_KEY = 'tokenledger:models:v2';
 
 export async function getActiveModels(): Promise<AIModel[]> {
   if (!redis) return FALLBACK_MODELS;
