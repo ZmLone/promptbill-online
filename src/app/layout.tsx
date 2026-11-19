@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Compare real monthly API bills across OpenAI, Anthropic, and Google models. Calculate prompt caching discounts, batch API savings, and token costs.",
   verification: {
-    google: "i9trpcokzTtM4Y2ev",
+    google: "i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8",
   },
 };
 
