@@ -94,9 +94,17 @@ export default async function HomePage() {
 
       {/* Internal SEO Link Grid */}
       <section className="mt-16 border-t border-slate-800 pt-10">
-        <h2 className="text-lg font-semibold text-white">
-          Popular Model Cost Comparisons (231 Total Pairs)
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-white">
+            Popular Model Cost Comparisons (231 Total Pairs)
+          </h2>
+          <Link
+            href="/compare"
+            className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
+          >
+            Browse all 231 comparisons →
+          </Link>
+        </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {FEATURED_COMPARISONS.map(([a, b, label]) => (
             <Link
