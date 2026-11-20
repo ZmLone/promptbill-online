@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import posthog from 'posthog-js';
 import { AIModel } from '@/data/fallbackModels';
 import { calculateModelCost, estimateTokensFromText } from '@/lib/calculator';
 
@@ -104,6 +105,10 @@ export default function CostSimulator({
     setAvgOutputTokens(preset.avgOutputTokens);
     setCacheHitRate(preset.cacheHitRate);
     setUseBatchApi(preset.useBatchApi);
+    posthog.capture('workload_preset_selected', {
+      preset_id: preset.id,
+      uses_batch_api: preset.useBatchApi,
+    });
   };
 
   const handlePromptPaste = (text: string) => {
@@ -130,6 +135,11 @@ export default function CostSimulator({
     window.history.replaceState({}, '', url.toString());
     try {
       await navigator.clipboard.writeText(url.toString());
+      posthog.capture('shareable_link_copied', {
+        model_count: results.length,
+        provider_filter: providerFilter,
+        uses_batch_api: useBatchApi,
+      });
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     } catch {
@@ -192,6 +202,11 @@ export default function CostSimulator({
     a.href = url;
     a.download = `ai-api-cost-estimate-${dailyRequests}req.csv`;
     a.click();
+    posthog.capture('cost_estimate_csv_exported', {
+      model_count: results.length,
+      provider_filter: providerFilter,
+      uses_batch_api: useBatchApi,
+    });
   };
 
   const exportPdfQuote = () => {
@@ -257,6 +272,11 @@ export default function CostSimulator({
     if (win) {
       win.document.write(html);
       win.document.close();
+      posthog.capture('cost_estimate_pdf_exported', {
+        model_count: results.length,
+        provider_filter: providerFilter,
+        uses_batch_api: useBatchApi,
+      });
     }
   };
 
@@ -536,6 +556,12 @@ export default function CostSimulator({
                       href={row.model.affiliateUrl}
                       target="_blank"
                       rel="nofollow sponsored noopener noreferrer"
+                      onClick={() =>
+                        posthog.capture('affiliate_link_clicked', {
+                          model_slug: row.model.slug,
+                          provider: row.model.provider,
+                        })
+                      }
                       className="inline-block rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20"
                     >
                       {row.model.affiliateLabel}
