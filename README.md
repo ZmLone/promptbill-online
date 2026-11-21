@@ -1,1 +1,1 @@
-# PromptBill v21 — Bing Title Length & Schema Markup Fix (`https://promptbill.online`)
+# PromptBill v22 — AdSense Trust Pages & Cookie Disclosure (`https://promptbill.online`)

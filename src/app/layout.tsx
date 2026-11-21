@@ -39,6 +39,8 @@ const siteJsonLd = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
@@ -46,6 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
+        {adsenseClient ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
       </head>
       <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body>
     </html>
