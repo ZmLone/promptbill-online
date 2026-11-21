@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "llm-token-pricing",
+    "category": "Pricing and cost",
+    "date": "Nov 2026",
+    "readTime": "8 min read",
+    "title": "How LLM Token Pricing Works: A Complete Guide to API Costs",
+    "summary": "Why output tokens cost 4x\u20135x more than input tokens, how cached input reads work, and how to multiply by billed calls rather than user jobs."
+  },
+  {
+    "slug": "web-data-pipeline-for-benchmarks",
+    "category": "Research data",
+    "date": "Nov 2026",
+    "readTime": "11 min read",
+    "title": "How We Keep Pricing & Benchmark Data Current Without Hallucinated Rows",
+    "summary": "Separating Supported evidence from Estimated ranks, validating SKU units, and keeping provenance clear."
+  },
+  {
+    "slug": "claude-fable-5-2-and-gemini-4-neon",
+    "category": "Model comparisons",
+    "date": "Nov 21, 2026",
+    "readTime": "6 min read",
+    "title": "Claude Fable 5.2 vs. Gemini 4 Neon vs. GPT-6.2 Astra: Cost vs. Rank",
+    "summary": "Comparing frontier scores, 90% intervals, and why balanced tiers like Gemini 4 Carbon deliver 94% of top score at 75% lower output price."
+  }
+]

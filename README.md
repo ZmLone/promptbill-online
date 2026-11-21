@@ -1,3 +1,3 @@
-# PromptBill v4 (`https://promptbill.online`)
+# PromptBill BenchLM-Style Replica (`https://promptbill.online`)
 
-Tabbed interactive LLM Cost Intelligence Suite with Clean UI, 4-Tool Interactive Guide, Live Prompt Tokenizer, 18-Model Leaderboard, and Hybrid Routing Simulator.
+Built with Next.js 15.5.7 + React 19 + Tailwind CSS v4.
