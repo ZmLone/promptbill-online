@@ -7,7 +7,6 @@
     "evidence": "Supported",
     "score": 93.3,
     "interval": "88.6\u201398.0",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 8.0,
     "outputPer1M": 40.0,
@@ -23,8 +22,6 @@
     "if": 88,
     "ma": 87,
     "tokPerSec": 109,
-    "latency": "245.87s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
@@ -32,9 +29,7 @@
       "agentic",
       "coding",
       "reasoning",
-      "multimodal",
-      "instruction",
-      "math"
+      "multimodal"
     ],
     "bestFor": "Frontier reasoning, agentic coding & deep multi-step analysis"
   },
@@ -46,7 +41,6 @@
     "evidence": "Supported",
     "score": 91.3,
     "interval": "85.2\u201397.4",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 3.0,
     "outputPer1M": 15.0,
@@ -62,8 +56,6 @@
     "if": 87,
     "ma": 84,
     "tokPerSec": 110,
-    "latency": "56.51s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
@@ -83,7 +75,6 @@
     "evidence": "Supported",
     "score": 90.8,
     "interval": "84.5\u201397.0",
-    "params": "Not disclosed",
     "contextWindow": "1.05M",
     "inputPer1M": 8.0,
     "outputPer1M": 40.0,
@@ -99,8 +90,6 @@
     "if": 83,
     "ma": 83,
     "tokPerSec": 78,
-    "latency": "112.40s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
@@ -108,8 +97,7 @@
       "agentic",
       "coding",
       "multimodal",
-      "long-context",
-      "tool-use"
+      "long-context"
     ],
     "bestFor": "Complex agentic execution, multimodal tasks & coding"
   },
@@ -121,7 +109,6 @@
     "evidence": "Supported",
     "score": 88.0,
     "interval": "82.0\u201394.0",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
@@ -137,17 +124,14 @@
     "if": 82,
     "ma": 80,
     "tokPerSec": 155,
-    "latency": "71.28s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
       "best-value",
       "coding",
-      "long-context",
-      "tool-use"
+      "long-context"
     ],
-    "bestFor": "High Elo + 75% lower output price than #1 flagship"
+    "bestFor": "Strong capability balance with lower output token cost"
   },
   {
     "rank": 6,
@@ -157,7 +141,6 @@
     "evidence": "Supported",
     "score": 82.7,
     "interval": "76.8\u201388.6",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 4.0,
     "outputPer1M": 20.0,
@@ -173,8 +156,6 @@
     "if": 76,
     "ma": 77,
     "tokPerSec": 113,
-    "latency": "352.74s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
@@ -193,7 +174,6 @@
     "evidence": "Supported",
     "score": 80.4,
     "interval": "74.5\u201386.3",
-    "params": "Not disclosed",
     "contextWindow": "1.05M",
     "inputPer1M": 1.0,
     "outputPer1M": 5.0,
@@ -209,13 +189,10 @@
     "if": 73,
     "ma": 76,
     "tokPerSec": 168,
-    "latency": "41.10s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
       "best-value",
-      "tool-use",
       "coding"
     ],
     "bestFor": "High-volume production apps needing low cost & strong reasoning"
@@ -228,7 +205,6 @@
     "evidence": "Supported",
     "score": 77.8,
     "interval": "72.0\u201383.6",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
@@ -244,51 +220,13 @@
     "if": 70,
     "ma": 74,
     "tokPerSec": 144,
-    "latency": "267.56s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
       "coding",
-      "agentic",
-      "tool-use"
+      "agentic"
     ],
     "bestFor": "Coding agents, PR reviews & daily engineering"
-  },
-  {
-    "rank": 15,
-    "id": "qwen4-max",
-    "name": "Qwen4 Max",
-    "provider": "Alibaba / Qwen",
-    "evidence": "Supported",
-    "score": 74.9,
-    "interval": "69.0\u201380.8",
-    "params": "Not disclosed",
-    "contextWindow": "1M",
-    "inputPer1M": 1.5,
-    "outputPer1M": 4.5,
-    "cachedInputPer1M": 0.15,
-    "elo": 1465.0,
-    "license": "Closed",
-    "ag": 76,
-    "co": 76,
-    "re": 76,
-    "mm": 73,
-    "kn": 68,
-    "ml": 74,
-    "if": 73,
-    "ma": 75,
-    "tokPerSec": 118,
-    "latency": "131.40s",
-    "status": "Current",
-    "reasoning": true,
-    "categories": [
-      "all",
-      "chinese",
-      "multilingual",
-      "best-value"
-    ],
-    "bestFor": "Asian/multilingual workloads + strong output value ($4.50/M)"
   },
   {
     "rank": 21,
@@ -298,7 +236,6 @@
     "evidence": "Supported",
     "score": 70.1,
     "interval": "64.2\u201376.0",
-    "params": "2800B (104B active)",
     "contextWindow": "1.05M",
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
@@ -314,13 +251,10 @@
     "if": 64,
     "ma": 69,
     "tokPerSec": 92,
-    "latency": "156.89s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
       "open-source",
-      "chinese",
       "long-context",
       "coding"
     ],
@@ -334,7 +268,6 @@
     "evidence": "Supported",
     "score": 70.0,
     "interval": "64.1\u201375.9",
-    "params": "Not disclosed",
     "contextWindow": "1M",
     "inputPer1M": 0.3,
     "outputPer1M": 1.2,
@@ -350,13 +283,10 @@
     "if": 65,
     "ma": 64,
     "tokPerSec": 163,
-    "latency": "44.28s",
-    "status": "Current",
     "reasoning": true,
     "categories": [
       "all",
       "open-source",
-      "chinese",
       "best-value",
       "coding"
     ],
@@ -370,7 +300,6 @@
     "evidence": "Supported",
     "score": 67.8,
     "interval": "62.0\u201373.6",
-    "params": "30B (3B active)",
     "contextWindow": "128K",
     "inputPer1M": 0.15,
     "outputPer1M": 0.6,
@@ -386,51 +315,12 @@
     "if": 67,
     "ma": 65,
     "tokPerSec": 210,
-    "latency": "28.40s",
-    "status": "Current",
     "reasoning": false,
     "categories": [
       "all",
       "open-source",
-      "chinese",
-      "small-local",
       "best-value"
     ],
     "bestFor": "Routing, classification & cheap high-volume calls"
-  },
-  {
-    "rank": 42,
-    "id": "llama-4-scout-local",
-    "name": "Llama 4 Local / Ollama 8B",
-    "provider": "Meta / Ollama",
-    "evidence": "Estimated",
-    "score": 61.5,
-    "interval": "55.0\u201368.0",
-    "params": "8B",
-    "contextWindow": "128K",
-    "inputPer1M": 0.05,
-    "outputPer1M": 0.15,
-    "cachedInputPer1M": 0.01,
-    "elo": 1412.0,
-    "license": "Open",
-    "ag": 60,
-    "co": 62,
-    "re": 58,
-    "mm": 55,
-    "kn": 63,
-    "ml": 61,
-    "if": 64,
-    "ma": 59,
-    "tokPerSec": 245,
-    "latency": "18.20s",
-    "status": "Current",
-    "reasoning": false,
-    "categories": [
-      "all",
-      "open-source",
-      "small-local",
-      "ollama"
-    ],
-    "bestFor": "Local Ollama / self-hosted privacy & low-latency tasks"
   }
 ]

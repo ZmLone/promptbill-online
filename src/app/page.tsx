@@ -1,5 +1,5 @@
-import BenchLMReplica from '../components/BenchLMReplica';
+import PromptBillSuite from '../components/PromptBillSuite';
 
 export default function HomePage() {
-  return <BenchLMReplica />;
+  return <PromptBillSuite />;
 }

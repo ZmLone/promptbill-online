@@ -1,3 +1,3 @@
-# PromptBill v6 — SEO & GEO Friendly (`https://promptbill.online`)
+# PromptBill v7 (`https://promptbill.online`)
 
-Includes LLM Leaderboard, AI API & Media Pricing Directory, Provider Credit Monitoring Directory, Self-Host vs. API Calculator, `/llms.txt`, `sitemap.xml`, `robots.txt`, and `SoftwareApplication` + `FAQPage` JSON-LD structured data.
+Clean, SEO-friendly Next.js + Tailwind CSS application featuring Leaderboard, API Pricing & Cost, LLM Selector, Token Counter, Deals, Methodology, and Advertise tabs.
