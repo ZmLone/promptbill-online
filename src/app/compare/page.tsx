@@ -5,8 +5,8 @@ import { getAutoComparisonPairs } from '../../lib/catalog';
 import { SiteShell } from '../../components/SiteShell';
 
 export const metadata: Metadata = {
-  title: 'Model Comparisons: Pricing, Tok/s & Elo',
-  description: 'Head-to-head LLM comparison pages contrasting API pricing per million tokens, Tok/s speed, Elo ratings, and AG, CO, RE scores.',
+  title: 'LLM Head-to-Head Comparisons — API Pricing, Tok/s, Elo & Benchmarks',
+  description: 'Auto-generated comparison pages across top models contrasting price per 1M tokens, Tok/s, Elo, and AG, CO, RE scores.',
   alternates: { canonical: 'https://promptbill.online/compare' },
 };
 

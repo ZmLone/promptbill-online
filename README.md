@@ -1,1 +1,1 @@
-# PromptBill v22 — AdSense Trust Pages & Cookie Disclosure (`https://promptbill.online`)
+# PromptBill v20 — Readable Semantic Tables & Mobile-Friendly Layout (`https://promptbill.online`)

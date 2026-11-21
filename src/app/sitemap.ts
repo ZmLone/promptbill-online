@@ -20,9 +20,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/deals`, lastModified, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/methodology`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/advertise`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/about`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/contact`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/privacy-policy`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
   ];
 
   const modelRoutes: MetadataRoute.Sitemap = ALL_MODELS.map((m) => ({

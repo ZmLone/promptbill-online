@@ -1,13 +1,7 @@
 import React from 'react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../lib/catalog';
 import { SiteShell } from '../../components/SiteShell';
-
-export const metadata: Metadata = {
-  title: 'API Token Pricing Table',
-  alternates: { canonical: 'https://promptbill.online/pricing' },
-};
 
 export default function Page() {
   return (

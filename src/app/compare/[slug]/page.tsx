@@ -12,9 +12,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const parsed = parseComparisonSlug(slug) || { slug: `${ALL_MODELS[0].slug}-vs-${ALL_MODELS[1].slug}`, modelA: ALL_MODELS[0], modelB: ALL_MODELS[1] };
   const { modelA, modelB } = parsed;
-  const shortTitle = `${modelA.name} vs ${modelB.name}: Price & Speed`;
-  const description = `Compare ${modelA.name} ($${modelA.inputPer1M.toFixed(2)}/$${modelA.outputPer1M.toFixed(2)}, ${modelA.tokPerSec} tok/s) vs ${modelB.name} ($${modelB.inputPer1M.toFixed(2)}/$${modelB.outputPer1M.toFixed(2)}, ${modelB.tokPerSec} tok/s).`;
-  return { title: shortTitle, description, alternates: { canonical: `https://promptbill.online/compare/${modelA.slug}-vs-${modelB.slug}` } };
+  const title = `${modelA.name} vs ${modelB.name}: API Pricing, Tok/s Speed, Elo & Benchmarks`;
+  const description = `Side-by-side comparison of ${modelA.name} ($${modelA.inputPer1M.toFixed(2)}/$${modelA.outputPer1M.toFixed(2)} per 1M, ${modelA.tokPerSec} tok/s, Elo ${modelA.elo}) vs ${modelB.name} ($${modelB.inputPer1M.toFixed(2)}/$${modelB.outputPer1M.toFixed(2)} per 1M, ${modelB.tokPerSec} tok/s, Elo ${modelB.elo}).`;
+  return { title, description, alternates: { canonical: `https://promptbill.online/compare/${modelA.slug}-vs-${modelB.slug}` } };
 }
 
 export default async function ComparePage({ params }: { params: Promise<{ slug: string }> }) {
