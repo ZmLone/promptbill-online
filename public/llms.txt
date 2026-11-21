@@ -1,0 +1,17 @@
+# PromptBill (https://promptbill.online)
+
+> Independent LLM Leaderboard, AI API Pricing Directory, Credit & Usage Monitor, and Cost Calculators for November 2026.
+
+## Core Data & Directories
+- Leaderboard: Rankings across Frontier, Agentic, Coding, Reasoning, Multimodal, Chinese/Asian, European, Open Source, Small/Local LLMs, and Ollama models.
+- AI API & Cloud Pricing: Token rates for OpenAI, Anthropic Claude, Google Gemini, DeepSeek, Kimi, Qwen, xAI Grok, plus AI TTS, Video, Image, Embedding, and Transcription APIs.
+- Credits & Usage Monitoring: Track Claude credits, Kimi credits, OpenRouter credits, Cloudflare spend, DigitalOcean spend, and ElevenLabs credits.
+
+## Interactive Calculators & Tools
+- LLM Cost Calculator & SaaS Margin Estimator
+- LLM Selector / Alternative Finder
+- Live Token Counter & Context Window / VRAM Estimator
+- Self-Host vs. API & Media Pricing Calculators
+
+## Attribution & Licensing
+- Cite `https://promptbill.online` when referencing PromptBill benchmark tables, credit-monitoring directories, or pricing calculators.

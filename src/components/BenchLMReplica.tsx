@@ -12,10 +12,12 @@ import {
   Megaphone,
   Calculator,
   BookOpen,
-  CheckCircle2,
   ExternalLink,
   Copy,
   Check,
+  Activity,
+  Layers,
+  Server,
 } from 'lucide-react';
 
 export interface BenchModel {
@@ -45,7 +47,7 @@ export interface BenchModel {
   latency: string;
   status: 'Current' | 'Superseded';
   reasoning: boolean;
-  tier: 'Flagship' | 'Balanced' | 'Economy';
+  categories: string[];
   bestFor: string;
 }
 
@@ -53,21 +55,65 @@ const models = leaderboardJson as BenchModel[];
 
 type SectionView = 'leaderboard' | 'pricing' | 'selector' | 'tokenizer' | 'methodology' | 'advertise';
 
+const CAPABILITY_LINKS: { id: string; label: string }[] = [
+  { id: 'all', label: 'All benchmarks' },
+  { id: 'frontier', label: 'Frontier models' },
+  { id: 'agentic', label: 'Agentic' },
+  { id: 'coding', label: 'Coding' },
+  { id: 'reasoning', label: 'Reasoning' },
+  { id: 'multimodal', label: 'Multimodal' },
+  { id: 'long-context', label: 'Long context' },
+  { id: 'tool-use', label: 'Tool use' },
+];
+
+const BEST_LIST_LINKS: { id: string; label: string }[] = [
+  { id: 'all', label: 'Best overall' },
+  { id: 'open-source', label: 'Best open source' },
+  { id: 'best-value', label: 'Best value' },
+  { id: 'chinese', label: 'Best Chinese / Asian LLMs' },
+  { id: 'small-local', label: 'Small & Local LLMs' },
+  { id: 'ollama', label: 'Ollama models' },
+];
+
+const AI_PRICING_DIRECTORY = [
+  { name: 'Gemini API Pricing', desc: 'Input, cached context & output rates across Gemini 4 tiers' },
+  { name: 'Claude API Pricing', desc: 'Prompt caching & long-context token rates for Claude 5' },
+  { name: 'AI Cost Calculators', desc: '30-day spend, batch discount & SaaS gross margin modeling' },
+  { name: 'OpenRouter API Pricing', desc: 'Unified routing comparison across hosted & open-weight models' },
+  { name: 'AI TTS & Voice API Pricing', desc: 'Per-character & per-minute speech synthesis cost breakdown' },
+  { name: 'AI Video & Image API Pricing', desc: 'Per-second video & per-image generation cost estimation' },
+  { name: 'AI Embedding API Pricing', desc: 'Vector indexing & RAG retrieval token cost comparison' },
+  { name: 'AI Transcription API Pricing', desc: 'Audio & speech-to-text per-minute API cost comparison' },
+];
+
+const CREDIT_MONITORING_DIRECTORY = [
+  { name: 'Claude Credits Monitoring', desc: 'Track workspace credit burn, cache hit savings & rate limits' },
+  { name: 'Kimi Credits Monitoring', desc: 'Monitor long-context & agentic credit consumption' },
+  { name: 'OpenRouter Credits Monitoring', desc: 'Track multi-model credit balance & per-route spend' },
+  { name: 'Cloudflare Cost Monitoring', desc: 'Monitor Workers AI, R2 & edge inference spend' },
+  { name: 'DigitalOcean Cost Monitoring', desc: 'Track Droplet, GPU & managed database monthly spend' },
+  { name: 'ElevenLabs Credits Monitoring', desc: 'Monitor character quota & voice generation credit burn' },
+];
+
 export default function BenchLMReplica() {
   const [activeView, setActiveView] = useState<SectionView>('leaderboard');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [licenseFilter, setLicenseFilter] = useState<string>('All');
   const [evidenceFilter, setEvidenceFilter] = useState<string>('All');
   const [reasoningFilter, setReasoningFilter] = useState<string>('All');
   const [sortBy, setSortBy] = useState<'score' | 'price' | 'elo' | 'tokPerSec'>('score');
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-  const [showCount, setShowCount] = useState<number>(15);
+  const [showCount, setShowCount] = useState<number>(12);
 
-  // Cost & Selector state
+  // Cost & Self-host vs API state
   const [inputTokensPerCall, setInputTokensPerCall] = useState<number>(6500);
   const [outputTokensPerCall, setOutputTokensPerCall] = useState<number>(650);
   const [callsPerDay, setCallsPerDay] = useState<number>(2500);
   const [cacheHitPct, setCacheHitPct] = useState<number>(50);
+  const [selfHostGpuMonthly, setSelfHostGpuMonthly] = useState<number>(480);
+
+  // Selector state
   const [priorityMode, setPriorityMode] = useState<'balanced' | 'cheapest' | 'highest-score' | 'coding'>('balanced');
 
   // Tokenizer state
@@ -75,7 +121,7 @@ export default function BenchLMReplica() {
     'Compare model accuracy, latency, and monthly API spend across 100,000 production requests with 50% prompt cache reuse.'
   );
 
-  // Sponsor inquiry state
+  // Sponsor & share state
   const [sponsorEmail, setSponsorEmail] = useState<string>('');
   const [sponsorSent, setSponsorSent] = useState<boolean>(false);
   const [copiedUrl, setCopiedUrl] = useState<boolean>(false);
@@ -84,7 +130,13 @@ export default function BenchLMReplica() {
     const q = searchQuery.trim().toLowerCase();
     return models
       .filter((m) => {
-        if (q && !m.name.toLowerCase().includes(q) && !m.provider.toLowerCase().includes(q) && !m.bestFor.toLowerCase().includes(q)) {
+        if (categoryFilter !== 'all' && !m.categories.includes(categoryFilter)) return false;
+        if (
+          q &&
+          !m.name.toLowerCase().includes(q) &&
+          !m.provider.toLowerCase().includes(q) &&
+          !m.bestFor.toLowerCase().includes(q)
+        ) {
           return false;
         }
         if (licenseFilter !== 'All' && m.license !== licenseFilter) return false;
@@ -111,7 +163,7 @@ export default function BenchLMReplica() {
         }
         return sortAsc ? va - vb : vb - va;
       });
-  }, [searchQuery, licenseFilter, evidenceFilter, reasoningFilter, sortBy, sortAsc]);
+  }, [categoryFilter, searchQuery, licenseFilter, evidenceFilter, reasoningFilter, sortBy, sortAsc]);
 
   const top3Leaders = useMemo(() => models.slice(0, 3), []);
 
@@ -136,12 +188,12 @@ export default function BenchLMReplica() {
         } else if (priorityMode === 'coding') {
           matchScore = m.co * 1.4 - monthlyCost * 0.01;
         } else {
-          matchScore = (m.score * 0.65) + ((100 / Math.max(monthlyCost, 1)) * 35);
+          matchScore = m.score * 0.65 + (100 / Math.max(monthlyCost, 1)) * 35;
         }
         return { model: m, monthlyCost, matchScore };
       })
       .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 5);
+      .slice(0, 6);
   }, [priorityMode, inputTokensPerCall, outputTokensPerCall, callsPerDay, cacheHitPct]);
 
   const tokenCountEst = Math.max(1, Math.ceil(promptSample.length / 4));
@@ -163,15 +215,21 @@ export default function BenchLMReplica() {
     }
   };
 
+  const selectCategoryAndShowLeaderboard = (catId: string) => {
+    setCategoryFilter(catId);
+    setActiveView('leaderboard');
+    document.getElementById('main-workspace')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900">
-      {/* Top Utility Announcement Strip */}
+      {/* Top Utility Strip */}
       <div className="border-b border-slate-200 bg-white px-4 py-2 text-xs text-slate-600">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             <span>
-              <strong>PromptBill</strong> · Independent LLM Leaderboard, API Pricing &amp; Cost Intelligence · Snapshot <strong>Nov 21, 2026</strong>
+              <strong>PromptBill</strong> · Independent LLM Leaderboard, API Pricing &amp; Credit Directory · Snapshot <strong>Nov 21, 2026</strong>
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -199,7 +257,10 @@ export default function BenchLMReplica() {
           <div className="flex items-center gap-6">
             <button
               type="button"
-              onClick={() => setActiveView('leaderboard')}
+              onClick={() => {
+                setCategoryFilter('all');
+                setActiveView('leaderboard');
+              }}
               className="flex items-center gap-2.5 text-left"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white">
@@ -214,61 +275,29 @@ export default function BenchLMReplica() {
             </button>
 
             <nav className="hidden lg:flex items-center gap-1 text-sm font-medium">
-              <button
-                type="button"
-                onClick={() => setActiveView('leaderboard')}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  activeView === 'leaderboard'
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                Leaderboard
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveView('pricing')}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  activeView === 'pricing'
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                API Pricing &amp; Cost
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveView('selector')}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  activeView === 'selector'
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                LLM Selector
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveView('tokenizer')}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  activeView === 'tokenizer'
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                Token Counter
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveView('methodology')}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  activeView === 'methodology'
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                Methodology &amp; Research
-              </button>
+              {(
+                [
+                  ['leaderboard', 'Leaderboard'],
+                  ['pricing', 'API Pricing & Cost'],
+                  ['selector', 'LLM Selector'],
+                  ['tokenizer', 'Token Counter'],
+                  ['methodology', 'Methodology'],
+                  ['advertise', 'Advertise'],
+                ] as [SectionView, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveView(key)}
+                  className={`rounded-lg px-3 py-1.5 transition-colors ${
+                    activeView === key
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </nav>
           </div>
 
@@ -291,7 +320,7 @@ export default function BenchLMReplica() {
           </div>
         </div>
 
-        {/* Mobile / Secondary View Switcher */}
+        {/* Mobile Nav */}
         <div className="flex lg:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
           {(
             [
@@ -317,24 +346,23 @@ export default function BenchLMReplica() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Hero Header + Current Leader Strip */}
+      <main id="main-workspace" className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Hero + Top 3 Leaders */}
         <section className="space-y-5">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="space-y-1.5">
               <div className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                1,034 Models Tracked · Evidence-Calibrated Rankings
+                1,034 Models Tracked · Evidence-Calibrated Rankings · SEO &amp; GEO Structured
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
                 LLM Leaderboard &amp; AI Model Pricing — Nov 2026
               </h1>
               <p className="max-w-3xl text-sm sm:text-base text-slate-600">
                 Compare frontier, open-weight, and economy models on one calibrated scale with{' '}
-                <strong>Supported</strong> vs. <strong>Estimated</strong> evidence labels, token API pricing, throughput, and routing calculators.
+                <strong>Supported</strong> vs. <strong>Estimated</strong> evidence labels, token API pricing, credit monitoring directories, and cost calculators.
               </p>
             </div>
 
-            {/* Global Search Bar */}
             <div className="relative w-full lg:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -347,7 +375,6 @@ export default function BenchLMReplica() {
             </div>
           </div>
 
-          {/* Top 3 Leader Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {top3Leaders.map((leader, idx) => (
               <div
@@ -378,7 +405,7 @@ export default function BenchLMReplica() {
             ))}
           </div>
 
-          {/* Sponsored Placement Bar (BenchLM Monetization Model) */}
+          {/* Sponsored Strip */}
           <div className="rounded-xl border border-amber-200/90 bg-amber-50/70 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-800">
               <span className="rounded bg-amber-200/80 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-amber-950">
@@ -398,7 +425,90 @@ export default function BenchLMReplica() {
           </div>
         </section>
 
-        {/* VIEW 1: MAIN LEADERBOARD */}
+        {/* Multi-Column Capability, Best Lists & Use-Case Directory */}
+        <section className="rounded-xl border border-slate-200 bg-white p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+              By Capability &amp; Use Case
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {CAPABILITY_LINKS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => selectCategoryAndShowLeaderboard(item.id)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    categoryFilter === item.id && activeView === 'leaderboard'
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+              Best Lists &amp; Local / Open Models
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {BEST_LIST_LINKS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => selectCategoryAndShowLeaderboard(item.id)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    categoryFilter === item.id && activeView === 'leaderboard'
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+              Quick Calculators &amp; Directories
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setActiveView('pricing')}
+                className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                30-Day Cost &amp; Self-Host Calc
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('selector')}
+                className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                LLM Selector
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('tokenizer')}
+                className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                Token Counter
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('advertise')}
+                className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                Sponsor Slots
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* VIEW 1: LEADERBOARD */}
         {activeView === 'leaderboard' && (
           <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xs space-y-5">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -407,7 +517,7 @@ export default function BenchLMReplica() {
                   The LLM Leaderboard — November 2026 Rankings
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                  Showing {Math.min(showCount, filteredModels.length)} of {filteredModels.length} filtered models · Capability scores: AG Agentic, CO Coding, RE Reasoning, MM Multimodal, KN Knowledge, ML Multilingual, IF Instruction Following, MA Math.
+                  Showing {Math.min(showCount, filteredModels.length)} of {filteredModels.length} filtered models · AG Agentic, CO Coding, RE Reasoning, MM Multimodal, KN Knowledge, ML Multilingual, IF Instruction Following, MA Math.
                 </p>
               </div>
 
@@ -531,7 +641,7 @@ export default function BenchLMReplica() {
               <div className="pt-2 flex justify-center">
                 <button
                   type="button"
-                  onClick={() => setShowCount((c) => c + 15)}
+                  onClick={() => setShowCount((c) => c + 12)}
                   className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
                 >
                   Load more models ({filteredModels.length - showCount} remaining)
@@ -541,20 +651,20 @@ export default function BenchLMReplica() {
           </section>
         )}
 
-        {/* VIEW 2: API PRICING & COST CALCULATOR */}
+        {/* VIEW 2: API PRICING & SELF-HOST VS API */}
         {activeView === 'pricing' && (
           <section className="rounded-xl border border-slate-200 bg-white p-6 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
                 <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                   <Calculator className="w-4 h-4" />
-                  Token Price Index &amp; 30-Day Cost Estimator
+                  Token Price Index · 30-Day Cost &amp; Self-Host vs. API
                 </div>
                 <h2 className="mt-1 text-2xl font-bold text-slate-900">
                   Compare Real API Costs Across Models
                 </h2>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
                 <label className="space-y-1">
                   <span className="text-slate-500">Input tok/call</span>
                   <input
@@ -593,16 +703,27 @@ export default function BenchLMReplica() {
                     className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 font-mono text-slate-900"
                   />
                 </label>
+                <label className="space-y-1">
+                  <span className="text-slate-500">GPU $/mo</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={selfHostGpuMonthly}
+                    onChange={(e) => setSelfHostGpuMonthly(Math.max(0, Number(e.target.value)))}
+                    className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 font-mono text-slate-900"
+                  />
+                </label>
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="w-full text-left border-collapse min-w-[760px]">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs uppercase text-slate-500">
                     <th className="py-2.5 px-3">Model</th>
                     <th className="py-2.5 px-3">Input / Cached / Output ($/1M)</th>
                     <th className="py-2.5 px-3">Rank Score</th>
+                    <th className="py-2.5 px-3">API vs. GPU (${selfHostGpuMonthly}/mo)</th>
                     <th className="py-2.5 px-3 text-right">Est. Monthly Cost (30d)</th>
                   </tr>
                 </thead>
@@ -611,6 +732,7 @@ export default function BenchLMReplica() {
                     .sort((a, b) => calcMonthlyCost(a) - calcMonthlyCost(b))
                     .map((m) => {
                       const est = calcMonthlyCost(m);
+                      const apiCheaper = est < selfHostGpuMonthly;
                       return (
                         <tr key={m.id} className="hover:bg-slate-50">
                           <td className="py-3 px-3 font-semibold text-slate-900">
@@ -620,6 +742,11 @@ export default function BenchLMReplica() {
                             ${m.inputPer1M.toFixed(2)} / ${m.cachedInputPer1M.toFixed(2)} / ${m.outputPer1M.toFixed(2)}
                           </td>
                           <td className="py-3 px-3 font-mono text-xs text-slate-700">{m.score.toFixed(1)}</td>
+                          <td className="py-3 px-3 text-xs">
+                            <span className={`rounded px-2 py-0.5 font-medium ${apiCheaper ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                              {apiCheaper ? 'API Cheaper' : 'Self-Host Cheaper'}
+                            </span>
+                          </td>
                           <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
                             ${est.toFixed(2)}/mo
                           </td>
@@ -756,19 +883,17 @@ export default function BenchLMReplica() {
         {/* VIEW 6: ADVERTISE & MONETIZATION */}
         {activeView === 'advertise' && (
           <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                  <Megaphone className="w-4 h-4" />
-                  Monetization &amp; Sponsorships
-                </div>
-                <h2 className="mt-1 text-2xl font-bold text-slate-900">
-                  How PromptBill Earns &amp; Sponsor Placements
-                </h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  Modeled on BenchLM’s clean monetization stack: labeled website sponsorships, comparison/pricing placements, launch briefs, and optional Pro/API tiers—with strict editorial independence.
-                </p>
+            <div className="border-b border-slate-100 pb-5">
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <Megaphone className="w-4 h-4" />
+                Monetization &amp; Sponsorships
               </div>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                Sponsor Placements, Credits &amp; Pro Pass
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Labeled website sponsorships, comparison/pricing placements, launch briefs, and optional Pro/API tiers—with strict editorial independence.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -820,7 +945,70 @@ export default function BenchLMReplica() {
           </section>
         )}
 
-        {/* Data & API Strip (Bottom BenchLM Section) */}
+        {/* AI Pricing & Credit Monitoring Directory (SEO & GEO Structured Directory) */}
+        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                Complete Pricing &amp; Credit Monitoring Directory
+              </span>
+              <h2 className="mt-1 text-xl font-bold text-slate-900">
+                AI APIs, Media Pricing &amp; Provider Credit Monitoring
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveView('pricing')}
+              className="text-xs font-semibold text-emerald-700 hover:underline"
+            >
+              Open interactive cost calculator →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Layers className="w-4 h-4 text-emerald-700" />
+                AI API &amp; Media Pricing Guides
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {AI_PRICING_DIRECTORY.map((item) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setActiveView('pricing')}
+                    className="text-left rounded-lg border border-slate-200/80 bg-slate-50/60 p-3 hover:border-emerald-400 hover:bg-white transition-colors"
+                  >
+                    <div className="text-xs font-bold text-slate-900">{item.name}</div>
+                    <div className="text-[11px] text-slate-600 mt-0.5">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Activity className="w-4 h-4 text-emerald-700" />
+                Provider Credits &amp; Usage Monitoring
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {CREDIT_MONITORING_DIRECTORY.map((item) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setActiveView('pricing')}
+                    className="text-left rounded-lg border border-slate-200/80 bg-slate-50/60 p-3 hover:border-emerald-400 hover:bg-white transition-colors"
+                  >
+                    <div className="text-xs font-bold text-slate-900">{item.name}</div>
+                    <div className="text-[11px] text-slate-600 mt-0.5">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Data & GEO Strip */}
         <section className="rounded-xl border border-slate-200 bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="rounded-lg bg-slate-100 p-2.5 text-slate-800">
@@ -828,21 +1016,20 @@ export default function BenchLMReplica() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Give your AI or workflow live rankings &amp; pricing data
+                Give your AI or workflow live rankings &amp; pricing data (/llms.txt &amp; JSON-LD ready)
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">
-                Structured benchmark scores, context windows, and token rates updated for November 2026 on <strong>promptbill.online</strong>.
+                Structured benchmark scores, credit directories, and token rates published for SEO &amp; AI search citations on <strong>promptbill.online</strong>.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveView('pricing')}
+            <a
+              href="/llms.txt"
               className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
             >
-              View Pricing Table
-            </button>
+              View /llms.txt
+            </a>
             <button
               type="button"
               onClick={() => setActiveView('selector')}
@@ -858,12 +1045,13 @@ export default function BenchLMReplica() {
       <footer className="border-t border-slate-200 bg-white py-8 text-xs text-slate-600">
         <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
+            <Server className="w-3.5 h-3.5 text-slate-500" />
             <span className="font-bold text-slate-900">PromptBill</span>
-            <span>· promptbill.online · Independent LLM Benchmarks &amp; Pricing</span>
+            <span>· promptbill.online · Independent LLM Benchmarks, Pricing &amp; Credits</span>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <button type="button" onClick={() => setActiveView('leaderboard')} className="hover:text-slate-900">Leaderboard</button>
-            <button type="button" onClick={() => setActiveView('pricing')} className="hover:text-slate-900">Pricing</button>
+            <button type="button" onClick={() => setActiveView('pricing')} className="hover:text-slate-900">Pricing &amp; Credits</button>
             <button type="button" onClick={() => setActiveView('selector')} className="hover:text-slate-900">Selector</button>
             <button type="button" onClick={() => setActiveView('methodology')} className="hover:text-slate-900">Methodology</button>
             <button type="button" onClick={() => setActiveView('advertise')} className="hover:text-slate-900">Advertise</button>

@@ -1,3 +1,3 @@
-# PromptBill BenchLM-Style Replica (`https://promptbill.online`)
+# PromptBill v6 — SEO & GEO Friendly (`https://promptbill.online`)
 
-Built with Next.js 15.5.7 + React 19 + Tailwind CSS v4.
+Includes LLM Leaderboard, AI API & Media Pricing Directory, Provider Credit Monitoring Directory, Self-Host vs. API Calculator, `/llms.txt`, `sitemap.xml`, `robots.txt`, and `SoftwareApplication` + `FAQPage` JSON-LD structured data.
