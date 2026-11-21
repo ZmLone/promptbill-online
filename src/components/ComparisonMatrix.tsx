@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import posthog from 'posthog-js';
+import { posthogLog } from '../lib/posthogLog';
 import { LLMModel, CostInputs, calculateModelCost, formatCurrency } from '../lib/pricingEngine';
 import {
   ArrowUpDown,
@@ -118,11 +120,22 @@ export const ComparisonMatrix: React.FC<Props> = ({
     a.href = url;
     a.download = `promptbill-comparison-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
+    posthog.capture('comparison_csv_exported', {
+      provider_filter: providerFilter,
+      tier_filter: tierFilter,
+      row_count: rows.length,
+    });
+    posthogLog.info('comparison csv exported', {
+      log_source: 'posthog_instrumentation',
+      provider_filter: providerFilter,
+      tier_filter: tierFilter,
+      row_count: rows.length,
+    });
     URL.revokeObjectURL(url);
   };
 
-  const copyShareUrl = () => {
-    if (typeof window === 'undefined') return;
+  const copyShareUrl = async () => {
+    if (typeof window === 'undefined' || !navigator.clipboard) return;
     const params = new URLSearchParams({
       m: selectedModelId,
       in: String(inputs.inputTokensPerCall),
@@ -134,7 +147,12 @@ export const ComparisonMatrix: React.FC<Props> = ({
       retry: String(inputs.retriesPercent),
     });
     const shareUrl = `${window.location.origin}/?${params.toString()}#workspace`;
-    navigator.clipboard?.writeText(shareUrl);
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      return;
+    }
+    posthog.capture('scenario_link_copied', { model_id: selectedModelId });
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };

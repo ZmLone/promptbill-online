@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import posthog from 'posthog-js';
+import { posthogLog } from '../lib/posthogLog';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';
 import {
@@ -98,6 +100,12 @@ export default function PromptBillHome() {
   }, [inputs]);
 
   const applyPreset = (preset: (typeof presetsJson)[number]) => {
+    posthog.capture('workload_preset_applied', { preset_id: preset.id });
+    posthogLog.info('workload preset applied', {
+      log_source: 'posthog_instrumentation',
+      preset_id: preset.id,
+      calls_per_day: preset.callsPerDay,
+    });
     setActivePresetId(preset.id);
     setInputs({
       inputTokensPerCall: preset.inputTokensPerCall,
@@ -116,14 +124,25 @@ export default function PromptBillHome() {
   };
 
   const handleApplyPromptTokens = (tokens: number) => {
+    posthog.capture('tokenizer_tokens_applied', { model_id: selectedModelId });
+    posthogLog.info('tokenizer result applied to calculator', {
+      log_source: 'posthog_instrumentation',
+      model_id: selectedModelId,
+      token_count: tokens,
+    });
     setActivePresetId('custom');
     setUnitMode('tokens');
     setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
     setActiveTab('calculator');
   };
 
-  const handleSelectModelFromMatrix = (id: string) => {
+  const selectCalculatorModel = (id: string, selection_source: 'calculator' | 'matrix') => {
+    posthog.capture('calculator_model_selected', { model_id: id, selection_source });
     setSelectedModelId(id);
+  };
+
+  const handleSelectModelFromMatrix = (id: string) => {
+    selectCalculatorModel(id, 'matrix');
     setActiveTab('calculator');
   };
 
@@ -349,7 +368,7 @@ export default function PromptBillHome() {
                         </label>
                         <select
                           value={selectedModelId}
-                          onChange={(e) => setSelectedModelId(e.target.value)}
+                          onChange={(e) => selectCalculatorModel(e.target.value, 'calculator')}
                           className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
                         >
                           {models.map((m) => (
@@ -685,6 +704,15 @@ export default function PromptBillHome() {
               <div className="text-xs text-slate-400">One-time payment · No subscription</div>
               <a
                 href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
+                onClick={() => {
+                  if (process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL) {
+                    posthog.capture('pro_checkout_started', { plan: 'lifetime_pro' });
+                    posthogLog.info('pro checkout navigation started', {
+                      log_source: 'posthog_instrumentation',
+                      plan: 'lifetime_pro',
+                    });
+                  }
+                }}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors"
               >
                 Get PromptBill Pro <ArrowUpRight className="w-4 h-4" />
