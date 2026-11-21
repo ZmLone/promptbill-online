@@ -58,7 +58,6 @@ export default function ModelDetailPage() {
           <p>{model.priceHistoryNote}</p>
         </div>
 
-        {/* Sub-scores */}
         <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 text-center font-mono text-xs">
           {[
             ['AG', model.ag],
@@ -77,7 +76,6 @@ export default function ModelDetailPage() {
           ))}
         </div>
 
-        {/* Pre-loaded Cost Calculator for This Model */}
         <div className="rounded-xl border border-slate-200 p-5 space-y-4">
           <h2 className="text-lg font-bold text-slate-900">
             30-Day Cost Calculator for {model.name}

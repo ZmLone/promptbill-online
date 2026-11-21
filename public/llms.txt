@@ -1,9 +1,17 @@
 # PromptBill (https://promptbill.online)
 
-> Programmatic SEO Hub for LLM Benchmarks, Individual Model Pages, Head-to-Head Comparisons, Provider Hubs & Best Coding LLMs.
+> LLM Leaderboard, Individual Model Specs, Head-to-Head Comparisons, Provider Hubs, Best Coding LLMs & Cost Calculators.
 
-## Programmatic Routes
-- /models/[slug] — Individual model specs, benchmark scores, rate limits, pricing history & cost calculator
-- /compare/[model-a]-vs-[model-b] — Head-to-head pricing, speed (Tok/s), Elo & capability comparison
-- /providers/[provider] — Provider-specific model directory & pricing
-- /best-llms-for-coding — Best LLMs ranked for coding & agentic engineering
+## Routes
+- / (Leaderboard & Score/$ Matrix)
+- /pricing (30-Day API Cost, Caching, Batch, Retries & SaaS Margin Calculator)
+- /best-llms-for-coding (Best LLMs Ranked for Coding & Agentic Tasks)
+- /models/[slug] (Individual Model Benchmarks, Rate Limits & Calculator)
+- /compare/[model-a]-vs-[model-b] (Head-to-Head Model Comparisons)
+- /providers/[provider] (Provider Model Directories)
+- /tools/llm-selector (Workload Model Selector)
+- /tools/token-counter (Prompt Token Counter)
+- /tools/routing-simulator (Hybrid Routing Savings Simulator)
+- /deals (API Savings & Pro Pass)
+- /methodology (Scoring & Pricing Methodology)
+- /advertise (Sponsorships)

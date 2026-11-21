@@ -174,7 +174,6 @@ export default function LeaderboardPage() {
           </table>
         </div>
 
-        {/* Programmatic SEO Internal Linking Hub */}
         <div className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div>
             <div className="font-bold uppercase tracking-wider text-slate-500 mb-2">Provider Hubs</div>
@@ -187,7 +186,7 @@ export default function LeaderboardPage() {
             </div>
           </div>
           <div>
-            <div className="font-bold uppercase tracking-wider text-slate-500 mb-2">Popular Head-to-Head Comparisons</div>
+            <div className="font-bold uppercase tracking-wider text-slate-500 mb-2">Head-to-Head Comparisons</div>
             <div className="flex flex-wrap gap-1.5">
               <Link href="/compare/claude-fable-5-2-vs-gemini-4-neon" className="rounded bg-emerald-50 text-emerald-900 px-2.5 py-1 font-medium hover:bg-emerald-100">
                 Claude Fable 5.2 vs Gemini 4 Neon
@@ -201,7 +200,7 @@ export default function LeaderboardPage() {
             </div>
           </div>
           <div>
-            <div className="font-bold uppercase tracking-wider text-slate-500 mb-2">Use-Case Landing Pages</div>
+            <div className="font-bold uppercase tracking-wider text-slate-500 mb-2">Use-Case Pages</div>
             <div className="flex flex-wrap gap-1.5">
               <Link href="/best-llms-for-coding" className="rounded bg-slate-900 text-white px-2.5 py-1 font-medium hover:bg-slate-800">
                 Best LLMs for Coding

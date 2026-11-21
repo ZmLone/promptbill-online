@@ -1,5 +1,8 @@
 import leaderboardJson from '../data/leaderboard.json';
 
+export type EvidenceType = 'Supported' | 'Estimated';
+export type LicenseType = 'Closed' | 'Open' | 'Pending';
+
 export interface ModelEntry {
   rank: number;
   id: string;
@@ -7,7 +10,7 @@ export interface ModelEntry {
   providerSlug: string;
   name: string;
   provider: string;
-  evidence: 'Supported' | 'Estimated';
+  evidence: EvidenceType;
   score: number;
   interval: string;
   contextWindow: string;
@@ -18,7 +21,7 @@ export interface ModelEntry {
   outputPer1M: number;
   cachedInputPer1M: number;
   elo: number;
-  license: 'Closed' | 'Open' | 'Pending';
+  license: LicenseType;
   ag: number;
   co: number;
   re: number;
@@ -32,7 +35,7 @@ export interface ModelEntry {
   bestFor: string;
 }
 
-export const ALL_MODELS = leaderboardJson as ModelEntry[];
+export const ALL_MODELS: ModelEntry[] = leaderboardJson as ModelEntry[];
 
 export function getModelBySlug(slug: string): ModelEntry | undefined {
   return ALL_MODELS.find((m) => m.slug === slug);
@@ -62,14 +65,4 @@ export function parseComparisonSlug(slug: string): { modelA: ModelEntry; modelB:
   const modelB = getModelBySlug(parts[1]);
   if (!modelA || !modelB || modelA.slug === modelB.slug) return null;
   return { modelA, modelB };
-}
-
-export function getTopComparisonPairs(): string[] {
-  const pairs: string[] = [];
-  for (let i = 0; i < ALL_MODELS.length; i++) {
-    for (let j = i + 1; j < ALL_MODELS.length; j++) {
-      pairs.push(`${ALL_MODELS[i].slug}-vs-${ALL_MODELS[j].slug}`);
-    }
-  }
-  return pairs;
 }
