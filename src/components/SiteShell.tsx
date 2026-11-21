@@ -8,22 +8,62 @@ import {
   Calculator,
   Sparkles,
   FileText,
+  GitBranch,
   Tag,
   BookOpen,
   Megaphone,
+  Code2,
+  Cpu,
+  ChevronDown,
   Copy,
   Check,
   ExternalLink,
 } from 'lucide-react';
 
-const NAV_ITEMS: { href: string; label: string; icon: React.FC<{ className?: string }> }[] = [
+const PRIMARY_NAV: { href: string; label: string; icon: React.FC<{ className?: string }> }[] = [
   { href: '/', label: 'Leaderboard', icon: ArrowUpDown },
-  { href: '/pricing', label: 'API Pricing & Cost', icon: Calculator },
+  { href: '/models', label: 'All Models', icon: Cpu },
+  { href: '/pricing', label: 'API Pricing', icon: Calculator },
+  { href: '/best-llms-for-coding', label: 'Best for Coding', icon: Code2 },
   { href: '/tools/llm-selector', label: 'LLM Selector', icon: Sparkles },
   { href: '/tools/token-counter', label: 'Token Counter', icon: FileText },
+  { href: '/tools/routing-simulator', label: 'Routing', icon: GitBranch },
   { href: '/deals', label: 'Deals', icon: Tag },
-  { href: '/methodology', label: 'Methodology', icon: BookOpen },
-  { href: '/advertise', label: 'Advertise', icon: Megaphone },
+];
+
+const MORE_COLUMNS: {
+  heading: string;
+  links: { label: string; href: string }[];
+}[] = [
+  {
+    heading: 'Use-Case Hubs',
+    links: [
+      { label: 'Best LLMs for Coding', href: '/best-llms-for-coding' },
+      { label: 'Best Open-Weight LLMs', href: '/best-open-weight-llms' },
+      { label: 'Cheapest for Classification', href: '/cheapest-llms-for-classification' },
+      { label: 'Fastest LLMs (Tok/s)', href: '/fastest-llms-tokens-per-second' },
+    ],
+  },
+  {
+    heading: 'Top Models & Comparisons',
+    links: [
+      { label: 'All 20 Model Pages', href: '/models' },
+      { label: 'Claude Fable 5.2', href: '/models/claude-fable-5-2' },
+      { label: 'Gemini 4 Neon', href: '/models/gemini-4-neon' },
+      { label: 'GPT-6.2 Astra', href: '/models/gpt-6-2-astra' },
+      { label: 'Fable 5.2 vs Gemini 4 Neon', href: '/compare/claude-fable-5-2-vs-gemini-4-neon' },
+    ],
+  },
+  {
+    heading: 'Providers & Info',
+    links: [
+      { label: 'Anthropic Models', href: '/providers/anthropic' },
+      { label: 'Google Gemini Models', href: '/providers/google-gemini' },
+      { label: 'OpenAI Models', href: '/providers/openai' },
+      { label: 'Methodology', href: '/methodology' },
+      { label: 'Advertise', href: '/advertise' },
+    ],
+  },
 ];
 
 export function SiteShell({
@@ -36,6 +76,7 @@ export function SiteShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -47,7 +88,10 @@ export function SiteShell({
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header
+        className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur"
+        onMouseLeave={() => setMoreOpen(false)}
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 font-mono text-sm font-bold text-white">
@@ -61,15 +105,15 @@ export function SiteShell({
             </div>
           </Link>
 
-          <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 text-sm font-medium">
-            {NAV_ITEMS.map((item) => {
+          <nav aria-label="Main Navigation" className="hidden xl:flex items-center gap-1 text-xs font-medium">
+            {PRIMARY_NAV.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors ${
                     active
                       ? 'bg-slate-900 text-white'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -80,6 +124,43 @@ export function SiteShell({
                 </Link>
               );
             })}
+
+            <div className="relative" onMouseEnter={() => setMoreOpen(true)}>
+              <button
+                type="button"
+                aria-expanded={moreOpen}
+                onClick={() => setMoreOpen((prev) => !prev)}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              >
+                <span>More</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {moreOpen && (
+                <div className="absolute right-0 mt-1.5 w-[560px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg grid grid-cols-3 gap-5 z-40">
+                  {MORE_COLUMNS.map((col) => (
+                    <div key={col.heading} className="space-y-2">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        {col.heading}
+                      </div>
+                      <ul className="space-y-1 text-xs">
+                        {col.links.map((lnk) => (
+                          <li key={lnk.label}>
+                            <Link
+                              href={lnk.href}
+                              onClick={() => setMoreOpen(false)}
+                              className="block rounded-md px-2 py-1 text-slate-700 hover:bg-slate-100 hover:text-slate-900 font-medium"
+                            >
+                              {lnk.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -100,8 +181,8 @@ export function SiteShell({
           </div>
         </div>
 
-        <div className="flex lg:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
-          {NAV_ITEMS.map((item) => {
+        <div className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
+          {[...PRIMARY_NAV, { href: '/methodology', label: 'Methodology', icon: BookOpen }, { href: '/advertise', label: 'Advertise', icon: Megaphone }].map((item) => {
             const active = pathname === item.href;
             return (
               <Link
@@ -137,10 +218,11 @@ export function SiteShell({
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="/" className="hover:text-slate-900">Leaderboard</Link>
-            <Link href="/pricing" className="hover:text-slate-900">API Pricing</Link>
-            <Link href="/tools/llm-selector" className="hover:text-slate-900">LLM Selector</Link>
-            <Link href="/tools/token-counter" className="hover:text-slate-900">Token Counter</Link>
-            <Link href="/deals" className="hover:text-slate-900">Deals</Link>
+            <Link href="/models" className="hover:text-slate-900">All Models</Link>
+            <Link href="/best-llms-for-coding" className="hover:text-slate-900">Best for Coding</Link>
+            <Link href="/best-open-weight-llms" className="hover:text-slate-900">Best Open-Weight</Link>
+            <Link href="/cheapest-llms-for-classification" className="hover:text-slate-900">Cheapest Classification</Link>
+            <Link href="/fastest-llms-tokens-per-second" className="hover:text-slate-900">Fastest Tok/s</Link>
             <a href="/sitemap.xml" className="inline-flex items-center gap-1 hover:text-slate-900">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>

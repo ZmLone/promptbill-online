@@ -2,12 +2,38 @@
   {
     "rank": 1,
     "id": "claude-fable-5-2",
+    "slug": "claude-fable-5-2",
+    "providerSlug": "anthropic",
     "name": "Claude Fable 5.2",
     "provider": "Anthropic",
     "evidence": "Supported",
     "score": 93.3,
     "interval": "88.6\u201398.0",
     "contextWindow": "1M",
+    "maxOutputTokens": "128K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "400K TPM",
+    "tpdLimit": "50M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 8.0,
+        "outputPer1M": 40.0,
+        "note": "Current flagship rate; 97.5% cached input discount ($0.20/1M)"
+      },
+      {
+        "date": "Aug 2026",
+        "inputPer1M": 10.0,
+        "outputPer1M": 50.0,
+        "note": "Claude Fable 5.1 launch pricing (-20% price drop in Nov 2026)"
+      },
+      {
+        "date": "Apr 2026",
+        "inputPer1M": 15.0,
+        "outputPer1M": 75.0,
+        "note": "Earlier generation flagship tier (-46.7% cumulative drop)"
+      }
+    ],
     "inputPer1M": 8.0,
     "outputPer1M": 40.0,
     "cachedInputPer1M": 0.2,
@@ -28,12 +54,32 @@
   {
     "rank": 2,
     "id": "gemini-4-neon",
+    "slug": "gemini-4-neon",
+    "providerSlug": "google-gemini",
     "name": "Gemini 4 Neon",
     "provider": "Google Gemini",
     "evidence": "Supported",
     "score": 91.3,
     "interval": "85.2\u201397.4",
     "contextWindow": "1M",
+    "maxOutputTokens": "65K",
+    "rpmLimit": "3,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "100M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 3.0,
+        "outputPer1M": 15.0,
+        "note": "Current GA rate across full 1M context window"
+      },
+      {
+        "date": "Jul 2026",
+        "inputPer1M": 3.5,
+        "outputPer1M": 17.5,
+        "note": "Preview release pricing (-14.3% drop at GA)"
+      }
+    ],
     "inputPer1M": 3.0,
     "outputPer1M": 15.0,
     "cachedInputPer1M": 0.15,
@@ -54,12 +100,32 @@
   {
     "rank": 3,
     "id": "gpt-6-2-astra",
+    "slug": "gpt-6-2-astra",
+    "providerSlug": "openai",
     "name": "GPT-6.2 Astra",
     "provider": "OpenAI",
     "evidence": "Supported",
     "score": 90.8,
     "interval": "84.5\u201397.0",
     "contextWindow": "1.05M",
+    "maxOutputTokens": "128K",
+    "rpmLimit": "5,000 RPM",
+    "tpmLimit": "2M TPM",
+    "tpdLimit": "200M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 8.0,
+        "outputPer1M": 40.0,
+        "note": "Current rate; 2x input / 1.5x output multiplier above 272K context"
+      },
+      {
+        "date": "Sep 2026",
+        "inputPer1M": 10.0,
+        "outputPer1M": 50.0,
+        "note": "GPT-6 Astra initial pricing (-20% reduction)"
+      }
+    ],
     "inputPer1M": 8.0,
     "outputPer1M": 40.0,
     "cachedInputPer1M": 0.4,
@@ -80,12 +146,32 @@
   {
     "rank": 4,
     "id": "gemini-4-carbon",
+    "slug": "gemini-4-carbon",
+    "providerSlug": "google-gemini",
     "name": "Gemini 4 Carbon",
     "provider": "Google Gemini",
     "evidence": "Supported",
     "score": 88.0,
     "interval": "82.0\u201394.0",
     "contextWindow": "1M",
+    "maxOutputTokens": "65K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "150M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "High-efficiency tier at 75% lower output cost than top flagships"
+      },
+      {
+        "date": "Jun 2026",
+        "inputPer1M": 2.5,
+        "outputPer1M": 12.0,
+        "note": "Launch rate (-20% input / -16.7% output drop)"
+      }
+    ],
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
     "cachedInputPer1M": 0.1,
@@ -104,14 +190,74 @@
     "bestFor": "Strong capability balance with lower output token cost"
   },
   {
+    "rank": 5,
+    "id": "gpt-6-astra",
+    "slug": "gpt-6-astra",
+    "providerSlug": "openai",
+    "name": "GPT-6 Astra",
+    "provider": "OpenAI",
+    "evidence": "Supported",
+    "score": 83.2,
+    "interval": "77.0\u201389.4",
+    "contextWindow": "1.05M",
+    "maxOutputTokens": "128K",
+    "rpmLimit": "5,000 RPM",
+    "tpmLimit": "2M TPM",
+    "tpdLimit": "150M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 10.0,
+        "outputPer1M": 50.0,
+        "note": "Legacy tier; superseded by GPT-6.2 Astra at $8/$40"
+      }
+    ],
+    "inputPer1M": 10.0,
+    "outputPer1M": 50.0,
+    "cachedInputPer1M": 0.5,
+    "elo": 1475.3,
+    "license": "Closed",
+    "ag": 86,
+    "co": 82,
+    "re": 87,
+    "mm": 79,
+    "kn": 80,
+    "ml": 74,
+    "if": 78,
+    "ma": 79,
+    "tokPerSec": 42,
+    "reasoning": true,
+    "bestFor": "Legacy GPT-6 reasoning & auditing"
+  },
+  {
     "rank": 6,
     "id": "claude-opus-5-5",
+    "slug": "claude-opus-5-5",
+    "providerSlug": "anthropic",
     "name": "Claude Opus 5.5",
     "provider": "Anthropic",
     "evidence": "Supported",
     "score": 82.7,
     "interval": "76.8\u201388.6",
     "contextWindow": "1M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "400K TPM",
+    "tpdLimit": "50M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 4.0,
+        "outputPer1M": 20.0,
+        "note": "Current Opus 5.5 pricing with 95% prompt cache savings"
+      },
+      {
+        "date": "May 2026",
+        "inputPer1M": 5.0,
+        "outputPer1M": 25.0,
+        "note": "Claude Opus 5 release rate (-20% price drop)"
+      }
+    ],
     "inputPer1M": 4.0,
     "outputPer1M": 20.0,
     "cachedInputPer1M": 0.2,
@@ -130,14 +276,80 @@
     "bestFor": "Large codebase architecture & deep refactoring"
   },
   {
+    "rank": 7,
+    "id": "gpt-6-2-sol",
+    "slug": "gpt-6-2-sol",
+    "providerSlug": "openai",
+    "name": "GPT-6.2 Sol",
+    "provider": "OpenAI",
+    "evidence": "Supported",
+    "score": 81.0,
+    "interval": "75.0\u201387.0",
+    "contextWindow": "1.05M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "4M TPM",
+    "tpdLimit": "400M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "Balanced GPT-6.2 tier at $2/$10 per 1M tokens"
+      },
+      {
+        "date": "Aug 2026",
+        "inputPer1M": 2.5,
+        "outputPer1M": 12.5,
+        "note": "Earlier Sol snapshot (-20% reduction)"
+      }
+    ],
+    "inputPer1M": 2.0,
+    "outputPer1M": 10.0,
+    "cachedInputPer1M": 0.1,
+    "elo": 1464.7,
+    "license": "Closed",
+    "ag": 84,
+    "co": 83,
+    "re": 81,
+    "mm": 84,
+    "kn": 81,
+    "ml": 74,
+    "if": 74,
+    "ma": 78,
+    "tokPerSec": 128,
+    "reasoning": true,
+    "bestFor": "Balanced production agents & tool calling"
+  },
+  {
     "rank": 9,
     "id": "gpt-6-1-terra",
+    "slug": "gpt-6-1-terra",
+    "providerSlug": "openai",
     "name": "GPT-6.1 Terra",
     "provider": "OpenAI",
     "evidence": "Supported",
     "score": 80.4,
     "interval": "74.5\u201386.3",
     "contextWindow": "1.05M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "4M TPM",
+    "tpdLimit": "500M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 1.0,
+        "outputPer1M": 5.0,
+        "note": "High-throughput economy tier at $1/$5 per 1M tokens"
+      },
+      {
+        "date": "Jul 2026",
+        "inputPer1M": 1.5,
+        "outputPer1M": 6.0,
+        "note": "Initial Terra launch rate (-33.3% input price drop)"
+      }
+    ],
     "inputPer1M": 1.0,
     "outputPer1M": 5.0,
     "cachedInputPer1M": 0.05,
@@ -156,14 +368,114 @@
     "bestFor": "High-volume production apps needing low cost & strong reasoning"
   },
   {
+    "rank": 10,
+    "id": "gemini-4-argon",
+    "slug": "gemini-4-argon",
+    "providerSlug": "google-gemini",
+    "name": "Gemini 4 Argon",
+    "provider": "Google Gemini",
+    "evidence": "Supported",
+    "score": 79.0,
+    "interval": "73.1\u201384.9",
+    "contextWindow": "1M",
+    "maxOutputTokens": "65K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "150M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "Priced at $2/$10 per 1M tokens with 1520 Elo"
+      }
+    ],
+    "inputPer1M": 2.0,
+    "outputPer1M": 10.0,
+    "cachedInputPer1M": 0.1,
+    "elo": 1519.62,
+    "license": "Closed",
+    "ag": 82,
+    "co": 79,
+    "re": 77,
+    "mm": 73,
+    "kn": 79,
+    "ml": 72,
+    "if": 74,
+    "ma": 75,
+    "tokPerSec": 142,
+    "reasoning": true,
+    "bestFor": "Interactive assistants & long context"
+  },
+  {
+    "rank": 11,
+    "id": "gemini-4-hydrogen",
+    "slug": "gemini-4-hydrogen",
+    "providerSlug": "google-gemini",
+    "name": "Gemini 4 Hydrogen",
+    "provider": "Google Gemini",
+    "evidence": "Supported",
+    "score": 78.7,
+    "interval": "72.8\u201384.6",
+    "contextWindow": "1M",
+    "maxOutputTokens": "65K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "4M TPM",
+    "tpdLimit": "500M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 1.5,
+        "outputPer1M": 7.5,
+        "note": "High-speed 1M context tier at $1.50/$7.50 per 1M tokens"
+      }
+    ],
+    "inputPer1M": 1.5,
+    "outputPer1M": 7.5,
+    "cachedInputPer1M": 0.08,
+    "elo": 1489.78,
+    "license": "Closed",
+    "ag": 82,
+    "co": 78,
+    "re": 77,
+    "mm": 73,
+    "kn": 78,
+    "ml": 73,
+    "if": 74,
+    "ma": 74,
+    "tokPerSec": 166,
+    "reasoning": true,
+    "bestFor": "Fast throughput & large document ingestion"
+  },
+  {
     "rank": 13,
     "id": "claude-sonnet-5-5",
+    "slug": "claude-sonnet-5-5",
+    "providerSlug": "anthropic",
     "name": "Claude Sonnet 5.5",
     "provider": "Anthropic",
     "evidence": "Supported",
     "score": 77.8,
     "interval": "72.0\u201383.6",
     "contextWindow": "1M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "800K TPM",
+    "tpdLimit": "100M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "Balanced developer tier at $2/$10 per 1M tokens"
+      },
+      {
+        "date": "Apr 2026",
+        "inputPer1M": 3.0,
+        "outputPer1M": 15.0,
+        "note": "Previous Sonnet tier (-33.3% price drop)"
+      }
+    ],
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
     "cachedInputPer1M": 0.1,
@@ -182,14 +494,108 @@
     "bestFor": "Coding agents, PR reviews & daily engineering"
   },
   {
+    "rank": 15,
+    "id": "qwen4-max",
+    "slug": "qwen4-max",
+    "providerSlug": "alibaba-qwen",
+    "name": "Qwen4 Max",
+    "provider": "Alibaba / Qwen",
+    "evidence": "Supported",
+    "score": 74.9,
+    "interval": "69.0\u201380.8",
+    "contextWindow": "1M",
+    "maxOutputTokens": "32K",
+    "rpmLimit": "5,000 RPM",
+    "tpmLimit": "2M TPM",
+    "tpdLimit": "250M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 1.5,
+        "outputPer1M": 4.5,
+        "note": "Competitive $1.50/$4.50 per 1M tokens for 1M context"
+      }
+    ],
+    "inputPer1M": 1.5,
+    "outputPer1M": 4.5,
+    "cachedInputPer1M": 0.15,
+    "elo": 1465.0,
+    "license": "Closed",
+    "ag": 76,
+    "co": 76,
+    "re": 76,
+    "mm": 73,
+    "kn": 68,
+    "ml": 74,
+    "if": 73,
+    "ma": 75,
+    "tokPerSec": 118,
+    "reasoning": true,
+    "bestFor": "Multilingual & strong output value"
+  },
+  {
+    "rank": 20,
+    "id": "muse-wonder",
+    "slug": "muse-wonder",
+    "providerSlug": "meta",
+    "name": "Muse Wonder",
+    "provider": "Meta",
+    "evidence": "Supported",
+    "score": 71.2,
+    "interval": "65.0\u201377.4",
+    "contextWindow": "1M",
+    "maxOutputTokens": "32K",
+    "rpmLimit": "3,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "100M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 4.0,
+        "outputPer1M": 20.0,
+        "note": "Priced at $4/$20 per 1M tokens with 1M context"
+      }
+    ],
+    "inputPer1M": 4.0,
+    "outputPer1M": 20.0,
+    "cachedInputPer1M": 0.2,
+    "elo": 1511.44,
+    "license": "Closed",
+    "ag": 70,
+    "co": 73,
+    "re": 71,
+    "mm": 66,
+    "kn": 67,
+    "ml": 68,
+    "if": 68,
+    "ma": 70,
+    "tokPerSec": 113,
+    "reasoning": true,
+    "bestFor": "Low-latency responses & reasoning"
+  },
+  {
     "rank": 21,
     "id": "kimi-k3-1-pro",
+    "slug": "kimi-k3-1-pro",
+    "providerSlug": "moonshot-ai",
     "name": "Kimi K3.1 Pro",
     "provider": "Moonshot AI",
     "evidence": "Supported",
     "score": 70.1,
     "interval": "64.2\u201376.0",
     "contextWindow": "1.05M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "2,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "100M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "Open-weight MoE model at $2/$10 per 1M tokens"
+      }
+    ],
     "inputPer1M": 2.0,
     "outputPer1M": 10.0,
     "cachedInputPer1M": 0.2,
@@ -210,12 +616,32 @@
   {
     "rank": 23,
     "id": "deepseek-v4-1-flash",
+    "slug": "deepseek-v4-1-flash",
+    "providerSlug": "deepseek",
     "name": "DeepSeek V4.1 Flash 1017",
     "provider": "DeepSeek",
     "evidence": "Supported",
     "score": 70.0,
     "interval": "64.1\u201375.9",
     "contextWindow": "1M",
+    "maxOutputTokens": "32K",
+    "rpmLimit": "5,000 RPM",
+    "tpmLimit": "2M TPM",
+    "tpdLimit": "300M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.3,
+        "outputPer1M": 1.2,
+        "note": "Open-weight high-efficiency model at $0.30/$1.20 per 1M tokens"
+      },
+      {
+        "date": "Jun 2026",
+        "inputPer1M": 0.55,
+        "outputPer1M": 2.19,
+        "note": "Previous DeepSeek release (-45% price reduction)"
+      }
+    ],
     "inputPer1M": 0.3,
     "outputPer1M": 1.2,
     "cachedInputPer1M": 0.03,
@@ -234,14 +660,74 @@
     "bestFor": "High-value coding & high-throughput API spend"
   },
   {
+    "rank": 25,
+    "id": "hy4",
+    "slug": "hy4",
+    "providerSlug": "tencent",
+    "name": "Hy4",
+    "provider": "Tencent",
+    "evidence": "Estimated",
+    "score": 68.5,
+    "interval": "61.0\u201376.0",
+    "contextWindow": "1M",
+    "maxOutputTokens": "32K",
+    "rpmLimit": "3,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "150M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.83,
+        "outputPer1M": 2.5,
+        "note": "Low-cost output tier at $0.83/$2.50 per 1M tokens"
+      }
+    ],
+    "inputPer1M": 0.83,
+    "outputPer1M": 2.5,
+    "cachedInputPer1M": 0.08,
+    "elo": 1455.0,
+    "license": "Pending",
+    "ag": 73,
+    "co": 69,
+    "re": 66,
+    "mm": 68,
+    "kn": 66,
+    "ml": 64,
+    "if": 67,
+    "ma": 66,
+    "tokPerSec": 120,
+    "reasoning": true,
+    "bestFor": "Low-cost output & agentic workflows"
+  },
+  {
     "rank": 28,
     "id": "qwen-3-7-flash",
+    "slug": "qwen-3-7-flash",
+    "providerSlug": "alibaba-qwen",
     "name": "Qwen 3.7 Flash",
     "provider": "Alibaba / Qwen",
     "evidence": "Supported",
     "score": 67.8,
     "interval": "62.0\u201373.6",
     "contextWindow": "128K",
+    "maxOutputTokens": "16K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "5M TPM",
+    "tpdLimit": "500M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.15,
+        "outputPer1M": 0.6,
+        "note": "Ultra-low cost at $0.15/$0.60 per 1M tokens with 210 tok/s speed"
+      },
+      {
+        "date": "May 2026",
+        "inputPer1M": 0.3,
+        "outputPer1M": 1.2,
+        "note": "Earlier Flash generation (-50% price drop)"
+      }
+    ],
     "inputPer1M": 0.15,
     "outputPer1M": 0.6,
     "cachedInputPer1M": 0.02,
@@ -257,6 +743,132 @@
     "ma": 65,
     "tokPerSec": 210,
     "reasoning": false,
-    "bestFor": "Routing, classification & cheap high-volume calls"
+    "bestFor": "High-volume classification, routing & cheap calls"
+  },
+  {
+    "rank": 39,
+    "id": "claude-haiku-5-5",
+    "slug": "claude-haiku-5-5",
+    "providerSlug": "anthropic",
+    "name": "Claude Haiku 5.5",
+    "provider": "Anthropic",
+    "evidence": "Supported",
+    "score": 63.6,
+    "interval": "58.1\u201369.1",
+    "contextWindow": "1M",
+    "maxOutputTokens": "32K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "4M TPM",
+    "tpdLimit": "400M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.1,
+        "outputPer1M": 0.5,
+        "note": "Budget tier at $0.10/$0.50 per 1M tokens with 195 tok/s speed"
+      },
+      {
+        "date": "Mar 2026",
+        "inputPer1M": 0.25,
+        "outputPer1M": 1.25,
+        "note": "Earlier Haiku tier (-60% price drop)"
+      }
+    ],
+    "inputPer1M": 0.1,
+    "outputPer1M": 0.5,
+    "cachedInputPer1M": 0.01,
+    "elo": 1440.0,
+    "license": "Closed",
+    "ag": 65,
+    "co": 64,
+    "re": 61,
+    "mm": 62,
+    "kn": 63,
+    "ml": 60,
+    "if": 65,
+    "ma": 60,
+    "tokPerSec": 195,
+    "reasoning": true,
+    "bestFor": "High-volume classification & fast extraction"
+  },
+  {
+    "rank": 42,
+    "id": "llama-4-local-8b",
+    "slug": "llama-4-local-8b",
+    "providerSlug": "meta",
+    "name": "Llama 4 Local 8B",
+    "provider": "Meta",
+    "evidence": "Estimated",
+    "score": 61.5,
+    "interval": "55.0\u201368.0",
+    "contextWindow": "128K",
+    "maxOutputTokens": "16K",
+    "rpmLimit": "Self-hosted",
+    "tpmLimit": "Local GPU",
+    "tpdLimit": "Unlimited",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.05,
+        "outputPer1M": 0.15,
+        "note": "Open-weight 8B tier benchmarked at $0.05/$0.15 hosted equivalent"
+      }
+    ],
+    "inputPer1M": 0.05,
+    "outputPer1M": 0.15,
+    "cachedInputPer1M": 0.01,
+    "elo": 1412.0,
+    "license": "Open",
+    "ag": 60,
+    "co": 62,
+    "re": 58,
+    "mm": 55,
+    "kn": 63,
+    "ml": 61,
+    "if": 64,
+    "ma": 59,
+    "tokPerSec": 245,
+    "reasoning": false,
+    "bestFor": "Open-weight local execution & ultra-fast throughput"
+  },
+  {
+    "rank": 48,
+    "id": "command-r7b",
+    "slug": "command-r7b",
+    "providerSlug": "cohere",
+    "name": "Command R7B",
+    "provider": "Cohere",
+    "evidence": "Estimated",
+    "score": 59.8,
+    "interval": "53.0\u201366.5",
+    "contextWindow": "128K",
+    "maxOutputTokens": "16K",
+    "rpmLimit": "5,000 RPM",
+    "tpmLimit": "2M TPM",
+    "tpdLimit": "250M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 0.04,
+        "outputPer1M": 0.15,
+        "note": "Low-cost classification & RAG tier at $0.04/$0.15 per 1M tokens"
+      }
+    ],
+    "inputPer1M": 0.04,
+    "outputPer1M": 0.15,
+    "cachedInputPer1M": 0.01,
+    "elo": 1398.0,
+    "license": "Open",
+    "ag": 58,
+    "co": 57,
+    "re": 56,
+    "mm": 52,
+    "kn": 61,
+    "ml": 62,
+    "if": 63,
+    "ma": 55,
+    "tokPerSec": 230,
+    "reasoning": false,
+    "bestFor": "High-volume classification & enterprise retrieval"
   }
 ]

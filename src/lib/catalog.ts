@@ -3,6 +3,13 @@ import leaderboardJson from '../data/leaderboard.json';
 export type EvidenceType = 'Supported' | 'Estimated';
 export type LicenseType = 'Closed' | 'Open' | 'Pending';
 
+export interface PriceHistoryEntry {
+  date: string;
+  inputPer1M: number;
+  outputPer1M: number;
+  note: string;
+}
+
 export interface ModelEntry {
   rank: number;
   id: string;
@@ -14,9 +21,11 @@ export interface ModelEntry {
   score: number;
   interval: string;
   contextWindow: string;
+  maxOutputTokens: string;
   rpmLimit: string;
   tpmLimit: string;
-  priceHistoryNote: string;
+  tpdLimit: string;
+  priceHistory: PriceHistoryEntry[];
   inputPer1M: number;
   outputPer1M: number;
   cachedInputPer1M: number;

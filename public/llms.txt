@@ -1,12 +1,32 @@
 # PromptBill (https://promptbill.online)
 
-> Multi-route LLM Leaderboard, AI API Pricing Calculator, LLM Selector, Token Counter, Deals & Methodology for November 2026.
+> Programmatic LLM Directory, Individual Model Specs, Historical Price Drops, Rate Limits, Cost Calculators & Head-to-Head Comparisons.
 
-## Real Routes
-- https://promptbill.online/ (Leaderboard)
-- https://promptbill.online/pricing (API Pricing & Cost Calculator)
-- https://promptbill.online/tools/llm-selector (LLM Selector)
-- https://promptbill.online/tools/token-counter (Token Counter)
-- https://promptbill.online/deals (Deals & Discounts)
-- https://promptbill.online/methodology (Methodology & Pricing Formula)
-- https://promptbill.online/advertise (Sponsorships & Media Kit)
+## All Individual Model Pages
+- https://promptbill.online/models/claude-fable-5-2 — Claude Fable 5.2 (Anthropic): Score 93.3, $8.0/$40.0 per 1M tokens, 1M context, 109 tok/s
+- https://promptbill.online/models/gemini-4-neon — Gemini 4 Neon (Google Gemini): Score 91.3, $3.0/$15.0 per 1M tokens, 1M context, 110 tok/s
+- https://promptbill.online/models/gpt-6-2-astra — GPT-6.2 Astra (OpenAI): Score 90.8, $8.0/$40.0 per 1M tokens, 1.05M context, 78 tok/s
+- https://promptbill.online/models/gemini-4-carbon — Gemini 4 Carbon (Google Gemini): Score 88.0, $2.0/$10.0 per 1M tokens, 1M context, 155 tok/s
+- https://promptbill.online/models/gpt-6-astra — GPT-6 Astra (OpenAI): Score 83.2, $10.0/$50.0 per 1M tokens, 1.05M context, 42 tok/s
+- https://promptbill.online/models/claude-opus-5-5 — Claude Opus 5.5 (Anthropic): Score 82.7, $4.0/$20.0 per 1M tokens, 1M context, 113 tok/s
+- https://promptbill.online/models/gpt-6-2-sol — GPT-6.2 Sol (OpenAI): Score 81.0, $2.0/$10.0 per 1M tokens, 1.05M context, 128 tok/s
+- https://promptbill.online/models/gpt-6-1-terra — GPT-6.1 Terra (OpenAI): Score 80.4, $1.0/$5.0 per 1M tokens, 1.05M context, 168 tok/s
+- https://promptbill.online/models/gemini-4-argon — Gemini 4 Argon (Google Gemini): Score 79.0, $2.0/$10.0 per 1M tokens, 1M context, 142 tok/s
+- https://promptbill.online/models/gemini-4-hydrogen — Gemini 4 Hydrogen (Google Gemini): Score 78.7, $1.5/$7.5 per 1M tokens, 1M context, 166 tok/s
+- https://promptbill.online/models/claude-sonnet-5-5 — Claude Sonnet 5.5 (Anthropic): Score 77.8, $2.0/$10.0 per 1M tokens, 1M context, 144 tok/s
+- https://promptbill.online/models/qwen4-max — Qwen4 Max (Alibaba / Qwen): Score 74.9, $1.5/$4.5 per 1M tokens, 1M context, 118 tok/s
+- https://promptbill.online/models/muse-wonder — Muse Wonder (Meta): Score 71.2, $4.0/$20.0 per 1M tokens, 1M context, 113 tok/s
+- https://promptbill.online/models/kimi-k3-1-pro — Kimi K3.1 Pro (Moonshot AI): Score 70.1, $2.0/$10.0 per 1M tokens, 1.05M context, 92 tok/s
+- https://promptbill.online/models/deepseek-v4-1-flash — DeepSeek V4.1 Flash 1017 (DeepSeek): Score 70.0, $0.3/$1.2 per 1M tokens, 1M context, 163 tok/s
+- https://promptbill.online/models/hy4 — Hy4 (Tencent): Score 68.5, $0.83/$2.5 per 1M tokens, 1M context, 120 tok/s
+- https://promptbill.online/models/qwen-3-7-flash — Qwen 3.7 Flash (Alibaba / Qwen): Score 67.8, $0.15/$0.6 per 1M tokens, 128K context, 210 tok/s
+- https://promptbill.online/models/claude-haiku-5-5 — Claude Haiku 5.5 (Anthropic): Score 63.6, $0.1/$0.5 per 1M tokens, 1M context, 195 tok/s
+- https://promptbill.online/models/llama-4-local-8b — Llama 4 Local 8B (Meta): Score 61.5, $0.05/$0.15 per 1M tokens, 128K context, 245 tok/s
+- https://promptbill.online/models/command-r7b — Command R7B (Cohere): Score 59.8, $0.04/$0.15 per 1M tokens, 128K context, 230 tok/s
+
+## Use-Case & Provider Hubs
+- https://promptbill.online/models
+- https://promptbill.online/best-llms-for-coding
+- https://promptbill.online/best-open-weight-llms
+- https://promptbill.online/cheapest-llms-for-classification
+- https://promptbill.online/fastest-llms-tokens-per-second

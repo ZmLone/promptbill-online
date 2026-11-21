@@ -1,22 +1,38 @@
-'use client';
-
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { ALL_MODELS, getModelsByProviderSlug } from '../../../lib/catalog';
 import { SiteShell } from '../../../components/SiteShell';
 
-export default function ProviderHubPage() {
-  const params = useParams<{ provider: string }>();
-  const slug = params?.provider || 'anthropic';
-  const matched = getModelsByProviderSlug(slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ provider: string }>;
+}): Promise<Metadata> {
+  const { provider } = await params;
+  const matched = getModelsByProviderSlug(provider);
+  const titleName = matched[0]?.provider || 'Provider';
+  return {
+    title: `${titleName} LLM Models — API Pricing, Context & Benchmarks`,
+    description: `All tracked ${titleName} models with benchmark scores, context windows, rate limits, and 30-day API cost calculators.`,
+    alternates: { canonical: `https://promptbill.online/providers/${provider}` },
+  };
+}
+
+export default async function ProviderHubPage({
+  params,
+}: {
+  params: Promise<{ provider: string }>;
+}) {
+  const { provider } = await params;
+  const matched = getModelsByProviderSlug(provider);
   const providerModels = matched.length > 0 ? matched : ALL_MODELS;
   const providerTitle = providerModels[0]?.provider || 'Provider';
 
   return (
     <SiteShell
       title={`${providerTitle} Models — Pricing, Context & Benchmarks`}
-      subtitle={`promptbill.online/providers/${slug} · Provider Hub`}
+      subtitle={`promptbill.online/providers/${provider} · Provider Hub`}
     >
       <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

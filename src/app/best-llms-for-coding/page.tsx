@@ -1,7 +1,14 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../lib/catalog';
 import { SiteShell } from '../../components/SiteShell';
+
+export const metadata: Metadata = {
+  title: 'Best LLMs for Coding & Agentic Engineering — Nov 2026',
+  description: 'Top LLMs ranked by coding (CO) and agentic (AG) benchmark scores alongside API pricing and speed.',
+  alternates: { canonical: 'https://promptbill.online/best-llms-for-coding' },
+};
 
 export default function BestLlmsForCodingPage() {
   const sortedByCoding = [...ALL_MODELS].sort((a, b) => b.co - a.co);

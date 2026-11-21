@@ -1,14 +1,34 @@
-'use client';
-
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { ALL_MODELS, parseComparisonSlug } from '../../../lib/catalog';
 import { SiteShell } from '../../../components/SiteShell';
 
-export default function ComparePage() {
-  const params = useParams<{ slug: string }>();
-  const parsed = parseComparisonSlug(params?.slug || '') || {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const parsed = parseComparisonSlug(slug) || { modelA: ALL_MODELS[0], modelB: ALL_MODELS[1] };
+  const { modelA, modelB } = parsed;
+  const title = `${modelA.name} vs ${modelB.name} — API Pricing, Speed & Benchmarks`;
+  const description = `Compare ${modelA.name} ($${modelA.inputPer1M}/$${modelA.outputPer1M} per 1M, ${modelA.tokPerSec} tok/s) vs ${modelB.name} ($${modelB.inputPer1M}/$${modelB.outputPer1M} per 1M, ${modelB.tokPerSec} tok/s).`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `https://promptbill.online/compare/${modelA.slug}-vs-${modelB.slug}` },
+  };
+}
+
+export default async function ComparePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const parsed = parseComparisonSlug(slug) || {
     modelA: ALL_MODELS[0],
     modelB: ALL_MODELS[1],
   };
@@ -20,6 +40,7 @@ export default function ComparePage() {
     { label: 'Price / 1M (In / Out)', aVal: `$${modelA.inputPer1M.toFixed(2)} / $${modelA.outputPer1M.toFixed(2)}`, bVal: `$${modelB.inputPer1M.toFixed(2)} / $${modelB.outputPer1M.toFixed(2)}` },
     { label: 'Speed (Tok/s)', aVal: `${modelA.tokPerSec} tok/s`, bVal: `${modelB.tokPerSec} tok/s` },
     { label: 'Context Window', aVal: modelA.contextWindow, bVal: modelB.contextWindow },
+    { label: 'Rate Limits', aVal: `${modelA.rpmLimit} · ${modelA.tpmLimit}`, bVal: `${modelB.rpmLimit} · ${modelB.tpmLimit}` },
     { label: 'Agentic (AG)', aVal: String(modelA.ag), bVal: String(modelB.ag) },
     { label: 'Coding (CO)', aVal: String(modelA.co), bVal: String(modelB.co) },
     { label: 'Reasoning (RE)', aVal: String(modelA.re), bVal: String(modelB.re) },
