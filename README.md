@@ -1,12 +1,9 @@
-# TokenLedger — AI API Token & Cloud Cost Simulator
+# PromptBill Fresh Start (`promptbill.online`)
 
-A modular Next.js (App Router) + TypeScript + Upstash Redis web application built for US/EU developer SEO traffic and monetization.
+Complete, clean Next.js + TypeScript starter for **PromptBill** (`https://promptbill.online`).
 
-## Features
-- Live AI API token & monthly cost simulator (OpenAI, Anthropic, Google)
-- Real-time prompt token counter
-- Prompt caching & Async Batch API discount modeling
-- Auto-generated Programmatic SEO comparison pages (`/compare/[slug]`)
-- Dynamic `sitemap.xml` for Google Search Console indexing
-- Live OpenRouter pricing sync via Vercel Cron + Upstash Redis
-- Built-in Vercel Analytics, Affiliate CTA buttons, and LemonSqueezy Pro PDF checkout hook
+## How to Upload to GitHub (Browser Interface)
+1. Extract `promptbill-fresh-start.zip` on your computer.
+2. Open your repository on GitHub (`github.com/ZmLone/tokenledger`), click **Add file** -> **Upload files**.
+3. Drag and drop the files/folders from inside `promptbill-fresh-start` (`package.json`, `next.config.ts`, `tsconfig.json`, `postcss.config.mjs`, `public/`, `src/`) and click **Commit changes**.
+4. Vercel will automatically build and deploy `https://promptbill.online`.
