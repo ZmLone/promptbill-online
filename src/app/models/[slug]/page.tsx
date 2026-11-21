@@ -26,18 +26,48 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <SiteShell title={`${model.name} — Benchmarks, Specs, Price History & Cost Calculator`} subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}>
-      <article className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-[11px] text-slate-500">Score</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">{model.score.toFixed(1)}</div><div className="text-[11px] text-slate-500">90% CI {model.interval} · Elo {model.elo}</div></div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-[11px] text-slate-500">Price (In / Out)</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">${model.inputPer1M.toFixed(2)} / ${model.outputPer1M.toFixed(2)}</div><div className="text-[11px] text-slate-500">Cache ${model.cachedInputPer1M.toFixed(2)}/1M</div></div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-[11px] text-slate-500">Context &amp; Speed</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">{model.contextWindow}</div><div className="text-[11px] text-emerald-700 font-mono">{model.tokPerSec} tok/s</div></div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-[11px] text-slate-500">Rate Limits</div><div className="mt-1 font-mono text-sm font-bold text-slate-900">{model.rpmLimit}</div><div className="text-[11px] text-slate-600 font-mono">{model.tpmLimit}</div></div>
+      <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed">
+          <strong>{model.name}</strong> ({model.provider}) ranks <strong>#{model.rank}</strong> with a score of <strong>{model.score.toFixed(1)}</strong>, <strong>{model.contextWindow}</strong> context window, <strong>{model.tokPerSec} tok/s</strong> speed, and API pricing of <strong>${model.inputPer1M.toFixed(2)} / 1M input</strong> and <strong>${model.outputPer1M.toFixed(2)} / 1M output</strong>.
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 text-center font-mono text-xs">
-          {[['AG', model.ag], ['CO', model.co], ['RE', model.re], ['MM', model.mm], ['KN', model.kn], ['ML', model.ml], ['IF', model.if], ['MA', model.ma]].map(([k, v]) => (
-            <div key={String(k)} className="rounded-lg border border-slate-200 p-2.5 bg-white"><div className="text-[10px] text-slate-400">{k}</div><div className="text-sm font-bold text-slate-900">{v}</div></div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-xs text-slate-500">Benchmark Score</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">{model.score.toFixed(1)}</div><div className="text-xs text-slate-500">90% CI {model.interval} · Elo {model.elo}</div></div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-xs text-slate-500">API Price (In / Out)</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">${model.inputPer1M.toFixed(2)} / ${model.outputPer1M.toFixed(2)}</div><div className="text-xs text-slate-500">Cached Input: ${model.cachedInputPer1M.toFixed(2)}/1M</div></div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-xs text-slate-500">Context &amp; Speed</div><div className="mt-1 font-mono text-xl font-bold text-slate-900">{model.contextWindow}</div><div className="text-xs text-emerald-700 font-mono">Max Out {model.maxOutputTokens} · {model.tokPerSec} tok/s</div></div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5"><div className="text-xs text-slate-500">Rate Limits</div><div className="mt-1 font-mono text-sm font-bold text-slate-900">{model.rpmLimit}</div><div className="text-xs text-slate-600 font-mono">{model.tpmLimit} · {model.tpdLimit}</div></div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-center font-mono text-xs">
+          {[['AG (Agentic)', model.ag], ['CO (Coding)', model.co], ['RE (Reasoning)', model.re], ['MM (Multimodal)', model.mm], ['KN (Knowledge)', model.kn], ['ML (Multilingual)', model.ml], ['IF (Instruction)', model.if], ['MA (Math)', model.ma]].map(([k, v]) => (
+            <div key={String(k)} className="rounded-lg border border-slate-200 p-2.5 bg-white"><div className="text-[11px] font-sans text-slate-500">{k}</div><div className="text-base font-bold text-slate-900 mt-0.5">{v}</div></div>
           ))}
         </div>
+
+        <div className="overflow-x-auto rounded-lg border border-slate-200">
+          <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <caption className="sr-only">Historical API price timeline for {model.name}</caption>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-700">
+                <th scope="col" className="py-2.5 px-3">Snapshot</th>
+                <th scope="col" className="py-2.5 px-3">Input / 1M</th>
+                <th scope="col" className="py-2.5 px-3">Output / 1M</th>
+                <th scope="col" className="py-2.5 px-3">Pricing Notes</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200/80">
+              {model.priceHistory.map((h, i) => (
+                <tr key={h.date} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
+                  <th scope="row" className="py-2.5 px-3 font-mono font-semibold text-slate-900 text-left">{h.date}</th>
+                  <td className="py-2.5 px-3 font-mono text-slate-800">${h.inputPer1M.toFixed(2)}</td>
+                  <td className="py-2.5 px-3 font-mono text-slate-800">${h.outputPer1M.toFixed(2)}</td>
+                  <td className="py-2.5 px-3 text-slate-600">{h.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         <ModelDetailCalculator model={model} />
         <div><Link href="/compare" className="text-xs font-semibold text-emerald-700 underline">Browse head-to-head model comparisons →</Link></div>
       </article>

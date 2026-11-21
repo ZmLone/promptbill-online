@@ -25,7 +25,7 @@ export default function RoutingSimulatorPage() {
 
   return (
     <SiteShell title="Hybrid Routing Simulator" subtitle="promptbill.online/tools/routing-simulator">
-      <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-5">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <label className="space-y-1">
             <span className="text-slate-600">Routine % routed to {economy.name}</span>

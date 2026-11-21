@@ -14,7 +14,7 @@ export default function CompareIndexPage() {
   const pairs = getAutoComparisonPairs(20);
   return (
     <SiteShell title="Head-to-Head LLM Comparison Directory (Top 20 Models)" subtitle="promptbill.online/compare · 190 Auto-Generated Model Matchups">
-      <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-5">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
           {pairs.map((p) => (
             <Link key={p.slug} href={`/compare/${p.slug}`} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3.5 hover:border-emerald-400 hover:bg-white transition-colors">

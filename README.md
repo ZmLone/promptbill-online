@@ -1,1 +1,1 @@
-# PromptBill v19 — Path Fix for Tool Pages (`https://promptbill.online`)
+# PromptBill v20 — Readable Semantic Tables & Mobile-Friendly Layout (`https://promptbill.online`)

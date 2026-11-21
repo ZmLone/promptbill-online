@@ -11,7 +11,7 @@ export default function TokenCounterPage() {
 
   return (
     <SiteShell title="Token Counter" subtitle="promptbill.online/tools/token-counter">
-      <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <textarea rows={6} value={text} onChange={(e) => setText(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3.5 font-mono text-xs sm:text-sm text-slate-900" />
         <div className="flex flex-wrap gap-6 font-mono text-sm">
           <span>Characters: <strong>{chars.toLocaleString()}</strong></span>

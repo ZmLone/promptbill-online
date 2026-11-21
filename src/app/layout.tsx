@@ -6,7 +6,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),
   title: 'PromptBill — LLM Benchmarks, Model Pages, Comparisons & Cost Calculators',
-  description: 'Dedicated model pages, head-to-head comparisons, provider hubs, use-case rankings, and 30-day API cost calculators on promptbill.online.',
+  description: 'Semantic, mobile-friendly LLM rankings, individual model specs, head-to-head comparisons, and 30-day API cost calculators on promptbill.online.',
   alternates: { canonical: 'https://promptbill.online/' },
   verification: { google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8' },
 };
