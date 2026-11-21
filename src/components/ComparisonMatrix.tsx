@@ -10,6 +10,7 @@ import {
   Download,
   Share2,
   Check,
+  Table2,
 } from 'lucide-react';
 
 interface Props {
@@ -132,21 +133,25 @@ export const ComparisonMatrix: React.FC<Props> = ({
       batch: String(inputs.batchPercent),
       retry: String(inputs.retriesPercent),
     });
-    const shareUrl = `${window.location.origin}/?${params.toString()}#calculator`;
+    const shareUrl = `${window.location.origin}/?${params.toString()}#workspace`;
     navigator.clipboard?.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
   return (
-    <section id="compare-matrix" className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 sm:p-8">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-6 border-b border-slate-800/80">
+    <div className="space-y-5">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-slate-800/80">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Side-by-Side LLM API Cost &amp; Value Matrix ({models.length} Models)
-          </h2>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+            <Table2 className="w-3.5 h-3.5" />
+            Tool 3 of 4 · 18-Model Leaderboard &amp; Matrix
+          </div>
+          <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-white">
+            Side-by-Side LLM API Cost &amp; Value Matrix
+          </h3>
           <p className="mt-1 text-sm text-slate-400">
-            Sorted by live monthly spend, benchmark quality, or Score/$ ratio—including prompt cache reads, batch discounts, and long-context surcharges.
+            Click any model row to load it into the Cost Calculator, or export the filtered table as CSV.
           </p>
         </div>
 
@@ -172,7 +177,7 @@ export const ComparisonMatrix: React.FC<Props> = ({
       </div>
 
       {/* Filters Row */}
-      <div className="mt-4 flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -210,12 +215,12 @@ export const ComparisonMatrix: React.FC<Props> = ({
         </select>
       </div>
 
-      <div className="mt-5 overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[860px]">
-          <thead>
+      <div className="overflow-x-auto rounded-xl border border-slate-800/80">
+        <table className="w-full text-left border-collapse min-w-[840px]">
+          <thead className="bg-[#111827]">
             <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
-              <th className="py-3 px-3">Model &amp; Provider</th>
-              <th className="py-3 px-3">
+              <th className="py-3 px-3.5">Model &amp; Provider</th>
+              <th className="py-3 px-3.5">
                 <button
                   type="button"
                   onClick={() => toggleSort('inputPer1M')}
@@ -224,8 +229,8 @@ export const ComparisonMatrix: React.FC<Props> = ({
                   List In / Out <ArrowUpDown className="w-3.5 h-3.5" />
                 </button>
               </th>
-              <th className="py-3 px-3">Cache / Context</th>
-              <th className="py-3 px-3">
+              <th className="py-3 px-3.5">Cache / Context</th>
+              <th className="py-3 px-3.5">
                 <button
                   type="button"
                   onClick={() => toggleSort('qualityScore')}
@@ -234,7 +239,7 @@ export const ComparisonMatrix: React.FC<Props> = ({
                   Quality <ArrowUpDown className="w-3.5 h-3.5" />
                 </button>
               </th>
-              <th className="py-3 px-3">
+              <th className="py-3 px-3.5">
                 <button
                   type="button"
                   onClick={() => toggleSort('valueScore')}
@@ -243,7 +248,7 @@ export const ComparisonMatrix: React.FC<Props> = ({
                   Score / $ <ArrowUpDown className="w-3.5 h-3.5" />
                 </button>
               </th>
-              <th className="py-3 px-3 text-right">
+              <th className="py-3 px-3.5 text-right">
                 <button
                   type="button"
                   onClick={() => toggleSort('monthlyTotalCost')}
@@ -265,7 +270,7 @@ export const ComparisonMatrix: React.FC<Props> = ({
                     isSelected ? 'bg-emerald-500/10' : 'hover:bg-slate-800/40'
                   }`}
                 >
-                  <td className="py-3.5 px-3">
+                  <td className="py-3.5 px-3.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-white">{model.name}</span>
                       <span className="rounded-md border border-slate-700 bg-slate-800/80 px-1.5 py-0.5 text-[11px] text-slate-300">
@@ -292,20 +297,20 @@ export const ComparisonMatrix: React.FC<Props> = ({
                       {model.provider} · {model.notes}
                     </div>
                   </td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-slate-200 tabular-nums">
+                  <td className="py-3.5 px-3.5 font-mono text-xs text-slate-200 tabular-nums">
                     ${model.inputPer1M.toFixed(2)} / ${model.outputPer1M.toFixed(2)}{' '}
                     <span className="text-slate-500">/1M</span>
                   </td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-slate-300 tabular-nums">
+                  <td className="py-3.5 px-3.5 font-mono text-xs text-slate-300 tabular-nums">
                     Cache ${model.cachedInputPer1M.toFixed(2)} · {model.contextWindow}
                   </td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-slate-200 tabular-nums">
+                  <td className="py-3.5 px-3.5 font-mono text-xs text-slate-200 tabular-nums">
                     {model.qualityScore.toFixed(1)}
                   </td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-emerald-300 tabular-nums">
+                  <td className="py-3.5 px-3.5 font-mono text-xs text-emerald-300 tabular-nums">
                     {calc.valueScore.toFixed(1)}
                   </td>
-                  <td className="py-3.5 px-3 text-right">
+                  <td className="py-3.5 px-3.5 text-right">
                     <div className="font-mono font-bold text-white tabular-nums">
                       {formatCurrency(calc.monthlyTotalCost)}
                     </div>
@@ -320,13 +325,13 @@ export const ComparisonMatrix: React.FC<Props> = ({
         </table>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span className="inline-flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          Click any row to inspect its 30-day breakdown, per-request cost, and SaaS gross margin.
+          Selecting any row updates the active model in the Cost Calculator tab.
         </span>
         <span>Score/$ = Quality Score ÷ Output $/1M · Rate card verified November 2026.</span>
       </div>
-    </section>
+    </div>
   );
 };

@@ -43,16 +43,16 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
   const savingsPct = allFlagshipCost > 0 ? Math.round((monthlySavings / allFlagshipCost) * 100) : 0;
 
   return (
-    <section id="routing-simulator" className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 sm:p-8">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
             <GitBranch className="w-3.5 h-3.5" />
-            Multi-Model Routing Simulator
+            Tool 4 of 4 · Hybrid Routing Simulator
           </div>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+          <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-white">
             Model Routing &amp; Escalation Savings
-          </h2>
+          </h3>
           <p className="mt-1 text-sm text-slate-400">
             Route routine classification, formatting, and retrieval checks to a fast economy model while reserving frontier reasoning for complex prompts.
           </p>
@@ -66,7 +66,7 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -163,6 +163,6 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };

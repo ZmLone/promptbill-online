@@ -1,3 +1,3 @@
-# PromptBill v3 (`https://promptbill.online`)
+# PromptBill v4 (`https://promptbill.online`)
 
-Competitive AI API Token & LLM Cost Calculator built on Next.js 15.5.7 + Tailwind CSS v4.
+Tabbed interactive LLM Cost Intelligence Suite with Clean UI, 4-Tool Interactive Guide, Live Prompt Tokenizer, 18-Model Leaderboard, and Hybrid Routing Simulator.

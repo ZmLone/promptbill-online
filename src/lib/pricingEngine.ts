@@ -63,7 +63,6 @@ export function tokensToUnitValue(tokens: number, unit: InputUnitMode): number {
 export function estimatePromptTokensFromText(text: string, provider: string): number {
   if (!text) return 0;
   const charCount = text.length;
-  // Claude & Gemini average ~3.7-3.8 chars/token on mixed English/code; GPT/OpenAI averages ~4.0 chars/token
   const divisor = provider === 'Anthropic' ? 3.7 : provider === 'Google Gemini' ? 3.8 : 4.0;
   return Math.max(1, Math.ceil(charCount / divisor));
 }
@@ -132,7 +131,6 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
   const costPerRequest = monthlyCalls > 0 ? monthlyTotalCost / monthlyCalls : 0;
   const costPer1KCalls = costPerRequest * 1000;
 
-  // Score/$ ratio aligned with BenchLM / CostGoat methodology (quality score divided by output $/1M)
   const valueScore =
     model.outputPer1M > 0 ? Number((model.qualityScore / model.outputPer1M).toFixed(1)) : model.qualityScore;
 

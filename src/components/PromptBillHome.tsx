@@ -16,7 +16,7 @@ import { BrandMark } from './BrandMark';
 import { LivePromptTokenizer } from './LivePromptTokenizer';
 import { ComparisonMatrix } from './ComparisonMatrix';
 import { RoutingSimulator } from './RoutingSimulator';
-import { FaqAndMethodology } from './FaqAndMethodology';
+import { FeatureGuideAndFaq, WorkspaceTab } from './FeatureGuideAndFaq';
 import {
   Calculator,
   Zap,
@@ -26,11 +26,15 @@ import {
   ArrowUpRight,
   Cpu,
   DollarSign,
+  FileText,
+  Table2,
+  GitBranch,
 } from 'lucide-react';
 
 const models = modelsJson as LLMModel[];
 
 export default function PromptBillHome() {
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('calculator');
   const [selectedModelId, setSelectedModelId] = useState<string>('claude-sonnet-5-5');
   const [activePresetId, setActivePresetId] = useState<string>('rag-assistant');
   const [unitMode, setUnitMode] = useState<InputUnitMode>('tokens');
@@ -48,7 +52,6 @@ export default function PromptBillHome() {
   const [monthlyActiveUsers, setMonthlyActiveUsers] = useState<number>(4000);
   const [pricePerUserUsd, setPricePerUserUsd] = useState<number>(19);
 
-  // Restore shared scenario from URL query parameters if present
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -107,11 +110,21 @@ export default function PromptBillHome() {
     });
   };
 
+  const jumpToTab = (tab: WorkspaceTab) => {
+    setActiveTab(tab);
+    document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const handleApplyPromptTokens = (tokens: number) => {
     setActivePresetId('custom');
     setUnitMode('tokens');
     setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
-    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+    setActiveTab('calculator');
+  };
+
+  const handleSelectModelFromMatrix = (id: string) => {
+    setSelectedModelId(id);
+    setActiveTab('calculator');
   };
 
   const projectedMonthlyRevenue = monthlyActiveUsers * pricePerUserUsd;
@@ -124,85 +137,96 @@ export default function PromptBillHome() {
   const unitLabel =
     unitMode === 'tokens' ? 'Tokens' : unitMode === 'words' ? 'Words' : 'Characters';
 
+  const TABS: {
+    id: WorkspaceTab;
+    label: string;
+    badge?: string;
+    icon: React.FC<{ className?: string }>;
+  }[] = [
+    { id: 'calculator', label: '1. Cost Calculator', icon: Calculator },
+    { id: 'tokenizer', label: '2. Prompt Tokenizer', icon: FileText },
+    { id: 'matrix', label: '3. Compare 18 Models', badge: 'CSV', icon: Table2 },
+    { id: 'routing', label: '4. Routing Simulator', icon: GitBranch },
+  ];
+
   return (
     <div className="min-h-screen bg-[#080b12] text-slate-100">
+      {/* Clean Minimal Top Navigation */}
       <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-[#080b12]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
           <a href="#" className="flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" />
-            <div>
+            <div className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight text-white">PromptBill</span>
-              <span className="ml-2 hidden rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300 sm:inline-block">
+              <span className="hidden rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300 sm:inline-block">
                 promptbill.online
               </span>
             </div>
           </a>
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-slate-300">
-            <a href="#calculator" className="hover:text-white transition-colors">
+            <button type="button" onClick={() => jumpToTab('calculator')} className="hover:text-white transition-colors">
               Calculator
-            </a>
-            <a href="#prompt-tokenizer" className="hover:text-white transition-colors">
+            </button>
+            <button type="button" onClick={() => jumpToTab('tokenizer')} className="hover:text-white transition-colors">
               Tokenizer
-            </a>
-            <a href="#compare-matrix" className="hover:text-white transition-colors">
+            </button>
+            <button type="button" onClick={() => jumpToTab('matrix')} className="hover:text-white transition-colors">
               18-Model Matrix
-            </a>
-            <a href="#routing-simulator" className="hover:text-white transition-colors">
+            </button>
+            <button type="button" onClick={() => jumpToTab('routing')} className="hover:text-white transition-colors">
               Routing
-            </a>
-            <a href="#pro-license" className="hover:text-white transition-colors">
-              Pro ($9)
+            </button>
+            <a href="#feature-guide" className="hover:text-white transition-colors">
+              Guide &amp; FAQ
             </a>
           </nav>
 
-          <div className="flex items-center gap-2.5">
-            <a
-              href="#calculator"
-              className="rounded-lg bg-emerald-500 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors"
-            >
-              Calculate Spend
-            </a>
-          </div>
+          <a
+            href="#pro-license"
+            className="rounded-lg bg-emerald-500 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors"
+          >
+            Pro License ($9)
+          </a>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        {/* Hero */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-4">
+      <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        {/* Crisp Focused Hero */}
+        <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
+          <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-[#0e1422] px-3 py-1 text-xs text-slate-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              18 Models · OpenAI, Claude, Gemini, Grok, Kimi, DeepSeek &amp; Qwen · Nov 2026
+              All-in-One LLM Cost Intelligence · 18 Models · Updated Nov 2026
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1]">
-              Know Your True LLM API Bill Before You Ship.
+              Calculate, Compare &amp; Optimize Your AI API Bill.
             </h1>
-            <p className="max-w-2xl text-base sm:text-lg text-slate-400 leading-relaxed">
-              PromptBill models real-world AI unit economics—factoring in{' '}
-              <span className="text-slate-200 font-medium">prompt caching</span>,{' '}
-              <span className="text-slate-200 font-medium">batch discounts</span>,{' '}
-              <span className="text-slate-200 font-medium">reasoning tokens</span>,{' '}
-              <span className="text-slate-200 font-medium">API retries</span>, and{' '}
-              <span className="text-slate-200 font-medium">multi-model routing</span>.
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+              One clean workspace combining a <span className="text-slate-200 font-medium">30-day cost &amp; margin calculator</span>, a{' '}
+              <span className="text-slate-200 font-medium">live prompt tokenizer</span>, an{' '}
+              <span className="text-slate-200 font-medium">18-model comparison matrix</span>, and a{' '}
+              <span className="text-slate-200 font-medium">hybrid routing simulator</span>.
             </p>
           </div>
 
-          <div className="lg:col-span-4 rounded-2xl border border-slate-800 bg-[#0d121d] p-5 space-y-3">
+          {/* Live Summary Pill Card */}
+          <div className="w-full lg:w-80 shrink-0 rounded-2xl border border-slate-800 bg-[#0d121d] p-5 space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Selected Model</span>
-              <span className="font-mono text-emerald-400">{selectedModel.contextWindow} ctx</span>
+              <span>Active Model ({selectedModel.contextWindow})</span>
+              <span className="font-mono text-emerald-400">
+                {formatCurrency(activeBreakdown.costPerRequest)}/req
+              </span>
             </div>
-            <div className="text-xl font-bold text-white">{selectedModel.name}</div>
-            <div className="text-xs text-slate-400">{selectedModel.provider}</div>
+            <div className="text-lg font-bold text-white">{selectedModel.name}</div>
             <div className="pt-2 border-t border-slate-800 flex items-baseline justify-between">
-              <span className="text-xs text-slate-400">Est. Monthly Spend</span>
+              <span className="text-xs text-slate-400">Est. 30-Day Bill</span>
               <span className="font-mono text-2xl font-bold text-emerald-400 tabular-nums">
                 {formatCurrency(activeBreakdown.monthlyTotalCost)}
               </span>
             </div>
-            <div className="text-xs text-slate-400 flex items-center justify-between">
-              <span>Cheapest option for workload</span>
+            <div className="text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Lowest cost option</span>
               <span className="font-mono text-slate-200 tabular-nums">
                 {cheapestModelRow.model.name} ({formatCurrency(cheapestModelRow.calc.monthlyTotalCost)})
               </span>
@@ -210,365 +234,413 @@ export default function PromptBillHome() {
           </div>
         </section>
 
-        {/* 1-Click Presets */}
-        <section aria-label="Workload Presets">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              1-Click Workload Presets
-            </h2>
-            <span className="text-xs text-slate-500">Loads realistic token &amp; cache assumptions</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {presetsJson.map((preset) => {
-              const isActive = activePresetId === preset.id;
+        {/* Interactive Tabbed Workspace (Eliminates vertical clutter) */}
+        <section id="workspace" className="space-y-6">
+          {/* Workspace Tab Bar */}
+          <div
+            role="tablist"
+            aria-label="PromptBill Tools"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-2 rounded-2xl border border-slate-800 bg-[#0b1019] p-1.5"
+          >
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
                 <button
-                  key={preset.id}
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
                   type="button"
-                  onClick={() => applyPreset(preset)}
-                  className={`text-left rounded-xl border p-4 transition-all ${
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs sm:text-sm font-semibold transition-all ${
                     isActive
-                      ? 'border-emerald-500/60 bg-emerald-950/20'
-                      : 'border-slate-800 bg-[#0d121d] hover:border-slate-700'
+                      ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                      : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-sm text-white">{preset.title}</span>
-                    <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-                      {preset.badge}
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{tab.label}</span>
+                  {tab.badge && (
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-mono ${
+                        isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-emerald-300'
+                      }`}
+                    >
+                      {tab.badge}
                     </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-slate-400 line-clamp-2">{preset.description}</p>
-                  <div className="mt-3 font-mono text-[11px] text-slate-300 tabular-nums">
-                    {preset.inputTokensPerCall.toLocaleString()} in · {preset.outputTokensPerCall.toLocaleString()} out ·{' '}
-                    {preset.callsPerDay.toLocaleString()}/day
-                  </div>
+                  )}
                 </button>
               );
             })}
           </div>
+
+          {/* Active Workspace Panel */}
+          <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-5 sm:p-8">
+            {activeTab === 'calculator' && (
+              <div className="space-y-8">
+                {/* 1-Click Workload Presets */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      Quick-Start Workload Presets
+                    </span>
+                    <span className="text-xs text-slate-500">Click to load realistic assumptions</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {presetsJson.map((preset) => {
+                      const isActive = activePresetId === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => applyPreset(preset)}
+                          className={`text-left rounded-xl border p-3.5 transition-all ${
+                            isActive
+                              ? 'border-emerald-500/60 bg-emerald-950/20'
+                              : 'border-slate-800 bg-[#111827] hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs sm:text-sm text-white">
+                              {preset.title}
+                            </span>
+                            <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">
+                              {preset.badge}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-slate-400 line-clamp-2">{preset.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Calculator Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  <div className="lg:col-span-7 space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                      <div className="flex items-center gap-2">
+                        <Calculator className="w-5 h-5 text-emerald-400" />
+                        <h2 className="text-lg font-bold text-white">Token &amp; Billing Parameters</h2>
+                      </div>
+
+                      <div className="inline-flex rounded-xl border border-slate-700 bg-[#131a29] p-1 text-xs">
+                        {(['tokens', 'words', 'characters'] as InputUnitMode[]).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setUnitMode(mode)}
+                            className={`rounded-lg px-2.5 py-1 capitalize font-medium transition-colors ${
+                              unitMode === mode
+                                ? 'bg-emerald-500 text-slate-950'
+                                : 'text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {mode}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          Model Selection
+                        </label>
+                        <select
+                          value={selectedModelId}
+                          onChange={(e) => setSelectedModelId(e.target.value)}
+                          className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                        >
+                          {models.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name} — {m.provider} (${m.inputPer1M}/${m.outputPer1M})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          API Calls / Requests per Day
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={inputs.callsPerDay}
+                          onChange={(e) => {
+                            setActivePresetId('custom');
+                            setInputs({ ...inputs, callsPerDay: Math.max(0, Number(e.target.value)) });
+                          }}
+                          className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          Input {unitLabel} per Call{' '}
+                          {unitMode !== 'tokens' && (
+                            <span className="text-emerald-400 font-mono">
+                              ({inputs.inputTokensPerCall.toLocaleString()} tok)
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={unitMode === 'characters' ? 200 : 50}
+                          value={tokensToUnitValue(inputs.inputTokensPerCall, unitMode)}
+                          onChange={(e) => {
+                            setActivePresetId('custom');
+                            setInputs({
+                              ...inputs,
+                              inputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
+                            });
+                          }}
+                          className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          Output {unitLabel} per Call{' '}
+                          {unitMode !== 'tokens' && (
+                            <span className="text-emerald-400 font-mono">
+                              ({inputs.outputTokensPerCall.toLocaleString()} tok)
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={unitMode === 'characters' ? 100 : 25}
+                          value={tokensToUnitValue(inputs.outputTokensPerCall, unitMode)}
+                          onChange={(e) => {
+                            setActivePresetId('custom');
+                            setInputs({
+                              ...inputs,
+                              outputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
+                            });
+                          }}
+                          className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-800/80 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+                        Production Multipliers (Caching, Batch, Reasoning &amp; Retries)
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-slate-300">Prompt Cache Hit Rate</span>
+                            <span className="font-mono text-emerald-400">{inputs.cacheHitPercent}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={95}
+                            step={5}
+                            value={inputs.cacheHitPercent}
+                            onChange={(e) =>
+                              setInputs({ ...inputs, cacheHitPercent: Number(e.target.value) })
+                            }
+                            className="w-full accent-emerald-400"
+                          />
+                        </div>
+
+                        <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-slate-300">Batch API Share (50% Off)</span>
+                            <span className="font-mono text-emerald-400">{inputs.batchPercent}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            step={5}
+                            value={inputs.batchPercent}
+                            onChange={(e) =>
+                              setInputs({ ...inputs, batchPercent: Number(e.target.value) })
+                            }
+                            className="w-full accent-emerald-400"
+                          />
+                        </div>
+
+                        <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
+                          <label className="block text-xs text-slate-300 mb-1.5">
+                            Reasoning / Thinking Tokens / Call
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={100}
+                            value={inputs.reasoningTokensPerCall}
+                            onChange={(e) =>
+                              setInputs({
+                                ...inputs,
+                                reasoningTokensPerCall: Math.max(0, Number(e.target.value)),
+                              })
+                            }
+                            className="w-full rounded-lg border border-slate-700 bg-[#0b1019] px-2.5 py-1.5 font-mono text-sm text-white"
+                          />
+                        </div>
+
+                        <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-slate-300">Retry &amp; Failure Buffer</span>
+                            <span className="font-mono text-amber-300">+{inputs.retriesPercent}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={30}
+                            step={1}
+                            value={inputs.retriesPercent}
+                            onChange={(e) =>
+                              setInputs({ ...inputs, retriesPercent: Number(e.target.value) })
+                            }
+                            className="w-full accent-emerald-400"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Breakdown & SaaS Margin */}
+                  <div className="lg:col-span-5 space-y-5">
+                    <div className="rounded-2xl border border-slate-800 bg-[#111827] p-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                          30-Day Cost Breakdown
+                        </span>
+                        <span className="font-mono text-xs text-slate-400 tabular-nums">
+                          {activeBreakdown.monthlyCalls.toLocaleString()} calls/mo
+                        </span>
+                      </div>
+
+                      <div className="flex items-baseline justify-between">
+                        <div className="font-mono text-4xl font-bold text-white tabular-nums">
+                          {formatCurrency(activeBreakdown.monthlyTotalCost)}
+                        </div>
+                        <div className="font-mono text-xs text-slate-400 tabular-nums">
+                          {formatCurrency(activeBreakdown.costPerRequest)} / req
+                        </div>
+                      </div>
+
+                      <div className="space-y-2.5 pt-3 border-t border-slate-800 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Input Tokens (cache-adjusted)</span>
+                          <span className="font-mono text-slate-200 tabular-nums">
+                            {formatCurrency(activeBreakdown.monthlyInputCost)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Output Tokens</span>
+                          <span className="font-mono text-slate-200 tabular-nums">
+                            {formatCurrency(activeBreakdown.monthlyOutputCost)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Reasoning / Thinking Tokens</span>
+                          <span className="font-mono text-slate-200 tabular-nums">
+                            {formatCurrency(activeBreakdown.monthlyReasoningCost)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Retry &amp; Error Overhead</span>
+                          <span className="font-mono text-amber-300 tabular-nums">
+                            +{formatCurrency(activeBreakdown.monthlyRetryOverheadCost)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-slate-800/80">
+                          <span className="text-slate-300 font-medium">Blended Cost per 1,000 Calls</span>
+                          <span className="font-mono font-semibold text-emerald-400 tabular-nums">
+                            {formatCurrency(activeBreakdown.costPer1KCalls)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-[#111827] p-6 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-emerald-400" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200">
+                          AI SaaS Gross Margin Check
+                        </h3>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] text-slate-400 mb-1">Active Paying Users</label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={monthlyActiveUsers}
+                            onChange={(e) => setMonthlyActiveUsers(Math.max(1, Number(e.target.value)))}
+                            className="w-full rounded-lg border border-slate-700 bg-[#0b1019] px-3 py-1.5 font-mono text-sm text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-slate-400 mb-1">Price / User ($/mo)</label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={pricePerUserUsd}
+                            onChange={(e) => setPricePerUserUsd(Math.max(1, Number(e.target.value)))}
+                            className="w-full rounded-lg border border-slate-700 bg-[#0b1019] px-3 py-1.5 font-mono text-sm text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl bg-[#0b1019] border border-slate-800 p-3.5 flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-slate-400">Est. AI COGS % of Revenue</div>
+                          <div className="font-mono text-lg font-bold text-white tabular-nums">
+                            {aiCostShareOfRevenue.toFixed(1)}%
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-slate-400">Gross Margin After LLM Spend</div>
+                          <div className="font-mono text-lg font-bold text-emerald-400 tabular-nums">
+                            {estimatedGrossMarginPct.toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'tokenizer' && (
+              <LivePromptTokenizer
+                models={models}
+                selectedModel={selectedModel}
+                onApplyInputTokens={handleApplyPromptTokens}
+              />
+            )}
+
+            {activeTab === 'matrix' && (
+              <ComparisonMatrix
+                models={models}
+                inputs={inputs}
+                selectedModelId={selectedModelId}
+                onSelectModel={handleSelectModelFromMatrix}
+              />
+            )}
+
+            {activeTab === 'routing' && (
+              <RoutingSimulator models={models} baseInputs={inputs} />
+            )}
+          </div>
         </section>
 
-        {/* Main Calculator */}
-        <section id="calculator" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-7 rounded-2xl border border-slate-800 bg-[#0d121d] p-6 space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-              <div className="flex items-center gap-2.5">
-                <Calculator className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-bold text-white">Token &amp; Billing Parameters</h2>
-              </div>
-
-              {/* Tokens / Words / Characters Toggle */}
-              <div className="inline-flex rounded-xl border border-slate-700 bg-[#131a29] p-1 text-xs">
-                {(['tokens', 'words', 'characters'] as InputUnitMode[]).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => setUnitMode(mode)}
-                    className={`rounded-lg px-2.5 py-1 capitalize font-medium transition-colors ${
-                      unitMode === mode
-                        ? 'bg-emerald-500 text-slate-950'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {mode}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Model Selection
-                </label>
-                <select
-                  value={selectedModelId}
-                  onChange={(e) => setSelectedModelId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
-                >
-                  {models.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} — {m.provider} (${m.inputPer1M}/${m.outputPer1M})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  API Calls / Requests per Day
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={inputs.callsPerDay}
-                  onChange={(e) => {
-                    setActivePresetId('custom');
-                    setInputs({ ...inputs, callsPerDay: Math.max(0, Number(e.target.value)) });
-                  }}
-                  className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Input {unitLabel} per Call{' '}
-                  {unitMode !== 'tokens' && (
-                    <span className="text-emerald-400 font-mono">
-                      ({inputs.inputTokensPerCall.toLocaleString()} tok)
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  step={unitMode === 'characters' ? 200 : 50}
-                  value={tokensToUnitValue(inputs.inputTokensPerCall, unitMode)}
-                  onChange={(e) => {
-                    setActivePresetId('custom');
-                    setInputs({
-                      ...inputs,
-                      inputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
-                    });
-                  }}
-                  className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Output {unitLabel} per Call{' '}
-                  {unitMode !== 'tokens' && (
-                    <span className="text-emerald-400 font-mono">
-                      ({inputs.outputTokensPerCall.toLocaleString()} tok)
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  step={unitMode === 'characters' ? 100 : 25}
-                  value={tokensToUnitValue(inputs.outputTokensPerCall, unitMode)}
-                  onChange={(e) => {
-                    setActivePresetId('custom');
-                    setInputs({
-                      ...inputs,
-                      outputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
-                    });
-                  }}
-                  className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800/80 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-                Production Cost Multipliers (Caching, Batch, Reasoning &amp; Retries)
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-300">Prompt Cache Hit Rate</span>
-                    <span className="font-mono text-emerald-400">{inputs.cacheHitPercent}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={95}
-                    step={5}
-                    value={inputs.cacheHitPercent}
-                    onChange={(e) =>
-                      setInputs({ ...inputs, cacheHitPercent: Number(e.target.value) })
-                    }
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-
-                <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-300">Batch API Share (50% Discount)</span>
-                    <span className="font-mono text-emerald-400">{inputs.batchPercent}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={5}
-                    value={inputs.batchPercent}
-                    onChange={(e) =>
-                      setInputs({ ...inputs, batchPercent: Number(e.target.value) })
-                    }
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-
-                <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
-                  <label className="block text-xs text-slate-300 mb-1.5">
-                    Reasoning / Thinking Tokens / Call
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    step={100}
-                    value={inputs.reasoningTokensPerCall}
-                    onChange={(e) =>
-                      setInputs({
-                        ...inputs,
-                        reasoningTokensPerCall: Math.max(0, Number(e.target.value)),
-                      })
-                    }
-                    className="w-full rounded-lg border border-slate-700 bg-[#0b1019] px-2.5 py-1.5 font-mono text-sm text-white"
-                  />
-                </div>
-
-                <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-300">Retry &amp; Failure Buffer</span>
-                    <span className="font-mono text-amber-300">+{inputs.retriesPercent}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={30}
-                    step={1}
-                    value={inputs.retriesPercent}
-                    onChange={(e) =>
-                      setInputs({ ...inputs, retriesPercent: Number(e.target.value) })
-                    }
-                    className="w-full accent-emerald-400"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Breakdown & SaaS Gross Margin */}
-          <div className="lg:col-span-5 space-y-5">
-            <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  30-Day Cost Breakdown
-                </span>
-                <span className="font-mono text-xs text-slate-400 tabular-nums">
-                  {activeBreakdown.monthlyCalls.toLocaleString()} calls/mo
-                </span>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <div className="font-mono text-4xl font-bold text-white tabular-nums">
-                  {formatCurrency(activeBreakdown.monthlyTotalCost)}
-                </div>
-                <div className="font-mono text-xs text-slate-400 tabular-nums">
-                  {formatCurrency(activeBreakdown.costPerRequest)} / request
-                </div>
-              </div>
-
-              <div className="space-y-2.5 pt-3 border-t border-slate-800 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Input Tokens (cache-adjusted)</span>
-                  <span className="font-mono text-slate-200 tabular-nums">
-                    {formatCurrency(activeBreakdown.monthlyInputCost)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Output Tokens</span>
-                  <span className="font-mono text-slate-200 tabular-nums">
-                    {formatCurrency(activeBreakdown.monthlyOutputCost)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Reasoning / Thinking Tokens</span>
-                  <span className="font-mono text-slate-200 tabular-nums">
-                    {formatCurrency(activeBreakdown.monthlyReasoningCost)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Retry &amp; Error Overhead</span>
-                  <span className="font-mono text-amber-300 tabular-nums">
-                    +{formatCurrency(activeBreakdown.monthlyRetryOverheadCost)}
-                  </span>
-                </div>
-                <div className="flex justify-between pt-2 border-t border-slate-800/80">
-                  <span className="text-slate-300 font-medium">Blended Cost per 1,000 Calls</span>
-                  <span className="font-mono font-semibold text-emerald-400 tabular-nums">
-                    {formatCurrency(activeBreakdown.costPer1KCalls)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200">
-                  AI SaaS Gross Margin Check
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Active Paying Users</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={monthlyActiveUsers}
-                    onChange={(e) => setMonthlyActiveUsers(Math.max(1, Number(e.target.value)))}
-                    className="w-full rounded-lg border border-slate-700 bg-[#131a29] px-3 py-1.5 font-mono text-sm text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Price / User ($/mo)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={pricePerUserUsd}
-                    onChange={(e) => setPricePerUserUsd(Math.max(1, Number(e.target.value)))}
-                    className="w-full rounded-lg border border-slate-700 bg-[#131a29] px-3 py-1.5 font-mono text-sm text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-[#111827] border border-slate-800 p-3.5 flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-slate-400">Est. AI COGS % of Revenue</div>
-                  <div className="font-mono text-lg font-bold text-white tabular-nums">
-                    {aiCostShareOfRevenue.toFixed(1)}%
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-slate-400">Gross Margin After LLM Spend</div>
-                  <div className="font-mono text-lg font-bold text-emerald-400 tabular-nums">
-                    {estimatedGrossMarginPct.toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Live Prompt Tokenizer */}
-        <LivePromptTokenizer
-          models={models}
-          selectedModel={selectedModel}
-          onApplyInputTokens={handleApplyPromptTokens}
-        />
-
-        {/* 18-Model Matrix with CSV Export & Shareable Link */}
-        <ComparisonMatrix
-          models={models}
-          inputs={inputs}
-          selectedModelId={selectedModelId}
-          onSelectModel={(id) => setSelectedModelId(id)}
-        />
-
-        {/* Routing Simulator */}
-        <RoutingSimulator models={models} baseInputs={inputs} />
-
-        {/* Methodology & FAQ */}
-        <FaqAndMethodology />
+        {/* Clear Guide to All Features + Formula + FAQ */}
+        <FeatureGuideAndFaq onJumpToTab={jumpToTab} />
 
         {/* Pro License */}
         <section
@@ -612,7 +684,7 @@ export default function PromptBillHome() {
               <div className="font-mono text-4xl font-bold text-white">$9</div>
               <div className="text-xs text-slate-400">One-time payment · No subscription</div>
               <a
-                href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#calculator'}
+                href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors"
               >
                 Get PromptBill Pro <ArrowUpRight className="w-4 h-4" />
@@ -634,10 +706,18 @@ export default function PromptBillHome() {
             <span>· promptbill.online</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="#calculator" className="hover:text-white">Calculator</a>
-            <a href="#prompt-tokenizer" className="hover:text-white">Tokenizer</a>
-            <a href="#compare-matrix" className="hover:text-white">Matrix</a>
-            <a href="#routing-simulator" className="hover:text-white">Routing</a>
+            <button type="button" onClick={() => jumpToTab('calculator')} className="hover:text-white">
+              Calculator
+            </button>
+            <button type="button" onClick={() => jumpToTab('tokenizer')} className="hover:text-white">
+              Tokenizer
+            </button>
+            <button type="button" onClick={() => jumpToTab('matrix')} className="hover:text-white">
+              Matrix
+            </button>
+            <button type="button" onClick={() => jumpToTab('routing')} className="hover:text-white">
+              Routing
+            </button>
             <a href="/sitemap.xml" className="hover:text-white">Sitemap</a>
           </div>
           <div className="flex items-center gap-1.5 text-slate-500">

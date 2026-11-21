@@ -45,18 +45,18 @@ export const LivePromptTokenizer: React.FC<Props> = ({
   }, [models, promptText]);
 
   return (
-    <section id="prompt-tokenizer" className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 sm:p-8">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-5">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300">
             <FileText className="w-3.5 h-3.5" />
-            Live Prompt Tokenizer &amp; Bloat Inspector
+            Tool 2 of 4 · Live Prompt Tokenizer
           </div>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+          <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-white">
             Paste Any System Prompt to Measure Exact Token Cost
-          </h2>
+          </h3>
           <p className="mt-1 text-sm text-slate-400">
-            Converts raw text into provider-adjusted token counts (GPT vs. Claude vs. Gemini) and lets you push that token count straight into the monthly calculator.
+            Converts raw text into provider-adjusted token counts (GPT vs. Claude vs. Gemini) and pushes the result into the Cost Calculator.
           </p>
         </div>
 
@@ -66,14 +66,14 @@ export const LivePromptTokenizer: React.FC<Props> = ({
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors shrink-0"
         >
           <ArrowDownToLine className="w-4 h-4" />
-          Use {stats.estimatedTokens.toLocaleString()} Tokens in Calculator
+          Apply {stats.estimatedTokens.toLocaleString()} Tokens to Calculator
         </button>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 space-y-3">
           <textarea
-            rows={5}
+            rows={6}
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
             placeholder="Paste your system prompt, RAG context chunk, or few-shot examples here..."
@@ -137,6 +137,6 @@ export const LivePromptTokenizer: React.FC<Props> = ({
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
