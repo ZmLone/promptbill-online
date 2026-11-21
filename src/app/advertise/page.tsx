@@ -14,7 +14,7 @@ export default function AdvertisePage() {
     >
       <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
         <p className="text-sm text-slate-600">
-          Sponsor placements on PromptBill reach developers comparing LLM API token prices, latency, and models.
+          Sponsor placements on PromptBill reach developers comparing LLM API token prices, latency, routing savings, and models.
         </p>
         <form
           onSubmit={(e) => {

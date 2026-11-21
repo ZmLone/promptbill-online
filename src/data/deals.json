@@ -33,10 +33,10 @@
     "id": "deal-model-routing",
     "badge": "SMART ROUTING",
     "title": "Tiered Routing: Economy Model + Flagship Escalation",
-    "provider": "PromptBill Selector",
+    "provider": "PromptBill Routing Simulator",
     "savings": "Cut routine call cost by 60%+",
     "description": "Handle simple queries and formatting on low-cost models while escalating hard reasoning prompts to flagship models.",
-    "ctaLabel": "Open LLM Selector",
-    "targetPath": "/tools/llm-selector"
+    "ctaLabel": "Open Routing Simulator",
+    "targetPath": "/tools/routing-simulator"
   }
 ]

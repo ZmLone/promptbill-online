@@ -8,9 +8,11 @@ import {
   Calculator,
   Sparkles,
   FileText,
+  GitBranch,
   Tag,
   BookOpen,
   Megaphone,
+  Code2,
   Copy,
   Check,
   ExternalLink,
@@ -18,9 +20,11 @@ import {
 
 const NAV_ITEMS: { href: string; label: string; icon: React.FC<{ className?: string }> }[] = [
   { href: '/', label: 'Leaderboard', icon: ArrowUpDown },
-  { href: '/pricing', label: 'API Pricing & Cost', icon: Calculator },
+  { href: '/pricing', label: 'API Pricing', icon: Calculator },
+  { href: '/best-llms-for-coding', label: 'Best for Coding', icon: Code2 },
   { href: '/tools/llm-selector', label: 'LLM Selector', icon: Sparkles },
   { href: '/tools/token-counter', label: 'Token Counter', icon: FileText },
+  { href: '/tools/routing-simulator', label: 'Routing', icon: GitBranch },
   { href: '/deals', label: 'Deals', icon: Tag },
   { href: '/methodology', label: 'Methodology', icon: BookOpen },
   { href: '/advertise', label: 'Advertise', icon: Megaphone },
@@ -61,7 +65,7 @@ export function SiteShell({
             </div>
           </Link>
 
-          <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 text-sm font-medium">
+          <nav aria-label="Main Navigation" className="hidden xl:flex items-center gap-1 text-xs font-medium">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -69,7 +73,7 @@ export function SiteShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors ${
                     active
                       ? 'bg-slate-900 text-white'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -100,7 +104,7 @@ export function SiteShell({
           </div>
         </div>
 
-        <div className="flex lg:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
+        <div className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
             return (
@@ -138,9 +142,10 @@ export function SiteShell({
           <div className="flex flex-wrap items-center gap-4">
             <Link href="/" className="hover:text-slate-900">Leaderboard</Link>
             <Link href="/pricing" className="hover:text-slate-900">API Pricing</Link>
-            <Link href="/tools/llm-selector" className="hover:text-slate-900">LLM Selector</Link>
-            <Link href="/tools/token-counter" className="hover:text-slate-900">Token Counter</Link>
-            <Link href="/deals" className="hover:text-slate-900">Deals</Link>
+            <Link href="/best-llms-for-coding" className="hover:text-slate-900">Best for Coding</Link>
+            <Link href="/models/claude-fable-5-2" className="hover:text-slate-900">Claude Fable 5.2</Link>
+            <Link href="/compare/claude-fable-5-2-vs-gemini-4-neon" className="hover:text-slate-900">Fable 5.2 vs Gemini 4 Neon</Link>
+            <Link href="/providers/anthropic" className="hover:text-slate-900">Anthropic</Link>
             <a href="/sitemap.xml" className="inline-flex items-center gap-1 hover:text-slate-900">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>

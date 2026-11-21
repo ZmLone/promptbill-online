@@ -1,10 +1,7 @@
-# PromptBill v8 — Real Multi-Page Routes (`https://promptbill.online`)
+# PromptBill v11 — Programmatic SEO Pages (`https://promptbill.online`)
 
-Every navigation tab uses real Next.js App Router pages so the browser URL updates on every click:
-- `/` (Leaderboard)
-- `/pricing` (API Pricing & Cost)
-- `/tools/llm-selector` (LLM Selector)
-- `/tools/token-counter` (Token Counter)
-- `/deals` (Deals)
-- `/methodology` (Methodology)
-- `/advertise` (Advertise)
+Includes:
+- `/models/[slug]` individual model pages with benchmarks, context, rate limits, pricing history & calculator
+- `/compare/[model-a]-vs-[model-b]` head-to-head comparison pages
+- `/providers/[provider]` provider hubs
+- `/best-llms-for-coding` coding LLM ranking page
