@@ -41,55 +41,23 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
         <label className="space-y-1">
           <span className="text-slate-600 font-medium">Input tokens / call</span>
-          <input
-            type="number"
-            min={0}
-            value={inputTokens}
-            onChange={(e) => setInputTokens(Math.max(0, Number(e.target.value)))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
-          />
+          <input type="number" min={0} value={inputTokens} onChange={(e) => setInputTokens(Math.max(0, Number(e.target.value)))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900" />
         </label>
         <label className="space-y-1">
           <span className="text-slate-600 font-medium">Output tokens / call</span>
-          <input
-            type="number"
-            min={0}
-            value={outputTokens}
-            onChange={(e) => setOutputTokens(Math.max(0, Number(e.target.value)))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
-          />
+          <input type="number" min={0} value={outputTokens} onChange={(e) => setOutputTokens(Math.max(0, Number(e.target.value)))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900" />
         </label>
         <label className="space-y-1">
           <span className="text-slate-600 font-medium">Calls / day</span>
-          <input
-            type="number"
-            min={0}
-            value={callsPerDay}
-            onChange={(e) => setCallsPerDay(Math.max(0, Number(e.target.value)))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
-          />
+          <input type="number" min={0} value={callsPerDay} onChange={(e) => setCallsPerDay(Math.max(0, Number(e.target.value)))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900" />
         </label>
         <label className="space-y-1">
           <span className="text-slate-600 font-medium">Cache hit %</span>
-          <input
-            type="number"
-            min={0}
-            max={95}
-            value={cacheHitPct}
-            onChange={(e) => setCacheHitPct(Math.min(95, Math.max(0, Number(e.target.value))))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
-          />
+          <input type="number" min={0} max={95} value={cacheHitPct} onChange={(e) => setCacheHitPct(Math.min(95, Math.max(0, Number(e.target.value))))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900" />
         </label>
         <label className="space-y-1">
           <span className="text-slate-600 font-medium">Batch % (50% off)</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={batchSharePct}
-            onChange={(e) => setBatchSharePct(Math.min(100, Math.max(0, Number(e.target.value))))}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900"
-          />
+          <input type="number" min={0} max={100} value={batchSharePct} onChange={(e) => setBatchSharePct(Math.min(100, Math.max(0, Number(e.target.value))))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-slate-900" />
         </label>
       </div>
 

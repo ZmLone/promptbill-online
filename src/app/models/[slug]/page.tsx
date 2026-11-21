@@ -17,39 +17,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const model = getModelBySlug(slug);
-  if (!model) {
-    return { title: 'Model Not Found — PromptBill' };
-  }
-
+  if (!model) return { title: 'Model Not Found — PromptBill' };
   const title = `${model.name} API Pricing, Benchmarks, Rate Limits & Cost Calculator (Nov 2026)`;
   const description = `${model.name} (${model.provider}) full benchmark breakdown (Score ${model.score}, Coding ${model.co}, Reasoning ${model.re}), ${model.contextWindow} context window, ${model.rpmLimit} / ${model.tpmLimit} rate limits, historical price drops, and 30-day API cost calculator.`;
-
   return {
     title,
     description,
-    alternates: {
-      canonical: `https://promptbill.online/models/${model.slug}`,
-    },
-    openGraph: {
-      title,
-      description,
-      url: `https://promptbill.online/models/${model.slug}`,
-      siteName: 'PromptBill',
-      type: 'article',
-    },
+    alternates: { canonical: `https://promptbill.online/models/${model.slug}` },
+    openGraph: { title, description, url: `https://promptbill.online/models/${model.slug}`, siteName: 'PromptBill', type: 'article' },
   };
 }
 
-export default async function ModelDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ModelDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const model = getModelBySlug(slug);
-  if (!model) {
-    notFound();
-  }
+  if (!model) notFound();
 
   const peerModels = ALL_MODELS.filter((m) => m.slug !== model.slug).slice(0, 4);
 
@@ -63,10 +45,7 @@ export default async function ModelDetailPage({
         operatingSystem: 'Cloud API',
         url: `https://promptbill.online/models/${model.slug}`,
         description: `${model.name} by ${model.provider}: ${model.bestFor}. Composite benchmark score ${model.score}, context window ${model.contextWindow}, speed ${model.tokPerSec} tokens/sec.`,
-        brand: {
-          '@type': 'Brand',
-          name: model.provider,
-        },
+        brand: { '@type': 'Brand', name: model.provider },
         offers: {
           '@type': 'Offer',
           price: model.inputPer1M.toFixed(2),
@@ -103,10 +82,7 @@ export default async function ModelDetailPage({
       title={`${model.name} — Benchmarks, Context Specs, Price History & Cost Calculator`}
       subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <article className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-6">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed">
@@ -121,9 +97,7 @@ export default async function ModelDetailPage({
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
             <div className="text-[11px] text-slate-500">API Price (In / Out)</div>
-            <div className="mt-1 font-mono text-xl font-bold text-slate-900">
-              ${model.inputPer1M.toFixed(2)} / ${model.outputPer1M.toFixed(2)}
-            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-slate-900">${model.inputPer1M.toFixed(2)} / ${model.outputPer1M.toFixed(2)}</div>
             <div className="text-[11px] text-slate-500">Cached Input: ${model.cachedInputPer1M.toFixed(2)}/1M</div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
@@ -139,20 +113,9 @@ export default async function ModelDetailPage({
         </div>
 
         <div className="space-y-2.5">
-          <h2 className="text-base font-bold text-slate-900">
-            Full Capability Benchmark Breakdown ({model.name})
-          </h2>
+          <h2 className="text-base font-bold text-slate-900">Full Capability Benchmark Breakdown ({model.name})</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-center font-mono text-xs">
-            {[
-              ['AG (Agentic)', model.ag],
-              ['CO (Coding)', model.co],
-              ['RE (Reasoning)', model.re],
-              ['MM (Multimodal)', model.mm],
-              ['KN (Knowledge)', model.kn],
-              ['ML (Multilingual)', model.ml],
-              ['IF (Instruction)', model.if],
-              ['MA (Math)', model.ma],
-            ].map(([label, val]) => (
+            {[['AG (Agentic)', model.ag], ['CO (Coding)', model.co], ['RE (Reasoning)', model.re], ['MM (Multimodal)', model.mm], ['KN (Knowledge)', model.kn], ['ML (Multilingual)', model.ml], ['IF (Instruction)', model.if], ['MA (Math)', model.ma]].map(([label, val]) => (
               <div key={String(label)} className="rounded-lg border border-slate-200 p-2.5 bg-white">
                 <div className="text-[10px] font-sans text-slate-500">{label}</div>
                 <div className="mt-0.5 text-base font-bold text-slate-900">{val}</div>
@@ -162,9 +125,7 @@ export default async function ModelDetailPage({
         </div>
 
         <div className="space-y-2.5">
-          <h2 className="text-base font-bold text-slate-900">
-            Historical API Price Drops &amp; Rate Timeline
-          </h2>
+          <h2 className="text-base font-bold text-slate-900">Historical API Price Drops &amp; Rate Timeline</h2>
           <div className="overflow-x-auto rounded-lg border border-slate-200">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -194,31 +155,20 @@ export default async function ModelDetailPage({
         <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap gap-2">
             {peerModels.map((peer) => {
-              const pairSlug =
-                model.rank < peer.rank ? `${model.slug}-vs-${peer.slug}` : `${peer.slug}-vs-${model.slug}`;
+              const pairSlug = model.rank < peer.rank ? `${model.slug}-vs-${peer.slug}` : `${peer.slug}-vs-${model.slug}`;
               return (
-                <Link
-                  key={peer.slug}
-                  href={`/compare/${pairSlug}`}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-medium text-slate-800 hover:bg-slate-100"
-                >
+                <Link key={peer.slug} href={`/compare/${pairSlug}`} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-medium text-slate-800 hover:bg-slate-100">
                   {model.name} vs {peer.name}
                 </Link>
               );
             })}
           </div>
           <div className="flex gap-2">
-            <Link
-              href={`/providers/${model.providerSlug}`}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-800 hover:bg-slate-50"
-            >
+            <Link href={`/providers/${model.providerSlug}`} className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-800 hover:bg-slate-50">
               All {model.provider} Models →
             </Link>
-            <Link
-              href="/"
-              className="rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
-            >
-              Leaderboard
+            <Link href="/compare" className="rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800">
+              Compare Hub
             </Link>
           </div>
         </div>

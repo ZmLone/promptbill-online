@@ -48,6 +48,12 @@ export interface ModelEntry {
   bestFor: string;
 }
 
+export interface ComparisonPair {
+  slug: string;
+  modelA: ModelEntry;
+  modelB: ModelEntry;
+}
+
 export const ALL_MODELS: ModelEntry[] = leaderboardJson as ModelEntry[];
 
 export function getModelBySlug(slug: string): ModelEntry | undefined {
@@ -71,11 +77,26 @@ export function getAllProviderSlugs(): { providerSlug: string; providerName: str
   }));
 }
 
-export function parseComparisonSlug(slug: string): { modelA: ModelEntry; modelB: ModelEntry } | null {
+export function getAutoComparisonPairs(limitCount = 20): ComparisonPair[] {
+  const pool = ALL_MODELS.slice(0, limitCount);
+  const pairs: ComparisonPair[] = [];
+  for (let i = 0; i < pool.length; i++) {
+    for (let j = i + 1; j < pool.length; j++) {
+      pairs.push({
+        slug: `${pool[i].slug}-vs-${pool[j].slug}`,
+        modelA: pool[i],
+        modelB: pool[j],
+      });
+    }
+  }
+  return pairs;
+}
+
+export function parseComparisonSlug(slug: string): ComparisonPair | null {
   const parts = slug.split('-vs-');
   if (parts.length !== 2) return null;
   const modelA = getModelBySlug(parts[0]);
   const modelB = getModelBySlug(parts[1]);
   if (!modelA || !modelB || modelA.slug === modelB.slug) return null;
-  return { modelA, modelB };
+  return { slug: `${modelA.slug}-vs-${modelB.slug}`, modelA, modelB };
 }

@@ -197,7 +197,7 @@
         "date": "Nov 2026",
         "inputPer1M": 2.0,
         "outputPer1M": 10.0,
-        "note": "High-efficiency tier at 75% lower output cost than top flagships"
+        "note": "High-efficiency tier delivering 88.0 score and 1527 Elo at $2/$10 per 1M tokens"
       },
       {
         "date": "Jun 2026",
@@ -390,6 +390,53 @@
     "bestFor": "Balanced production agents & tool calling"
   },
   {
+    "rank": 8,
+    "id": "gpt-6-1-sol",
+    "slug": "gpt-6-1-sol",
+    "providerSlug": "openai",
+    "name": "GPT-6.1 Sol",
+    "provider": "OpenAI",
+    "evidence": "Supported",
+    "score": 80.7,
+    "interval": "74.8\u201386.6",
+    "params": "Not disclosed",
+    "contextWindow": "1.05M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "10,000 RPM",
+    "tpmLimit": "4M TPM",
+    "tpdLimit": "400M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 2.0,
+        "outputPer1M": 10.0,
+        "note": "Priced at $2/$10 per 1M tokens"
+      }
+    ],
+    "inputPer1M": 2.0,
+    "outputPer1M": 10.0,
+    "cachedInputPer1M": 0.1,
+    "elo": 1482.59,
+    "license": "Closed",
+    "ag": 83,
+    "co": 80,
+    "re": 81,
+    "mm": 78,
+    "kn": 78,
+    "ml": 71,
+    "if": 73,
+    "ma": 78,
+    "tokPerSec": 124,
+    "latency": "68.90s",
+    "status": "Superseded",
+    "reasoning": true,
+    "categories": [
+      "all",
+      "coding"
+    ],
+    "bestFor": "Production extraction & assistants"
+  },
+  {
     "rank": 9,
     "id": "gpt-6-1-terra",
     "slug": "gpt-6-1-terra",
@@ -410,7 +457,7 @@
         "date": "Nov 2026",
         "inputPer1M": 1.0,
         "outputPer1M": 5.0,
-        "note": "High-throughput economy tier at $1/$5 per 1M tokens"
+        "note": "High-throughput economy tier at $1/$5 per 1M tokens with 168 tok/s speed"
       },
       {
         "date": "Jul 2026",
@@ -539,6 +586,53 @@
     "bestFor": "Fast throughput & large document ingestion"
   },
   {
+    "rank": 12,
+    "id": "claude-fable-5-1",
+    "slug": "claude-fable-5-1",
+    "providerSlug": "anthropic",
+    "name": "Claude Fable 5.1",
+    "provider": "Anthropic",
+    "evidence": "Supported",
+    "score": 78.6,
+    "interval": "72.5\u201384.7",
+    "params": "Not disclosed",
+    "contextWindow": "1M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "4,000 RPM",
+    "tpmLimit": "400K TPM",
+    "tpdLimit": "50M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 10.0,
+        "outputPer1M": 50.0,
+        "note": "Superseded by Claude Fable 5.2 at $8/$40"
+      }
+    ],
+    "inputPer1M": 10.0,
+    "outputPer1M": 50.0,
+    "cachedInputPer1M": 0.5,
+    "elo": 1502.77,
+    "license": "Closed",
+    "ag": 81,
+    "co": 81,
+    "re": 75,
+    "mm": 76,
+    "kn": 77,
+    "ml": 69,
+    "if": 73,
+    "ma": 75,
+    "tokPerSec": 66,
+    "latency": "128.91s",
+    "status": "Superseded",
+    "reasoning": true,
+    "categories": [
+      "all",
+      "reasoning"
+    ],
+    "bestFor": "Previous Fable tier"
+  },
+  {
     "rank": 13,
     "id": "claude-sonnet-5-5",
     "slug": "claude-sonnet-5-5",
@@ -591,6 +685,53 @@
       "agentic"
     ],
     "bestFor": "Coding agents, PR reviews & daily engineering"
+  },
+  {
+    "rank": 14,
+    "id": "muse-wonder-full",
+    "slug": "muse-wonder-full",
+    "providerSlug": "meta",
+    "name": "Muse Wonder Full",
+    "provider": "Meta",
+    "evidence": "Supported",
+    "score": 77.1,
+    "interval": "71.0\u201383.2",
+    "params": "Not disclosed",
+    "contextWindow": "1M",
+    "maxOutputTokens": "64K",
+    "rpmLimit": "3,000 RPM",
+    "tpmLimit": "1M TPM",
+    "tpdLimit": "100M TPD",
+    "priceHistory": [
+      {
+        "date": "Nov 2026",
+        "inputPer1M": 5.0,
+        "outputPer1M": 25.0,
+        "note": "Full tier benchmarked at $5/$25 per 1M tokens"
+      }
+    ],
+    "inputPer1M": 5.0,
+    "outputPer1M": 25.0,
+    "cachedInputPer1M": 0.25,
+    "elo": 1495.0,
+    "license": "Closed",
+    "ag": 78,
+    "co": 81,
+    "re": 77,
+    "mm": 75,
+    "kn": 73,
+    "ml": 72,
+    "if": 74,
+    "ma": 74,
+    "tokPerSec": 98,
+    "latency": "95.00s",
+    "status": "Current",
+    "reasoning": true,
+    "categories": [
+      "all",
+      "coding"
+    ],
+    "bestFor": "Full reasoning & multi-step execution"
   },
   {
     "rank": 15,
@@ -789,53 +930,6 @@
       "coding"
     ],
     "bestFor": "High-value coding & high-throughput API spend"
-  },
-  {
-    "rank": 25,
-    "id": "hy4",
-    "slug": "hy4",
-    "providerSlug": "tencent",
-    "name": "Hy4",
-    "provider": "Tencent",
-    "evidence": "Estimated",
-    "score": 68.5,
-    "interval": "61.0\u201376.0",
-    "params": "Not disclosed",
-    "contextWindow": "1M",
-    "maxOutputTokens": "32K",
-    "rpmLimit": "3,000 RPM",
-    "tpmLimit": "1M TPM",
-    "tpdLimit": "150M TPD",
-    "priceHistory": [
-      {
-        "date": "Nov 2026",
-        "inputPer1M": 0.83,
-        "outputPer1M": 2.5,
-        "note": "Low-cost output tier at $0.83/$2.50 per 1M tokens"
-      }
-    ],
-    "inputPer1M": 0.83,
-    "outputPer1M": 2.5,
-    "cachedInputPer1M": 0.08,
-    "elo": 1455.0,
-    "license": "Pending",
-    "ag": 73,
-    "co": 69,
-    "re": 66,
-    "mm": 68,
-    "kn": 66,
-    "ml": 64,
-    "if": 67,
-    "ma": 66,
-    "tokPerSec": 120,
-    "latency": "75.00s",
-    "status": "Current",
-    "reasoning": true,
-    "categories": [
-      "all",
-      "best-value"
-    ],
-    "bestFor": "Low-cost output & agentic workflows"
   },
   {
     "rank": 28,

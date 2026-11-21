@@ -14,6 +14,7 @@ import {
   Megaphone,
   Code2,
   Cpu,
+  Scale,
   ChevronDown,
   Copy,
   Check,
@@ -22,6 +23,7 @@ import {
 
 const PRIMARY_NAV: { href: string; label: string; icon: React.FC<{ className?: string }> }[] = [
   { href: '/', label: 'Leaderboard', icon: ArrowUpDown },
+  { href: '/compare', label: 'Compare (A vs B)', icon: Scale },
   { href: '/models', label: 'All Models', icon: Cpu },
   { href: '/pricing', label: 'API Pricing', icon: Calculator },
   { href: '/best-llms-for-coding', label: 'Best for Coding', icon: Code2 },
@@ -36,22 +38,22 @@ const MORE_COLUMNS: {
   links: { label: string; href: string }[];
 }[] = [
   {
+    heading: 'Popular Comparisons',
+    links: [
+      { label: 'Fable 5.2 vs Gemini 4 Neon', href: '/compare/claude-fable-5-2-vs-gemini-4-neon' },
+      { label: 'Fable 5.2 vs GPT-6.2 Astra', href: '/compare/claude-fable-5-2-vs-gpt-6-2-astra' },
+      { label: 'Gemini 4 Neon vs GPT-6.2 Astra', href: '/compare/gemini-4-neon-vs-gpt-6-2-astra' },
+      { label: 'Gemini 4 Carbon vs Sonnet 5.5', href: '/compare/gemini-4-carbon-vs-claude-sonnet-5-5' },
+      { label: 'All 190 Top-20 Comparisons', href: '/compare' },
+    ],
+  },
+  {
     heading: 'Use-Case Hubs',
     links: [
       { label: 'Best LLMs for Coding', href: '/best-llms-for-coding' },
       { label: 'Best Open-Weight LLMs', href: '/best-open-weight-llms' },
       { label: 'Cheapest for Classification', href: '/cheapest-llms-for-classification' },
       { label: 'Fastest LLMs (Tok/s)', href: '/fastest-llms-tokens-per-second' },
-    ],
-  },
-  {
-    heading: 'Top Models & Comparisons',
-    links: [
-      { label: 'All 20 Model Pages', href: '/models' },
-      { label: 'Claude Fable 5.2', href: '/models/claude-fable-5-2' },
-      { label: 'Gemini 4 Neon', href: '/models/gemini-4-neon' },
-      { label: 'GPT-6.2 Astra', href: '/models/gpt-6-2-astra' },
-      { label: 'Fable 5.2 vs Gemini 4 Neon', href: '/compare/claude-fable-5-2-vs-gemini-4-neon' },
     ],
   },
   {
@@ -218,11 +220,9 @@ export function SiteShell({
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="/" className="hover:text-slate-900">Leaderboard</Link>
+            <Link href="/compare" className="hover:text-slate-900">Compare Hub</Link>
+            <Link href="/compare/claude-fable-5-2-vs-gemini-4-neon" className="hover:text-slate-900">Fable 5.2 vs Gemini 4 Neon</Link>
             <Link href="/models" className="hover:text-slate-900">All Models</Link>
-            <Link href="/best-llms-for-coding" className="hover:text-slate-900">Best for Coding</Link>
-            <Link href="/best-open-weight-llms" className="hover:text-slate-900">Best Open-Weight</Link>
-            <Link href="/cheapest-llms-for-classification" className="hover:text-slate-900">Cheapest Classification</Link>
-            <Link href="/fastest-llms-tokens-per-second" className="hover:text-slate-900">Fastest Tok/s</Link>
             <a href="/sitemap.xml" className="inline-flex items-center gap-1 hover:text-slate-900">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>

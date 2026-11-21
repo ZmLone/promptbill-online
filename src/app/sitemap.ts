@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { ALL_MODELS, getAllProviderSlugs } from '../lib/catalog';
+import { ALL_MODELS, getAllProviderSlugs, getAutoComparisonPairs } from '../lib/catalog';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://promptbill.online';
@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified, changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/models`, lastModified, changeFrequency: 'daily', priority: 0.95 },
+    { url: `${baseUrl}/compare`, lastModified, changeFrequency: 'daily', priority: 0.95 },
     { url: `${baseUrl}/pricing`, lastModified, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/best-llms-for-coding`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/best-open-weight-llms`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
@@ -35,17 +36,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  const comparisonRoutes: MetadataRoute.Sitemap = [];
-  for (let i = 0; i < ALL_MODELS.length; i++) {
-    for (let j = i + 1; j < ALL_MODELS.length; j++) {
-      comparisonRoutes.push({
-        url: `${baseUrl}/compare/${ALL_MODELS[i].slug}-vs-${ALL_MODELS[j].slug}`,
-        lastModified,
-        changeFrequency: 'weekly',
-        priority: 0.75,
-      });
-    }
-  }
+  const comparisonRoutes: MetadataRoute.Sitemap = getAutoComparisonPairs(20).map((pair) => ({
+    url: `${baseUrl}/compare/${pair.slug}`,
+    lastModified,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
 
   return [...staticRoutes, ...modelRoutes, ...providerRoutes, ...comparisonRoutes];
 }
