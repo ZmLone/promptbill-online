@@ -23,14 +23,6 @@
     "ma": 87,
     "tokPerSec": 109,
     "reasoning": true,
-    "categories": [
-      "all",
-      "frontier",
-      "agentic",
-      "coding",
-      "reasoning",
-      "multimodal"
-    ],
     "bestFor": "Frontier reasoning, agentic coding & deep multi-step analysis"
   },
   {
@@ -57,14 +49,6 @@
     "ma": 84,
     "tokPerSec": 110,
     "reasoning": true,
-    "categories": [
-      "all",
-      "frontier",
-      "coding",
-      "multimodal",
-      "long-context",
-      "agentic"
-    ],
     "bestFor": "Coding, multimodal workflows & fast long-context synthesis"
   },
   {
@@ -91,14 +75,6 @@
     "ma": 83,
     "tokPerSec": 78,
     "reasoning": true,
-    "categories": [
-      "all",
-      "frontier",
-      "agentic",
-      "coding",
-      "multimodal",
-      "long-context"
-    ],
     "bestFor": "Complex agentic execution, multimodal tasks & coding"
   },
   {
@@ -125,12 +101,6 @@
     "ma": 80,
     "tokPerSec": 155,
     "reasoning": true,
-    "categories": [
-      "all",
-      "best-value",
-      "coding",
-      "long-context"
-    ],
     "bestFor": "Strong capability balance with lower output token cost"
   },
   {
@@ -157,13 +127,6 @@
     "ma": 77,
     "tokPerSec": 113,
     "reasoning": true,
-    "categories": [
-      "all",
-      "frontier",
-      "coding",
-      "agentic",
-      "long-context"
-    ],
     "bestFor": "Large codebase architecture & deep refactoring"
   },
   {
@@ -190,11 +153,6 @@
     "ma": 76,
     "tokPerSec": 168,
     "reasoning": true,
-    "categories": [
-      "all",
-      "best-value",
-      "coding"
-    ],
     "bestFor": "High-volume production apps needing low cost & strong reasoning"
   },
   {
@@ -221,11 +179,6 @@
     "ma": 74,
     "tokPerSec": 144,
     "reasoning": true,
-    "categories": [
-      "all",
-      "coding",
-      "agentic"
-    ],
     "bestFor": "Coding agents, PR reviews & daily engineering"
   },
   {
@@ -252,12 +205,6 @@
     "ma": 69,
     "tokPerSec": 92,
     "reasoning": true,
-    "categories": [
-      "all",
-      "open-source",
-      "long-context",
-      "coding"
-    ],
     "bestFor": "Open-weight MoE & long-context coding"
   },
   {
@@ -284,12 +231,6 @@
     "ma": 64,
     "tokPerSec": 163,
     "reasoning": true,
-    "categories": [
-      "all",
-      "open-source",
-      "best-value",
-      "coding"
-    ],
     "bestFor": "High-value coding & high-throughput API spend"
   },
   {
@@ -316,11 +257,6 @@
     "ma": 65,
     "tokPerSec": 210,
     "reasoning": false,
-    "categories": [
-      "all",
-      "open-source",
-      "best-value"
-    ],
     "bestFor": "Routing, classification & cheap high-volume calls"
   }
 ]

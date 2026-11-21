@@ -13,44 +13,14 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://promptbill.online/',
   },
-  openGraph: {
-    title: 'PromptBill — LLM Leaderboard, AI API Pricing & Cost Calculator',
-    description:
-      'Compare LLM rankings, API token pricing, 30-day cost estimates, prompt caching and batch savings, and token counts on promptbill.online.',
-    url: 'https://promptbill.online/',
-    siteName: 'PromptBill',
-    type: 'website',
-  },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
-  },
-};
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'PromptBill',
-  url: 'https://promptbill.online/',
-  applicationCategory: 'DeveloperApplication',
-  operatingSystem: 'Web',
-  description:
-    'Interactive LLM leaderboard, API token pricing calculator, model selector, token counter, and API savings deals.',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
       <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body>
     </html>
   );

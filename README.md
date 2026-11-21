@@ -1,3 +1,10 @@
-# PromptBill v7 (`https://promptbill.online`)
+# PromptBill v8 — Real Multi-Page Routes (`https://promptbill.online`)
 
-Clean, SEO-friendly Next.js + Tailwind CSS application featuring Leaderboard, API Pricing & Cost, LLM Selector, Token Counter, Deals, Methodology, and Advertise tabs.
+Every navigation tab uses real Next.js App Router pages so the browser URL updates on every click:
+- `/` (Leaderboard)
+- `/pricing` (API Pricing & Cost)
+- `/tools/llm-selector` (LLM Selector)
+- `/tools/token-counter` (Token Counter)
+- `/deals` (Deals)
+- `/methodology` (Methodology)
+- `/advertise` (Advertise)

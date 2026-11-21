@@ -1,12 +1,12 @@
 # PromptBill (https://promptbill.online)
 
-> LLM Leaderboard, AI API Pricing Directory, Deals & Credit Offers, Token Counter, and Cost Calculators for November 2026.
+> Multi-route LLM Leaderboard, AI API Pricing Calculator, LLM Selector, Token Counter, Deals & Methodology for November 2026.
 
-## Sections on promptbill.online
-- Leaderboard: Model rankings across Frontier, Coding, Reasoning, Agentic, Multimodal, and Open/Local categories.
-- API Pricing & Cost: Interactive 30-day API token cost calculator, prompt cache savings, batch discount modeling, and self-host vs. API comparison.
-- LLM Selector: Workload-based model recommendations by budget, coding performance, or capability score.
-- Token Counter: Live prompt character, word, and estimated token counter with per-model input cost.
-- Deals: API credit offers, batch discount strategies, and lifetime Pro access deals.
-- Methodology: Transparent scoring, evidence labels, and pricing calculation rules.
-- Advertise: Sponsor placements and partnership inquiries.
+## Real Routes
+- https://promptbill.online/ (Leaderboard)
+- https://promptbill.online/pricing (API Pricing & Cost Calculator)
+- https://promptbill.online/tools/llm-selector (LLM Selector)
+- https://promptbill.online/tools/token-counter (Token Counter)
+- https://promptbill.online/deals (Deals & Discounts)
+- https://promptbill.online/methodology (Methodology & Pricing Formula)
+- https://promptbill.online/advertise (Sponsorships & Media Kit)
