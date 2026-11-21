@@ -1,1 +1,1 @@
-# PromptBill v18 — Full SEO & GEO Programmatic Hub (`https://promptbill.online`)
+# PromptBill v19 — Path Fix for Tool Pages (`https://promptbill.online`)

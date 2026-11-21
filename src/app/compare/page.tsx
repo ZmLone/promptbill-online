@@ -6,7 +6,7 @@ import { SiteShell } from '../../components/SiteShell';
 
 export const metadata: Metadata = {
   title: 'LLM Head-to-Head Comparisons — API Pricing, Tok/s, Elo & Benchmarks',
-  description: 'Auto-generated head-to-head comparison pages across our top 20 LLMs contrasting price per million tokens, Tok/s speed, Elo ratings, and AG, CO, RE scores.',
+  description: 'Auto-generated comparison pages across top models contrasting price per 1M tokens, Tok/s, Elo, and AG, CO, RE scores.',
   alternates: { canonical: 'https://promptbill.online/compare' },
 };
 
@@ -15,9 +15,6 @@ export default function CompareIndexPage() {
   return (
     <SiteShell title="Head-to-Head LLM Comparison Directory (Top 20 Models)" subtitle="promptbill.online/compare · 190 Auto-Generated Model Matchups">
       <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-5">
-        <p className="text-sm text-slate-600">
-          Every matchup contrasts price per 1M tokens, throughput (<strong>Tok/s</strong>), <strong>Elo</strong>, and benchmark categories (<strong>AG</strong>, <strong>CO</strong>, <strong>RE</strong>, <strong>MM</strong>, <strong>KN</strong>, <strong>ML</strong>, <strong>IF</strong>, <strong>MA</strong>).
-        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
           {pairs.map((p) => (
             <Link key={p.slug} href={`/compare/${p.slug}`} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3.5 hover:border-emerald-400 hover:bg-white transition-colors">

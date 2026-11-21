@@ -1,35 +1,27 @@
 # PromptBill (https://promptbill.online)
 
-> Complete Programmatic SEO & GEO Directory: Individual LLM Pages (/models/[slug]), Head-to-Head Comparisons (/compare/[a]-vs-[b]), Provider Hubs (/providers/[provider]), Use-Case Hubs & Cost Calculators.
+> Individual LLM Pages (/models/[slug]), Head-to-Head Comparisons (/compare/[a]-vs-[b]), Provider Hubs (/providers/[provider]), Use-Case Hubs & Calculators.
 
 ## All Tracked Models
-- https://promptbill.online/models/claude-fable-5-2 — Claude Fable 5.2 (Anthropic): Score 93.3, Elo 1503.06, $8.0/$40.0 per 1M, 1M context, 109 tok/s, 4,000 RPM
-- https://promptbill.online/models/gemini-4-neon — Gemini 4 Neon (Google Gemini): Score 91.3, Elo 1512.94, $3.0/$15.0 per 1M, 1M context, 110 tok/s, 3,000 RPM
-- https://promptbill.online/models/gpt-6-2-astra — GPT-6.2 Astra (OpenAI): Score 90.8, Elo 1468.22, $8.0/$40.0 per 1M, 1.05M context, 78 tok/s, 5,000 RPM
-- https://promptbill.online/models/gemini-4-carbon — Gemini 4 Carbon (Google Gemini): Score 88.0, Elo 1526.97, $2.0/$10.0 per 1M, 1M context, 155 tok/s, 4,000 RPM
-- https://promptbill.online/models/gpt-6-astra — GPT-6 Astra (OpenAI): Score 83.2, Elo 1475.3, $10.0/$50.0 per 1M, 1.05M context, 42 tok/s, 5,000 RPM
-- https://promptbill.online/models/claude-opus-5-5 — Claude Opus 5.5 (Anthropic): Score 82.7, Elo 1505.96, $4.0/$20.0 per 1M, 1M context, 113 tok/s, 4,000 RPM
-- https://promptbill.online/models/gpt-6-2-sol — GPT-6.2 Sol (OpenAI): Score 81.0, Elo 1464.7, $2.0/$10.0 per 1M, 1.05M context, 128 tok/s, 10,000 RPM
-- https://promptbill.online/models/gpt-6-1-sol — GPT-6.1 Sol (OpenAI): Score 80.7, Elo 1482.59, $2.0/$10.0 per 1M, 1.05M context, 124 tok/s, 10,000 RPM
-- https://promptbill.online/models/gpt-6-1-terra — GPT-6.1 Terra (OpenAI): Score 80.4, Elo 1474.14, $1.0/$5.0 per 1M, 1.05M context, 168 tok/s, 10,000 RPM
-- https://promptbill.online/models/gemini-4-argon — Gemini 4 Argon (Google Gemini): Score 79.0, Elo 1519.62, $2.0/$10.0 per 1M, 1M context, 142 tok/s, 4,000 RPM
-- https://promptbill.online/models/gemini-4-hydrogen — Gemini 4 Hydrogen (Google Gemini): Score 78.7, Elo 1489.78, $1.5/$7.5 per 1M, 1M context, 166 tok/s, 10,000 RPM
-- https://promptbill.online/models/claude-fable-5-1 — Claude Fable 5.1 (Anthropic): Score 78.6, Elo 1502.77, $10.0/$50.0 per 1M, 1M context, 66 tok/s, 4,000 RPM
-- https://promptbill.online/models/claude-sonnet-5-5 — Claude Sonnet 5.5 (Anthropic): Score 77.8, Elo 1473.23, $2.0/$10.0 per 1M, 1M context, 144 tok/s, 4,000 RPM
-- https://promptbill.online/models/muse-wonder-full — Muse Wonder Full (Meta): Score 77.1, Elo 1495.0, $5.0/$25.0 per 1M, 1M context, 98 tok/s, 3,000 RPM
-- https://promptbill.online/models/qwen4-max — Qwen4 Max (Alibaba / Qwen): Score 74.9, Elo 1465.0, $1.5/$4.5 per 1M, 1M context, 118 tok/s, 5,000 RPM
-- https://promptbill.online/models/muse-wonder — Muse Wonder (Meta): Score 71.2, Elo 1511.44, $4.0/$20.0 per 1M, 1M context, 113 tok/s, 3,000 RPM
-- https://promptbill.online/models/kimi-k3-1-pro — Kimi K3.1 Pro (Moonshot AI): Score 70.1, Elo 1482.13, $2.0/$10.0 per 1M, 1.05M context, 92 tok/s, 2,000 RPM
-- https://promptbill.online/models/deepseek-v4-1-flash — DeepSeek V4.1 Flash 1017 (DeepSeek): Score 70.0, Elo 1474.54, $0.3/$1.2 per 1M, 1M context, 163 tok/s, 5,000 RPM
-- https://promptbill.online/models/qwen-3-7-flash — Qwen 3.7 Flash (Alibaba / Qwen): Score 67.8, Elo 1448.0, $0.15/$0.6 per 1M, 128K context, 210 tok/s, 10,000 RPM
-- https://promptbill.online/models/claude-haiku-5-5 — Claude Haiku 5.5 (Anthropic): Score 63.6, Elo 1440.0, $0.1/$0.5 per 1M, 1M context, 195 tok/s, 10,000 RPM
-- https://promptbill.online/models/llama-4-local-8b — Llama 4 Local 8B (Meta): Score 61.5, Elo 1412.0, $0.05/$0.15 per 1M, 128K context, 245 tok/s, Self-hosted
-- https://promptbill.online/models/command-r7b — Command R7B (Cohere): Score 59.8, Elo 1398.0, $0.04/$0.15 per 1M, 128K context, 230 tok/s, 5,000 RPM
-
-## Comparison & Use-Case Hubs
-- https://promptbill.online/compare
-- https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-neon
-- https://promptbill.online/best-llms-for-coding
-- https://promptbill.online/best-open-weight-llms
-- https://promptbill.online/cheapest-llms-for-classification
-- https://promptbill.online/fastest-llms-tokens-per-second
+- https://promptbill.online/models/claude-fable-5-2 — Claude Fable 5.2 (Anthropic): Score 93.3, Elo 1503.06, $8.0/$40.0 per 1M, 1M context, 109 tok/s
+- https://promptbill.online/models/gemini-4-neon — Gemini 4 Neon (Google Gemini): Score 91.3, Elo 1512.94, $3.0/$15.0 per 1M, 1M context, 110 tok/s
+- https://promptbill.online/models/gpt-6-2-astra — GPT-6.2 Astra (OpenAI): Score 90.8, Elo 1468.22, $8.0/$40.0 per 1M, 1.05M context, 78 tok/s
+- https://promptbill.online/models/gemini-4-carbon — Gemini 4 Carbon (Google Gemini): Score 88.0, Elo 1526.97, $2.0/$10.0 per 1M, 1M context, 155 tok/s
+- https://promptbill.online/models/gpt-6-astra — GPT-6 Astra (OpenAI): Score 83.2, Elo 1475.3, $10.0/$50.0 per 1M, 1.05M context, 42 tok/s
+- https://promptbill.online/models/claude-opus-5-5 — Claude Opus 5.5 (Anthropic): Score 82.7, Elo 1505.96, $4.0/$20.0 per 1M, 1M context, 113 tok/s
+- https://promptbill.online/models/gpt-6-2-sol — GPT-6.2 Sol (OpenAI): Score 81.0, Elo 1464.7, $2.0/$10.0 per 1M, 1.05M context, 128 tok/s
+- https://promptbill.online/models/gpt-6-1-sol — GPT-6.1 Sol (OpenAI): Score 80.7, Elo 1482.59, $2.0/$10.0 per 1M, 1.05M context, 124 tok/s
+- https://promptbill.online/models/gpt-6-1-terra — GPT-6.1 Terra (OpenAI): Score 80.4, Elo 1474.14, $1.0/$5.0 per 1M, 1.05M context, 168 tok/s
+- https://promptbill.online/models/gemini-4-argon — Gemini 4 Argon (Google Gemini): Score 79.0, Elo 1519.62, $2.0/$10.0 per 1M, 1M context, 142 tok/s
+- https://promptbill.online/models/gemini-4-hydrogen — Gemini 4 Hydrogen (Google Gemini): Score 78.7, Elo 1489.78, $1.5/$7.5 per 1M, 1M context, 166 tok/s
+- https://promptbill.online/models/claude-fable-5-1 — Claude Fable 5.1 (Anthropic): Score 78.6, Elo 1502.77, $10.0/$50.0 per 1M, 1M context, 66 tok/s
+- https://promptbill.online/models/claude-sonnet-5-5 — Claude Sonnet 5.5 (Anthropic): Score 77.8, Elo 1473.23, $2.0/$10.0 per 1M, 1M context, 144 tok/s
+- https://promptbill.online/models/muse-wonder-full — Muse Wonder Full (Meta): Score 77.1, Elo 1495.0, $5.0/$25.0 per 1M, 1M context, 98 tok/s
+- https://promptbill.online/models/qwen4-max — Qwen4 Max (Alibaba / Qwen): Score 74.9, Elo 1465.0, $1.5/$4.5 per 1M, 1M context, 118 tok/s
+- https://promptbill.online/models/muse-wonder — Muse Wonder (Meta): Score 71.2, Elo 1511.44, $4.0/$20.0 per 1M, 1M context, 113 tok/s
+- https://promptbill.online/models/kimi-k3-1-pro — Kimi K3.1 Pro (Moonshot AI): Score 70.1, Elo 1482.13, $2.0/$10.0 per 1M, 1.05M context, 92 tok/s
+- https://promptbill.online/models/deepseek-v4-1-flash — DeepSeek V4.1 Flash 1017 (DeepSeek): Score 70.0, Elo 1474.54, $0.3/$1.2 per 1M, 1M context, 163 tok/s
+- https://promptbill.online/models/qwen-3-7-flash — Qwen 3.7 Flash (Alibaba / Qwen): Score 67.8, Elo 1448.0, $0.15/$0.6 per 1M, 128K context, 210 tok/s
+- https://promptbill.online/models/claude-haiku-5-5 — Claude Haiku 5.5 (Anthropic): Score 63.6, Elo 1440.0, $0.1/$0.5 per 1M, 1M context, 195 tok/s
+- https://promptbill.online/models/llama-4-local-8b — Llama 4 Local 8B (Meta): Score 61.5, Elo 1412.0, $0.05/$0.15 per 1M, 128K context, 245 tok/s
+- https://promptbill.online/models/command-r7b — Command R7B (Cohere): Score 59.8, Elo 1398.0, $0.04/$0.15 per 1M, 128K context, 230 tok/s

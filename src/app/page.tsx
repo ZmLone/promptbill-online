@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ALL_MODELS, getAllProviderSlugs } from '../lib/catalog';
