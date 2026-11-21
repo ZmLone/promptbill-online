@@ -1,14 +1,28 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ALL_MODELS } from '../../../lib/catalog';
+import leaderboardJson from '../../../data/leaderboard.json';
 import { SiteShell } from '../../../components/SiteShell';
+
+interface BenchModel {
+  id: string;
+  name: string;
+  provider: string;
+  score: number;
+  co: number;
+  re: number;
+  inputPer1M: number;
+  outputPer1M: number;
+  bestFor: string;
+}
+
+const models = leaderboardJson as BenchModel[];
 
 export default function LlmSelectorPage() {
   const [goal, setGoal] = useState<'balanced' | 'cheapest' | 'coding' | 'reasoning'>('balanced');
 
   const picks = useMemo(() => {
-    return [...ALL_MODELS]
+    return [...models]
       .map((m) => {
         const avgRate = (m.inputPer1M + m.outputPer1M) / 2;
         let metric = m.score;

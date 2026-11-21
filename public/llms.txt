@@ -1,17 +1,12 @@
 # PromptBill (https://promptbill.online)
 
-> LLM Leaderboard, Individual Model Specs, Head-to-Head Comparisons, Provider Hubs, Best Coding LLMs & Cost Calculators.
+> Multi-route LLM Leaderboard, AI API Pricing Calculator, LLM Selector, Token Counter, Deals & Methodology for November 2026.
 
-## Routes
-- / (Leaderboard & Score/$ Matrix)
-- /pricing (30-Day API Cost, Caching, Batch, Retries & SaaS Margin Calculator)
-- /best-llms-for-coding (Best LLMs Ranked for Coding & Agentic Tasks)
-- /models/[slug] (Individual Model Benchmarks, Rate Limits & Calculator)
-- /compare/[model-a]-vs-[model-b] (Head-to-Head Model Comparisons)
-- /providers/[provider] (Provider Model Directories)
-- /tools/llm-selector (Workload Model Selector)
-- /tools/token-counter (Prompt Token Counter)
-- /tools/routing-simulator (Hybrid Routing Savings Simulator)
-- /deals (API Savings & Pro Pass)
-- /methodology (Scoring & Pricing Methodology)
-- /advertise (Sponsorships)
+## Real Routes
+- https://promptbill.online/ (Leaderboard)
+- https://promptbill.online/pricing (API Pricing & Cost Calculator)
+- https://promptbill.online/tools/llm-selector (LLM Selector)
+- https://promptbill.online/tools/token-counter (Token Counter)
+- https://promptbill.online/deals (Deals & Discounts)
+- https://promptbill.online/methodology (Methodology & Pricing Formula)
+- https://promptbill.online/advertise (Sponsorships & Media Kit)
