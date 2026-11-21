@@ -14,8 +14,8 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
   const [flagshipId, setFlagshipId] = useState<string>('claude-fable-5-2');
   const [economyId, setEconomyId] = useState<string>('qwen-3-7-flash');
 
-  const flagshipModel = models.find((m) => m.id === flagshipId) || models[3];
-  const economyModel = models.find((m) => m.id === economyId) || models[9];
+  const flagshipModel = models.find((m) => m.id === flagshipId) || models[4];
+  const economyModel = models.find((m) => m.id === economyId) || models[models.length - 2];
 
   const allFlagshipCost = calculateModelCost(flagshipModel, baseInputs).monthlyTotalCost;
 
@@ -54,7 +54,7 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
             Model Routing &amp; Escalation Savings
           </h2>
           <p className="mt-1 text-sm text-slate-400">
-            Send routine classification, formatting, and retrieval checks to a fast economy model while reserving flagship reasoning for complex prompts.
+            Route routine classification, formatting, and retrieval checks to a fast economy model while reserving frontier reasoning for complex prompts.
           </p>
         </div>
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 px-4 py-3 text-left md:text-right">

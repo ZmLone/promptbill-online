@@ -18,8 +18,8 @@
     "notes": "Frontier reasoning & complex coding; 272K+ long-context multiplier"
   },
   {
-    "id": "gpt-6-1-sol",
-    "name": "GPT-6.1 Sol",
+    "id": "gpt-6-2-sol",
+    "name": "GPT-6.2 Sol",
     "provider": "OpenAI",
     "family": "GPT-6",
     "inputPer1M": 2.0,
@@ -30,10 +30,10 @@
     "longContextMultiplierOutput": 1.5,
     "longContextThresholdTokens": 272000,
     "contextWindow": "1.05M",
-    "qualityScore": 80.7,
-    "speedTokensPerSec": 124,
+    "qualityScore": 81.0,
+    "speedTokensPerSec": 128,
     "tier": "Balanced",
-    "notes": "High-value production model for agents, extraction & structured workflows"
+    "notes": "Latest GPT-6.2 balanced tier for production agents & structured JSON"
   },
   {
     "id": "gpt-6-1-terra",
@@ -48,10 +48,28 @@
     "longContextMultiplierOutput": 1.5,
     "longContextThresholdTokens": 272000,
     "contextWindow": "1.05M",
-    "qualityScore": 76.5,
+    "qualityScore": 80.1,
     "speedTokensPerSec": 168,
     "tier": "Economy",
-    "notes": "Fast low-cost tier for classification, summarization & high-volume pipelines"
+    "notes": "Cheapest frontier-class OpenAI tier for high-volume pipelines"
+  },
+  {
+    "id": "gpt-5-4-nano",
+    "name": "GPT-5.4 Nano",
+    "provider": "OpenAI",
+    "family": "GPT-5.4",
+    "inputPer1M": 0.2,
+    "cachedInputPer1M": 0.02,
+    "outputPer1M": 1.25,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 400000,
+    "contextWindow": "400K",
+    "qualityScore": 73.5,
+    "speedTokensPerSec": 215,
+    "tier": "Economy",
+    "notes": "Ultra-fast classification, tagging, routing & bulk extraction"
   },
   {
     "id": "claude-fable-5-2",
@@ -69,7 +87,7 @@
     "qualityScore": 93.3,
     "speedTokensPerSec": 66,
     "tier": "Flagship",
-    "notes": "Top benchmark score; flat full 1M context rate without long-context surcharge"
+    "notes": "#1 benchmark score; flat full 1M context rate with 97.5% cache discount"
   },
   {
     "id": "claude-opus-5-5",
@@ -108,6 +126,24 @@
     "notes": "Workhorse coding & agentic model with 95% prompt cache read discount"
   },
   {
+    "id": "claude-haiku-5-5",
+    "name": "Claude Haiku 5.5",
+    "provider": "Anthropic",
+    "family": "Claude 5",
+    "inputPer1M": 0.8,
+    "cachedInputPer1M": 0.04,
+    "outputPer1M": 4.0,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 1000000,
+    "contextWindow": "1M",
+    "qualityScore": 77.2,
+    "speedTokensPerSec": 195,
+    "tier": "Economy",
+    "notes": "Sub-second Anthropic model for fast routing, support & RAG reranking"
+  },
+  {
     "id": "gemini-4-neon",
     "name": "Gemini 4 Neon",
     "provider": "Google Gemini",
@@ -144,6 +180,96 @@
     "notes": "Strong quality-to-cost efficiency across long documents & tool calling"
   },
   {
+    "id": "gemini-4-hydrogen",
+    "name": "Gemini 4 Hydrogen",
+    "provider": "Google Gemini",
+    "family": "Gemini 4",
+    "inputPer1M": 0.5,
+    "cachedInputPer1M": 0.03,
+    "outputPer1M": 3.0,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 1000000,
+    "contextWindow": "1M",
+    "qualityScore": 82.5,
+    "speedTokensPerSec": 210,
+    "tier": "Economy",
+    "notes": "High-speed 1M context workhorse for massive document ingestion"
+  },
+  {
+    "id": "grok-4-6",
+    "name": "Grok 4.6",
+    "provider": "xAI",
+    "family": "Grok 4",
+    "inputPer1M": 2.0,
+    "cachedInputPer1M": 0.2,
+    "outputPer1M": 6.0,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 500000,
+    "contextWindow": "500K",
+    "qualityScore": 84.1,
+    "speedTokensPerSec": 135,
+    "tier": "Balanced",
+    "notes": "Low 3:1 output-to-input price ratio; strong for verbose generation"
+  },
+  {
+    "id": "grok-4-3",
+    "name": "Grok 4.3",
+    "provider": "xAI",
+    "family": "Grok 4",
+    "inputPer1M": 1.25,
+    "cachedInputPer1M": 0.12,
+    "outputPer1M": 2.5,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 1000000,
+    "contextWindow": "1M",
+    "qualityScore": 80.2,
+    "speedTokensPerSec": 160,
+    "tier": "Economy",
+    "notes": "1M context with ultra-low $2.50/M output pricing"
+  },
+  {
+    "id": "kimi-k3",
+    "name": "Kimi K3",
+    "provider": "Moonshot / OpenRouter",
+    "family": "Kimi",
+    "inputPer1M": 3.0,
+    "cachedInputPer1M": 0.15,
+    "outputPer1M": 15.0,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 1000000,
+    "contextWindow": "1M",
+    "qualityScore": 85.4,
+    "speedTokensPerSec": 110,
+    "tier": "Flagship",
+    "notes": "Long-horizon agentic coding & 1M context retrieval"
+  },
+  {
+    "id": "kimi-k2-7-code",
+    "name": "Kimi K2.7 Code",
+    "provider": "Moonshot / OpenRouter",
+    "family": "Kimi",
+    "inputPer1M": 0.95,
+    "cachedInputPer1M": 0.08,
+    "outputPer1M": 4.0,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 256000,
+    "contextWindow": "256K",
+    "qualityScore": 79.8,
+    "speedTokensPerSec": 145,
+    "tier": "Balanced",
+    "notes": "Specialized code generation & repository editing under $1/M input"
+  },
+  {
     "id": "deepseek-v4-1-flash",
     "name": "DeepSeek V4.1 Flash",
     "provider": "DeepSeek / OpenRouter",
@@ -156,10 +282,10 @@
     "longContextMultiplierOutput": 1.0,
     "longContextThresholdTokens": 128000,
     "contextWindow": "128K",
-    "qualityScore": 74.2,
+    "qualityScore": 76.8,
     "speedTokensPerSec": 190,
     "tier": "Economy",
-    "notes": "Ultra-low per-token pricing for high-throughput batch & chat workloads"
+    "notes": "Top production value-per-dollar for high-throughput chat & batch"
   },
   {
     "id": "qwen-3-7-flash",
@@ -174,9 +300,27 @@
     "longContextMultiplierOutput": 1.0,
     "longContextThresholdTokens": 128000,
     "contextWindow": "128K",
-    "qualityScore": 71.8,
+    "qualityScore": 74.5,
     "speedTokensPerSec": 210,
     "tier": "Economy",
-    "notes": "High score-per-dollar model for routing, classification & cheap fallback"
+    "notes": "#1 Score/$ ratio for routing, classification & cheap fallback"
+  },
+  {
+    "id": "cohere-command-r7b",
+    "name": "Command R7B",
+    "provider": "Cohere",
+    "family": "Command",
+    "inputPer1M": 0.04,
+    "cachedInputPer1M": 0.01,
+    "outputPer1M": 0.15,
+    "batchDiscount": 0.5,
+    "longContextMultiplierInput": 1.0,
+    "longContextMultiplierOutput": 1.0,
+    "longContextThresholdTokens": 128000,
+    "contextWindow": "128K",
+    "qualityScore": 68.4,
+    "speedTokensPerSec": 240,
+    "tier": "Economy",
+    "notes": "Ultra-cheap enterprise RAG & structured extraction model"
   }
 ]

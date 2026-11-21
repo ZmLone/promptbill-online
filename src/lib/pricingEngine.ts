@@ -17,6 +17,8 @@ export interface LLMModel {
   notes: string;
 }
 
+export type InputUnitMode = 'tokens' | 'words' | 'characters';
+
 export interface CostInputs {
   inputTokensPerCall: number;
   outputTokensPerCall: number;
@@ -37,9 +39,33 @@ export interface CostBreakdown {
   monthlyReasoningCost: number;
   monthlyRetryOverheadCost: number;
   monthlyTotalCost: number;
+  costPerRequest: number;
   costPer1KCalls: number;
   valueScore: number;
   exceedsContextWindow: boolean;
+  triggersLongContextMultiplier: boolean;
+}
+
+export function unitValueToTokens(value: number, unit: InputUnitMode): number {
+  const safe = Math.max(0, value);
+  if (unit === 'words') return Math.round(safe * 1.3333);
+  if (unit === 'characters') return Math.round(safe / 4);
+  return Math.round(safe);
+}
+
+export function tokensToUnitValue(tokens: number, unit: InputUnitMode): number {
+  const safe = Math.max(0, tokens);
+  if (unit === 'words') return Math.round(safe * 0.75);
+  if (unit === 'characters') return Math.round(safe * 4);
+  return Math.round(safe);
+}
+
+export function estimatePromptTokensFromText(text: string, provider: string): number {
+  if (!text) return 0;
+  const charCount = text.length;
+  // Claude & Gemini average ~3.7-3.8 chars/token on mixed English/code; GPT/OpenAI averages ~4.0 chars/token
+  const divisor = provider === 'Anthropic' ? 3.7 : provider === 'Google Gemini' ? 3.8 : 4.0;
+  return Math.max(1, Math.ceil(charCount / divisor));
 }
 
 export function parseContextTokens(contextWindow: string): number {
@@ -61,6 +87,10 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
   const cacheShare = Math.min(1, Math.max(0, inputs.cacheHitPercent / 100));
   const batchShare = Math.min(1, Math.max(0, inputs.batchPercent / 100));
   const batchMultiplier = 1 - batchShare * model.batchDiscount;
+
+  const triggersLongContextMultiplier =
+    inputs.inputTokensPerCall > model.longContextThresholdTokens &&
+    (model.longContextMultiplierInput > 1 || model.longContextMultiplierOutput > 1);
 
   const isLongContext = inputs.inputTokensPerCall > model.longContextThresholdTokens;
   const inputContextMult = isLongContext ? model.longContextMultiplierInput : 1;
@@ -99,11 +129,12 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
   const monthlyTotalCost = monthlyInputCost + monthlyOutputCost + monthlyReasoningCost;
   const monthlyRetryOverheadCost = Math.max(0, monthlyTotalCost - baseTotal);
 
-  const costPer1KCalls = monthlyCalls > 0 ? (monthlyTotalCost / monthlyCalls) * 1000 : 0;
+  const costPerRequest = monthlyCalls > 0 ? monthlyTotalCost / monthlyCalls : 0;
+  const costPer1KCalls = costPerRequest * 1000;
+
+  // Score/$ ratio aligned with BenchLM / CostGoat methodology (quality score divided by output $/1M)
   const valueScore =
-    monthlyTotalCost > 0
-      ? Number((model.qualityScore / Math.max(monthlyTotalCost, 0.01)).toFixed(2))
-      : model.qualityScore;
+    model.outputPer1M > 0 ? Number((model.qualityScore / model.outputPer1M).toFixed(1)) : model.qualityScore;
 
   const maxTokens = parseContextTokens(model.contextWindow);
   const exceedsContextWindow = inputs.inputTokensPerCall + inputs.outputTokensPerCall > maxTokens;
@@ -118,9 +149,11 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
     monthlyReasoningCost: baseReasoningCost,
     monthlyRetryOverheadCost,
     monthlyTotalCost,
+    costPerRequest,
     costPer1KCalls,
     valueScore,
     exceedsContextWindow,
+    triggersLongContextMultiplier,
   };
 }
 

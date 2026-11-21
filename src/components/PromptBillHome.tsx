@@ -1,17 +1,22 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';
 import {
   LLMModel,
   CostInputs,
+  InputUnitMode,
   calculateModelCost,
   formatCurrency,
+  unitValueToTokens,
+  tokensToUnitValue,
 } from '../lib/pricingEngine';
 import { BrandMark } from './BrandMark';
+import { LivePromptTokenizer } from './LivePromptTokenizer';
 import { ComparisonMatrix } from './ComparisonMatrix';
 import { RoutingSimulator } from './RoutingSimulator';
+import { FaqAndMethodology } from './FaqAndMethodology';
 import {
   Calculator,
   Zap,
@@ -28,6 +33,7 @@ const models = modelsJson as LLMModel[];
 export default function PromptBillHome() {
   const [selectedModelId, setSelectedModelId] = useState<string>('claude-sonnet-5-5');
   const [activePresetId, setActivePresetId] = useState<string>('rag-assistant');
+  const [unitMode, setUnitMode] = useState<InputUnitMode>('tokens');
 
   const [inputs, setInputs] = useState<CostInputs>({
     inputTokensPerCall: 6500,
@@ -41,6 +47,36 @@ export default function PromptBillHome() {
 
   const [monthlyActiveUsers, setMonthlyActiveUsers] = useState<number>(4000);
   const [pricePerUserUsd, setPricePerUserUsd] = useState<number>(19);
+
+  // Restore shared scenario from URL query parameters if present
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const m = params.get('m');
+    if (m && models.some((item) => item.id === m)) {
+      setSelectedModelId(m);
+    }
+    const inTok = params.get('in');
+    const outTok = params.get('out');
+    const rsnTok = params.get('rsn');
+    const cpd = params.get('cpd');
+    const cache = params.get('cache');
+    const batch = params.get('batch');
+    const retry = params.get('retry');
+    if (inTok || outTok || cpd) {
+      setActivePresetId('custom');
+      setInputs((prev) => ({
+        ...prev,
+        inputTokensPerCall: inTok ? Math.max(0, Number(inTok)) : prev.inputTokensPerCall,
+        outputTokensPerCall: outTok ? Math.max(0, Number(outTok)) : prev.outputTokensPerCall,
+        reasoningTokensPerCall: rsnTok ? Math.max(0, Number(rsnTok)) : prev.reasoningTokensPerCall,
+        callsPerDay: cpd ? Math.max(0, Number(cpd)) : prev.callsPerDay,
+        cacheHitPercent: cache ? Math.min(95, Math.max(0, Number(cache))) : prev.cacheHitPercent,
+        batchPercent: batch ? Math.min(100, Math.max(0, Number(batch))) : prev.batchPercent,
+        retriesPercent: retry ? Math.min(50, Math.max(0, Number(retry))) : prev.retriesPercent,
+      }));
+    }
+  }, []);
 
   const selectedModel = useMemo(
     () => models.find((m) => m.id === selectedModelId) || models[0],
@@ -71,12 +107,22 @@ export default function PromptBillHome() {
     });
   };
 
+  const handleApplyPromptTokens = (tokens: number) => {
+    setActivePresetId('custom');
+    setUnitMode('tokens');
+    setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
+    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const projectedMonthlyRevenue = monthlyActiveUsers * pricePerUserUsd;
   const aiCostShareOfRevenue =
     projectedMonthlyRevenue > 0
       ? (activeBreakdown.monthlyTotalCost / projectedMonthlyRevenue) * 100
       : 0;
   const estimatedGrossMarginPct = Math.max(0, 100 - aiCostShareOfRevenue);
+
+  const unitLabel =
+    unitMode === 'tokens' ? 'Tokens' : unitMode === 'words' ? 'Words' : 'Characters';
 
   return (
     <div className="min-h-screen bg-[#080b12] text-slate-100">
@@ -94,16 +140,19 @@ export default function PromptBillHome() {
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-slate-300">
             <a href="#calculator" className="hover:text-white transition-colors">
-              Cost Calculator
+              Calculator
+            </a>
+            <a href="#prompt-tokenizer" className="hover:text-white transition-colors">
+              Tokenizer
             </a>
             <a href="#compare-matrix" className="hover:text-white transition-colors">
-              Model Matrix
+              18-Model Matrix
             </a>
             <a href="#routing-simulator" className="hover:text-white transition-colors">
-              Routing Simulator
+              Routing
             </a>
             <a href="#pro-license" className="hover:text-white transition-colors">
-              Pro License ($9)
+              Pro ($9)
             </a>
           </nav>
 
@@ -119,22 +168,23 @@ export default function PromptBillHome() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        {/* Hero */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-[#0e1422] px-3 py-1 text-xs text-slate-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              Pricing &amp; Multiplier Engine · Updated November 2026
+              18 Models · OpenAI, Claude, Gemini, Grok, Kimi, DeepSeek &amp; Qwen · Nov 2026
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1]">
               Know Your True LLM API Bill Before You Ship.
             </h1>
             <p className="max-w-2xl text-base sm:text-lg text-slate-400 leading-relaxed">
-              PromptBill models real-world AI unit economics across OpenAI, Anthropic Claude, Google Gemini, DeepSeek, and OpenRouter—factoring in{' '}
+              PromptBill models real-world AI unit economics—factoring in{' '}
               <span className="text-slate-200 font-medium">prompt caching</span>,{' '}
               <span className="text-slate-200 font-medium">batch discounts</span>,{' '}
               <span className="text-slate-200 font-medium">reasoning tokens</span>,{' '}
               <span className="text-slate-200 font-medium">API retries</span>, and{' '}
-              <span className="text-slate-200 font-medium">long-context multipliers</span>.
+              <span className="text-slate-200 font-medium">multi-model routing</span>.
             </p>
           </div>
 
@@ -160,6 +210,7 @@ export default function PromptBillHome() {
           </div>
         </section>
 
+        {/* 1-Click Presets */}
         <section aria-label="Workload Presets">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -198,14 +249,32 @@ export default function PromptBillHome() {
           </div>
         </section>
 
+        {/* Main Calculator */}
         <section id="calculator" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 rounded-2xl border border-slate-800 bg-[#0d121d] p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
               <div className="flex items-center gap-2.5">
                 <Calculator className="w-5 h-5 text-emerald-400" />
                 <h2 className="text-lg font-bold text-white">Token &amp; Billing Parameters</h2>
               </div>
-              <span className="text-xs text-slate-400">All math runs locally in browser</span>
+
+              {/* Tokens / Words / Characters Toggle */}
+              <div className="inline-flex rounded-xl border border-slate-700 bg-[#131a29] p-1 text-xs">
+                {(['tokens', 'words', 'characters'] as InputUnitMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setUnitMode(mode)}
+                    className={`rounded-lg px-2.5 py-1 capitalize font-medium transition-colors ${
+                      unitMode === mode
+                        ? 'bg-emerald-500 text-slate-950'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -234,47 +303,60 @@ export default function PromptBillHome() {
                   type="number"
                   min={1}
                   value={inputs.callsPerDay}
-                  onChange={(e) =>
-                    setInputs({ ...inputs, callsPerDay: Math.max(0, Number(e.target.value)) })
-                  }
+                  onChange={(e) => {
+                    setActivePresetId('custom');
+                    setInputs({ ...inputs, callsPerDay: Math.max(0, Number(e.target.value)) });
+                  }}
                   className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Input Tokens per Call (Prompt + Context)
+                  Input {unitLabel} per Call{' '}
+                  {unitMode !== 'tokens' && (
+                    <span className="text-emerald-400 font-mono">
+                      ({inputs.inputTokensPerCall.toLocaleString()} tok)
+                    </span>
+                  )}
                 </label>
                 <input
                   type="number"
                   min={0}
-                  step={100}
-                  value={inputs.inputTokensPerCall}
-                  onChange={(e) =>
+                  step={unitMode === 'characters' ? 200 : 50}
+                  value={tokensToUnitValue(inputs.inputTokensPerCall, unitMode)}
+                  onChange={(e) => {
+                    setActivePresetId('custom');
                     setInputs({
                       ...inputs,
-                      inputTokensPerCall: Math.max(0, Number(e.target.value)),
-                    })
-                  }
+                      inputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
+                    });
+                  }}
                   className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Output Tokens per Call (Visible Response)
+                  Output {unitLabel} per Call{' '}
+                  {unitMode !== 'tokens' && (
+                    <span className="text-emerald-400 font-mono">
+                      ({inputs.outputTokensPerCall.toLocaleString()} tok)
+                    </span>
+                  )}
                 </label>
                 <input
                   type="number"
                   min={0}
-                  step={50}
-                  value={inputs.outputTokensPerCall}
-                  onChange={(e) =>
+                  step={unitMode === 'characters' ? 100 : 25}
+                  value={tokensToUnitValue(inputs.outputTokensPerCall, unitMode)}
+                  onChange={(e) => {
+                    setActivePresetId('custom');
                     setInputs({
                       ...inputs,
-                      outputTokensPerCall: Math.max(0, Number(e.target.value)),
-                    })
-                  }
+                      outputTokensPerCall: unitValueToTokens(Number(e.target.value), unitMode),
+                    });
+                  }}
                   className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
                 />
               </div>
@@ -363,6 +445,7 @@ export default function PromptBillHome() {
             </div>
           </div>
 
+          {/* Right Breakdown & SaaS Gross Margin */}
           <div className="lg:col-span-5 space-y-5">
             <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-6 space-y-4">
               <div className="flex items-center justify-between">
@@ -374,8 +457,13 @@ export default function PromptBillHome() {
                 </span>
               </div>
 
-              <div className="font-mono text-4xl font-bold text-white tabular-nums">
-                {formatCurrency(activeBreakdown.monthlyTotalCost)}
+              <div className="flex items-baseline justify-between">
+                <div className="font-mono text-4xl font-bold text-white tabular-nums">
+                  {formatCurrency(activeBreakdown.monthlyTotalCost)}
+                </div>
+                <div className="font-mono text-xs text-slate-400 tabular-nums">
+                  {formatCurrency(activeBreakdown.costPerRequest)} / request
+                </div>
               </div>
 
               <div className="space-y-2.5 pt-3 border-t border-slate-800 text-sm">
@@ -461,6 +549,14 @@ export default function PromptBillHome() {
           </div>
         </section>
 
+        {/* Live Prompt Tokenizer */}
+        <LivePromptTokenizer
+          models={models}
+          selectedModel={selectedModel}
+          onApplyInputTokens={handleApplyPromptTokens}
+        />
+
+        {/* 18-Model Matrix with CSV Export & Shareable Link */}
         <ComparisonMatrix
           models={models}
           inputs={inputs}
@@ -468,8 +564,13 @@ export default function PromptBillHome() {
           onSelectModel={(id) => setSelectedModelId(id)}
         />
 
+        {/* Routing Simulator */}
         <RoutingSimulator models={models} baseInputs={inputs} />
 
+        {/* Methodology & FAQ */}
+        <FaqAndMethodology />
+
+        {/* Pro License */}
         <section
           id="pro-license"
           className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-[#0e1826] via-[#0d121d] to-[#091512] p-6 sm:p-8"
@@ -534,6 +635,7 @@ export default function PromptBillHome() {
           </div>
           <div className="flex items-center gap-4">
             <a href="#calculator" className="hover:text-white">Calculator</a>
+            <a href="#prompt-tokenizer" className="hover:text-white">Tokenizer</a>
             <a href="#compare-matrix" className="hover:text-white">Matrix</a>
             <a href="#routing-simulator" className="hover:text-white">Routing</a>
             <a href="/sitemap.xml" className="hover:text-white">Sitemap</a>
