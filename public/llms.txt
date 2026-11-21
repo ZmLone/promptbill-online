@@ -1,8 +1,8 @@
 # PromptBill (https://promptbill.online)
 
-> Programmatic LLM Directory, Individual Model Specs, Historical Price Drops, Rate Limits, Cost Calculators & Head-to-Head Comparisons.
+> Programmatic LLM Directory, Individual Model Pages, Historical Price Drops, Rate Limits, Cost Calculators & Head-to-Head Comparisons.
 
-## All Individual Model Pages
+## Individual Model Pages
 - https://promptbill.online/models/claude-fable-5-2 — Claude Fable 5.2 (Anthropic): Score 93.3, $8.0/$40.0 per 1M tokens, 1M context, 109 tok/s
 - https://promptbill.online/models/gemini-4-neon — Gemini 4 Neon (Google Gemini): Score 91.3, $3.0/$15.0 per 1M tokens, 1M context, 110 tok/s
 - https://promptbill.online/models/gpt-6-2-astra — GPT-6.2 Astra (OpenAI): Score 90.8, $8.0/$40.0 per 1M tokens, 1.05M context, 78 tok/s

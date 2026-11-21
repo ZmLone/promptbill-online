@@ -20,6 +20,7 @@ export interface ModelEntry {
   evidence: EvidenceType;
   score: number;
   interval: string;
+  params: string;
   contextWindow: string;
   maxOutputTokens: string;
   rpmLimit: string;
@@ -40,7 +41,10 @@ export interface ModelEntry {
   if: number;
   ma: number;
   tokPerSec: number;
+  latency: string;
+  status: string;
   reasoning: boolean;
+  categories: string[];
   bestFor: string;
 }
 

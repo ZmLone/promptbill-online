@@ -109,12 +109,10 @@ export default async function ModelDetailPage({
       />
 
       <article className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-6">
-        {/* GEO Direct Answer Summary Box for AI Search Engines */}
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed">
           <strong>{model.name}</strong> by <strong>{model.provider}</strong> ranks <strong>#{model.rank}</strong> on PromptBill with a calibrated score of <strong>{model.score.toFixed(1)}</strong> (90% CI {model.interval}), a <strong>{model.contextWindow}</strong> context window, <strong>{model.tokPerSec} tok/s</strong> throughput, and API pricing of <strong>${model.inputPer1M.toFixed(2)} / 1M input</strong> and <strong>${model.outputPer1M.toFixed(2)} / 1M output tokens</strong>.
         </div>
 
-        {/* Key Specs Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
             <div className="text-[11px] text-slate-500">Benchmark Score</div>
@@ -140,7 +138,6 @@ export default async function ModelDetailPage({
           </div>
         </div>
 
-        {/* Full Capability Benchmark Breakdown */}
         <div className="space-y-2.5">
           <h2 className="text-base font-bold text-slate-900">
             Full Capability Benchmark Breakdown ({model.name})
@@ -164,7 +161,6 @@ export default async function ModelDetailPage({
           </div>
         </div>
 
-        {/* Historical Price Drops Timeline */}
         <div className="space-y-2.5">
           <h2 className="text-base font-bold text-slate-900">
             Historical API Price Drops &amp; Rate Timeline
@@ -193,10 +189,8 @@ export default async function ModelDetailPage({
           </div>
         </div>
 
-        {/* Dedicated Cost Calculator pre-loaded for this model */}
         <ModelDetailCalculator model={model} />
 
-        {/* Related Comparisons & Provider Hub Links */}
         <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap gap-2">
             {peerModels.map((peer) => {

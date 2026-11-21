@@ -1,1 +1,1 @@
-# PromptBill — Programmatic SEO & GEO Build (`https://promptbill.online`)
+# PromptBill v16 — Clean Build + SEO/GEO Model Pages (`https://promptbill.online`)
