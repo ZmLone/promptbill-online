@@ -183,8 +183,7 @@ export function SiteShell({
           </div>
         </div>
 
-        {/* Mobile / Tablet Touch-Friendly Horizontal Scroll Bar */}
-        <nav aria-label="Mobile Navigation" className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium no-scrollbar">
+        <nav aria-label="Mobile Navigation" className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium">
           {[...PRIMARY_NAV, { href: '/methodology', label: 'Methodology', icon: BookOpen }, { href: '/advertise', label: 'Advertise', icon: Megaphone }].map((item) => {
             const active = pathname === item.href;
             return (

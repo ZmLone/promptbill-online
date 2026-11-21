@@ -1,7 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../../lib/catalog';
 import { SiteShell } from '../../../components/SiteShell';
+
+export const metadata: Metadata = {
+  title: 'LLM Selector Tool',
+  alternates: { canonical: 'https://promptbill.online/tools/llm-selector' },
+};
 
 export default function LlmSelectorPage() {
   const picks = [...ALL_MODELS].sort((a, b) => b.score - a.score).slice(0, 6);

@@ -1,1 +1,1 @@
-# PromptBill v20 — Readable Semantic Tables & Mobile-Friendly Layout (`https://promptbill.online`)
+# PromptBill v21 — Bing Title Length & Schema Markup Fix (`https://promptbill.online`)

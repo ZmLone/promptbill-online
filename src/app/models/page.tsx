@@ -1,7 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../lib/catalog';
 import { SiteShell } from '../../components/SiteShell';
+
+export const metadata: Metadata = {
+  title: 'All Tracked LLM Models',
+  alternates: { canonical: 'https://promptbill.online/models' },
+};
 
 export default function Page() {
   return (

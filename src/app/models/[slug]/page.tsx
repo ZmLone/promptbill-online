@@ -13,10 +13,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const model = getModelBySlug(slug);
-  if (!model) return { title: 'Model Not Found — PromptBill' };
-  const title = `${model.name} API Pricing, Benchmarks, Rate Limits & Cost Calculator (Nov 2026)`;
-  const description = `${model.name} (${model.provider}) benchmark breakdown, ${model.contextWindow} context window, ${model.rpmLimit} limits, price history, and cost calculator.`;
-  return { title, description, alternates: { canonical: `https://promptbill.online/models/${model.slug}` } };
+  if (!model) return { title: 'Model Not Found' };
+  const shortTitle = `${model.name} Pricing, Benchmarks & Cost`;
+  const description = `${model.name} (${model.provider}) benchmark score ${model.score}, ${model.contextWindow} context, ${model.rpmLimit} limits, price history, and 30-day calculator.`;
+  return { title: shortTitle, description, alternates: { canonical: `https://promptbill.online/models/${model.slug}` } };
 }
 
 export default async function ModelDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -24,8 +24,23 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
   const model = getModelBySlug(slug);
   if (!model) notFound();
 
+  const schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: model.name,
+    applicationCategory: 'Large Language Model API',
+    operatingSystem: 'Cloud API',
+    url: `https://promptbill.online/models/${model.slug}`,
+    offers: {
+      '@type': 'Offer',
+      price: model.inputPer1M.toFixed(2),
+      priceCurrency: 'USD',
+    },
+  };
+
   return (
     <SiteShell title={`${model.name} — Benchmarks, Specs, Price History & Cost Calculator`} subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed">
           <strong>{model.name}</strong> ({model.provider}) ranks <strong>#{model.rank}</strong> with a score of <strong>{model.score.toFixed(1)}</strong>, <strong>{model.contextWindow}</strong> context window, <strong>{model.tokPerSec} tok/s</strong> speed, and API pricing of <strong>${model.inputPer1M.toFixed(2)} / 1M input</strong> and <strong>${model.outputPer1M.toFixed(2)} / 1M output</strong>.

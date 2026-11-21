@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ provider:
   const { provider } = await params;
   const matched = getModelsByProviderSlug(provider);
   const titleName = matched[0]?.provider || 'Provider';
-  return { title: `${titleName} LLM Models — Pricing & Benchmarks`, alternates: { canonical: `https://promptbill.online/providers/${provider}` } };
+  return { title: `${titleName} Models & Pricing`, alternates: { canonical: `https://promptbill.online/providers/${provider}` } };
 }
 
 export default async function ProviderHubPage({ params }: { params: Promise<{ provider: string }> }) {

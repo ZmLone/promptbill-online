@@ -49,11 +49,10 @@ export default function LeaderboardPage() {
 
   return (
     <SiteShell
-      title="LLM Leaderboard Rankings, API Pricing & Speed — Nov 2026"
-      subtitle="promptbill.online / · Semantic Benchmarks, Score/$ Value & Mobile View"
+      title="LLM Leaderboard Rankings, API Pricing & Speed"
+      subtitle="promptbill.online / · Benchmarks, Score/$ Value & Mobile View"
     >
       <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
-        {/* Search, Filters & Sort Controls */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="relative w-full lg:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -107,7 +106,7 @@ export default function LeaderboardPage() {
           </div>
         </div>
 
-        {/* MOBILE CARD LAYOUT (< md) — Easy thumb scanning without horizontal table cramped cells */}
+        {/* MOBILE CARD LAYOUT */}
         <div className="grid grid-cols-1 gap-3 md:hidden">
           {rows.map(({ model: m, scorePerDollar }) => (
             <article key={m.id} className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 space-y-3">
@@ -168,11 +167,11 @@ export default function LeaderboardPage() {
           ))}
         </div>
 
-        {/* DESKTOP & TABLET SEMANTIC SEO TABLE (md+) — Caption, <th scope="col">, <th scope="row">, Zebra striping, Full labels */}
+        {/* DESKTOP SEMANTIC TABLE */}
         <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
           <table className="w-full text-left border-collapse">
             <caption className="sr-only">
-              November 2026 LLM Leaderboard comparing composite benchmark scores, Score per dollar value ratio, context window size, API token pricing per 1 million tokens, Elo ratings, category scores, and output generation speed in tokens per second.
+              LLM Leaderboard comparing composite benchmark scores, Score per dollar value ratio, context window size, API token pricing per 1 million tokens, Elo ratings, category scores, and output generation speed in tokens per second.
             </caption>
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-700">
