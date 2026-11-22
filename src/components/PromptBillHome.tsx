@@ -1,7 +1,5 @@
 'use client';
 
-import { logEvent, posthogLog } from '../lib/posthogLog';
-
 import React, { useState, useMemo, useEffect } from 'react';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';

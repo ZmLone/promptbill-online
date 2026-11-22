@@ -224,9 +224,6 @@ export function SiteShell({
             <Link href="/compare" className="hover:text-slate-900">Compare Hub</Link>
             <Link href="/models" className="hover:text-slate-900">All Models</Link>
             <Link href="/pricing" className="hover:text-slate-900">API Pricing</Link>
-            <Link href="/about" className="hover:text-slate-900">About</Link>
-            <Link href="/contact" className="hover:text-slate-900">Contact</Link>
-            <Link href="/privacy-policy" className="hover:text-slate-900">Privacy Policy</Link>
             <a href="/sitemap.xml" className="inline-flex items-center gap-1 hover:text-slate-900">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>

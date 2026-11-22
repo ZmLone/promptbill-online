@@ -1,0 +1,47 @@
+[
+  {
+    "id": "chg-1",
+    "date": "Nov 21, 2026",
+    "modelName": "Claude Fable 5.2",
+    "modelSlug": "claude-fable-5-2",
+    "provider": "Anthropic",
+    "changeSummary": "Input $10.00 -> $8.00 / 1M (-20%) and Output $50.00 -> $40.00 / 1M (-20%), with $0.20 / 1M cached input.",
+    "verifiedDate": "Nov 22, 2026"
+  },
+  {
+    "id": "chg-2",
+    "date": "Nov 18, 2026",
+    "modelName": "GPT-6.2 Astra",
+    "modelSlug": "gpt-6-2-astra",
+    "provider": "OpenAI",
+    "changeSummary": "Input $10.00 -> $8.00 / 1M (-20%) and Output $50.00 -> $40.00 / 1M (-20%) on standard context tier.",
+    "verifiedDate": "Nov 22, 2026"
+  },
+  {
+    "id": "chg-3",
+    "date": "Nov 14, 2026",
+    "modelName": "DeepSeek V4.1 Flash 1017",
+    "modelSlug": "deepseek-v4-1-flash",
+    "provider": "DeepSeek",
+    "changeSummary": "Input $0.55 -> $0.30 / 1M (-45%) and Output $2.19 -> $1.20 / 1M (-45%) for high-throughput coding & agentic API calls.",
+    "verifiedDate": "Nov 22, 2026"
+  },
+  {
+    "id": "chg-4",
+    "date": "Nov 10, 2026",
+    "modelName": "Qwen 3.7 Flash",
+    "modelSlug": "qwen-3-7-flash",
+    "provider": "Alibaba / Qwen",
+    "changeSummary": "Input $0.30 -> $0.15 / 1M (-50%) and Output $1.20 -> $0.60 / 1M (-50%) for high-volume classification and routing.",
+    "verifiedDate": "Nov 22, 2026"
+  },
+  {
+    "id": "chg-5",
+    "date": "Nov 05, 2026",
+    "modelName": "Gemini 4 Carbon",
+    "modelSlug": "gemini-4-carbon",
+    "provider": "Google Gemini",
+    "changeSummary": "Input $2.50 -> $2.00 / 1M (-20%) and Output $12.00 -> $10.00 / 1M (-17%) while maintaining 155 tok/s throughput.",
+    "verifiedDate": "Nov 22, 2026"
+  }
+]

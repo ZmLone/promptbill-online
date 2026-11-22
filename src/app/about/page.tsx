@@ -4,14 +4,20 @@ import { SiteShell } from '../../components/SiteShell';
 
 export const metadata: Metadata = {
   title: 'About PromptBill',
+  description: 'About promptbill.online: LLM benchmark comparisons, token pricing estimators, and cost calculators.',
   alternates: { canonical: 'https://promptbill.online/about' },
 };
 
-export default function Page() {
+export default function AboutPage() {
   return (
     <SiteShell title="About PromptBill" subtitle="promptbill.online/about">
       <article className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4 text-sm text-slate-700 leading-relaxed">
-        <p><strong>PromptBill</strong> (<code>https://promptbill.online</code>) helps developers and AI teams compare large language model capabilities, throughput, and API token costs before shipping to production.</p>
+        <p>
+          <strong>PromptBill</strong> (<code>https://promptbill.online</code>) helps developers and AI teams compare large language model capabilities, throughput, and API token costs before shipping to production.
+        </p>
+        <p>
+          We publish model reference pages, head-to-head comparisons, and interactive cost calculators so teams can estimate monthly spend accurately.
+        </p>
       </article>
     </SiteShell>
   );
