@@ -1,4 +1,1 @@
-
-  info(message: string, attributes: Record<string, boolean | number | string>) {
-  },
-};
+export function logEvent(_eventName: string, _props?: Record<string, unknown>) {}

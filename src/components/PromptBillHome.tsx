@@ -98,6 +98,9 @@ export default function PromptBillHome() {
   }, [inputs]);
 
   const applyPreset = (preset: (typeof presetsJson)[number]) => {
+    logEvent('workload_preset_applied', { preset_id: preset.id });
+    posthogLog.info('workload preset applied', {
+      log_source: 'posthog_instrumentation',
       preset_id: preset.id,
       calls_per_day: preset.callsPerDay,
     });
@@ -119,6 +122,9 @@ export default function PromptBillHome() {
   };
 
   const handleApplyPromptTokens = (tokens: number) => {
+    logEvent('tokenizer_tokens_applied', { model_id: selectedModelId });
+    posthogLog.info('tokenizer result applied to calculator', {
+      log_source: 'posthog_instrumentation',
       model_id: selectedModelId,
       token_count: tokens,
     });
@@ -129,6 +135,7 @@ export default function PromptBillHome() {
   };
 
   const selectCalculatorModel = (id: string, selection_source: 'calculator' | 'matrix') => {
+    logEvent('calculator_model_selected', { model_id: id, selection_source });
     setSelectedModelId(id);
   };
 
@@ -697,6 +704,9 @@ export default function PromptBillHome() {
                 href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
                 onClick={() => {
                   if (process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL) {
+                    logEvent('pro_checkout_started', { plan: 'lifetime_pro' });
+                    posthogLog.info('pro checkout navigation started', {
+                      log_source: 'posthog_instrumentation',
                       plan: 'lifetime_pro',
                     });
                   }
