@@ -16,7 +16,7 @@ export default function GlobalError({
         <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
           <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
           <p className="text-sm text-slate-600">
-            {error?.message || 'An unexpected rendering error occurred on promptbill.online.'}
+            {error?.message || 'An unexpected error occurred while loading promptbill.online.'}
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             <button
