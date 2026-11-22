@@ -13,10 +13,16 @@ export interface PriceChangelogItem {
   verifiedDate: string;
 }
 
-export const PRICE_CHANGELOG = changelogJson as PriceChangelogItem[];
+export const PRICE_CHANGELOG: PriceChangelogItem[] = changelogJson as PriceChangelogItem[];
 export const PRICES_LAST_VERIFIED_DATE = 'Nov 22, 2026';
 
-export const CATEGORY_LEGEND: { code: string; label: string; desc: string }[] = [
+export interface LegendCategoryItem {
+  code: string;
+  label: string;
+  desc: string;
+}
+
+export const CATEGORY_LEGEND: LegendCategoryItem[] = [
   { code: 'AG', label: 'Agentic', desc: 'Multi-step tool use & autonomous task execution' },
   { code: 'CO', label: 'Coding', desc: 'Code generation, debugging & repository reasoning' },
   { code: 'RE', label: 'Reasoning', desc: 'Logic, multi-hop deduction & complex problem solving' },
@@ -30,7 +36,6 @@ export const CATEGORY_LEGEND: { code: string; label: string; desc: string }[] = 
 export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog?: boolean }) {
   return (
     <div className="space-y-4">
-      {/* Last Verified Badge + Methodology Link */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3 text-xs">
         <div className="flex items-center gap-2 font-semibold text-emerald-950">
           <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
@@ -45,7 +50,6 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
         </Link>
       </div>
 
-      {/* Category & Evidence Legend Box */}
       <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3 text-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="font-bold uppercase tracking-wider text-slate-700">
@@ -53,7 +57,7 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
           </div>
           <div className="text-slate-600">
             <strong className="text-slate-900">Supported</strong> = directly verified benchmark &amp; pricing coverage ·{' '}
-            <strong className="text-slate-900">Estimated</strong> = derived/projected benchmark or pricing tier.
+            <strong className="text-slate-900">Estimated</strong> = derived or projected benchmark or pricing tier.
           </div>
         </div>
 
@@ -73,7 +77,6 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
         </div>
       </div>
 
-      {/* Public API Price Drop Feed / Changelog */}
       {showChangelog && (
         <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
