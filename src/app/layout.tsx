@@ -1,15 +1,62 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),
-  title: 'PromptBill — LLM Benchmarks, Model Pages, Comparisons & Cost Calculators',
-  description: 'Semantic, mobile-friendly LLM rankings, individual model specs, head-to-head comparisons, and 30-day API cost calculators on promptbill.online.',
-  alternates: { canonical: 'https://promptbill.online/' },
-  verification: { google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8' },
+  title: {
+    default: 'PromptBill — LLM Leaderboard & API Cost Calculator',
+    template: '%s | PromptBill',
+  },
+  description:
+    'Compare LLM benchmark scores, API token pricing, head-to-head model matchups, speed (Tok/s), and 30-day cost & margin calculators on promptbill.online.',
+  alternates: {
+    canonical: 'https://promptbill.online/',
+  },
+  verification: {
+    google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
+  },
 };
+
+const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      name: 'PromptBill',
+      url: 'https://promptbill.online',
+      description: 'LLM benchmark rankings, model comparisons, and API token cost calculators.',
+    },
+    {
+      '@type': 'Organization',
+      name: 'PromptBill',
+      url: 'https://promptbill.online',
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}><body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body></html>;
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
+  return (
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
+        {adsenseClient ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
+      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body>
+    </html>
+  );
 }
