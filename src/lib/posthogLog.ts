@@ -1,1 +1,4 @@
-export function logEvent(_eventName: string, _props?: Record<string, unknown>) {}
+
+  info(message: string, attributes: Record<string, boolean | number | string>) {
+  },
+};
