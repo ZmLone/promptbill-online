@@ -1,39 +1,34 @@
 # PromptBill
 
-> LLM API Cost Calculator, Semantic Leaderboard, Prompt Caching & Batch API Estimator, Context-Tiered Pricing Checker, and Multi-Host / Router Comparison at https://promptbill.online.
+> LLM API Cost Calculator, Semantic Leaderboard, Head-to-Head Model Comparisons, Prompt Caching & Batch API Estimator, Context-Tiered Pricing Checker, and Multi-Host / Router Comparison at https://promptbill.online.
 
-## Core Calculators & Tools
-- [LLM Cost & Margin Workspace](https://promptbill.online/): Interactive 30-day cost calculator with prompt cache write/read modeling, batch API discounts, context-tier thresholds, and hosting comparisons.
+## Core Calculators, Matchups & Tools
+- [LLM Cost & Leaderboard Workspace](https://promptbill.online/): Interactive cost calculator, 14-column benchmark grid, and Pareto frontier scatter plot.
+- [Head-to-Head Model Comparisons Hub](https://promptbill.online/compare): Compare flagship, coding, reasoning, and budget LLMs side-by-side across benchmarks, 3:1 blended pricing, Elo, and speed.
 - [All Models Directory](https://promptbill.online/models): Full catalog of tracked models with input, cached read, cache write, output pricing, context windows, and throughput.
-- [Head-to-Head Model Comparisons](https://promptbill.online/compare): Side-by-side LLM comparisons across benchmarks, speed, and token pricing.
 - [API Pricing Reference](https://promptbill.online/pricing): Token pricing comparison across providers and tiers.
 - [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate savings from routing simple traffic to economy models and escalating complex tasks to flagship models.
 - [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts across providers.
 - [LLM Selector](https://promptbill.online/tools/llm-selector): Match models to coding, reasoning, RAG, or high-throughput workloads.
 
-## Billing Nuances & Engineering Guides
-- [Best LLMs for Coding](https://promptbill.online/best-llms-for-coding): Coding benchmark rankings and token cost trade-offs.
-- [Best Open-Weight LLMs](https://promptbill.online/best-open-weight-llms): Compare open-weight models across official APIs, inference clouds (Together, Fireworks, Groq, AWS Bedrock), and routers.
-- [Cheapest LLMs for Classification](https://promptbill.online/cheapest-llms-for-classification): Low-cost models for high-volume classification and extraction.
-- [Fastest LLMs (Tokens/sec)](https://promptbill.online/fastest-llms-tokens-per-second): Throughput leaders for low-latency and streaming workloads.
-- [Methodology](https://promptbill.online/methodology): Scoring methodology, pricing verification, prompt caching, batch discounts, and long-context pricing rules.
-
-## Tracked Models
-- [GPT-6.2 Astra](https://promptbill.online/models/gpt-6-2-astra): OpenAI — Score 90.8, $8.00/$40.00 per 1M, cached read $0.40/1M, 50% Batch API, 272K+ long-context multiplier, 1.05M context.
-- [GPT-6.2 Sol](https://promptbill.online/models/gpt-6-2-sol): OpenAI — Score 81.0, $2.00/$10.00 per 1M, cached read $0.10/1M, 50% Batch API, 272K+ long-context multiplier, 1.05M context.
-- [GPT-6.1 Terra](https://promptbill.online/models/gpt-6-1-terra): OpenAI — Score 80.1, $1.00/$5.00 per 1M, cached read $0.05/1M, 50% Batch API, 272K+ long-context multiplier, 1.05M context.
-- [GPT-5.4 Nano](https://promptbill.online/models/gpt-5-4-nano): OpenAI — Score 73.5, $0.20/$1.25 per 1M, cached read $0.02/1M, 50% Batch API, 400K context.
-- [Claude Fable 5.2](https://promptbill.online/models/claude-fable-5-2): Anthropic — Score 93.3, $8.00/$40.00 per 1M, cache read $0.20/1M & cache write $10.00/1M, 50% Batch API, 1M context.
-- [Claude Opus 5.5](https://promptbill.online/models/claude-opus-5-5): Anthropic — Score 82.7, $4.00/$20.00 per 1M, cache read $0.20/1M & cache write $5.00/1M, 50% Batch API, 1M context.
-- [Claude Sonnet 5.5](https://promptbill.online/models/claude-sonnet-5-5): Anthropic — Score 81.4, $2.00/$10.00 per 1M, cache read $0.10/1M & cache write $2.50/1M, 50% Batch API, 1M context.
-- [Claude Haiku 5.5](https://promptbill.online/models/claude-haiku-5-5): Anthropic — Score 77.2, $0.80/$4.00 per 1M, cache read $0.04/1M & cache write $1.00/1M, 50% Batch API, 1M context.
-- [Gemini 4 Neon](https://promptbill.online/models/gemini-4-neon): Google Gemini — Score 91.3, $3.00/$15.00 per 1M, cached read $0.15/1M, 50% Batch API, >200K long-context tier, 1M context.
-- [Gemini 4 Carbon](https://promptbill.online/models/gemini-4-carbon): Google Gemini — Score 88.0, $2.00/$10.00 per 1M, cached read $0.10/1M, 50% Batch API, >200K long-context tier, 1M context.
-- [Gemini 4 Hydrogen](https://promptbill.online/models/gemini-4-hydrogen): Google Gemini — Score 82.5, $0.50/$3.00 per 1M, cached read $0.03/1M, 50% Batch API, 1M context.
-- [Grok 4.6](https://promptbill.online/models/grok-4-6): xAI — Score 84.1, $2.00/$6.00 per 1M, cached read $0.20/1M, 50% Batch API, 500K context.
-- [Grok 4.3](https://promptbill.online/models/grok-4-3): xAI — Score 80.2, $1.25/$2.50 per 1M, cached read $0.12/1M, 50% Batch API, 1M context.
-- [Kimi K3](https://promptbill.online/models/kimi-k3): Moonshot / OpenRouter — Score 85.4, $3.00/$15.00 per 1M, cached read $0.15/1M, 50% Batch API, 1M context.
-- [Kimi K2.7 Code](https://promptbill.online/models/kimi-k2-7-code): Moonshot / OpenRouter — Score 79.8, $0.95/$4.00 per 1M, cached read $0.08/1M, 50% Batch API, 256K context.
-- [DeepSeek V4.1 Flash](https://promptbill.online/models/deepseek-v4-1-flash): DeepSeek / OpenRouter — Score 76.8, $0.30/$1.20 per 1M, cached read $0.03/1M, 50% Batch API, compared across DeepSeek, Fireworks, Together, Groq & AWS Bedrock.
-- [Qwen 3.7 Flash](https://promptbill.online/models/qwen-3-7-flash): OpenRouter / Qwen — Score 74.5, $0.15/$0.60 per 1M, cached read $0.02/1M, 50% Batch API, 128K context.
-- [Command R7B](https://promptbill.online/models/command-r7b): Cohere — Score 68.4, $0.04/$0.15 per 1M, cached read $0.01/1M, 50% Batch API, 128K context.
+## Top Head-to-Head Matchups
+- [Claude Fable 5.2 vs Gemini 4 Neon](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-neon): Flagship reasoning and multimodal benchmark, pricing, and throughput comparison.
+- [Claude Fable 5.2 vs GPT-6.2 Astra](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-2-astra): Top-tier frontier comparison across intelligence score, API token cost, and speed.
+- [GPT-6.2 Astra vs Gemini 4 Neon](https://promptbill.online/compare/gpt-6-2-astra-vs-gemini-4-neon): Compare frontier reasoning, context capacity, and per-1M pricing.
+- [Claude Fable 5.2 vs Claude Opus 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-opus-5-5): Compare Anthropic flagship reasoning tiers and token economics.
+- [Claude Fable 5.2 vs Gemini 4 Carbon](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-carbon): Flagship accuracy vs. balanced efficiency trade-offs.
+- [Claude Fable 5.2 vs GPT-6.2 Sol](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-2-sol): Compare frontier model against balanced production agent pricing.
+- [Claude Fable 5.2 vs Grok 4.6](https://promptbill.online/compare/claude-fable-5-2-vs-grok-4-6): Compare benchmark score, speed, and input/output cost ratios.
+- [Claude Fable 5.2 vs Kimi K3](https://promptbill.online/compare/claude-fable-5-2-vs-kimi-k3): Compare long-context agentic performance and API cost.
+- [Claude Fable 5.2 vs Grok 4.3](https://promptbill.online/compare/claude-fable-5-2-vs-grok-4-3): Compare high-accuracy flagship vs. low-output-cost alternative.
+- [Claude Fable 5.2 vs Claude Sonnet 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-sonnet-5-5): Compare Anthropic flagship vs. balanced coding/agent workhorse.
+- [Claude Fable 5.2 vs GPT-6.1 Terra](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-1-terra): Compare flagship reasoning vs. economy frontier tier.
+- [Claude Fable 5.2 vs Kimi K2.7 Code](https://promptbill.online/compare/claude-fable-5-2-vs-kimi-k2-7-code): Compare flagship intelligence vs. specialized coding cost.
+- [Claude Fable 5.2 vs Gemini 4 Hydrogen](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-hydrogen): Compare flagship score vs. high-speed 1M context ingestion.
+- [Claude Fable 5.2 vs Claude Haiku 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-haiku-5-5): Compare top score vs. low-latency Anthropic economy model.
+- [Claude Fable 5.2 vs DeepSeek V4.1 Flash](https://promptbill.online/compare/claude-fable-5-2-vs-deepseek-v4-1-flash): Compare flagship intelligence vs. high-value open-weight/flash cost.
+- [Claude Fable 5.2 vs Qwen 3.7 Flash](https://promptbill.online/compare/claude-fable-5-2-vs-qwen-3-7-flash): Compare flagship score vs. ultra-low-cost routing/classification model.
+- [Claude Fable 5.2 vs GPT-5.4 Nano](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-5-4-nano): Compare flagship reasoning vs. fast bulk extraction model.
+- [Claude Fable 5.2 vs Command R7B](https://promptbill.online/compare/claude-fable-5-2-vs-command-r7b): Compare flagship benchmark score vs. ultra-cheap RAG/extraction pricing.
+- [Gemini 4 Neon vs GPT-6.2 Astra](https://promptbill.online/compare/gemini-4-neon-vs-gpt-6-2-astra): Head-to-head multimodal and reasoning comparison.
+- [DeepSeek V4.1 Flash vs Qwen 3.7 Flash](https://promptbill.online/compare/deepseek-v4-1-flash-vs-qwen-3-7-flash): Budget coding and high-volume efficiency showdown.
