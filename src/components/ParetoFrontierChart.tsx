@@ -144,7 +144,6 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
@@ -164,11 +163,11 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="inline-flex rounded-lg border border-slate-300 bg-slate-100 p-1 text-xs">
+          <div className="inline-flex rounded-lg border border-slate-300 bg-slate-100 p-1 gap-2 text-xs">
             <button
               type="button"
               onClick={() => setMode('price')}
-              className={`min-h-[38px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
+              className={`min-h-[44px] min-w-[44px] rounded-md px-3.5 py-2 font-semibold transition-colors ${
                 mode === 'price'
                   ? 'bg-emerald-800 text-white'
                   : 'text-slate-800 hover:bg-white'
@@ -179,7 +178,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
             <button
               type="button"
               onClick={() => setMode('speed')}
-              className={`min-h-[38px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
+              className={`min-h-[44px] min-w-[44px] rounded-md px-3.5 py-2 font-semibold transition-colors ${
                 mode === 'speed'
                   ? 'bg-emerald-800 text-white'
                   : 'text-slate-800 hover:bg-white'
@@ -192,16 +191,16 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
           <button
             type="button"
             onClick={handleCopyAttribution}
-            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             {copiedCitation ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-800" />
+                <Check className="w-4 h-4 text-emerald-800" />
                 <span>Copied</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-4 h-4" />
                 <span>Copy Citation</span>
               </>
             )}
@@ -209,7 +208,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         </div>
       </div>
 
-      {/* Desktop-only Clean Scatter Plot (dots only on plot; full name & stats shown in inspector & table) */}
+      {/* Desktop Scatter Plot */}
       <div className="hidden lg:grid lg:grid-cols-12 gap-5 items-start">
         <div className="lg:col-span-7 space-y-2">
           <div className="relative h-[340px] w-full rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
@@ -263,7 +262,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                       ? `Blended price $${pt.blendedPrice.toFixed(2)} per 1M`
                       : `Speed ${pt.model.tokPerSec} tokens per second`
                   }`}
-                  className="group absolute flex h-8 w-8 items-center justify-center focus:outline-none z-10 hover:z-20"
+                  className="group absolute flex h-11 w-11 items-center justify-center focus:outline-none z-10 hover:z-20"
                 >
                   <span
                     className={`block h-3.5 w-3.5 rounded-full border-2 transition-transform ${
@@ -349,7 +348,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
 
               <Link
                 href={`/models/${activeModelRow.model.slug}`}
-                className="inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
               >
                 <span>View {activeModelRow.model.name} Calculator &amp; Specs</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -359,7 +358,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         </div>
       </div>
 
-      {/* Frontier Pills Row (Fast Scannable Summary on Both Mobile & Desktop) */}
+      {/* Frontier Pills Row (44px tap height, 8px spacing) */}
       <div className="space-y-2">
         <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
           Frontier Models ({mode === 'price' ? 'Best Score per Price Tier' : 'Best Score per Speed Tier'})
@@ -372,7 +371,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 key={p.model.id}
                 type="button"
                 onClick={() => setSelectedId(p.model.id)}
-                className={`min-h-[36px] rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`min-h-[44px] min-w-[44px] rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors ${
                   active
                     ? 'border-emerald-800 bg-emerald-800 text-white'
                     : 'border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100'
@@ -404,14 +403,14 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
           <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-slate-800">
             <span>Blended: ${activeModelRow.blendedPrice.toFixed(2)}/1M</span>
             <span className="text-emerald-800 font-semibold">{activeModelRow.model.tokPerSec} tok/s</span>
-            <Link href={`/models/${activeModelRow.model.slug}`} className="font-sans font-semibold text-emerald-800 underline">
+            <Link href={`/models/${activeModelRow.model.slug}`} className="inline-flex min-h-[44px] items-center font-sans font-semibold text-emerald-800 underline">
               Cost &amp; Specs -&gt;
             </Link>
           </div>
         </div>
       )}
 
-      {/* Clean Semantic Data Table for Readers, SEO & GEO */}
+      {/* Clean Semantic Data Table */}
       <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full text-left border-collapse text-xs">
           <caption className="sr-only">
@@ -432,7 +431,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 <th scope="row" className="py-2 px-3 font-sans font-semibold text-slate-900 text-left">
                   <Link
                     href={`/models/${pt.model.slug}`}
-                    className="inline-flex min-h-[32px] items-center hover:text-emerald-800 underline-offset-2 hover:underline"
+                    className="inline-flex min-h-[44px] items-center hover:text-emerald-800 underline-offset-2 hover:underline"
                   >
                     {pt.model.name}
                   </Link>
