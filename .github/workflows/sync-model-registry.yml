@@ -1,0 +1,52 @@
+name: Sync LLM Model Registry, Open PR & Flag New Models
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-catalog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run registry pricing sync & new-model detector
+        id: sync
+        run: |
+          node scripts/sync-registry.mjs
+          echo "has_new_models=$(cat /tmp/has-new-models.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Open Pull Request if src/data/models.json pricing changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'chore(data): auto-sync model pricing in src/data/models.json'
+          title: 'chore: automated LLM pricing sync'
+          body-path: /tmp/registry-sync-report.md
+          branch: chore/sync-model-registry
+          delete-branch: true
+
+      - name: Open GitHub Issue when untracked major models appear
+        if: steps.sync.outputs.has_new_models == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/registry-sync-report.md', 'utf8');
+            const today = new Date().toISOString().slice(0, 10);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Model Radar ${today}] New provider models detected on OpenRouter`,
+              body: report + '\n> Tip: Add approved models to `src/data/models.json` with `"evidence": "Estimated"` first to capture early search traffic, then flip to `"Supported"` once verified.',
+            });
