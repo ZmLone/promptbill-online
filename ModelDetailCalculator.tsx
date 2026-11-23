@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ModelEntry } from '../lib/catalog';
+import { ModelEntry } from '../../lib/catalog';
 
 export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
   const [inputTokens, setInputTokens] = useState(6500);
