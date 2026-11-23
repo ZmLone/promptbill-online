@@ -95,7 +95,7 @@ export function SiteShell({
         onMouseLeave={() => setMoreOpen(false)}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Link href="/" aria-label="PromptBill Home" className="flex items-center gap-2.5 shrink-0">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 font-mono text-sm font-bold text-white">
               PB
             </span>
@@ -169,6 +169,7 @@ export function SiteShell({
             <button
               type="button"
               onClick={handleCopy}
+              aria-label="Copy current page URL"
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}

@@ -170,10 +170,9 @@ export default function PromptBillHome() {
 
   return (
     <div className="min-h-screen bg-[#080b12] text-slate-100">
-      {/* Clean Minimal Top Navigation */}
       <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-[#080b12]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-          <a href="#" className="flex items-center gap-2.5">
+          <a href="#" aria-label="PromptBill Home" className="flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" />
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold tracking-tight text-white">PromptBill</span>
@@ -183,7 +182,7 @@ export default function PromptBillHome() {
             </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm text-slate-300">
+          <nav aria-label="Workspace Navigation" className="hidden md:flex items-center gap-6 text-sm text-slate-300">
             <button type="button" onClick={() => jumpToTab('calculator')} className="hover:text-white transition-colors">
               Calculator
             </button>
@@ -211,7 +210,6 @@ export default function PromptBillHome() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        {/* Crisp Focused Hero */}
         <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-[#0e1422] px-3 py-1 text-xs text-slate-300">
@@ -229,7 +227,6 @@ export default function PromptBillHome() {
             </p>
           </div>
 
-          {/* Live Summary Pill Card */}
           <div className="w-full lg:w-80 shrink-0 rounded-2xl border border-slate-800 bg-[#0d121d] p-5 space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span>Active Model ({selectedModel.contextWindow})</span>
@@ -253,9 +250,7 @@ export default function PromptBillHome() {
           </div>
         </section>
 
-        {/* Interactive Tabbed Workspace (Eliminates vertical clutter) */}
         <section id="workspace" className="space-y-6">
-          {/* Workspace Tab Bar */}
           <div
             role="tablist"
             aria-label="PromptBill Tools"
@@ -293,11 +288,9 @@ export default function PromptBillHome() {
             })}
           </div>
 
-          {/* Active Workspace Panel */}
           <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-5 sm:p-8">
             {activeTab === 'calculator' && (
               <div className="space-y-8">
-                {/* 1-Click Workload Presets */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -334,7 +327,6 @@ export default function PromptBillHome() {
                   </div>
                 </div>
 
-                {/* Calculator Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                   <div className="lg:col-span-7 space-y-6">
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
@@ -363,10 +355,11 @@ export default function PromptBillHome() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                        <label htmlFor="calc-model-select" className="block text-xs font-medium text-slate-300 mb-1.5">
                           Model Selection
                         </label>
                         <select
+                          id="calc-model-select"
                           value={selectedModelId}
                           onChange={(e) => selectCalculatorModel(e.target.value, 'calculator')}
                           className="w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
@@ -380,10 +373,11 @@ export default function PromptBillHome() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                        <label htmlFor="calc-calls-per-day" className="block text-xs font-medium text-slate-300 mb-1.5">
                           API Calls / Requests per Day
                         </label>
                         <input
+                          id="calc-calls-per-day"
                           type="number"
                           min={1}
                           value={inputs.callsPerDay}
@@ -396,7 +390,7 @@ export default function PromptBillHome() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                        <label htmlFor="calc-input-units" className="block text-xs font-medium text-slate-300 mb-1.5">
                           Input {unitLabel} per Call{' '}
                           {unitMode !== 'tokens' && (
                             <span className="text-emerald-400 font-mono">
@@ -405,6 +399,7 @@ export default function PromptBillHome() {
                           )}
                         </label>
                         <input
+                          id="calc-input-units"
                           type="number"
                           min={0}
                           step={unitMode === 'characters' ? 200 : 50}
@@ -421,7 +416,7 @@ export default function PromptBillHome() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                        <label htmlFor="calc-output-units" className="block text-xs font-medium text-slate-300 mb-1.5">
                           Output {unitLabel} per Call{' '}
                           {unitMode !== 'tokens' && (
                             <span className="text-emerald-400 font-mono">
@@ -430,6 +425,7 @@ export default function PromptBillHome() {
                           )}
                         </label>
                         <input
+                          id="calc-output-units"
                           type="number"
                           min={0}
                           step={unitMode === 'characters' ? 100 : 25}
@@ -460,6 +456,7 @@ export default function PromptBillHome() {
                           </div>
                           <input
                             type="range"
+                            aria-label="Prompt Cache Hit Rate percentage"
                             min={0}
                             max={95}
                             step={5}
@@ -478,6 +475,7 @@ export default function PromptBillHome() {
                           </div>
                           <input
                             type="range"
+                            aria-label="Batch API Share percentage"
                             min={0}
                             max={100}
                             step={5}
@@ -490,10 +488,11 @@ export default function PromptBillHome() {
                         </div>
 
                         <div className="rounded-xl border border-slate-800 bg-[#111827] p-3.5">
-                          <label className="block text-xs text-slate-300 mb-1.5">
+                          <label htmlFor="calc-reasoning-tokens" className="block text-xs text-slate-300 mb-1.5">
                             Reasoning / Thinking Tokens / Call
                           </label>
                           <input
+                            id="calc-reasoning-tokens"
                             type="number"
                             min={0}
                             step={100}
@@ -515,6 +514,7 @@ export default function PromptBillHome() {
                           </div>
                           <input
                             type="range"
+                            aria-label="Retry and Failure Buffer percentage"
                             min={0}
                             max={30}
                             step={1}
@@ -529,7 +529,6 @@ export default function PromptBillHome() {
                     </div>
                   </div>
 
-                  {/* Right Breakdown & SaaS Margin */}
                   <div className="lg:col-span-5 space-y-5">
                     <div className="rounded-2xl border border-slate-800 bg-[#111827] p-6 space-y-4">
                       <div className="flex items-center justify-between">
@@ -594,8 +593,9 @@ export default function PromptBillHome() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-[11px] text-slate-400 mb-1">Active Paying Users</label>
+                          <label htmlFor="saas-active-users" className="block text-[11px] text-slate-400 mb-1">Active Paying Users</label>
                           <input
+                            id="saas-active-users"
                             type="number"
                             min={1}
                             value={monthlyActiveUsers}
@@ -604,8 +604,9 @@ export default function PromptBillHome() {
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] text-slate-400 mb-1">Price / User ($/mo)</label>
+                          <label htmlFor="saas-price-per-user" className="block text-[11px] text-slate-400 mb-1">Price / User ($/mo)</label>
                           <input
+                            id="saas-price-per-user"
                             type="number"
                             min={1}
                             value={pricePerUserUsd}
@@ -658,10 +659,8 @@ export default function PromptBillHome() {
           </div>
         </section>
 
-        {/* Clear Guide to All Features + Formula + FAQ */}
         <FeatureGuideAndFaq onJumpToTab={jumpToTab} />
 
-        {/* Pro License */}
         <section
           id="pro-license"
           className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-[#0e1826] via-[#0d121d] to-[#091512] p-6 sm:p-8"
