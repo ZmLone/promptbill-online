@@ -1,5 +1,4 @@
 import modelsJson from '../data/models.json';
-import type { LLMModel } from './pricingEngine';
 
 export interface LivePriceHistoryEntry {
   date: string;
@@ -42,6 +41,27 @@ export interface LiveModelRecord {
   bestFor?: string;
   notes?: string;
   priceHistory?: LivePriceHistoryEntry[];
+}
+
+export interface PriceableModelShape {
+  id?: string;
+  slug?: string;
+  name?: string;
+  inputPer1M: number;
+  outputPer1M: number;
+  cachedInputPer1M?: number;
+  rank?: number;
+  score?: number;
+  elo?: number;
+  tokPerSec?: number;
+  contextWindow?: string;
+  evidence?: 'Supported' | 'Estimated' | string;
+  priceHistory?: Array<{
+    date: string;
+    inputPer1M: number;
+    outputPer1M: number;
+    note: string;
+  }>;
 }
 
 const LIVE_RECORDS = modelsJson as LiveModelRecord[];
@@ -91,7 +111,7 @@ export function findLiveRecord(model: { id?: string; slug?: string; name?: strin
   return undefined;
 }
 
-export function applyLiveRegistryPricing<T extends LLMModel>(model: T): T {
+export function applyLiveRegistryPricing<T extends PriceableModelShape>(model: T): T {
   const live = findLiveRecord(model);
   if (!live) return model;
 
