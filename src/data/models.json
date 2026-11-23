@@ -6,6 +6,7 @@
     "family": "GPT-6",
     "inputPer1M": 8.0,
     "cachedInputPer1M": 0.4,
+    "cacheWritePer1M": 8.0,
     "outputPer1M": 40.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 2.0,
@@ -15,7 +16,31 @@
     "qualityScore": 90.8,
     "speedTokensPerSec": 78,
     "tier": "Flagship",
-    "notes": "Frontier reasoning & complex coding; 272K+ long-context multiplier"
+    "notes": "Frontier reasoning & complex coding; 272K+ long-context multiplier",
+    "hostingEndpoints": [
+      {
+        "host": "OpenAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 8.0,
+        "cachedInputPer1M": 0.4,
+        "cacheWritePer1M": 8.0,
+        "outputPer1M": 40.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 420,
+        "notes": "Native Batch API 50% off & automatic prompt caching"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 8.2,
+        "cachedInputPer1M": 0.42,
+        "cacheWritePer1M": 8.2,
+        "outputPer1M": 41.0,
+        "batchDiscount": 0.35,
+        "latencyMs": 455,
+        "notes": "Unified fallback & multi-provider routing"
+      }
+    ]
   },
   {
     "id": "gpt-6-2-sol",
@@ -24,6 +49,7 @@
     "family": "GPT-6",
     "inputPer1M": 2.0,
     "cachedInputPer1M": 0.1,
+    "cacheWritePer1M": 2.0,
     "outputPer1M": 10.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 2.0,
@@ -33,7 +59,31 @@
     "qualityScore": 81.0,
     "speedTokensPerSec": 128,
     "tier": "Balanced",
-    "notes": "Latest GPT-6.2 balanced tier for production agents & structured JSON"
+    "notes": "Latest GPT-6.2 balanced tier for production agents & structured JSON",
+    "hostingEndpoints": [
+      {
+        "host": "OpenAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.1,
+        "cacheWritePer1M": 2.0,
+        "outputPer1M": 10.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 280,
+        "notes": "Native 50% Batch discount"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 2.05,
+        "cachedInputPer1M": 0.11,
+        "cacheWritePer1M": 2.05,
+        "outputPer1M": 10.25,
+        "batchDiscount": 0.35,
+        "latencyMs": 310,
+        "notes": "Single API key across providers"
+      }
+    ]
   },
   {
     "id": "gpt-6-1-terra",
@@ -42,6 +92,7 @@
     "family": "GPT-6",
     "inputPer1M": 1.0,
     "cachedInputPer1M": 0.05,
+    "cacheWritePer1M": 1.0,
     "outputPer1M": 5.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 2.0,
@@ -51,7 +102,31 @@
     "qualityScore": 80.1,
     "speedTokensPerSec": 168,
     "tier": "Economy",
-    "notes": "Cheapest frontier-class OpenAI tier for high-volume pipelines"
+    "notes": "Cheapest frontier-class OpenAI tier for high-volume pipelines",
+    "hostingEndpoints": [
+      {
+        "host": "OpenAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 1.0,
+        "cachedInputPer1M": 0.05,
+        "cacheWritePer1M": 1.0,
+        "outputPer1M": 5.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 220,
+        "notes": "Native Batch 50% off"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 1.05,
+        "cachedInputPer1M": 0.06,
+        "cacheWritePer1M": 1.05,
+        "outputPer1M": 5.2,
+        "batchDiscount": 0.35,
+        "latencyMs": 245,
+        "notes": "Easy failover routing"
+      }
+    ]
   },
   {
     "id": "gpt-5-4-nano",
@@ -60,6 +135,7 @@
     "family": "GPT-5.4",
     "inputPer1M": 0.2,
     "cachedInputPer1M": 0.02,
+    "cacheWritePer1M": 0.2,
     "outputPer1M": 1.25,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -69,7 +145,31 @@
     "qualityScore": 73.5,
     "speedTokensPerSec": 215,
     "tier": "Economy",
-    "notes": "Ultra-fast classification, tagging, routing & bulk extraction"
+    "notes": "Ultra-fast classification, tagging, routing & bulk extraction",
+    "hostingEndpoints": [
+      {
+        "host": "OpenAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 0.2,
+        "cachedInputPer1M": 0.02,
+        "cacheWritePer1M": 0.2,
+        "outputPer1M": 1.25,
+        "batchDiscount": 0.5,
+        "latencyMs": 160,
+        "notes": "High RPM bulk endpoint"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.22,
+        "cachedInputPer1M": 0.025,
+        "cacheWritePer1M": 0.22,
+        "outputPer1M": 1.35,
+        "batchDiscount": 0.35,
+        "latencyMs": 185,
+        "notes": "Unified billing"
+      }
+    ]
   },
   {
     "id": "claude-fable-5-2",
@@ -78,6 +178,7 @@
     "family": "Claude 5",
     "inputPer1M": 8.0,
     "cachedInputPer1M": 0.2,
+    "cacheWritePer1M": 10.0,
     "outputPer1M": 40.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -87,7 +188,42 @@
     "qualityScore": 93.3,
     "speedTokensPerSec": 66,
     "tier": "Flagship",
-    "notes": "#1 benchmark score; flat full 1M context rate with 97.5% cache discount"
+    "notes": "#1 benchmark score; flat full 1M context rate with 1.25x cache write & 97.5% cache read discount",
+    "hostingEndpoints": [
+      {
+        "host": "Anthropic Direct API",
+        "providerType": "Official API",
+        "inputPer1M": 8.0,
+        "cachedInputPer1M": 0.2,
+        "cacheWritePer1M": 10.0,
+        "outputPer1M": 40.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 410,
+        "notes": "Explicit cache_control write (1.25x) & read (0.025x)"
+      },
+      {
+        "host": "AWS Bedrock",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 8.0,
+        "cachedInputPer1M": 0.2,
+        "cacheWritePer1M": 10.0,
+        "outputPer1M": 40.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 430,
+        "notes": "VPC private networking & IAM controls"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 8.2,
+        "cachedInputPer1M": 0.22,
+        "cacheWritePer1M": 10.25,
+        "outputPer1M": 41.0,
+        "batchDiscount": 0.35,
+        "latencyMs": 450,
+        "notes": "Cross-provider fallback"
+      }
+    ]
   },
   {
     "id": "claude-opus-5-5",
@@ -96,6 +232,7 @@
     "family": "Claude 5",
     "inputPer1M": 4.0,
     "cachedInputPer1M": 0.2,
+    "cacheWritePer1M": 5.0,
     "outputPer1M": 20.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -105,7 +242,42 @@
     "qualityScore": 82.7,
     "speedTokensPerSec": 84,
     "tier": "Flagship",
-    "notes": "Deep architectural reasoning & multi-file refactoring"
+    "notes": "Deep architectural reasoning & multi-file refactoring",
+    "hostingEndpoints": [
+      {
+        "host": "Anthropic Direct API",
+        "providerType": "Official API",
+        "inputPer1M": 4.0,
+        "cachedInputPer1M": 0.2,
+        "cacheWritePer1M": 5.0,
+        "outputPer1M": 20.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 340,
+        "notes": "Native prompt caching & Message Batches"
+      },
+      {
+        "host": "AWS Bedrock",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 4.0,
+        "cachedInputPer1M": 0.2,
+        "cacheWritePer1M": 5.0,
+        "outputPer1M": 20.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 365,
+        "notes": "Enterprise AWS billing"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 4.15,
+        "cachedInputPer1M": 0.22,
+        "cacheWritePer1M": 5.2,
+        "outputPer1M": 20.5,
+        "batchDiscount": 0.35,
+        "latencyMs": 385,
+        "notes": "Unified router key"
+      }
+    ]
   },
   {
     "id": "claude-sonnet-5-5",
@@ -114,6 +286,7 @@
     "family": "Claude 5",
     "inputPer1M": 2.0,
     "cachedInputPer1M": 0.1,
+    "cacheWritePer1M": 2.5,
     "outputPer1M": 10.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -123,7 +296,42 @@
     "qualityScore": 81.4,
     "speedTokensPerSec": 132,
     "tier": "Balanced",
-    "notes": "Workhorse coding & agentic model with 95% prompt cache read discount"
+    "notes": "Workhorse coding & agentic model with 1.25x cache write & 95% cache read discount",
+    "hostingEndpoints": [
+      {
+        "host": "Anthropic Direct API",
+        "providerType": "Official API",
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.1,
+        "cacheWritePer1M": 2.5,
+        "outputPer1M": 10.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 240,
+        "notes": "Best cache write/read & 50% Batch API support"
+      },
+      {
+        "host": "AWS Bedrock",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.1,
+        "cacheWritePer1M": 2.5,
+        "outputPer1M": 10.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 265,
+        "notes": "AWS Bedrock regional endpoints"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 2.1,
+        "cachedInputPer1M": 0.11,
+        "cacheWritePer1M": 2.6,
+        "outputPer1M": 10.3,
+        "batchDiscount": 0.35,
+        "latencyMs": 285,
+        "notes": "Multi-model gateway access"
+      }
+    ]
   },
   {
     "id": "claude-haiku-5-5",
@@ -132,6 +340,7 @@
     "family": "Claude 5",
     "inputPer1M": 0.8,
     "cachedInputPer1M": 0.04,
+    "cacheWritePer1M": 1.0,
     "outputPer1M": 4.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -141,7 +350,42 @@
     "qualityScore": 77.2,
     "speedTokensPerSec": 195,
     "tier": "Economy",
-    "notes": "Sub-second Anthropic model for fast routing, support & RAG reranking"
+    "notes": "Sub-second Anthropic model for fast routing, support & RAG reranking",
+    "hostingEndpoints": [
+      {
+        "host": "Anthropic Direct API",
+        "providerType": "Official API",
+        "inputPer1M": 0.8,
+        "cachedInputPer1M": 0.04,
+        "cacheWritePer1M": 1.0,
+        "outputPer1M": 4.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 175,
+        "notes": "Fastest Anthropic tier with prompt caching"
+      },
+      {
+        "host": "AWS Bedrock",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.8,
+        "cachedInputPer1M": 0.04,
+        "cacheWritePer1M": 1.0,
+        "outputPer1M": 4.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 195,
+        "notes": "Bedrock low-latency inference"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.84,
+        "cachedInputPer1M": 0.05,
+        "cacheWritePer1M": 1.05,
+        "outputPer1M": 4.2,
+        "batchDiscount": 0.35,
+        "latencyMs": 210,
+        "notes": "Router fallback support"
+      }
+    ]
   },
   {
     "id": "gemini-4-neon",
@@ -150,16 +394,41 @@
     "family": "Gemini 4",
     "inputPer1M": 3.0,
     "cachedInputPer1M": 0.15,
+    "cacheWritePer1M": 3.0,
     "outputPer1M": 15.0,
     "batchDiscount": 0.5,
-    "longContextMultiplierInput": 1.0,
-    "longContextMultiplierOutput": 1.0,
-    "longContextThresholdTokens": 1000000,
+    "longContextMultiplierInput": 2.0,
+    "longContextMultiplierOutput": 1.5,
+    "longContextThresholdTokens": 200000,
     "contextWindow": "1M",
     "qualityScore": 91.3,
     "speedTokensPerSec": 115,
     "tier": "Flagship",
-    "notes": "High-reasoning multimodal & large-context model"
+    "notes": "High-reasoning multimodal model; >200K prompts trigger 2x input / 1.5x output tier",
+    "hostingEndpoints": [
+      {
+        "host": "Google AI Studio / Vertex AI",
+        "providerType": "Official API",
+        "inputPer1M": 3.0,
+        "cachedInputPer1M": 0.15,
+        "cacheWritePer1M": 3.0,
+        "outputPer1M": 15.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 310,
+        "notes": "Context caching + 50% Batch API"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 3.1,
+        "cachedInputPer1M": 0.16,
+        "cacheWritePer1M": 3.1,
+        "outputPer1M": 15.4,
+        "batchDiscount": 0.35,
+        "latencyMs": 340,
+        "notes": "Unified gateway endpoint"
+      }
+    ]
   },
   {
     "id": "gemini-4-carbon",
@@ -168,16 +437,41 @@
     "family": "Gemini 4",
     "inputPer1M": 2.0,
     "cachedInputPer1M": 0.1,
+    "cacheWritePer1M": 2.0,
     "outputPer1M": 10.0,
     "batchDiscount": 0.5,
-    "longContextMultiplierInput": 1.0,
-    "longContextMultiplierOutput": 1.0,
-    "longContextThresholdTokens": 1000000,
+    "longContextMultiplierInput": 2.0,
+    "longContextMultiplierOutput": 1.5,
+    "longContextThresholdTokens": 200000,
     "contextWindow": "1M",
     "qualityScore": 88.0,
     "speedTokensPerSec": 155,
     "tier": "Balanced",
-    "notes": "Strong quality-to-cost efficiency across long documents & tool calling"
+    "notes": "Strong quality-to-cost efficiency; >200K prompts trigger long-context pricing tier",
+    "hostingEndpoints": [
+      {
+        "host": "Google AI Studio / Vertex AI",
+        "providerType": "Official API",
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.1,
+        "cacheWritePer1M": 2.0,
+        "outputPer1M": 10.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 235,
+        "notes": "Native Vertex AI & Gemini API"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 2.08,
+        "cachedInputPer1M": 0.11,
+        "cacheWritePer1M": 2.08,
+        "outputPer1M": 10.3,
+        "batchDiscount": 0.35,
+        "latencyMs": 260,
+        "notes": "Multi-model router access"
+      }
+    ]
   },
   {
     "id": "gemini-4-hydrogen",
@@ -186,6 +480,7 @@
     "family": "Gemini 4",
     "inputPer1M": 0.5,
     "cachedInputPer1M": 0.03,
+    "cacheWritePer1M": 0.5,
     "outputPer1M": 3.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -195,7 +490,31 @@
     "qualityScore": 82.5,
     "speedTokensPerSec": 210,
     "tier": "Economy",
-    "notes": "High-speed 1M context workhorse for massive document ingestion"
+    "notes": "High-speed 1M context workhorse for massive document ingestion",
+    "hostingEndpoints": [
+      {
+        "host": "Google AI Studio / Vertex AI",
+        "providerType": "Official API",
+        "inputPer1M": 0.5,
+        "cachedInputPer1M": 0.03,
+        "cacheWritePer1M": 0.5,
+        "outputPer1M": 3.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 170,
+        "notes": "Low-cost 1M context ingestion"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.53,
+        "cachedInputPer1M": 0.035,
+        "cacheWritePer1M": 0.53,
+        "outputPer1M": 3.15,
+        "batchDiscount": 0.35,
+        "latencyMs": 195,
+        "notes": "Gateway routing"
+      }
+    ]
   },
   {
     "id": "grok-4-6",
@@ -204,6 +523,7 @@
     "family": "Grok 4",
     "inputPer1M": 2.0,
     "cachedInputPer1M": 0.2,
+    "cacheWritePer1M": 2.0,
     "outputPer1M": 6.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -213,7 +533,31 @@
     "qualityScore": 84.1,
     "speedTokensPerSec": 135,
     "tier": "Balanced",
-    "notes": "Low 3:1 output-to-input price ratio; strong for verbose generation"
+    "notes": "Low 3:1 output-to-input price ratio; strong for verbose generation",
+    "hostingEndpoints": [
+      {
+        "host": "xAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.2,
+        "cacheWritePer1M": 2.0,
+        "outputPer1M": 6.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 250,
+        "notes": "Direct xAI endpoint"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 2.1,
+        "cachedInputPer1M": 0.22,
+        "cacheWritePer1M": 2.1,
+        "outputPer1M": 6.3,
+        "batchDiscount": 0.3,
+        "latencyMs": 275,
+        "notes": "Unified router access"
+      }
+    ]
   },
   {
     "id": "grok-4-3",
@@ -222,6 +566,7 @@
     "family": "Grok 4",
     "inputPer1M": 1.25,
     "cachedInputPer1M": 0.12,
+    "cacheWritePer1M": 1.25,
     "outputPer1M": 2.5,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -231,7 +576,31 @@
     "qualityScore": 80.2,
     "speedTokensPerSec": 160,
     "tier": "Economy",
-    "notes": "1M context with ultra-low $2.50/M output pricing"
+    "notes": "1M context with ultra-low $2.50/M output pricing",
+    "hostingEndpoints": [
+      {
+        "host": "xAI Official API",
+        "providerType": "Official API",
+        "inputPer1M": 1.25,
+        "cachedInputPer1M": 0.12,
+        "cacheWritePer1M": 1.25,
+        "outputPer1M": 2.5,
+        "batchDiscount": 0.5,
+        "latencyMs": 215,
+        "notes": "Direct xAI endpoint"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 1.32,
+        "cachedInputPer1M": 0.14,
+        "cacheWritePer1M": 1.32,
+        "outputPer1M": 2.65,
+        "batchDiscount": 0.3,
+        "latencyMs": 240,
+        "notes": "Router access"
+      }
+    ]
   },
   {
     "id": "kimi-k3",
@@ -240,6 +609,7 @@
     "family": "Kimi",
     "inputPer1M": 3.0,
     "cachedInputPer1M": 0.15,
+    "cacheWritePer1M": 3.0,
     "outputPer1M": 15.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -249,7 +619,31 @@
     "qualityScore": 85.4,
     "speedTokensPerSec": 110,
     "tier": "Flagship",
-    "notes": "Long-horizon agentic coding & 1M context retrieval"
+    "notes": "Long-horizon agentic coding & 1M context retrieval",
+    "hostingEndpoints": [
+      {
+        "host": "Moonshot Official API",
+        "providerType": "Official API",
+        "inputPer1M": 3.0,
+        "cachedInputPer1M": 0.15,
+        "cacheWritePer1M": 3.0,
+        "outputPer1M": 15.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 330,
+        "notes": "Direct Moonshot endpoint"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 3.15,
+        "cachedInputPer1M": 0.18,
+        "cacheWritePer1M": 3.15,
+        "outputPer1M": 15.6,
+        "batchDiscount": 0.35,
+        "latencyMs": 350,
+        "notes": "Global router endpoint"
+      }
+    ]
   },
   {
     "id": "kimi-k2-7-code",
@@ -258,6 +652,7 @@
     "family": "Kimi",
     "inputPer1M": 0.95,
     "cachedInputPer1M": 0.08,
+    "cacheWritePer1M": 0.95,
     "outputPer1M": 4.0,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -267,7 +662,42 @@
     "qualityScore": 79.8,
     "speedTokensPerSec": 145,
     "tier": "Balanced",
-    "notes": "Specialized code generation & repository editing under $1/M input"
+    "notes": "Specialized code generation & repository editing under $1/M input",
+    "hostingEndpoints": [
+      {
+        "host": "Moonshot Official API",
+        "providerType": "Official API",
+        "inputPer1M": 0.95,
+        "cachedInputPer1M": 0.08,
+        "cacheWritePer1M": 0.95,
+        "outputPer1M": 4.0,
+        "batchDiscount": 0.5,
+        "latencyMs": 230,
+        "notes": "Native coding endpoint"
+      },
+      {
+        "host": "Together AI",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.9,
+        "cachedInputPer1M": 0.09,
+        "cacheWritePer1M": 0.9,
+        "outputPer1M": 3.8,
+        "batchDiscount": 0.25,
+        "latencyMs": 205,
+        "notes": "High-throughput inference cluster"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 1.0,
+        "cachedInputPer1M": 0.09,
+        "cacheWritePer1M": 1.0,
+        "outputPer1M": 4.2,
+        "batchDiscount": 0.35,
+        "latencyMs": 245,
+        "notes": "Unified router access"
+      }
+    ]
   },
   {
     "id": "deepseek-v4-1-flash",
@@ -276,6 +706,7 @@
     "family": "DeepSeek V4",
     "inputPer1M": 0.3,
     "cachedInputPer1M": 0.03,
+    "cacheWritePer1M": 0.3,
     "outputPer1M": 1.2,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -285,7 +716,64 @@
     "qualityScore": 76.8,
     "speedTokensPerSec": 190,
     "tier": "Economy",
-    "notes": "Top production value-per-dollar for high-throughput chat & batch"
+    "notes": "Top production value-per-dollar; compare DeepSeek API vs Together, Fireworks, Groq & AWS Bedrock",
+    "hostingEndpoints": [
+      {
+        "host": "DeepSeek Official API",
+        "providerType": "Official API",
+        "inputPer1M": 0.3,
+        "cachedInputPer1M": 0.03,
+        "cacheWritePer1M": 0.3,
+        "outputPer1M": 1.2,
+        "batchDiscount": 0.5,
+        "latencyMs": 220,
+        "notes": "90% cache hit discount & 50% off-peak batch"
+      },
+      {
+        "host": "Fireworks AI",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.28,
+        "cachedInputPer1M": 0.05,
+        "cacheWritePer1M": 0.28,
+        "outputPer1M": 1.1,
+        "batchDiscount": 0.35,
+        "latencyMs": 145,
+        "notes": "Low-latency serverless GPU hosting"
+      },
+      {
+        "host": "Together AI",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.29,
+        "cachedInputPer1M": 0.06,
+        "cacheWritePer1M": 0.29,
+        "outputPer1M": 1.15,
+        "batchDiscount": 0.3,
+        "latencyMs": 160,
+        "notes": "Dedicated & serverless open-weight hosting"
+      },
+      {
+        "host": "Groq",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.27,
+        "cachedInputPer1M": 0.07,
+        "cacheWritePer1M": 0.27,
+        "outputPer1M": 0.95,
+        "batchDiscount": 0.0,
+        "latencyMs": 95,
+        "notes": "Ultra-fast token generation for real-time voice/agents"
+      },
+      {
+        "host": "AWS Bedrock",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.34,
+        "cachedInputPer1M": 0.04,
+        "cacheWritePer1M": 0.34,
+        "outputPer1M": 1.35,
+        "batchDiscount": 0.5,
+        "latencyMs": 240,
+        "notes": "Enterprise AWS compliance & VPC isolation"
+      }
+    ]
   },
   {
     "id": "qwen-3-7-flash",
@@ -294,6 +782,7 @@
     "family": "Qwen 3.7",
     "inputPer1M": 0.15,
     "cachedInputPer1M": 0.02,
+    "cacheWritePer1M": 0.15,
     "outputPer1M": 0.6,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -303,7 +792,53 @@
     "qualityScore": 74.5,
     "speedTokensPerSec": 210,
     "tier": "Economy",
-    "notes": "#1 Score/$ ratio for routing, classification & cheap fallback"
+    "notes": "#1 Score/$ ratio for routing, classification & cheap fallback across hosts",
+    "hostingEndpoints": [
+      {
+        "host": "Qwen / Alibaba Cloud",
+        "providerType": "Official API",
+        "inputPer1M": 0.15,
+        "cachedInputPer1M": 0.02,
+        "cacheWritePer1M": 0.15,
+        "outputPer1M": 0.6,
+        "batchDiscount": 0.5,
+        "latencyMs": 180,
+        "notes": "Direct Qwen API pricing"
+      },
+      {
+        "host": "Together AI",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.14,
+        "cachedInputPer1M": 0.03,
+        "cacheWritePer1M": 0.14,
+        "outputPer1M": 0.55,
+        "batchDiscount": 0.3,
+        "latencyMs": 140,
+        "notes": "Fast serverless Qwen inference"
+      },
+      {
+        "host": "Fireworks AI",
+        "providerType": "Inference Cloud",
+        "inputPer1M": 0.14,
+        "cachedInputPer1M": 0.03,
+        "cacheWritePer1M": 0.14,
+        "outputPer1M": 0.58,
+        "batchDiscount": 0.35,
+        "latencyMs": 130,
+        "notes": "High-concurrency JSON/function calling"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.16,
+        "cachedInputPer1M": 0.025,
+        "cacheWritePer1M": 0.16,
+        "outputPer1M": 0.64,
+        "batchDiscount": 0.35,
+        "latencyMs": 190,
+        "notes": "Automatic host failover"
+      }
+    ]
   },
   {
     "id": "cohere-command-r7b",
@@ -312,6 +847,7 @@
     "family": "Command",
     "inputPer1M": 0.04,
     "cachedInputPer1M": 0.01,
+    "cacheWritePer1M": 0.04,
     "outputPer1M": 0.15,
     "batchDiscount": 0.5,
     "longContextMultiplierInput": 1.0,
@@ -321,6 +857,30 @@
     "qualityScore": 68.4,
     "speedTokensPerSec": 240,
     "tier": "Economy",
-    "notes": "Ultra-cheap enterprise RAG & structured extraction model"
+    "notes": "Ultra-cheap enterprise RAG & structured extraction model",
+    "hostingEndpoints": [
+      {
+        "host": "Cohere Official API",
+        "providerType": "Official API",
+        "inputPer1M": 0.04,
+        "cachedInputPer1M": 0.01,
+        "cacheWritePer1M": 0.04,
+        "outputPer1M": 0.15,
+        "batchDiscount": 0.5,
+        "latencyMs": 135,
+        "notes": "Native citations & enterprise RAG"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.05,
+        "cachedInputPer1M": 0.015,
+        "cacheWritePer1M": 0.05,
+        "outputPer1M": 0.18,
+        "batchDiscount": 0.35,
+        "latencyMs": 160,
+        "notes": "Unified gateway endpoint"
+      }
+    ]
   }
 ]

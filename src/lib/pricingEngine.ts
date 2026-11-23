@@ -1,3 +1,15 @@
+export interface HostingEndpoint {
+  host: string;
+  providerType: 'Official API' | 'Router' | 'Inference Cloud';
+  inputPer1M: number;
+  cachedInputPer1M: number;
+  cacheWritePer1M: number;
+  outputPer1M: number;
+  batchDiscount: number;
+  latencyMs?: number;
+  notes?: string;
+}
+
 export interface LLMModel {
   id: string;
   name: string;
@@ -5,6 +17,7 @@ export interface LLMModel {
   family: string;
   inputPer1M: number;
   cachedInputPer1M: number;
+  cacheWritePer1M?: number;
   outputPer1M: number;
   batchDiscount: number;
   longContextMultiplierInput: number;
@@ -15,6 +28,7 @@ export interface LLMModel {
   speedTokensPerSec: number;
   tier: string;
   notes: string;
+  hostingEndpoints?: HostingEndpoint[];
 }
 
 export type InputUnitMode = 'tokens' | 'words' | 'characters';
@@ -25,6 +39,7 @@ export interface CostInputs {
   reasoningTokensPerCall: number;
   callsPerDay: number;
   cacheHitPercent: number;
+  cacheWriteSharePercent?: number;
   batchPercent: number;
   retriesPercent: number;
 }
@@ -44,6 +59,10 @@ export interface CostBreakdown {
   valueScore: number;
   exceedsContextWindow: boolean;
   triggersLongContextMultiplier: boolean;
+  activeContextTierLabel: string;
+  cacheWriteRatePer1M: number;
+  cacheReadRatePer1M: number;
+  batchDiscountRate: number;
 }
 
 export function unitValueToTokens(value: number, unit: InputUnitMode): number {
@@ -78,25 +97,59 @@ export function parseContextTokens(contextWindow: string): number {
   return parseFloat(cleaned) || 128_000;
 }
 
+export function formatTokenThreshold(tokens: number): string {
+  if (tokens >= 1_000_000) {
+    const m = tokens / 1_000_000;
+    return `${Number.isInteger(m) ? m : m.toFixed(2)}M`;
+  }
+  const k = Math.round(tokens / 1_000);
+  return `${k}K`;
+}
+
 export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBreakdown {
   const monthlyCalls = Math.max(0, inputs.callsPerDay) * 30;
   const retryFactor = 1 + Math.max(0, inputs.retriesPercent) / 100;
   const effectiveCallsWithRetries = monthlyCalls * retryFactor;
 
-  const cacheShare = Math.min(1, Math.max(0, inputs.cacheHitPercent / 100));
+  const cacheHitShare = Math.min(1, Math.max(0, inputs.cacheHitPercent / 100));
+  const nonCacheShare = 1 - cacheHitShare;
+
+  const rawWriteShare =
+    inputs.cacheWriteSharePercent !== undefined
+      ? Math.min(1, Math.max(0, inputs.cacheWriteSharePercent / 100))
+      : cacheHitShare > 0
+      ? 0.25
+      : 0;
+  const effectiveWriteShare = Math.min(nonCacheShare, nonCacheShare * rawWriteShare);
+  const standardUncachedShare = Math.max(0, nonCacheShare - effectiveWriteShare);
+
+  const defaultCacheWriteRate =
+    model.cacheWritePer1M !== undefined
+      ? model.cacheWritePer1M
+      : Number((model.inputPer1M * 1.25).toFixed(4));
+
   const batchShare = Math.min(1, Math.max(0, inputs.batchPercent / 100));
   const batchMultiplier = 1 - batchShare * model.batchDiscount;
 
-  const triggersLongContextMultiplier =
-    inputs.inputTokensPerCall > model.longContextThresholdTokens &&
-    (model.longContextMultiplierInput > 1 || model.longContextMultiplierOutput > 1);
-
   const isLongContext = inputs.inputTokensPerCall > model.longContextThresholdTokens;
+  const hasTieredPricing =
+    model.longContextMultiplierInput > 1 || model.longContextMultiplierOutput > 1;
+  const triggersLongContextMultiplier = isLongContext && hasTieredPricing;
+
   const inputContextMult = isLongContext ? model.longContextMultiplierInput : 1;
   const outputContextMult = isLongContext ? model.longContextMultiplierOutput : 1;
 
+  const thresholdLabel = formatTokenThreshold(model.longContextThresholdTokens);
+  const activeContextTierLabel = hasTieredPricing
+    ? isLongContext
+      ? `Long-Context Tier (>${thresholdLabel}: ${inputContextMult}x In / ${outputContextMult}x Out)`
+      : `Standard Tier (<= ${thresholdLabel})`
+    : `Flat Rate (${model.contextWindow} Window)`;
+
   const blendedInputRate =
-    ((1 - cacheShare) * model.inputPer1M + cacheShare * model.cachedInputPer1M) *
+    (standardUncachedShare * model.inputPer1M +
+      effectiveWriteShare * defaultCacheWriteRate +
+      cacheHitShare * model.cachedInputPer1M) *
     inputContextMult *
     batchMultiplier;
 
@@ -109,9 +162,7 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
   const baseInputCost =
     (monthlyCalls *
       inputs.inputTokensPerCall *
-      ((1 - cacheShare) * model.inputPer1M + cacheShare * model.cachedInputPer1M) *
-      inputContextMult *
-      batchMultiplier) /
+      blendedInputRate) /
     1_000_000;
 
   const baseOutputCost =
@@ -152,6 +203,10 @@ export function calculateModelCost(model: LLMModel, inputs: CostInputs): CostBre
     valueScore,
     exceedsContextWindow,
     triggersLongContextMultiplier,
+    activeContextTierLabel,
+    cacheWriteRatePer1M: Number((defaultCacheWriteRate * inputContextMult * batchMultiplier).toFixed(4)),
+    cacheReadRatePer1M: Number((model.cachedInputPer1M * inputContextMult * batchMultiplier).toFixed(4)),
+    batchDiscountRate: model.batchDiscount,
   };
 }
 
