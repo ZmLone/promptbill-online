@@ -50,6 +50,12 @@ export interface ComparisonPair {
   modelB: CatalogModel;
 }
 
+export interface ProviderSummary {
+  providerSlug: string;
+  providerName: string;
+  modelCount: number;
+}
+
 function toSlug(raw: string): string {
   return String(raw || '')
     .toLowerCase()
@@ -151,12 +157,22 @@ export function getModelsByProviderSlug(providerSlug: string): CatalogModel[] {
   return getModelsByProvider(providerSlug);
 }
 
-export function getAllProviderSlugs(): string[] {
-  const seen = new Set<string>();
+export function getAllProviderSlugs(): ProviderSummary[] {
+  const map = new Map<string, ProviderSummary>();
   for (const m of ALL_MODELS) {
-    if (m.providerSlug) seen.add(m.providerSlug);
+    if (!m.providerSlug) continue;
+    const existing = map.get(m.providerSlug);
+    if (existing) {
+      existing.modelCount += 1;
+    } else {
+      map.set(m.providerSlug, {
+        providerSlug: m.providerSlug,
+        providerName: m.provider,
+        modelCount: 1,
+      });
+    }
   }
-  return Array.from(seen);
+  return Array.from(map.values());
 }
 
 export function getAutoComparisonPairs(limit = 48): ComparisonPair[] {
@@ -183,7 +199,6 @@ export function parseComparisonSlug(
   if (!pairSlug) return null;
   const clean = pairSlug.toLowerCase();
 
-  // First try matching exact `<slugA>-vs-<slugB>` against known models
   for (const a of ALL_MODELS) {
     const prefix = `${a.slug}-vs-`;
     if (clean.startsWith(prefix)) {
@@ -195,7 +210,6 @@ export function parseComparisonSlug(
     }
   }
 
-  // Fallback split on `-vs-`
   const parts = clean.split('-vs-');
   if (parts.length === 2) {
     const a = getModelBySlug(parts[0]);
