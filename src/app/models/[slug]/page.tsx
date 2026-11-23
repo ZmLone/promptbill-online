@@ -7,6 +7,8 @@ import { SiteShell } from '../../../components/SiteShell';
 import { ModelDetailCalculator } from '../../../components/ModelDetailCalculator';
 import { REGISTRY_SNAPSHOT, computeDerivedMetrics } from '../../../lib/modelRegistry';
 
+export const revalidate = 60;
+
 export function generateStaticParams() {
   return ALL_MODELS.map((m) => ({ slug: m.slug }));
 }
@@ -57,7 +59,7 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <SiteShell
-      title={`${model.name} - Benchmarks, Specs, Price History & Cost Calculator (${period})`}
+      title={`${model.name} API Pricing & Benchmarks (${period})`}
       subtitle={`promptbill.online/models/${model.slug} · ${model.provider} · Updated ${period}`}
     >
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
