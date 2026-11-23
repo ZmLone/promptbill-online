@@ -31,9 +31,21 @@ import {
 
 const pricingModels = modelsJson as LLMModel[];
 
+const DEFAULT_CALC_INPUTS: CostInputs = {
+  inputTokensPerCall: 6500,
+  outputTokensPerCall: 650,
+  reasoningTokensPerCall: 150,
+  callsPerDay: 2500,
+  cacheHitPercent: 60,
+  cacheWriteSharePercent: 25,
+  batchPercent: 0,
+  retriesPercent: 4,
+};
+
 export default function LeaderboardPage() {
   const globalSearchRef = useRef<HTMLInputElement | null>(null);
   const calculatorTopRef = useRef<HTMLElement | null>(null);
+  const hasUserInteractedWithParams = useRef<boolean>(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [licenseFilter, setLicenseFilter] = useState('All');
@@ -41,15 +53,12 @@ export default function LeaderboardPage() {
   const [sortBy, setSortBy] = useState<'score' | 'value' | 'price' | 'elo' | 'tokPerSec'>('score');
   const [sortAsc, setSortAsc] = useState(false);
 
-  // Mobile toggle state
   const [mobileViewMode, setMobileViewMode] = useState<'cards' | 'table'>('cards');
   const [expandedCardIds, setExpandedCardIds] = useState<Record<string, boolean>>({});
 
-  // Desktop inline expandable row drawer in the 14-column grid
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [copiedModelId, setCopiedModelId] = useState<string | null>(null);
 
-  // Combobox + Quick-Compare models (up to 3 side-by-side)
   const [selectedCalcModelId, setSelectedCalcModelId] = useState<string>('claude-sonnet-5-5');
   const [compareModelIds, setCompareModelIds] = useState<string[]>([
     'claude-sonnet-5-5',
@@ -60,32 +69,26 @@ export default function LeaderboardPage() {
   const [activeComboIndex, setActiveComboIndex] = useState<number>(0);
   const [advancedOpen, setAdvancedOpen] = useState<boolean>(true);
 
-  const [calcInputs, setCalcInputs] = useState<CostInputs>({
-    inputTokensPerCall: 6500,
-    outputTokensPerCall: 650,
-    reasoningTokensPerCall: 150,
-    callsPerDay: 2500,
-    cacheHitPercent: 60,
-    cacheWriteSharePercent: 25,
-    batchPercent: 0,
-    retriesPercent: 4,
-  });
+  const [calcInputs, setCalcInputs] = useState<CostInputs>(DEFAULT_CALC_INPUTS);
 
-  // Sync from URL query params on mount
+  // Read incoming URL query params on mount without forcing default params into clean root URLs
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const m = params.get('model') || params.get('m');
-    if (m && pricingModels.some((item) => item.id === m)) {
-      setSelectedCalcModelId(m);
-    }
     const inTok = params.get('in');
     const calls = params.get('calls') || params.get('cpd');
     const cache = params.get('cache');
     const batch = params.get('batch');
     const q = params.get('q');
 
+    let hadExplicitParams = false;
+    if (m && pricingModels.some((item) => item.id === m)) {
+      setSelectedCalcModelId(m);
+      hadExplicitParams = true;
+    }
     if (inTok || calls || cache || batch) {
+      hadExplicitParams = true;
       setCalcInputs((prev) => ({
         ...prev,
         inputTokensPerCall: inTok ? Math.max(0, Number(inTok)) : prev.inputTokensPerCall,
@@ -95,33 +98,51 @@ export default function LeaderboardPage() {
       }));
     }
     if (q) {
+      hadExplicitParams = true;
       setSearchQuery(q);
+    }
+    if (hadExplicitParams) {
+      hasUserInteractedWithParams.current = true;
     }
   }, []);
 
-  // Push calculator & filter state to URL query string for easy Slack/Notion sharing
+  // Only sync URL query string after explicit user interaction so initial load stays clean (https://promptbill.online/)
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('model', selectedCalcModelId);
-    params.set('in', String(calcInputs.inputTokensPerCall));
-    params.set('calls', String(calcInputs.callsPerDay));
-    params.set('cache', String(calcInputs.cacheHitPercent));
+    if (!hasUserInteractedWithParams.current) return;
+
+    const params = new URLSearchParams();
+    if (selectedCalcModelId !== 'claude-sonnet-5-5') {
+      params.set('model', selectedCalcModelId);
+    }
+    if (calcInputs.inputTokensPerCall !== DEFAULT_CALC_INPUTS.inputTokensPerCall) {
+      params.set('in', String(calcInputs.inputTokensPerCall));
+    }
+    if (calcInputs.callsPerDay !== DEFAULT_CALC_INPUTS.callsPerDay) {
+      params.set('calls', String(calcInputs.callsPerDay));
+    }
+    if (calcInputs.cacheHitPercent !== DEFAULT_CALC_INPUTS.cacheHitPercent) {
+      params.set('cache', String(calcInputs.cacheHitPercent));
+    }
     if (calcInputs.batchPercent > 0) {
       params.set('batch', String(calcInputs.batchPercent));
-    } else {
-      params.delete('batch');
     }
     if (searchQuery.trim()) {
       params.set('q', searchQuery.trim());
-    } else {
-      params.delete('q');
     }
-    const nextUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState(null, '', nextUrl);
-  }, [selectedCalcModelId, calcInputs.inputTokensPerCall, calcInputs.callsPerDay, calcInputs.cacheHitPercent, calcInputs.batchPercent, searchQuery]);
 
-  // Global keyboard shortcuts: '/' or Cmd/Ctrl+K focuses global model search bar
+    const qs = params.toString();
+    const nextUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState(null, '', nextUrl);
+  }, [
+    selectedCalcModelId,
+    calcInputs.inputTokensPerCall,
+    calcInputs.callsPerDay,
+    calcInputs.cacheHitPercent,
+    calcInputs.batchPercent,
+    searchQuery,
+  ]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -261,6 +282,7 @@ export default function LeaderboardPage() {
   };
 
   const selectModelFromCombo = (modelId: string) => {
+    hasUserInteractedWithParams.current = true;
     setSelectedCalcModelId(modelId);
     setComboboxOpen(false);
     setComboboxQuery('');
@@ -285,6 +307,7 @@ export default function LeaderboardPage() {
   const loadModelIntoCalculatorFromRow = (modelId: string) => {
     const matchedPricing = pricingModels.find((pm) => pm.id === modelId);
     if (matchedPricing) {
+      hasUserInteractedWithParams.current = true;
       setSelectedCalcModelId(matchedPricing.id);
       setCompareModelIds((prev) =>
         prev.includes(matchedPricing.id) ? prev : [matchedPricing.id, ...prev].slice(0, 3)
@@ -324,12 +347,47 @@ export default function LeaderboardPage() {
     }
   };
 
+  const homeSeoGeoJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication',
+        name: 'PromptBill LLM API Cost Calculator & Benchmark Leaderboard',
+        url: 'https://promptbill.online/',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Web',
+        description:
+          'Interactive LLM benchmark leaderboard, API cost calculator with prompt cache read/write rates, 50% batch API pricing, context-tier thresholds, and hosting/router comparisons.',
+      },
+      {
+        '@type': 'ItemList',
+        name: 'Top Ranked Large Language Models (November 2026)',
+        itemListElement: ALL_MODELS.slice(0, 10).map((m, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: m.name,
+          url: `https://promptbill.online/models/${m.slug}`,
+        })),
+      },
+    ],
+  };
+
   return (
     <SiteShell
       title="LLM Leaderboard Rankings, API Pricing & Billing Calculator"
       subtitle="promptbill.online / · Prompt Caching, Batch API, Context Tiers & Pareto Frontier"
     >
-      {/* 1. API Cost Calculator: Split-Screen Dashboard on Desktop (60% Left / 40% Right Sticky Summary) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSeoGeoJsonLd) }}
+      />
+
+      {/* GEO & SEO Summary Strip for Search Crawlers, Answer Engines & Readers */}
+      <section aria-label="Benchmark and Billing Overview" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <strong>PromptBill</strong> compares LLM benchmark scores, Elo ratings, output speed (<strong>tok/s</strong>), and real-world API token billing across leading models and hosting providers—including <strong>prompt cache read vs. write rates</strong>, <strong>50% Batch API discounts</strong>, and <strong>long-context pricing tiers</strong>.
+      </section>
+
+      {/* 1. API Cost Calculator: Split-Screen Dashboard */}
       <section
         ref={calculatorTopRef}
         aria-labelledby="billing-calculator-heading"
@@ -358,10 +416,8 @@ export default function LeaderboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (~60% -> 7 of 12 cols on lg): Combobox, Tokens, Caching, Batch */}
           <div className="lg:col-span-7 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-              {/* Keyboard-Navigable Combobox */}
               <div className="relative space-y-1.5 sm:col-span-2">
                 <span id="combo-model-label" className="font-semibold text-slate-800 block">
                   Model Combobox (↑/↓ + Enter)
@@ -466,9 +522,10 @@ export default function LeaderboardPage() {
                   min={0}
                   step={500}
                   value={calcInputs.inputTokensPerCall}
-                  onChange={(e) =>
-                    setCalcInputs({ ...calcInputs, inputTokensPerCall: Math.max(0, Number(e.target.value)) })
-                  }
+                  onChange={(e) => {
+                    hasUserInteractedWithParams.current = true;
+                    setCalcInputs({ ...calcInputs, inputTokensPerCall: Math.max(0, Number(e.target.value)) });
+                  }}
                   className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900"
                 />
               </label>
@@ -481,15 +538,15 @@ export default function LeaderboardPage() {
                   min={0}
                   step={100}
                   value={calcInputs.callsPerDay}
-                  onChange={(e) =>
-                    setCalcInputs({ ...calcInputs, callsPerDay: Math.max(0, Number(e.target.value)) })
-                  }
+                  onChange={(e) => {
+                    hasUserInteractedWithParams.current = true;
+                    setCalcInputs({ ...calcInputs, callsPerDay: Math.max(0, Number(e.target.value)) });
+                  }}
                   className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900"
                 />
               </label>
             </div>
 
-            {/* Side-by-Side Multi-Model Quick-Compare Selector (Up to 3 Models) */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-2 text-xs">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-bold uppercase tracking-wider text-slate-800">
@@ -521,7 +578,6 @@ export default function LeaderboardPage() {
               </div>
             </div>
 
-            {/* Expandable Advanced Cost Settings Drawer (Collapsed by default on mobile, expanded on desktop) */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/50">
               <button
                 type="button"
@@ -551,7 +607,10 @@ export default function LeaderboardPage() {
                         max={95}
                         step={5}
                         value={calcInputs.cacheHitPercent}
-                        onChange={(e) => setCalcInputs({ ...calcInputs, cacheHitPercent: Number(e.target.value) })}
+                        onChange={(e) => {
+                          hasUserInteractedWithParams.current = true;
+                          setCalcInputs({ ...calcInputs, cacheHitPercent: Number(e.target.value) });
+                        }}
                         className="h-6 w-full accent-emerald-800 cursor-pointer"
                       />
                       <div className="text-[11px] font-mono text-slate-700">
@@ -571,9 +630,10 @@ export default function LeaderboardPage() {
                         max={100}
                         step={5}
                         value={calcInputs.cacheWriteSharePercent ?? 25}
-                        onChange={(e) =>
-                          setCalcInputs({ ...calcInputs, cacheWriteSharePercent: Number(e.target.value) })
-                        }
+                        onChange={(e) => {
+                          hasUserInteractedWithParams.current = true;
+                          setCalcInputs({ ...calcInputs, cacheWriteSharePercent: Number(e.target.value) });
+                        }}
                         className="h-6 w-full accent-emerald-800 cursor-pointer"
                       />
                       <div className="text-[11px] text-slate-700">
@@ -593,14 +653,18 @@ export default function LeaderboardPage() {
                         max={100}
                         step={5}
                         value={calcInputs.batchPercent}
-                        onChange={(e) => setCalcInputs({ ...calcInputs, batchPercent: Number(e.target.value) })}
+                        onChange={(e) => {
+                          hasUserInteractedWithParams.current = true;
+                          setCalcInputs({ ...calcInputs, batchPercent: Number(e.target.value) });
+                        }}
                         className="h-6 w-full accent-emerald-800 cursor-pointer"
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setCalcInputs((prev) => ({ ...prev, batchPercent: prev.batchPercent === 100 ? 0 : 100 }))
-                        }
+                        onClick={() => {
+                          hasUserInteractedWithParams.current = true;
+                          setCalcInputs((prev) => ({ ...prev, batchPercent: prev.batchPercent === 100 ? 0 : 100 }));
+                        }}
                         className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-100"
                       >
                         {calcInputs.batchPercent === 100 ? 'Clear 100% Batch Mode' : 'Apply 100% Batch API (50% Off)'}
@@ -634,7 +698,6 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Right Column (~40% -> 5 of 12 cols on lg): Sticky Summary Card + Multi-Model Bills + Hosting & Router Rates */}
           <div className="lg:col-span-5 lg:sticky lg:top-20 space-y-4">
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 space-y-4">
               <div className="flex items-baseline justify-between border-b border-slate-200 pb-3">
@@ -651,7 +714,6 @@ export default function LeaderboardPage() {
                 </div>
               </div>
 
-              {/* Simultaneous Side-by-Side 30-Day Bills for Selected Models */}
               <div className="space-y-1.5">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
                   Simultaneous Model Comparison ({quickCompareRows.length} Models)
@@ -668,7 +730,10 @@ export default function LeaderboardPage() {
                     >
                       <button
                         type="button"
-                        onClick={() => setSelectedCalcModelId(cm.id)}
+                        onClick={() => {
+                          hasUserInteractedWithParams.current = true;
+                          setSelectedCalcModelId(cm.id);
+                        }}
                         className="font-semibold text-slate-900 hover:text-emerald-800 text-left truncate"
                       >
                         {cm.name}
@@ -681,7 +746,6 @@ export default function LeaderboardPage() {
                 </div>
               </div>
 
-              {/* Hosting & Router Side-by-Side Table (Reorders Live as Sliders Change) */}
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-800">
@@ -732,7 +796,7 @@ export default function LeaderboardPage() {
         </div>
       </section>
 
-      {/* 2. Leaderboard: Unified Desktop Data Grid + Mobile Cards/Table */}
+      {/* 2. Leaderboard */}
       <section aria-labelledby="leaderboard-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
@@ -741,7 +805,10 @@ export default function LeaderboardPage() {
               ref={globalSearchRef}
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                hasUserInteractedWithParams.current = true;
+                setSearchQuery(e.target.value);
+              }}
               placeholder="Search model or provider (/ or Cmd+K)..."
               aria-label="Search models or providers"
               className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-white pl-9 pr-14 py-2 text-sm text-slate-900"
@@ -753,7 +820,6 @@ export default function LeaderboardPage() {
 
           <div className="flex items-center justify-between sm:justify-end gap-2 text-xs text-slate-600">
             <span className="hidden md:inline">Click any row to expand API ID &amp; Load into Calculator</span>
-            {/* Mobile View Toggle Switch: [ Cards | Table ] */}
             <div className="md:hidden inline-flex rounded-lg border border-slate-300 bg-slate-100 p-1 gap-2 text-xs">
               <button
                 type="button"
@@ -777,7 +843,6 @@ export default function LeaderboardPage() {
           </div>
         </div>
 
-        {/* Single Horizontally Scrollable Filter & Sort Carousel */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar text-xs">
           {(['All', 'Supported', 'Estimated'] as const).map((ev) => (
             <button
@@ -830,7 +895,6 @@ export default function LeaderboardPage() {
           ))}
         </div>
 
-        {/* MOBILE CARD LAYOUT (< md when mobileViewMode === 'cards') */}
         {mobileViewMode === 'cards' && (
           <div className="grid grid-cols-1 gap-3 md:hidden">
             {rows.map(({ model: m, scorePerDollar }) => {
@@ -907,7 +971,6 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        {/* UNIFIED DESKTOP 14-COLUMN DATA GRID (Sticky Header, Frozen Rank & Model Column, Visual Bars, Inline Expandable Drawer) */}
         <div className={`${mobileViewMode === 'table' ? 'block' : 'hidden'} md:block max-h-[680px] overflow-auto rounded-lg border border-slate-200`}>
           <table className="w-full text-left border-collapse">
             <caption className="sr-only">
@@ -997,7 +1060,6 @@ export default function LeaderboardPage() {
                         </div>
                       </th>
 
-                      {/* Visual Bar for Score */}
                       <td className="py-3 px-3 font-mono font-bold text-slate-900">
                         <div>{m.score.toFixed(1)}</div>
                         <div className="mt-1 h-1.5 w-16 rounded-full bg-slate-200 overflow-hidden">
@@ -1005,7 +1067,6 @@ export default function LeaderboardPage() {
                         </div>
                       </td>
 
-                      {/* Visual Bar for Value (Score/$) */}
                       <td className="py-3 px-3 font-mono font-semibold text-emerald-800">
                         <div>{scorePerDollar.toFixed(1)}</div>
                         <div className="mt-1 h-1.5 w-16 rounded-full bg-emerald-100 overflow-hidden">
@@ -1027,7 +1088,6 @@ export default function LeaderboardPage() {
                       <td className="py-3 px-2.5 font-mono text-xs text-slate-800">{m.if}</td>
                       <td className="py-3 px-2.5 font-mono text-xs text-slate-800">{m.ma}</td>
 
-                      {/* Visual Bar for Speed (Tok/s) */}
                       <td className="py-3 px-3.5 text-right font-mono text-xs font-semibold text-emerald-800">
                         <div>{m.tokPerSec} tok/s</div>
                         <div className="mt-1 h-1.5 w-16 ml-auto rounded-full bg-emerald-100 overflow-hidden">
@@ -1036,7 +1096,6 @@ export default function LeaderboardPage() {
                       </td>
                     </tr>
 
-                    {/* Inline Row Drawer */}
                     {isRowExpanded && (
                       <tr className="bg-emerald-50/40">
                         <td colSpan={15} className="p-4 border-t border-b border-emerald-200/70">
@@ -1114,7 +1173,7 @@ export default function LeaderboardPage() {
         </div>
       </section>
 
-      {/* 3. Pareto Frontier Master-Detail Section */}
+      {/* 3. Pareto Frontier Section */}
       <ParetoFrontierChart models={ALL_MODELS} />
 
       {/* Sticky Bottom Result Bar (Mobile & Tablet) */}
