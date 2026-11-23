@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ALL_MODELS } from '../lib/catalog';
-import { TrendingUp, Copy, Check, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, Copy, Check, ArrowUpRight, Sparkles } from 'lucide-react';
 
 export type CatalogModel = (typeof ALL_MODELS)[number];
 
@@ -22,10 +22,12 @@ interface RankedModel {
   yPct: number;
   isPareto: boolean;
   valueEfficiency: number;
+  frontierDeltaLabel: string;
 }
 
 export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models }) => {
   const [mode, setMode] = useState<ChartMode>('price');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedCitation, setCopiedCitation] = useState<boolean>(false);
 
@@ -51,9 +53,38 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
       return !dominated;
     });
 
+    const paretoCandidates = items.filter((_, idx) => paretoFlags[idx]);
+
     const yMin = Math.floor(Math.min(...items.map((i) => i.yRaw)) - 1.5);
     const yMax = Math.ceil(Math.max(...items.map((i) => i.yRaw)) + 1.5);
     const ySpan = Math.max(1, yMax - yMin);
+
+    const computeDeltaLabel = (item: { xRaw: number; yRaw: number }, isPareto: boolean): string => {
+      if (isPareto) {
+        return mode === 'price' ? 'On cost frontier (optimal)' : 'On speed frontier (optimal)';
+      }
+      if (paretoCandidates.length === 0) return 'Tracked model';
+      if (mode === 'price') {
+        // Find nearest frontier model by score or price
+        const nearest = paretoCandidates.reduce((best, cur) =>
+          Math.abs(cur.yRaw - item.yRaw) < Math.abs(best.yRaw - item.yRaw) ? cur : best
+        );
+        const diff = item.xRaw - nearest.xRaw;
+        if (Math.abs(diff) < 0.01) return `Same blended price as ${nearest.xRaw.toFixed(2)}/1M frontier`;
+        return diff > 0
+          ? `+$${diff.toFixed(2)}/1M higher blended cost vs nearest frontier`
+          : `$${Math.abs(diff).toFixed(2)}/1M lower blended cost vs nearest frontier`;
+      } else {
+        const nearest = paretoCandidates.reduce((best, cur) =>
+          Math.abs(cur.yRaw - item.yRaw) < Math.abs(best.yRaw - item.yRaw) ? cur : best
+        );
+        const diff = Math.round(item.xRaw - nearest.xRaw);
+        if (diff === 0) return 'Matches nearest speed frontier';
+        return diff > 0
+          ? `+${diff} tok/s faster than nearest frontier`
+          : `${Math.abs(diff)} tok/s slower than nearest frontier`;
+      }
+    };
 
     if (mode === 'price') {
       const logMin = Math.log10(Math.min(...items.map((i) => i.xRaw)));
@@ -64,11 +95,13 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         const logVal = Math.log10(it.xRaw);
         const xPct = 12 + ((logVal - logMin) / logSpan) * 76;
         const yPct = 82 - ((it.yRaw - yMin) / ySpan) * 64;
+        const isPareto = paretoFlags[idx];
         return {
           ...it,
           xPct: Math.min(89, Math.max(12, xPct)),
           yPct: Math.min(83, Math.max(16, yPct)),
-          isPareto: paretoFlags[idx],
+          isPareto,
+          frontierDeltaLabel: computeDeltaLabel(it, isPareto),
         };
       });
     } else {
@@ -79,11 +112,13 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
       return items.map((it, idx) => {
         const xPct = 12 + ((it.xRaw - xMin) / xSpan) * 76;
         const yPct = 82 - ((it.yRaw - yMin) / ySpan) * 64;
+        const isPareto = paretoFlags[idx];
         return {
           ...it,
           xPct: Math.min(89, Math.max(12, xPct)),
           yPct: Math.min(83, Math.max(16, yPct)),
-          isPareto: paretoFlags[idx],
+          isPareto,
+          frontierDeltaLabel: computeDeltaLabel(it, isPareto),
         };
       });
     }
@@ -99,19 +134,25 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
     return [...ranked].sort((a, b) => b.yRaw - a.yRaw);
   }, [ranked]);
 
+  const hoveredRow = useMemo(() => {
+    if (!hoveredId) return null;
+    return ranked.find((r) => r.model.id === hoveredId) || null;
+  }, [hoveredId, ranked]);
+
   const activeModelRow = useMemo(() => {
-    if (selectedId) {
-      return ranked.find((r) => r.model.id === selectedId) || paretoModels[0] || ranked[0] || null;
+    const targetId = hoveredId || selectedId;
+    if (targetId) {
+      return ranked.find((r) => r.model.id === targetId) || paretoModels[0] || ranked[0] || null;
     }
     return paretoModels[paretoModels.length - 1] || ranked[0] || null;
-  }, [selectedId, ranked, paretoModels]);
+  }, [hoveredId, selectedId, ranked, paretoModels]);
 
   const handleCopyAttribution = () => {
     if (typeof window === 'undefined') return;
     const summary =
       mode === 'price'
-        ? `LLM Intelligence vs. API Cost Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) — PromptBill https://promptbill.online`
-        : `LLM Intelligence vs. Speed (Tok/s) Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) — PromptBill https://promptbill.online`;
+        ? `LLM Intelligence vs. API Cost Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) - PromptBill https://promptbill.online`
+        : `LLM Intelligence vs. Speed (Tok/s) Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) - PromptBill https://promptbill.online`;
     navigator.clipboard?.writeText(summary);
     setCopiedCitation(true);
     setTimeout(() => setCopiedCitation(false), 2000);
@@ -148,7 +189,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
             <TrendingUp className="w-4 h-4" />
-            <span>Pareto Frontier · Cost vs. Intelligence &amp; Speed</span>
+            <span>Pareto Frontier · Master-Detail Benchmark Analysis</span>
           </div>
           <h2 id="pareto-frontier-heading" className="text-lg sm:text-xl font-bold text-slate-900">
             {mode === 'price'
@@ -208,17 +249,19 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         </div>
       </div>
 
-      {/* Desktop Scatter Plot */}
-      <div className="hidden lg:grid lg:grid-cols-12 gap-5 items-start">
-        <div className="lg:col-span-7 space-y-2">
-          <div className="relative h-[340px] w-full rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:56px_56px] opacity-60 pointer-events-none" />
+      {/* Desktop Master-Detail Layout: Chart Left (~66% / 8 cols), Inspector + Frontier Leaders Right (~33% / 4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div className="hidden lg:block lg:col-span-8 space-y-2">
+          <div className="relative h-[380px] w-full rounded-xl border border-slate-200 bg-slate-50/80 overflow-visible">
+            <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:56px_56px] opacity-60" />
+            </div>
 
-            <div className="absolute left-3 top-3 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
+            <div className="absolute left-3 top-3 z-10 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800 pointer-events-none">
               ↑ Score (Intelligence)
             </div>
 
-            <div className="absolute right-3 bottom-3 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
+            <div className="absolute right-3 bottom-3 z-10 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800 pointer-events-none">
               {mode === 'price'
                 ? 'Blended $/1M (log scale) →'
                 : 'Output Speed (tok/s) →'}
@@ -228,7 +271,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               <svg
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
-                className="absolute inset-0 h-full w-full pointer-events-none"
+                className="absolute inset-0 h-full w-full pointer-events-none rounded-xl overflow-hidden"
                 aria-hidden="true"
               >
                 <polyline
@@ -246,12 +289,15 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
 
             {ranked.map((pt) => {
               const isSelected = activeModelRow?.model.id === pt.model.id;
+              const isHovered = hoveredId === pt.model.id;
               return (
                 <button
                   key={pt.model.id}
                   type="button"
                   onClick={() => setSelectedId(pt.model.id)}
-                  onMouseEnter={() => setSelectedId(pt.model.id)}
+                  onMouseEnter={() => setHoveredId(pt.model.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  onFocus={() => setHoveredId(pt.model.id)}
                   style={{
                     left: `${pt.xPct}%`,
                     top: `${pt.yPct}%`,
@@ -262,15 +308,45 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                       ? `Blended price $${pt.blendedPrice.toFixed(2)} per 1M`
                       : `Speed ${pt.model.tokPerSec} tokens per second`
                   }`}
-                  className="group absolute flex h-11 w-11 items-center justify-center focus:outline-none z-10 hover:z-20"
+                  className={`group absolute flex h-11 w-11 items-center justify-center focus:outline-none ${
+                    isHovered ? 'z-40' : isSelected ? 'z-30' : 'z-10'
+                  }`}
                 >
                   <span
                     className={`block h-3.5 w-3.5 rounded-full border-2 transition-transform ${
                       pt.isPareto
                         ? 'border-emerald-950 bg-emerald-600'
                         : 'border-slate-600 bg-white'
-                    } ${isSelected ? 'scale-150 ring-4 ring-emerald-500/30 bg-emerald-700 border-emerald-950' : ''}`}
+                    } ${
+                      isSelected || isHovered
+                        ? 'scale-150 ring-4 ring-emerald-500/30 bg-emerald-700 border-emerald-950'
+                        : ''
+                    }`}
                   />
+
+                  {/* Crisp Hover Tooltip with Pricing, Context Window & Frontier Delta */}
+                  {isHovered && (
+                    <div
+                      role="tooltip"
+                      className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 rounded-xl border border-slate-200 bg-slate-950 text-white p-3 text-left shadow-xl z-50 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-xs text-white truncate">{pt.model.name}</span>
+                        <span className="font-mono text-xs font-bold text-emerald-300 shrink-0">
+                          Score {pt.model.score.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono text-slate-200 pt-1 border-t border-slate-800">
+                        <div>In: ${pt.model.inputPer1M.toFixed(2)}/1M</div>
+                        <div>Out: ${pt.model.outputPer1M.toFixed(2)}/1M</div>
+                        <div>Ctx: {pt.model.contextWindow}</div>
+                        <div>Speed: {pt.model.tokPerSec} tok/s</div>
+                      </div>
+                      <div className="text-[11px] text-emerald-200 leading-snug pt-0.5">
+                        {pt.frontierDeltaLabel}
+                      </div>
+                    </div>
+                  )}
                 </button>
               );
             })}
@@ -288,15 +364,15 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               </span>
             </div>
             <span className="text-[11px] text-slate-600">
-              Hover or click any dot to inspect · promptbill.online
+              {hoveredRow ? `Inspecting ${hoveredRow.model.name}` : 'Hover or click any dot to inspect · promptbill.online'}
             </span>
           </div>
         </div>
 
-        {/* Selected Model Inspector Card (Desktop) */}
-        <div className="lg:col-span-5">
+        {/* Right Column (35% / 4 cols on desktop): Selected Model Inspector + Frontier Leaders */}
+        <div className="lg:col-span-4 space-y-4">
           {activeModelRow && (
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 space-y-3.5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <span
@@ -311,7 +387,9 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                   <h3 className="mt-1.5 text-lg font-bold text-slate-900">
                     {activeModelRow.model.name}
                   </h3>
-                  <div className="text-xs text-slate-700">{activeModelRow.model.provider}</div>
+                  <div className="text-xs text-slate-700">
+                    {activeModelRow.model.provider} · {activeModelRow.model.contextWindow} context
+                  </div>
                 </div>
                 <div className="text-right font-mono">
                   <div className="text-2xl font-bold text-slate-900">
@@ -321,7 +399,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2.5 rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs">
+              <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-200 bg-white p-2.5 font-mono text-xs">
                 <div>
                   <div className="text-[10px] font-sans text-slate-600">Blended $/1M</div>
                   <div className="font-bold text-slate-900 mt-0.5">
@@ -342,6 +420,10 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 </div>
               </div>
 
+              <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-950 font-medium">
+                {activeModelRow.frontierDeltaLabel}
+              </div>
+
               <p className="text-xs text-slate-700 leading-relaxed">
                 {activeModelRow.model.bestFor}
               </p>
@@ -355,62 +437,41 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               </Link>
             </div>
           )}
+
+          {/* Frontier Leaders List inside Right Column */}
+          <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-800" />
+              <span>Frontier Leaders ({paretoModels.length})</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {paretoModels.map((p) => {
+                const active = activeModelRow?.model.id === p.model.id;
+                return (
+                  <button
+                    key={p.model.id}
+                    type="button"
+                    onClick={() => setSelectedId(p.model.id)}
+                    className={`min-h-[40px] w-full flex items-center justify-between gap-2 rounded-lg border px-3 py-1.5 text-left text-xs transition-colors ${
+                      active
+                        ? 'border-emerald-800 bg-emerald-800 text-white font-semibold'
+                        : 'border-slate-200 bg-slate-50/70 text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="truncate font-semibold">{p.model.name}</span>
+                    <span className="font-mono shrink-0 text-[11px]">
+                      {p.model.score.toFixed(1)} ·{' '}
+                      {mode === 'price' ? `$${p.blendedPrice.toFixed(2)}/1M` : `${p.model.tokPerSec} tok/s`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Frontier Pills Row (44px tap height, 8px spacing) */}
-      <div className="space-y-2">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-          Frontier Models ({mode === 'price' ? 'Best Score per Price Tier' : 'Best Score per Speed Tier'})
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {paretoModels.map((p) => {
-            const active = activeModelRow?.model.id === p.model.id;
-            return (
-              <button
-                key={p.model.id}
-                type="button"
-                onClick={() => setSelectedId(p.model.id)}
-                className={`min-h-[44px] min-w-[44px] rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors ${
-                  active
-                    ? 'border-emerald-800 bg-emerald-800 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100'
-                }`}
-              >
-                {p.model.name}{' '}
-                <span className="font-mono font-normal opacity-90">
-                  ({p.model.score.toFixed(1)} ·{' '}
-                  {mode === 'price' ? `$${p.blendedPrice.toFixed(2)}/1M` : `${p.model.tokPerSec} tok/s`})
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Mobile Selected Model Card (< lg) */}
-      {activeModelRow && (
-        <div className="lg:hidden rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="text-sm font-bold text-slate-900">{activeModelRow.model.name}</div>
-              <div className="text-xs text-slate-700">{activeModelRow.model.provider}</div>
-            </div>
-            <div className="font-mono text-base font-bold text-slate-900">
-              Score {activeModelRow.model.score.toFixed(1)}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-slate-800">
-            <span>Blended: ${activeModelRow.blendedPrice.toFixed(2)}/1M</span>
-            <span className="text-emerald-800 font-semibold">{activeModelRow.model.tokPerSec} tok/s</span>
-            <Link href={`/models/${activeModelRow.model.slug}`} className="inline-flex min-h-[44px] items-center font-sans font-semibold text-emerald-800 underline">
-              Cost &amp; Specs -&gt;
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Clean Semantic Data Table */}
+      {/* SEO & GEO Semantic Data Table */}
       <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full text-left border-collapse text-xs">
           <caption className="sr-only">
