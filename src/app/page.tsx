@@ -12,6 +12,7 @@ import {
   formatTokenThreshold,
 } from '../lib/pricingEngine';
 import { SiteShell } from '../components/SiteShell';
+import { ParetoFrontierChart } from '../components/ParetoFrontierChart';
 import {
   Search,
   ArrowUpDown,
@@ -126,9 +127,9 @@ export default function LeaderboardPage() {
   return (
     <SiteShell
       title="LLM Leaderboard Rankings, API Pricing & Billing Calculator"
-      subtitle="promptbill.online / · Prompt Caching, Batch API, Context Tiers & Multi-Host Comparison"
+      subtitle="promptbill.online / · Prompt Caching, Batch API, Context Tiers & Pareto Frontier"
     >
-      {/* Interactive Cost & Billing Nuances Section (above the fold on /) */}
+      {/* Interactive Cost & Billing Nuances Section */}
       <section aria-labelledby="billing-calculator-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
@@ -272,7 +273,6 @@ export default function LeaderboardPage() {
               </div>
             </div>
 
-            {/* Context-Tier Pricing Indicator */}
             <div
               className={`rounded-lg border px-3.5 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 ${
                 calcBreakdown.exceedsContextWindow
@@ -296,7 +296,6 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Hosting & Router Side-by-Side Comparison */}
           <div className="lg:col-span-5 space-y-2.5">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-800">
@@ -454,7 +453,7 @@ export default function LeaderboardPage() {
               <div className="flex items-center justify-between gap-2 pt-1 text-xs">
                 <span className="text-slate-700 line-clamp-1">{m.bestFor}</span>
                 <Link href={`/models/${m.slug}`} className="inline-flex min-h-[36px] shrink-0 items-center font-semibold text-emerald-800 hover:underline ml-2">
-                  Specs &amp; Cost →
+                  Specs &amp; Cost -&gt;
                 </Link>
               </div>
             </article>
@@ -559,10 +558,13 @@ export default function LeaderboardPage() {
             ))}
           </div>
           <Link href="/compare" className="inline-flex min-h-[36px] items-center font-semibold text-emerald-800 hover:underline">
-            Explore all 190 Head-to-Head Comparisons →
+            Explore all 190 Head-to-Head Comparisons -&gt;
           </Link>
         </div>
       </section>
+
+      {/* Shareable Pareto Frontier Scatter Plot right below the Leaderboard */}
+      <ParetoFrontierChart models={ALL_MODELS} />
     </SiteShell>
   );
 }
