@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ALL_MODELS } from '../lib/catalog';
-import { TrendingUp, Sparkles, Copy, Check } from 'lucide-react';
+import { TrendingUp, Copy, Check, ArrowUpRight } from 'lucide-react';
 
 export type CatalogModel = (typeof ALL_MODELS)[number];
 
@@ -13,31 +13,31 @@ interface ParetoFrontierChartProps {
 
 type ChartMode = 'price' | 'speed';
 
-interface PlottedModel {
+interface RankedModel {
   model: CatalogModel;
+  blendedPrice: number;
   xRaw: number;
   yRaw: number;
   xPct: number;
   yPct: number;
   isPareto: boolean;
-  labelAbove: boolean;
-  labelAlignRight: boolean;
+  valueEfficiency: number;
 }
 
 export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models }) => {
   const [mode, setMode] = useState<ChartMode>('price');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copiedCitation, setCopiedCitation] = useState<boolean>(false);
 
-  const plotted = useMemo<PlottedModel[]>(() => {
+  const ranked = useMemo<RankedModel[]>(() => {
     if (!models || models.length === 0) return [];
 
     const items = models.map((m) => {
       const blendedPrice = Number(((m.inputPer1M + m.outputPer1M) / 2).toFixed(2));
       const xRaw = mode === 'price' ? Math.max(0.05, blendedPrice) : Math.max(1, m.tokPerSec);
       const yRaw = m.score;
-      return { model: m, xRaw, yRaw };
+      const valueEfficiency = blendedPrice > 0 ? Number((yRaw / blendedPrice).toFixed(1)) : yRaw;
+      return { model: m, blendedPrice, xRaw, yRaw, valueEfficiency };
     });
 
     const paretoFlags = items.map((a, idxA) => {
@@ -51,8 +51,8 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
       return !dominated;
     });
 
-    const yMin = Math.floor(Math.min(...items.map((i) => i.yRaw)) - 2);
-    const yMax = Math.ceil(Math.max(...items.map((i) => i.yRaw)) + 2);
+    const yMin = Math.floor(Math.min(...items.map((i) => i.yRaw)) - 1.5);
+    const yMax = Math.ceil(Math.max(...items.map((i) => i.yRaw)) + 1.5);
     const ySpan = Math.max(1, yMax - yMin);
 
     if (mode === 'price') {
@@ -62,20 +62,13 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
 
       return items.map((it, idx) => {
         const logVal = Math.log10(it.xRaw);
-        const xPct = 10 + ((logVal - logMin) / logSpan) * 78;
-        const yPct = 84 - ((it.yRaw - yMin) / ySpan) * 68;
-        const isPareto = paretoFlags[idx];
-        const clampedX = Math.min(89, Math.max(10, xPct));
-        const clampedY = Math.min(84, Math.max(15, yPct));
+        const xPct = 12 + ((logVal - logMin) / logSpan) * 76;
+        const yPct = 82 - ((it.yRaw - yMin) / ySpan) * 64;
         return {
-          model: it.model,
-          xRaw: it.xRaw,
-          yRaw: it.yRaw,
-          xPct: clampedX,
-          yPct: clampedY,
-          isPareto,
-          labelAbove: isPareto ? clampedY > 24 : false,
-          labelAlignRight: clampedX > 72,
+          ...it,
+          xPct: Math.min(89, Math.max(12, xPct)),
+          yPct: Math.min(83, Math.max(16, yPct)),
+          isPareto: paretoFlags[idx],
         };
       });
     } else {
@@ -84,42 +77,41 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
       const xSpan = Math.max(1, xMax - xMin);
 
       return items.map((it, idx) => {
-        const xPct = 10 + ((it.xRaw - xMin) / xSpan) * 78;
-        const yPct = 84 - ((it.yRaw - yMin) / ySpan) * 68;
-        const isPareto = paretoFlags[idx];
-        const clampedX = Math.min(89, Math.max(10, xPct));
-        const clampedY = Math.min(84, Math.max(15, yPct));
+        const xPct = 12 + ((it.xRaw - xMin) / xSpan) * 76;
+        const yPct = 82 - ((it.yRaw - yMin) / ySpan) * 64;
         return {
-          model: it.model,
-          xRaw: it.xRaw,
-          yRaw: it.yRaw,
-          xPct: clampedX,
-          yPct: clampedY,
-          isPareto,
-          labelAbove: isPareto ? clampedY > 24 : false,
-          labelAlignRight: clampedX > 72,
+          ...it,
+          xPct: Math.min(89, Math.max(12, xPct)),
+          yPct: Math.min(83, Math.max(16, yPct)),
+          isPareto: paretoFlags[idx],
         };
       });
     }
   }, [models, mode]);
 
   const paretoModels = useMemo(() => {
-    const pts = plotted.filter((p) => p.isPareto);
-    return [...pts].sort((a, b) => a.xRaw - b.xRaw);
-  }, [plotted]);
+    return ranked
+      .filter((p) => p.isPareto)
+      .sort((a, b) => (mode === 'price' ? a.xRaw - b.xRaw : b.xRaw - a.xRaw));
+  }, [ranked, mode]);
 
-  const activePoint = useMemo(() => {
-    const targetId = hoveredId || selectedId;
-    if (!targetId) return paretoModels[paretoModels.length - 1] || plotted[0] || null;
-    return plotted.find((p) => p.model.id === targetId) || null;
-  }, [hoveredId, selectedId, plotted, paretoModels]);
+  const sortedTableRows = useMemo(() => {
+    return [...ranked].sort((a, b) => b.yRaw - a.yRaw);
+  }, [ranked]);
+
+  const activeModelRow = useMemo(() => {
+    if (selectedId) {
+      return ranked.find((r) => r.model.id === selectedId) || paretoModels[0] || ranked[0] || null;
+    }
+    return paretoModels[paretoModels.length - 1] || ranked[0] || null;
+  }, [selectedId, ranked, paretoModels]);
 
   const handleCopyAttribution = () => {
     if (typeof window === 'undefined') return;
     const summary =
       mode === 'price'
-        ? `LLM Intelligence vs. API Cost Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) - PromptBill https://promptbill.online`
-        : `LLM Intelligence vs. Speed (Tok/s) Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) - PromptBill https://promptbill.online`;
+        ? `LLM Intelligence vs. API Cost Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) — PromptBill https://promptbill.online`
+        : `LLM Intelligence vs. Speed (Tok/s) Pareto Frontier (${paretoModels.map((p) => p.model.name).join(', ')}) — PromptBill https://promptbill.online`;
     navigator.clipboard?.writeText(summary);
     setCopiedCitation(true);
     setTimeout(() => setCopiedCitation(false), 2000);
@@ -152,21 +144,22 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 border-b border-slate-100 pb-4">
-        <div className="space-y-1.5 max-w-2xl">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div className="space-y-1">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
             <TrendingUp className="w-4 h-4" />
-            <span>Pareto Frontier Analysis · Shareable Benchmark Chart</span>
+            <span>Pareto Frontier · Cost vs. Intelligence &amp; Speed</span>
           </div>
           <h2 id="pareto-frontier-heading" className="text-lg sm:text-xl font-bold text-slate-900">
             {mode === 'price'
-              ? 'Intelligence Score vs. Blended API Token Price ($/1M)'
-              : 'Intelligence Score vs. Generation Speed (Tokens / Sec)'}
+              ? 'Intelligence vs. Blended API Token Cost ($/1M)'
+              : 'Intelligence vs. Generation Speed (Tokens / Sec)'}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-700">
             {mode === 'price'
-              ? 'Models along the Pareto frontier deliver the highest benchmark score at their price tier-no competing model achieves both a higher score and a lower blended $/1M token cost.'
-              : 'Models along the Pareto frontier offer the strongest balance of benchmark intelligence and output throughput (tokens/sec) for low-latency production workloads.'}
+              ? 'Frontier models achieve the highest benchmark score at their price point—no rival beats them on both lower cost and higher score.'
+              : 'Frontier models balance benchmark intelligence and output speed (tok/s) for interactive and high-throughput workloads.'}
           </p>
         </div>
 
@@ -204,32 +197,32 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
             {copiedCitation ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-800" />
-                <span>Copied Attribution</span>
+                <span>Copied</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Cite Chart</span>
+                <span>Copy Citation</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Desktop & Tablet Scatter Plot + Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <div className="hidden sm:block lg:col-span-8">
-          <div className="relative h-[370px] lg:h-[400px] w-full rounded-xl border border-slate-200 bg-slate-50/70 overflow-hidden select-none">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:64px_64px] opacity-60 pointer-events-none" />
+      {/* Desktop-only Clean Scatter Plot (dots only on plot; full name & stats shown in inspector & table) */}
+      <div className="hidden lg:grid lg:grid-cols-12 gap-5 items-start">
+        <div className="lg:col-span-7 space-y-2">
+          <div className="relative h-[340px] w-full rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:56px_56px] opacity-60 pointer-events-none" />
 
-            <div className="absolute left-3 top-3 z-10 rounded bg-white/95 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
-              Benchmark Score (Intelligence)
+            <div className="absolute left-3 top-3 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
+              ↑ Score (Intelligence)
             </div>
 
-            <div className="absolute right-3 bottom-3 z-10 rounded bg-white/95 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
+            <div className="absolute right-3 bottom-3 rounded bg-white border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
               {mode === 'price'
-                ? 'Blended API Price ($/1M tokens, log scale)'
-                : 'Output Speed (Tokens / Sec)'}
+                ? 'Blended $/1M (log scale) →'
+                : 'Output Speed (tok/s) →'}
             </div>
 
             {paretoModels.length > 1 && (
@@ -242,27 +235,24 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 <polyline
                   fill="none"
                   stroke="#065f46"
-                  strokeWidth="0.65"
+                  strokeWidth="0.7"
                   strokeDasharray="1.8 1.2"
-                  points={paretoModels.map((p) => `${p.xPct},${p.yPct}`).join(' ')}
+                  points={[...paretoModels]
+                    .sort((a, b) => a.xPct - b.xPct)
+                    .map((p) => `${p.xPct},${p.yPct}`)
+                    .join(' ')}
                 />
               </svg>
             )}
 
-            {plotted.map((pt) => {
-              const isHighlighted =
-                hoveredId === pt.model.id ||
-                selectedId === pt.model.id ||
-                activePoint?.model.id === pt.model.id;
-
+            {ranked.map((pt) => {
+              const isSelected = activeModelRow?.model.id === pt.model.id;
               return (
                 <button
                   key={pt.model.id}
                   type="button"
-                  onMouseEnter={() => setHoveredId(pt.model.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  onFocus={() => setHoveredId(pt.model.id)}
                   onClick={() => setSelectedId(pt.model.id)}
+                  onMouseEnter={() => setSelectedId(pt.model.id)}
                   style={{
                     left: `${pt.xPct}%`,
                     top: `${pt.yPct}%`,
@@ -270,185 +260,197 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                   }}
                   aria-label={`${pt.model.name}: Score ${pt.yRaw}, ${
                     mode === 'price'
-                      ? `Blended price $${pt.xRaw.toFixed(2)} per 1M`
-                      : `Speed ${pt.xRaw} tokens per second`
+                      ? `Blended price $${pt.blendedPrice.toFixed(2)} per 1M`
+                      : `Speed ${pt.model.tokPerSec} tokens per second`
                   }`}
-                  className={`group absolute flex min-h-[28px] min-w-[28px] items-center justify-center focus:outline-none ${
-                    isHighlighted ? 'z-30' : pt.isPareto ? 'z-20' : 'z-10'
-                  }`}
+                  className="group absolute flex h-8 w-8 items-center justify-center focus:outline-none z-10 hover:z-20"
                 >
                   <span
-                    className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 transition-transform shrink-0 ${
+                    className={`block h-3.5 w-3.5 rounded-full border-2 transition-transform ${
                       pt.isPareto
-                        ? 'border-emerald-950 bg-emerald-600 shadow-sm'
-                        : 'border-slate-700 bg-white'
-                    } ${isHighlighted ? 'scale-125 ring-4 ring-emerald-500/25' : ''}`}
+                        ? 'border-emerald-950 bg-emerald-600'
+                        : 'border-slate-600 bg-white'
+                    } ${isSelected ? 'scale-150 ring-4 ring-emerald-500/30 bg-emerald-700 border-emerald-950' : ''}`}
                   />
-                  {pt.isPareto && (
-                    <span
-                      className={`whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-semibold shadow-xs transition-colors ${
-                        pt.labelAbove ? 'mb-6 -ml-3' : 'ml-1.5'
-                      } bg-emerald-950 text-white ${
-                        isHighlighted ? 'ring-2 ring-emerald-600' : ''
-                      }`}
-                    >
-                      {pt.model.name}
-                    </span>
-                  )}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-700">
+          <div className="flex items-center justify-between text-xs text-slate-700 px-1">
             <div className="flex items-center gap-4">
               <span className="inline-flex items-center gap-1.5 font-medium">
                 <span className="h-3 w-3 rounded-full bg-emerald-600 border border-emerald-950 inline-block" />
-                Pareto Frontier ({paretoModels.length} models)
+                Pareto Frontier ({paretoModels.length})
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-white border border-slate-700 inline-block" />
-                Other Tracked Models (click/tap in list or table to inspect)
+                <span className="h-3 w-3 rounded-full bg-white border border-slate-600 inline-block" />
+                Other Models
               </span>
             </div>
             <span className="text-[11px] text-slate-600">
-              Source: PromptBill (https://promptbill.online) · Nov 2026
+              Hover or click any dot to inspect · promptbill.online
             </span>
           </div>
         </div>
 
-        {/* Mobile-Friendly Compact Frontier Summary (< sm) */}
-        <div className="sm:hidden rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
-          <div className="text-xs font-bold text-slate-900">
-            {mode === 'price' ? 'Cost-Efficiency Frontier' : 'Speed-Efficiency Frontier'}
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed">
-            Tap any model below to inspect its benchmark score, API pricing, and speed without crowded mobile chart labels.
-          </p>
-        </div>
-
-        {/* Inspector & Frontier Summary Card */}
-        <div className="lg:col-span-4 space-y-4">
-          {activePoint && (
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
-              <div className="flex items-start justify-between gap-2">
+        {/* Selected Model Inspector Card (Desktop) */}
+        <div className="lg:col-span-5">
+          {activeModelRow && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 space-y-4">
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">
-                    {activePoint.isPareto ? 'On Pareto Frontier' : 'Tracked Model'}
-                  </div>
-                  <Link
-                    href={`/models/${activePoint.model.slug}`}
-                    className="text-base font-bold text-slate-900 hover:text-emerald-800 underline-offset-2 hover:underline"
+                  <span
+                    className={`inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${
+                      activeModelRow.isPareto
+                        ? 'bg-emerald-800 text-white'
+                        : 'bg-slate-200 text-slate-800'
+                    }`}
                   >
-                    {activePoint.model.name}
-                  </Link>
-                  <div className="text-xs text-slate-700">{activePoint.model.provider}</div>
+                    {activeModelRow.isPareto ? 'Pareto Frontier Model' : 'Tracked Model'}
+                  </span>
+                  <h3 className="mt-1.5 text-lg font-bold text-slate-900">
+                    {activeModelRow.model.name}
+                  </h3>
+                  <div className="text-xs text-slate-700">{activeModelRow.model.provider}</div>
                 </div>
                 <div className="text-right font-mono">
-                  <div className="text-lg font-bold text-slate-900">{activePoint.model.score.toFixed(1)}</div>
+                  <div className="text-2xl font-bold text-slate-900">
+                    {activeModelRow.model.score.toFixed(1)}
+                  </div>
                   <div className="text-[11px] text-slate-600">Score</div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 rounded-lg border border-slate-200 bg-white p-2.5 font-mono text-xs">
+              <div className="grid grid-cols-3 gap-2.5 rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs">
                 <div>
-                  <div className="text-[10px] font-sans text-slate-600">API In / Out ($/1M)</div>
+                  <div className="text-[10px] font-sans text-slate-600">Blended $/1M</div>
                   <div className="font-bold text-slate-900 mt-0.5">
-                    ${activePoint.model.inputPer1M.toFixed(2)} / ${activePoint.model.outputPer1M.toFixed(2)}
+                    ${activeModelRow.blendedPrice.toFixed(2)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-sans text-slate-600">Throughput</div>
+                  <div className="text-[10px] font-sans text-slate-600">In / Out</div>
+                  <div className="font-bold text-slate-900 mt-0.5">
+                    ${activeModelRow.model.inputPer1M.toFixed(2)}/${activeModelRow.model.outputPer1M.toFixed(2)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-sans text-slate-600">Speed</div>
                   <div className="font-bold text-emerald-800 mt-0.5">
-                    {activePoint.model.tokPerSec} tok/s
+                    {activeModelRow.model.tokPerSec} tok/s
                   </div>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700">{activePoint.model.bestFor}</p>
+              <p className="text-xs text-slate-700 leading-relaxed">
+                {activeModelRow.model.bestFor}
+              </p>
 
               <Link
-                href={`/models/${activePoint.model.slug}`}
-                className="inline-flex min-h-[38px] w-full items-center justify-center rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                href={`/models/${activeModelRow.model.slug}`}
+                className="inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
               >
-                Open Full Specs &amp; Cost Calculator -&gt;
+                <span>View {activeModelRow.model.name} Calculator &amp; Specs</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2.5">
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-800" />
-              <span>Pareto Frontier Leaders</span>
-            </div>
-            <ul className="space-y-1 text-xs">
-              {paretoModels.map((p) => (
-                <li key={p.model.id} className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 last:border-none">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(p.model.id)}
-                    className="min-h-[32px] font-semibold text-slate-900 hover:text-emerald-800 text-left"
-                  >
-                    {p.model.name}
-                  </button>
-                  <span className="font-mono text-slate-700 shrink-0">
-                    Score {p.model.score.toFixed(1)} ·{' '}
-                    {mode === 'price'
-                      ? `$${p.xRaw.toFixed(2)}/1M avg`
-                      : `${p.model.tokPerSec} tok/s`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
 
-      {/* Accessible & GEO-Friendly Data Table for Readers, Screen Readers & AI Crawlers */}
+      {/* Frontier Pills Row (Fast Scannable Summary on Both Mobile & Desktop) */}
+      <div className="space-y-2">
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          Frontier Models ({mode === 'price' ? 'Best Score per Price Tier' : 'Best Score per Speed Tier'})
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {paretoModels.map((p) => {
+            const active = activeModelRow?.model.id === p.model.id;
+            return (
+              <button
+                key={p.model.id}
+                type="button"
+                onClick={() => setSelectedId(p.model.id)}
+                className={`min-h-[36px] rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  active
+                    ? 'border-emerald-800 bg-emerald-800 text-white'
+                    : 'border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                {p.model.name}{' '}
+                <span className="font-mono font-normal opacity-90">
+                  ({p.model.score.toFixed(1)} ·{' '}
+                  {mode === 'price' ? `$${p.blendedPrice.toFixed(2)}/1M` : `${p.model.tokPerSec} tok/s`})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Mobile Selected Model Card (< lg) */}
+      {activeModelRow && (
+        <div className="lg:hidden rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="text-sm font-bold text-slate-900">{activeModelRow.model.name}</div>
+              <div className="text-xs text-slate-700">{activeModelRow.model.provider}</div>
+            </div>
+            <div className="font-mono text-base font-bold text-slate-900">
+              Score {activeModelRow.model.score.toFixed(1)}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-slate-800">
+            <span>Blended: ${activeModelRow.blendedPrice.toFixed(2)}/1M</span>
+            <span className="text-emerald-800 font-semibold">{activeModelRow.model.tokPerSec} tok/s</span>
+            <Link href={`/models/${activeModelRow.model.slug}`} className="font-sans font-semibold text-emerald-800 underline">
+              Cost &amp; Specs -&gt;
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Clean Semantic Data Table for Readers, SEO & GEO */}
       <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full text-left border-collapse text-xs">
           <caption className="sr-only">
-            Pareto frontier comparison table listing benchmark score, blended API token cost per 1 million tokens, generation speed in tokens per second, and frontier status for tracked LLMs.
+            Benchmark score, blended API token cost per 1 million tokens, generation speed in tokens per second, and Pareto frontier status across models.
           </caption>
           <thead>
             <tr className="border-b border-slate-200 bg-slate-100 text-slate-800 font-semibold">
               <th scope="col" className="py-2.5 px-3">Model</th>
-              <th scope="col" className="py-2.5 px-3">Frontier Status</th>
+              <th scope="col" className="py-2.5 px-3">Frontier</th>
               <th scope="col" className="py-2.5 px-3">Score</th>
               <th scope="col" className="py-2.5 px-3">Blended $/1M</th>
-              <th scope="col" className="py-2.5 px-3">Speed (Tok/s)</th>
+              <th scope="col" className="py-2.5 px-3">Speed</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200/80 font-mono">
-            {plotted
-              .slice()
-              .sort((a, b) => b.yRaw - a.yRaw)
-              .slice(0, 8)
-              .map((pt, idx) => (
-                <tr key={pt.model.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
-                  <th scope="row" className="py-2 px-3 font-sans font-semibold text-slate-900 text-left">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(pt.model.id)}
-                      className="min-h-[32px] hover:text-emerald-800 underline-offset-2 hover:underline text-left"
-                    >
-                      {pt.model.name}
-                    </button>
-                  </th>
-                  <td className="py-2 px-3 font-sans">
-                    {pt.isPareto ? (
-                      <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-900">
-                        Pareto Frontier
-                      </span>
-                    ) : (
-                      <span className="text-slate-600 text-[11px]">Tracked</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-3 font-bold text-slate-900">{pt.model.score.toFixed(1)}</td>
-                  <td className="py-2 px-3 text-slate-800">${pt.xRaw.toFixed(2)}</td>
-                  <td className="py-2 px-3 text-emerald-800 font-semibold">{pt.model.tokPerSec} tok/s</td>
-                </tr>
-              ))}
+            {sortedTableRows.map((pt, idx) => (
+              <tr key={pt.model.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
+                <th scope="row" className="py-2 px-3 font-sans font-semibold text-slate-900 text-left">
+                  <Link
+                    href={`/models/${pt.model.slug}`}
+                    className="inline-flex min-h-[32px] items-center hover:text-emerald-800 underline-offset-2 hover:underline"
+                  >
+                    {pt.model.name}
+                  </Link>
+                </th>
+                <td className="py-2 px-3 font-sans">
+                  {pt.isPareto ? (
+                    <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-900">
+                      Frontier
+                    </span>
+                  ) : (
+                    <span className="text-slate-600 text-[11px]">-</span>
+                  )}
+                </td>
+                <td className="py-2 px-3 font-bold text-slate-900">{pt.model.score.toFixed(1)}</td>
+                <td className="py-2 px-3 text-slate-800">${pt.blendedPrice.toFixed(2)}</td>
+                <td className="py-2 px-3 text-emerald-800 font-semibold">{pt.model.tokPerSec} tok/s</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
