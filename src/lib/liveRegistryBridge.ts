@@ -1,15 +1,23 @@
 import modelsJson from '../data/models.json';
 import type { LLMModel } from './pricingEngine';
 
+export interface LivePriceHistoryEntry {
+  date: string;
+  inputPer1M: number;
+  outputPer1M: number;
+  note?: string;
+}
+
 export interface LiveModelRecord {
   id: string;
   slug?: string;
+  rank?: number;
   name: string;
   provider?: string;
   providerSlug?: string;
   family?: string;
-  license?: 'Open' | 'Closed';
-  evidence?: 'Supported' | 'Estimated';
+  license?: 'Open' | 'Closed' | string;
+  evidence?: 'Supported' | 'Estimated' | string;
   score?: number;
   interval?: string;
   elo?: number;
@@ -33,12 +41,7 @@ export interface LiveModelRecord {
   batchDiscount?: number;
   bestFor?: string;
   notes?: string;
-  priceHistory?: Array<{
-    date: string;
-    inputPer1M: number;
-    outputPer1M: number;
-    note?: string;
-  }>;
+  priceHistory?: LivePriceHistoryEntry[];
 }
 
 const LIVE_RECORDS = modelsJson as LiveModelRecord[];
@@ -88,10 +91,6 @@ export function findLiveRecord(model: { id?: string; slug?: string; name?: strin
   return undefined;
 }
 
-/**
- * Overlays live pricing, cached input pricing, and price history from `src/data/models.json`
- * onto a catalog model at runtime so pricing is never frozen or duplicated.
- */
 export function applyLiveRegistryPricing<T extends LLMModel>(model: T): T {
   const live = findLiveRecord(model);
   if (!live) return model;
@@ -108,11 +107,12 @@ export function applyLiveRegistryPricing<T extends LLMModel>(model: T): T {
     inputPer1M,
     outputPer1M,
     cachedInputPer1M,
-    ...(live.score !== undefined ? { score: live.score } : {}),
-    ...(live.elo !== undefined ? { elo: live.elo } : {}),
-    ...(live.tokPerSec !== undefined ? { tokPerSec: live.tokPerSec } : {}),
+    ...(typeof live.rank === 'number' ? { rank: live.rank } : {}),
+    ...(typeof live.score === 'number' ? { score: live.score } : {}),
+    ...(typeof live.elo === 'number' ? { elo: live.elo } : {}),
+    ...(typeof live.tokPerSec === 'number' ? { tokPerSec: live.tokPerSec } : {}),
     ...(live.contextWindow ? { contextWindow: live.contextWindow } : {}),
-    ...(live.evidence ? { evidence: live.evidence } : {}),
+    ...(live.evidence === 'Supported' || live.evidence === 'Estimated' ? { evidence: live.evidence } : {}),
     ...(Array.isArray(live.priceHistory) && live.priceHistory.length > 0
       ? {
           priceHistory: live.priceHistory.map((h) => ({
