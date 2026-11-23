@@ -11,6 +11,7 @@ import {
   formatCurrency,
   formatTokenThreshold,
 } from '../lib/pricingEngine';
+import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../lib/modelRegistry';
 import { SiteShell } from '../components/SiteShell';
 import { ParetoFrontierChart } from '../components/ParetoFrontierChart';
 import {
@@ -27,6 +28,7 @@ import {
   Copy,
   ArrowUp,
   Plus,
+  Clock,
 } from 'lucide-react';
 
 const pricingModels = modelsJson as LLMModel[];
@@ -71,7 +73,11 @@ export default function LeaderboardPage() {
 
   const [calcInputs, setCalcInputs] = useState<CostInputs>(DEFAULT_CALC_INPUTS);
 
-  // Read incoming URL query params on mount without forcing default params into clean root URLs
+  const seoHighlights = useMemo(
+    () => buildDynamicSeoCopy(REGISTRY_SNAPSHOT.generatedMonthYear),
+    []
+  );
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -106,7 +112,6 @@ export default function LeaderboardPage() {
     }
   }, []);
 
-  // Only sync URL query string after explicit user interaction so initial load stays clean (https://promptbill.online/)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!hasUserInteractedWithParams.current) return;
@@ -354,6 +359,7 @@ export default function LeaderboardPage() {
         '@type': 'WebApplication',
         name: 'PromptBill LLM API Cost Calculator & Benchmark Leaderboard',
         url: 'https://promptbill.online/',
+        dateModified: REGISTRY_SNAPSHOT.lastModifiedIso,
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Web',
         description:
@@ -361,7 +367,7 @@ export default function LeaderboardPage() {
       },
       {
         '@type': 'ItemList',
-        name: 'Top Ranked Large Language Models (November 2026)',
+        name: `Top Ranked Large Language Models (${REGISTRY_SNAPSHOT.generatedMonthYear})`,
         itemListElement: ALL_MODELS.slice(0, 10).map((m, idx) => ({
           '@type': 'ListItem',
           position: idx + 1,
@@ -374,17 +380,37 @@ export default function LeaderboardPage() {
 
   return (
     <SiteShell
-      title="LLM Leaderboard Rankings, API Pricing & Billing Calculator"
-      subtitle="promptbill.online / · Prompt Caching, Batch API, Context Tiers & Pareto Frontier"
+      title={`LLM Leaderboard Rankings, API Pricing & Billing Calculator (${REGISTRY_SNAPSHOT.generatedMonthYear})`}
+      subtitle={`promptbill.online / · Snapshot ${REGISTRY_SNAPSHOT.version} · Cache, Batch, Context Tiers & Pareto Frontier`}
     >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSeoGeoJsonLd) }}
       />
 
-      {/* GEO & SEO Summary Strip for Search Crawlers, Answer Engines & Readers */}
-      <section aria-label="Benchmark and Billing Overview" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
-        <strong>PromptBill</strong> compares LLM benchmark scores, Elo ratings, output speed (<strong>tok/s</strong>), and real-world API token billing across leading models and hosting providers—including <strong>prompt cache read vs. write rates</strong>, <strong>50% Batch API discounts</strong>, and <strong>long-context pricing tiers</strong>.
+      {/* Dynamic GEO Snapshot Summary & Recent Updates Feed */}
+      <section aria-label="Benchmark Snapshot and Recent Updates" className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <p>
+          <strong>{REGISTRY_SNAPSHOT.generatedMonthYear} Snapshot:</strong> {seoHighlights.codingLeaderLine}{' '}
+          {seoHighlights.valueLeaderLine} {seoHighlights.speedLeaderLine}
+        </p>
+
+        <div className="pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-slate-800 shrink-0">
+            <Clock className="w-3.5 h-3.5 text-emerald-800" />
+            <span>Recent Updates:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {REGISTRY_SNAPSHOT.changelog.map((item) => (
+              <span
+                key={item.title}
+                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-800"
+              >
+                <strong className="font-mono text-emerald-900">{item.date}:</strong> {item.title}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 1. API Cost Calculator: Split-Screen Dashboard */}
