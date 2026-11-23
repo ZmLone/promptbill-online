@@ -95,7 +95,7 @@ export function SiteShell({
         onMouseLeave={() => setMoreOpen(false)}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <Link href="/" aria-label="PromptBill Home" className="flex items-center gap-2.5 shrink-0">
+          <Link href="/" aria-label="PromptBill Home" className="flex items-center gap-2.5 shrink-0 min-h-[44px] pr-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 font-mono text-sm font-bold text-white">
               PB
             </span>
@@ -103,7 +103,7 @@ export function SiteShell({
               <div className="text-base font-bold tracking-tight text-slate-900 leading-none">
                 PromptBill
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">promptbill.online</div>
+              <div className="text-[11px] text-slate-600 mt-0.5">promptbill.online</div>
             </div>
           </Link>
 
@@ -115,10 +115,10 @@ export function SiteShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors ${
+                  className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg px-2.5 py-2 transition-colors ${
                     active
                       ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -132,7 +132,7 @@ export function SiteShell({
                 type="button"
                 aria-expanded={moreOpen}
                 onClick={() => setMoreOpen((prev) => !prev)}
-                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                className="inline-flex min-h-[40px] items-center gap-1 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
               >
                 <span>More</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
@@ -142,16 +142,16 @@ export function SiteShell({
                 <div className="absolute right-0 mt-1.5 w-[560px] rounded-xl border border-slate-200 bg-white p-5 shadow-lg grid grid-cols-3 gap-5 z-40">
                   {MORE_COLUMNS.map((col) => (
                     <div key={col.heading} className="space-y-2">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                         {col.heading}
                       </div>
-                      <ul className="space-y-1 text-xs">
+                      <ul className="space-y-1.5 text-xs">
                         {col.links.map((lnk) => (
                           <li key={lnk.label}>
                             <Link
                               href={lnk.href}
                               onClick={() => setMoreOpen(false)}
-                              className="block rounded-md px-2 py-1 text-slate-700 hover:bg-slate-100 hover:text-slate-900 font-medium"
+                              className="block rounded-md px-2.5 py-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 font-medium"
                             >
                               {lnk.label}
                             </Link>
@@ -170,30 +170,29 @@ export function SiteShell({
               type="button"
               onClick={handleCopy}
               aria-label="Copy current page URL"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
             </button>
             <Link
               href="/deals"
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+              className="inline-flex min-h-[40px] items-center rounded-lg bg-emerald-800 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-900"
             >
               Deals
             </Link>
           </div>
         </div>
 
-        {/* Mobile / Tablet Touch-Friendly Horizontal Scroll Bar */}
-        <nav aria-label="Mobile Navigation" className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-1.5 text-xs font-medium no-scrollbar">
+        <nav aria-label="Mobile Navigation" className="flex xl:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 gap-2 text-xs font-medium no-scrollbar">
           {[...PRIMARY_NAV, { href: '/methodology', label: 'Methodology', icon: BookOpen }, { href: '/advertise', label: 'Advertise', icon: Megaphone }].map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`shrink-0 rounded-full px-3 py-1.5 ${
-                  active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 active:bg-slate-200'
+                className={`shrink-0 inline-flex min-h-[38px] items-center rounded-full px-3.5 py-2 ${
+                  active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-800 active:bg-slate-200'
                 }`}
               >
                 {item.label}
@@ -205,7 +204,7 @@ export function SiteShell({
 
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         <div className="border-b border-slate-200 pb-4 sm:pb-5">
-          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-700 break-all">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800 break-all">
             {subtitle}
           </p>
           <h1 className="mt-1 text-xl sm:text-3xl font-bold tracking-tight text-slate-900 leading-snug">
@@ -215,23 +214,23 @@ export function SiteShell({
         {children}
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-600">
+      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-700">
         <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="font-medium text-slate-700 text-center sm:text-left">
+          <div className="font-medium text-slate-800 text-center sm:text-left">
             PromptBill (<a href="https://promptbill.online" className="underline">https://promptbill.online</a>) · All rights reserved
           </div>
-          <div className="flex flex-wrap justify-center sm:justify-end items-center gap-3 sm:gap-4">
-            <Link href="/" className="hover:text-slate-900">Leaderboard</Link>
-            <Link href="/compare" className="hover:text-slate-900">Compare Hub</Link>
-            <Link href="/models" className="hover:text-slate-900">All Models</Link>
-            <Link href="/pricing" className="hover:text-slate-900">API Pricing</Link>
-            <Link href="/about" className="hover:text-slate-900">About</Link>
-            <Link href="/contact" className="hover:text-slate-900">Contact</Link>
-            <Link href="/privacy-policy" className="hover:text-slate-900">Privacy Policy</Link>
-            <a href="/sitemap.xml" className="inline-flex items-center gap-1 hover:text-slate-900">
+          <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 sm:gap-3">
+            <Link href="/" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">Leaderboard</Link>
+            <Link href="/compare" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">Compare Hub</Link>
+            <Link href="/models" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">All Models</Link>
+            <Link href="/pricing" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">API Pricing</Link>
+            <Link href="/about" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">About</Link>
+            <Link href="/contact" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">Contact</Link>
+            <Link href="/privacy-policy" className="inline-flex min-h-[36px] items-center px-2 py-1.5 hover:text-slate-950">Privacy Policy</Link>
+            <a href="/sitemap.xml" className="inline-flex min-h-[36px] items-center gap-1 px-2 py-1.5 hover:text-slate-950">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>
-            <a href="/llms.txt" className="inline-flex items-center gap-1 hover:text-slate-900">
+            <a href="/llms.txt" className="inline-flex min-h-[36px] items-center gap-1 px-2 py-1.5 hover:text-slate-950">
               llms.txt <ExternalLink className="w-3 h-3" />
             </a>
           </div>
