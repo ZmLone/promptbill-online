@@ -1,7 +1,5 @@
-import leaderboardJson from '../data/leaderboard.json';
-
-export type EvidenceType = 'Supported' | 'Estimated';
-export type LicenseType = 'Closed' | 'Open' | 'Pending';
+import modelsJson from '../data/models.json';
+import { applyLiveRegistryPricing, type LiveModelRecord } from './liveRegistryBridge';
 
 export interface PriceHistoryEntry {
   date: string;
@@ -10,28 +8,25 @@ export interface PriceHistoryEntry {
   note: string;
 }
 
-export interface ModelEntry {
-  rank: number;
+export interface CatalogModel {
   id: string;
   slug: string;
-  providerSlug: string;
+  rank: number;
   name: string;
   provider: string;
-  evidence: EvidenceType;
+  providerSlug: string;
+  family: string;
+  license: 'Open' | 'Closed';
+  evidence: 'Supported' | 'Estimated';
   score: number;
   interval: string;
-  params: string;
+  elo: number;
+  inputPer1M: number;
+  cachedInputPer1M: number;
+  outputPer1M: number;
   contextWindow: string;
   maxOutputTokens: string;
-  rpmLimit: string;
-  tpmLimit: string;
-  tpdLimit: string;
-  priceHistory: PriceHistoryEntry[];
-  inputPer1M: number;
-  outputPer1M: number;
-  cachedInputPer1M: number;
-  elo: number;
-  license: LicenseType;
+  tokPerSec: number;
   ag: number;
   co: number;
   re: number;
@@ -40,63 +35,108 @@ export interface ModelEntry {
   ml: number;
   if: number;
   ma: number;
-  tokPerSec: number;
-  latency: string;
-  status: string;
-  reasoning: boolean;
-  categories: string[];
+  rpmLimit: string;
+  tpmLimit: string;
+  tpdLimit: string;
+  batchDiscount: number;
   bestFor: string;
+  notes: string;
+  priceHistory: PriceHistoryEntry[];
 }
 
-export interface ComparisonPair {
-  slug: string;
-  modelA: ModelEntry;
-  modelB: ModelEntry;
+function toSlug(raw: string): string {
+  return String(raw || '')
+    .toLowerCase()
+    .replace(/^[^/]+\//, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
-export const ALL_MODELS: ModelEntry[] = leaderboardJson as ModelEntry[];
+function normalizeRecord(rec: LiveModelRecord, index: number): CatalogModel {
+  const slug = toSlug(rec.slug || rec.id || rec.name);
+  const provider = rec.provider || 'Provider';
+  const providerSlug = toSlug(rec.providerSlug || provider);
+  const inputPer1M = typeof rec.inputPer1M === 'number' ? rec.inputPer1M : 0;
+  const outputPer1M = typeof rec.outputPer1M === 'number' ? rec.outputPer1M : 0;
+  const cachedInputPer1M =
+    typeof rec.cachedInputPer1M === 'number'
+      ? rec.cachedInputPer1M
+      : Number((inputPer1M * 0.1).toFixed(4));
 
-export function getModelBySlug(slug: string): ModelEntry | undefined {
-  return ALL_MODELS.find((m) => m.slug === slug);
-}
-
-export function getModelsByProviderSlug(providerSlug: string): ModelEntry[] {
-  return ALL_MODELS.filter((m) => m.providerSlug === providerSlug);
-}
-
-export function getAllProviderSlugs(): { providerSlug: string; providerName: string }[] {
-  const map = new Map<string, string>();
-  for (const m of ALL_MODELS) {
-    if (!map.has(m.providerSlug)) {
-      map.set(m.providerSlug, m.provider);
-    }
-  }
-  return Array.from(map.entries()).map(([providerSlug, providerName]) => ({
+  const baseModel: CatalogModel = {
+    id: rec.id || slug,
+    slug,
+    rank: typeof rec.rank === 'number' ? rec.rank : index + 1,
+    name: rec.name,
+    provider,
     providerSlug,
-    providerName,
-  }));
+    family: rec.family || rec.name.split(' ')[0] || provider,
+    license: rec.license === 'Open' ? 'Open' : 'Closed',
+    evidence: rec.evidence === 'Estimated' ? 'Estimated' : 'Supported',
+    score: typeof rec.score === 'number' ? rec.score : 80.0,
+    interval: rec.interval || '±1.2',
+    elo: typeof rec.elo === 'number' ? rec.elo : 1320.0,
+    inputPer1M,
+    cachedInputPer1M,
+    outputPer1M,
+    contextWindow: rec.contextWindow || '128K',
+    maxOutputTokens: rec.maxOutputTokens || '32K',
+    tokPerSec: typeof rec.tokPerSec === 'number' ? rec.tokPerSec : 100,
+    ag: typeof rec.ag === 'number' ? rec.ag : 80,
+    co: typeof rec.co === 'number' ? rec.co : 80,
+    re: typeof rec.re === 'number' ? rec.re : 80,
+    mm: typeof rec.mm === 'number' ? rec.mm : 78,
+    kn: typeof rec.kn === 'number' ? rec.kn : 80,
+    ml: typeof rec.ml === 'number' ? rec.ml : 80,
+    if: typeof rec.if === 'number' ? rec.if : 80,
+    ma: typeof rec.ma === 'number' ? rec.ma : 80,
+    rpmLimit: rec.rpmLimit || '4,000 RPM',
+    tpmLimit: rec.tpmLimit || '2,000,000 TPM',
+    tpdLimit: rec.tpdLimit || '50,000,000 TPD',
+    batchDiscount: typeof rec.batchDiscount === 'number' ? rec.batchDiscount : 0.5,
+    bestFor: rec.bestFor || `${provider} API workloads and token cost benchmarking`,
+    notes: rec.notes || 'Synced dynamically from src/data/models.json.',
+    priceHistory:
+      Array.isArray(rec.priceHistory) && rec.priceHistory.length > 0
+        ? rec.priceHistory.map((h) => ({
+            date: h.date,
+            inputPer1M: h.inputPer1M,
+            outputPer1M: h.outputPer1M,
+            note: h.note || 'Registry snapshot',
+          }))
+        : [
+            {
+              date: '2026-11-23',
+              inputPer1M,
+              outputPer1M,
+              note: 'Live registry price from src/data/models.json',
+            },
+          ],
+  };
+
+  return applyLiveRegistryPricing(baseModel);
 }
 
-export function getAutoComparisonPairs(limitCount = 20): ComparisonPair[] {
-  const pool = ALL_MODELS.slice(0, limitCount);
-  const pairs: ComparisonPair[] = [];
-  for (let i = 0; i < pool.length; i++) {
-    for (let j = i + 1; j < pool.length; j++) {
-      pairs.push({
-        slug: `${pool[i].slug}-vs-${pool[j].slug}`,
-        modelA: pool[i],
-        modelB: pool[j],
-      });
-    }
-  }
-  return pairs;
+const rawRecords = (modelsJson as LiveModelRecord[]) || [];
+
+export const ALL_MODELS: CatalogModel[] = rawRecords
+  .map(normalizeRecord)
+  .sort((a, b) => a.rank - b.rank);
+
+export function getAllCatalogModels(): CatalogModel[] {
+  return ALL_MODELS;
 }
 
-export function parseComparisonSlug(slug: string): ComparisonPair | null {
-  const parts = slug.split('-vs-');
-  if (parts.length !== 2) return null;
-  const modelA = getModelBySlug(parts[0]);
-  const modelB = getModelBySlug(parts[1]);
-  if (!modelA || !modelB || modelA.slug === modelB.slug) return null;
-  return { slug: `${modelA.slug}-vs-${modelB.slug}`, modelA, modelB };
+export function getModelBySlug(slug: string): CatalogModel | undefined {
+  const normalized = toSlug(slug);
+  return ALL_MODELS.find(
+    (m) => m.slug === slug || m.slug === normalized || m.id === slug || toSlug(m.id) === normalized
+  );
+}
+
+export function getModelsByProvider(providerSlug: string): CatalogModel[] {
+  const normalized = toSlug(providerSlug);
+  return ALL_MODELS.filter(
+    (m) => m.providerSlug === providerSlug || m.providerSlug === normalized || toSlug(m.provider) === normalized
+  );
 }
