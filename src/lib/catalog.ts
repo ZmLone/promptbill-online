@@ -44,6 +44,12 @@ export interface CatalogModel {
   priceHistory: PriceHistoryEntry[];
 }
 
+export interface ComparisonPair {
+  slug: string;
+  modelA: CatalogModel;
+  modelB: CatalogModel;
+}
+
 function toSlug(raw: string): string {
   return String(raw || '')
     .toLowerCase()
@@ -139,4 +145,65 @@ export function getModelsByProvider(providerSlug: string): CatalogModel[] {
   return ALL_MODELS.filter(
     (m) => m.providerSlug === providerSlug || m.providerSlug === normalized || toSlug(m.provider) === normalized
   );
+}
+
+export function getModelsByProviderSlug(providerSlug: string): CatalogModel[] {
+  return getModelsByProvider(providerSlug);
+}
+
+export function getAllProviderSlugs(): string[] {
+  const seen = new Set<string>();
+  for (const m of ALL_MODELS) {
+    if (m.providerSlug) seen.add(m.providerSlug);
+  }
+  return Array.from(seen);
+}
+
+export function getAutoComparisonPairs(limit = 48): ComparisonPair[] {
+  const pairs: ComparisonPair[] = [];
+  const slice = ALL_MODELS.slice(0, Math.min(ALL_MODELS.length, 16));
+  for (let i = 0; i < slice.length; i++) {
+    for (let j = i + 1; j < slice.length; j++) {
+      const a = slice[i];
+      const b = slice[j];
+      pairs.push({
+        slug: `${a.slug}-vs-${b.slug}`,
+        modelA: a,
+        modelB: b,
+      });
+      if (pairs.length >= limit) return pairs;
+    }
+  }
+  return pairs;
+}
+
+export function parseComparisonSlug(
+  pairSlug: string
+): { modelA: CatalogModel; modelB: CatalogModel; slug: string } | null {
+  if (!pairSlug) return null;
+  const clean = pairSlug.toLowerCase();
+
+  // First try matching exact `<slugA>-vs-<slugB>` against known models
+  for (const a of ALL_MODELS) {
+    const prefix = `${a.slug}-vs-`;
+    if (clean.startsWith(prefix)) {
+      const rest = clean.slice(prefix.length);
+      const b = getModelBySlug(rest);
+      if (b && b.slug !== a.slug) {
+        return { modelA: a, modelB: b, slug: `${a.slug}-vs-${b.slug}` };
+      }
+    }
+  }
+
+  // Fallback split on `-vs-`
+  const parts = clean.split('-vs-');
+  if (parts.length === 2) {
+    const a = getModelBySlug(parts[0]);
+    const b = getModelBySlug(parts[1]);
+    if (a && b && a.slug !== b.slug) {
+      return { modelA: a, modelB: b, slug: `${a.slug}-vs-${b.slug}` };
+    }
+  }
+
+  return null;
 }
