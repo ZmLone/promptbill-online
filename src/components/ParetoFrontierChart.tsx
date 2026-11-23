@@ -20,6 +20,8 @@ interface PlottedModel {
   xPct: number;
   yPct: number;
   isPareto: boolean;
+  labelAbove: boolean;
+  labelAlignRight: boolean;
 }
 
 export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models }) => {
@@ -50,7 +52,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
     });
 
     const yMin = Math.floor(Math.min(...items.map((i) => i.yRaw)) - 2);
-    const yMax = Math.ceil(Math.max(...items.map((i) => i.yRaw)) + 1.5);
+    const yMax = Math.ceil(Math.max(...items.map((i) => i.yRaw)) + 2);
     const ySpan = Math.max(1, yMax - yMin);
 
     if (mode === 'price') {
@@ -60,15 +62,20 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
 
       return items.map((it, idx) => {
         const logVal = Math.log10(it.xRaw);
-        const xPct = 10 + ((logVal - logMin) / logSpan) * 82;
-        const yPct = 88 - ((it.yRaw - yMin) / ySpan) * 76;
+        const xPct = 10 + ((logVal - logMin) / logSpan) * 78;
+        const yPct = 84 - ((it.yRaw - yMin) / ySpan) * 68;
+        const isPareto = paretoFlags[idx];
+        const clampedX = Math.min(89, Math.max(10, xPct));
+        const clampedY = Math.min(84, Math.max(15, yPct));
         return {
           model: it.model,
           xRaw: it.xRaw,
           yRaw: it.yRaw,
-          xPct: Math.min(93, Math.max(9, xPct)),
-          yPct: Math.min(89, Math.max(11, yPct)),
-          isPareto: paretoFlags[idx],
+          xPct: clampedX,
+          yPct: clampedY,
+          isPareto,
+          labelAbove: isPareto ? clampedY > 24 : false,
+          labelAlignRight: clampedX > 72,
         };
       });
     } else {
@@ -77,15 +84,20 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
       const xSpan = Math.max(1, xMax - xMin);
 
       return items.map((it, idx) => {
-        const xPct = 10 + ((it.xRaw - xMin) / xSpan) * 82;
-        const yPct = 88 - ((it.yRaw - yMin) / ySpan) * 76;
+        const xPct = 10 + ((it.xRaw - xMin) / xSpan) * 78;
+        const yPct = 84 - ((it.yRaw - yMin) / ySpan) * 68;
+        const isPareto = paretoFlags[idx];
+        const clampedX = Math.min(89, Math.max(10, xPct));
+        const clampedY = Math.min(84, Math.max(15, yPct));
         return {
           model: it.model,
           xRaw: it.xRaw,
           yRaw: it.yRaw,
-          xPct: Math.min(93, Math.max(9, xPct)),
-          yPct: Math.min(89, Math.max(11, yPct)),
-          isPareto: paretoFlags[idx],
+          xPct: clampedX,
+          yPct: clampedY,
+          isPareto,
+          labelAbove: isPareto ? clampedY > 24 : false,
+          labelAlignRight: clampedX > 72,
         };
       });
     }
@@ -113,13 +125,35 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
     setTimeout(() => setCopiedCitation(false), 2000);
   };
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name:
+      mode === 'price'
+        ? 'PromptBill LLM Intelligence vs. Blended API Token Cost Pareto Frontier'
+        : 'PromptBill LLM Intelligence vs. Output Speed (Tokens/sec) Pareto Frontier',
+    description:
+      'Benchmark intelligence scores, blended API token prices ($/1M), output generation speeds (tok/s), and Pareto-optimal frontier models tracked by PromptBill.',
+    url: 'https://promptbill.online/',
+    creator: {
+      '@type': 'Organization',
+      name: 'PromptBill',
+      url: 'https://promptbill.online',
+    },
+  };
+
   return (
     <section
       aria-labelledby="pareto-frontier-heading"
       className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5"
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div className="space-y-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 border-b border-slate-100 pb-4">
+        <div className="space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
             <TrendingUp className="w-4 h-4" />
             <span>Pareto Frontier Analysis · Shareable Benchmark Chart</span>
@@ -129,10 +163,10 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               ? 'Intelligence Score vs. Blended API Token Price ($/1M)'
               : 'Intelligence Score vs. Generation Speed (Tokens / Sec)'}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-700">
+          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
             {mode === 'price'
-              ? 'Models along the Pareto frontier deliver the highest benchmark score for a given API price point-no rival beats them on both intelligence and lower cost.'
-              : 'Models along the Pareto frontier push the trade-off between reasoning capability and output throughput (tok/s) for real-time and agentic apps.'}
+              ? 'Models along the Pareto frontier deliver the highest benchmark score at their price tier-no competing model achieves both a higher score and a lower blended $/1M token cost.'
+              : 'Models along the Pareto frontier offer the strongest balance of benchmark intelligence and output throughput (tokens/sec) for low-latency production workloads.'}
           </p>
         </div>
 
@@ -141,7 +175,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
             <button
               type="button"
               onClick={() => setMode('price')}
-              className={`min-h-[36px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
+              className={`min-h-[38px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
                 mode === 'price'
                   ? 'bg-emerald-800 text-white'
                   : 'text-slate-800 hover:bg-white'
@@ -152,7 +186,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
             <button
               type="button"
               onClick={() => setMode('speed')}
-              className={`min-h-[36px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
+              className={`min-h-[38px] rounded-md px-3 py-1.5 font-semibold transition-colors ${
                 mode === 'speed'
                   ? 'bg-emerald-800 text-white'
                   : 'text-slate-800 hover:bg-white'
@@ -165,7 +199,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
           <button
             type="button"
             onClick={handleCopyAttribution}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             {copiedCitation ? (
               <>
@@ -182,16 +216,17 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
         </div>
       </div>
 
+      {/* Desktop & Tablet Scatter Plot + Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <div className="lg:col-span-8">
-          <div className="relative h-[340px] sm:h-[380px] w-full rounded-xl border border-slate-200 bg-slate-50/70 overflow-hidden select-none">
+        <div className="hidden sm:block lg:col-span-8">
+          <div className="relative h-[370px] lg:h-[400px] w-full rounded-xl border border-slate-200 bg-slate-50/70 overflow-hidden select-none">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:64px_64px] opacity-60 pointer-events-none" />
 
-            <div className="absolute left-2.5 top-3 z-10 rounded bg-white/95 border border-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-800">
+            <div className="absolute left-3 top-3 z-10 rounded bg-white/95 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
               Benchmark Score (Intelligence)
             </div>
 
-            <div className="absolute right-2.5 bottom-2.5 z-10 rounded bg-white/95 border border-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-800">
+            <div className="absolute right-3 bottom-3 z-10 rounded bg-white/95 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
               {mode === 'price'
                 ? 'Blended API Price ($/1M tokens, log scale)'
                 : 'Output Speed (Tokens / Sec)'}
@@ -219,6 +254,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                 hoveredId === pt.model.id ||
                 selectedId === pt.model.id ||
                 activePoint?.model.id === pt.model.id;
+
               return (
                 <button
                   key={pt.model.id}
@@ -237,26 +273,28 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
                       ? `Blended price $${pt.xRaw.toFixed(2)} per 1M`
                       : `Speed ${pt.xRaw} tokens per second`
                   }`}
-                  className={`group absolute z-10 flex min-h-[28px] min-w-[28px] items-center justify-center focus:outline-none ${
-                    isHighlighted ? 'z-20' : ''
+                  className={`group absolute flex min-h-[28px] min-w-[28px] items-center justify-center focus:outline-none ${
+                    isHighlighted ? 'z-30' : pt.isPareto ? 'z-20' : 'z-10'
                   }`}
                 >
                   <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-transform ${
+                    className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 transition-transform shrink-0 ${
                       pt.isPareto
                         ? 'border-emerald-950 bg-emerald-600 shadow-sm'
                         : 'border-slate-700 bg-white'
                     } ${isHighlighted ? 'scale-125 ring-4 ring-emerald-500/25' : ''}`}
                   />
-                  <span
-                    className={`ml-1.5 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-semibold shadow-xs transition-colors ${
-                      pt.isPareto
-                        ? 'bg-emerald-950 text-white'
-                        : 'bg-white/90 text-slate-800 border border-slate-200'
-                    } ${isHighlighted ? 'ring-2 ring-emerald-600' : ''}`}
-                  >
-                    {pt.model.name}
-                  </span>
+                  {pt.isPareto && (
+                    <span
+                      className={`whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-semibold shadow-xs transition-colors ${
+                        pt.labelAbove ? 'mb-6 -ml-3' : 'ml-1.5'
+                      } bg-emerald-950 text-white ${
+                        isHighlighted ? 'ring-2 ring-emerald-600' : ''
+                      }`}
+                    >
+                      {pt.model.name}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -270,7 +308,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3 w-3 rounded-full bg-white border border-slate-700 inline-block" />
-                Other Tracked Models
+                Other Tracked Models (click/tap in list or table to inspect)
               </span>
             </div>
             <span className="text-[11px] text-slate-600">
@@ -279,6 +317,17 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
           </div>
         </div>
 
+        {/* Mobile-Friendly Compact Frontier Summary (< sm) */}
+        <div className="sm:hidden rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
+          <div className="text-xs font-bold text-slate-900">
+            {mode === 'price' ? 'Cost-Efficiency Frontier' : 'Speed-Efficiency Frontier'}
+          </div>
+          <p className="text-xs text-slate-700 leading-relaxed">
+            Tap any model below to inspect its benchmark score, API pricing, and speed without crowded mobile chart labels.
+          </p>
+        </div>
+
+        {/* Inspector & Frontier Summary Card */}
         <div className="lg:col-span-4 space-y-4">
           {activePoint && (
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
@@ -320,7 +369,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
 
               <Link
                 href={`/models/${activePoint.model.slug}`}
-                className="inline-flex min-h-[36px] w-full items-center justify-center rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                className="inline-flex min-h-[38px] w-full items-center justify-center rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
               >
                 Open Full Specs &amp; Cost Calculator -&gt;
               </Link>
@@ -332,17 +381,17 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
               <Sparkles className="w-3.5 h-3.5 text-emerald-800" />
               <span>Pareto Frontier Leaders</span>
             </div>
-            <ul className="space-y-1.5 text-xs">
+            <ul className="space-y-1 text-xs">
               {paretoModels.map((p) => (
-                <li key={p.model.id} className="flex items-center justify-between py-1 border-b border-slate-100 last:border-none">
+                <li key={p.model.id} className="flex items-center justify-between gap-2 py-1 border-b border-slate-100 last:border-none">
                   <button
                     type="button"
                     onClick={() => setSelectedId(p.model.id)}
-                    className="font-semibold text-slate-900 hover:text-emerald-800 text-left"
+                    className="min-h-[32px] font-semibold text-slate-900 hover:text-emerald-800 text-left"
                   >
                     {p.model.name}
                   </button>
-                  <span className="font-mono text-slate-700">
+                  <span className="font-mono text-slate-700 shrink-0">
                     Score {p.model.score.toFixed(1)} ·{' '}
                     {mode === 'price'
                       ? `$${p.xRaw.toFixed(2)}/1M avg`
@@ -353,6 +402,55 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Accessible & GEO-Friendly Data Table for Readers, Screen Readers & AI Crawlers */}
+      <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <table className="w-full text-left border-collapse text-xs">
+          <caption className="sr-only">
+            Pareto frontier comparison table listing benchmark score, blended API token cost per 1 million tokens, generation speed in tokens per second, and frontier status for tracked LLMs.
+          </caption>
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-100 text-slate-800 font-semibold">
+              <th scope="col" className="py-2.5 px-3">Model</th>
+              <th scope="col" className="py-2.5 px-3">Frontier Status</th>
+              <th scope="col" className="py-2.5 px-3">Score</th>
+              <th scope="col" className="py-2.5 px-3">Blended $/1M</th>
+              <th scope="col" className="py-2.5 px-3">Speed (Tok/s)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200/80 font-mono">
+            {plotted
+              .slice()
+              .sort((a, b) => b.yRaw - a.yRaw)
+              .slice(0, 8)
+              .map((pt, idx) => (
+                <tr key={pt.model.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
+                  <th scope="row" className="py-2 px-3 font-sans font-semibold text-slate-900 text-left">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(pt.model.id)}
+                      className="min-h-[32px] hover:text-emerald-800 underline-offset-2 hover:underline text-left"
+                    >
+                      {pt.model.name}
+                    </button>
+                  </th>
+                  <td className="py-2 px-3 font-sans">
+                    {pt.isPareto ? (
+                      <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-900">
+                        Pareto Frontier
+                      </span>
+                    ) : (
+                      <span className="text-slate-600 text-[11px]">Tracked</span>
+                    )}
+                  </td>
+                  <td className="py-2 px-3 font-bold text-slate-900">{pt.model.score.toFixed(1)}</td>
+                  <td className="py-2 px-3 text-slate-800">${pt.xRaw.toFixed(2)}</td>
+                  <td className="py-2 px-3 text-emerald-800 font-semibold">{pt.model.tokPerSec} tok/s</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );
