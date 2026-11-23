@@ -14,12 +14,12 @@ jobs:
       issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Run registry pricing sync & new-model detector
         id: sync
@@ -28,7 +28,7 @@ jobs:
           echo "has_new_models=$(cat /tmp/has-new-models.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Open Pull Request if src/data/models.json pricing changed
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: 'chore(data): auto-sync model pricing in src/data/models.json'
           title: 'chore: automated LLM pricing sync'
@@ -38,7 +38,7 @@ jobs:
 
       - name: Open GitHub Issue when untracked major models appear
         if: steps.sync.outputs.has_new_models == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
