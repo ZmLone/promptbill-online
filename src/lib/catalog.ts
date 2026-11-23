@@ -44,6 +44,8 @@ export interface CatalogModel {
   priceHistory: PriceHistoryEntry[];
 }
 
+export type ModelEntry = CatalogModel;
+
 export interface ComparisonPair {
   slug: string;
   modelA: CatalogModel;
