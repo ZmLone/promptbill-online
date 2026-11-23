@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -10,8 +10,6 @@ import {
   FileText,
   GitBranch,
   Tag,
-  BookOpen,
-  Megaphone,
   Code2,
   Cpu,
   Scale,
@@ -83,6 +81,36 @@ export function SiteShell({
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<'leaderboard' | 'calculator' | 'compare' | 'more'>('leaderboard');
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMoreOpen(false);
+    if (typeof window !== 'undefined' && pathname === '/') {
+      if (window.location.hash === '#billing-calculator-heading') {
+        setActiveMobileTab('calculator');
+      } else {
+        setActiveMobileTab('leaderboard');
+      }
+    } else if (pathname?.startsWith('/compare')) {
+      setActiveMobileTab('compare');
+    } else {
+      setActiveMobileTab('leaderboard');
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onHashChange = () => {
+      if (pathname === '/' && window.location.hash === '#billing-calculator-heading') {
+        setActiveMobileTab('calculator');
+      } else if (pathname === '/') {
+        setActiveMobileTab('leaderboard');
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [pathname]);
 
   const handleCopy = () => {
     if (typeof window === 'undefined') return;
@@ -91,19 +119,54 @@ export function SiteShell({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleMobileCalculatorClick = () => {
+    setMobileMenuOpen(false);
+    setActiveMobileTab('calculator');
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('billing-calculator-heading');
+      if (el) {
+        window.history.replaceState(null, '', '/#billing-calculator-heading');
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleMobileLeaderboardClick = () => {
+    setMobileMenuOpen(false);
+    setActiveMobileTab('leaderboard');
+    if (typeof window !== 'undefined' && pathname === '/') {
+      window.history.replaceState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleMobileMoreToggle = () => {
+    setMobileMenuOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        setActiveMobileTab('more');
+      } else if (pathname?.startsWith('/compare')) {
+        setActiveMobileTab('compare');
+      } else {
+        setActiveMobileTab('leaderboard');
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col pb-24 lg:pb-0">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col pb-28 lg:pb-0 text-[14px] sm:text-[15px] leading-relaxed">
       <header
         className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur"
         onMouseLeave={() => setMoreOpen(false)}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 lg:px-8">
-          <Link href="/" aria-label="PromptBill Home" className="flex items-center gap-2.5 shrink-0 min-h-[44px] pr-1">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 font-mono text-sm font-bold text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3.5 py-2 sm:px-6 lg:px-8">
+          <Link href="/" onClick={handleMobileLeaderboardClick} aria-label="PromptBill Home" className="flex items-center gap-2 shrink-0 min-h-[44px] pr-1">
+            <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-900 font-mono text-xs sm:text-sm font-bold text-white">
               PB
             </span>
             <div>
-              <div className="text-base font-bold tracking-tight text-slate-900 leading-none">
+              <div className="text-sm sm:text-base font-bold tracking-tight text-slate-900 leading-none">
                 PromptBill
               </div>
               <div className="text-[11px] text-slate-600 mt-0.5">promptbill.online</div>
@@ -190,7 +253,7 @@ export function SiteShell({
               type="button"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              onClick={handleMobileMoreToggle}
               className="xl:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-900 hover:bg-slate-100"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -200,7 +263,7 @@ export function SiteShell({
 
         {/* Consolidated Collapsible Mobile/Tablet Drawer */}
         {mobileMenuOpen && (
-          <div className="xl:hidden border-t border-slate-200 bg-white px-4 py-4 shadow-lg max-h-[75vh] overflow-y-auto space-y-5">
+          <div className="xl:hidden border-t border-slate-200 bg-white px-4 py-4 shadow-lg max-h-[72vh] overflow-y-auto space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {MORE_COLUMNS.map((col) => (
                 <div key={col.heading} className="space-y-1.5">
@@ -212,7 +275,11 @@ export function SiteShell({
                       <Link
                         key={lnk.href}
                         href={lnk.href}
-                        onClick={() => setMobileMenuOpen(false)}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          if (lnk.href.startsWith('/compare')) setActiveMobileTab('compare');
+                          else setActiveMobileTab('leaderboard');
+                        }}
                         className="flex min-h-[44px] items-center rounded-lg bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-100"
                       >
                         {lnk.label}
@@ -226,12 +293,12 @@ export function SiteShell({
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
-        <div className="border-b border-slate-200 pb-4 sm:pb-5">
-          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800 break-all">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-5 sm:space-y-6 px-3.5 py-4 sm:py-8 sm:px-6 lg:px-8">
+        <div className="border-b border-slate-200 pb-3 sm:pb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800 break-words">
             {subtitle}
           </p>
-          <h1 className="mt-1 text-xl sm:text-3xl font-bold tracking-tight text-slate-900 leading-snug">
+          <h1 className="mt-1 text-lg sm:text-3xl font-bold tracking-tight text-slate-900 leading-snug">
             {title}
           </h1>
         </div>
@@ -261,16 +328,20 @@ export function SiteShell({
         </div>
       </footer>
 
-      {/* Mobile Bottom 4-Tab Bar (Leaderboard, Calculator, Compare, More) */}
+      {/* Mobile Bottom 4-Tab Bar: Instant Feedback, Single Active Highlight, Never Sticks on "More" */}
       <nav
         aria-label="Mobile Quick Navigation"
         className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur px-2 py-1.5 shadow-lg"
       >
         <div className="mx-auto grid max-w-lg grid-cols-4 gap-2">
           <Link
-            href="/#leaderboard-heading"
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
-              pathname === '/' ? 'text-emerald-800 bg-emerald-50/80' : 'text-slate-700 hover:bg-slate-100'
+            href="/"
+            prefetch={true}
+            onClick={handleMobileLeaderboardClick}
+            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+              activeMobileTab === 'leaderboard'
+                ? 'bg-emerald-800 text-white'
+                : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <ArrowUpDown className="w-4 h-4 mb-0.5" />
@@ -279,7 +350,13 @@ export function SiteShell({
 
           <Link
             href="/#billing-calculator-heading"
-            className="flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+            prefetch={true}
+            onClick={handleMobileCalculatorClick}
+            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+              activeMobileTab === 'calculator'
+                ? 'bg-emerald-800 text-white'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
           >
             <Calculator className="w-4 h-4 mb-0.5" />
             <span>Calculator</span>
@@ -287,8 +364,15 @@ export function SiteShell({
 
           <Link
             href="/compare"
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
-              pathname?.startsWith('/compare') ? 'text-emerald-800 bg-emerald-50/80' : 'text-slate-700 hover:bg-slate-100'
+            prefetch={true}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setActiveMobileTab('compare');
+            }}
+            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+              activeMobileTab === 'compare'
+                ? 'bg-emerald-800 text-white'
+                : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <Scale className="w-4 h-4 mb-0.5" />
@@ -297,9 +381,11 @@ export function SiteShell({
 
           <button
             type="button"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
-              mobileMenuOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'
+            onClick={handleMobileMoreToggle}
+            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+              activeMobileTab === 'more' && mobileMenuOpen
+                ? 'bg-emerald-800 text-white'
+                : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <Menu className="w-4 h-4 mb-0.5" />

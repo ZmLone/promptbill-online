@@ -76,27 +76,31 @@ export default function CompareHubPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionAndFaqJsonLd) }}
       />
 
-      <div className="space-y-6">
-        {/* Server-rendered 150-200 word editorial methodology intro to prevent thin/link-farm signals */}
-        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-3">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900">
-            How PromptBill Evaluates Head-to-Head LLM Matchups
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-            Choosing between two frontier or open-weight models requires looking beyond a single benchmark headline. On PromptBill, every head-to-head comparison pairs composite benchmark scores and Elo ratings with granular category signals across agentic workflows (AG), coding (CO), reasoning (RE), multimodal tasks (MM), knowledge (KN), multilingual coverage (ML), instruction following (IF), and math (MA). Because real production prompts typically generate fewer output tokens than input tokens, our cost analysis highlights both raw per-1M input/output token rates and a 3:1 input-to-output blended pricing baseline alongside generation speed in tokens per second (tok/s). Comparing two models side by side helps engineering teams spot cases where a slightly lower-priced or faster model matches quality requirements at a fraction of monthly API spend, while reserving flagship reasoning models for high-complexity tasks. To keep search equity consolidated, each pair maps to one canonical matchup URL while letting you swap Model A and Model B immediately.
-          </p>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Compact Collapsible Methodology Intro on Mobile; Full Readability for SEO & GEO */}
+        <section className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-6">
+          <details className="group">
+            <summary className="cursor-pointer min-h-[36px] flex items-center justify-between gap-2 text-sm sm:text-lg font-bold text-slate-900 list-none">
+              <span>How PromptBill Evaluates Head-to-Head LLM Matchups</span>
+              <span className="text-xs font-semibold text-emerald-800 group-open:hidden">Tap to read</span>
+              <span className="hidden text-xs font-semibold text-slate-600 group-open:inline">Hide</span>
+            </summary>
+            <p className="mt-2.5 text-[13px] sm:text-sm text-slate-700 leading-relaxed">
+              Choosing between two frontier or open-weight models requires looking beyond a single benchmark headline. On PromptBill, every head-to-head comparison pairs composite benchmark scores and Elo ratings with granular category signals across agentic workflows (AG), coding (CO), reasoning (RE), multimodal tasks (MM), knowledge (KN), multilingual coverage (ML), instruction following (IF), and math (MA). Because real production prompts typically generate fewer output tokens than input tokens, our cost analysis highlights both raw per-1M input/output token rates and a 3:1 input-to-output blended pricing baseline alongside generation speed in tokens per second (tok/s). Comparing two models side by side helps engineering teams spot cases where a slightly lower-priced or faster model matches quality requirements at a fraction of monthly API spend, while reserving flagship reasoning models for high-complexity tasks. To keep search equity consolidated, each pair maps to one canonical matchup URL while letting you swap Model A and Model B immediately.
+            </p>
+          </details>
         </section>
 
         {/* Interactive Picker, Curated Intent Cards & Full Crawlable Matchup Directory */}
         <CompareHubClient models={ALL_MODELS} pairs={allPairs} />
 
         {/* GEO: Key Comparison Takeaways + FAQ Section */}
-        <section aria-labelledby="comparison-takeaways-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
+        <section aria-labelledby="comparison-takeaways-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
           <div className="space-y-2">
-            <h2 id="comparison-takeaways-heading" className="text-lg font-bold text-slate-900">
+            <h2 id="comparison-takeaways-heading" className="text-base sm:text-lg font-bold text-slate-900">
               Key Comparison Takeaways (November 2026)
             </h2>
-            <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-800 leading-relaxed">
+            <ul className="list-disc pl-5 space-y-1.5 text-[13px] sm:text-sm text-slate-800 leading-relaxed">
               <li>
                 <strong>Frontier Intelligence vs. Cost:</strong> Claude Fable 5.2 leads overall composite score (93.3) at $8.00/$40.00 per 1M tokens and 109 tok/s, while Gemini 4 Neon (91.3) and GPT-6.2 Astra compete closely at the top end.
               </li>
@@ -112,13 +116,13 @@ export default function CompareHubPage() {
             </ul>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 space-y-3">
-            <h3 className="text-base font-bold text-slate-900">
+          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+            <h3 className="text-sm sm:text-base font-bold text-slate-900">
               Frequently Asked Questions About LLM Matchups
             </h3>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {faqItems.map((item) => (
-                <details key={item.q} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm">
+                <details key={item.q} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[13px] sm:text-sm">
                   <summary className="cursor-pointer font-semibold text-slate-900 min-h-[28px] flex items-center">
                     {item.q}
                   </summary>
