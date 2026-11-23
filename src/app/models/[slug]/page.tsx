@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ALL_MODELS, getModelBySlug } from '../../../lib/catalog';
 import { SiteShell } from '../../../components/SiteShell';
 import { ModelDetailCalculator } from '../../../components/ModelDetailCalculator';
+import { REGISTRY_SNAPSHOT, computeDerivedMetrics } from '../../../lib/modelRegistry';
 
 export function generateStaticParams() {
   return ALL_MODELS.map((m) => ({ slug: m.slug }));
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const model = getModelBySlug(slug);
   if (!model) return { title: 'Model Not Found - PromptBill' };
-  const title = `${model.name} API Pricing, Prompt Caching, Batch & Cost Calculator (Nov 2026)`;
+  const period = REGISTRY_SNAPSHOT.generatedMonthYear;
+  const title = `${model.name} API Pricing, Prompt Caching, Batch & Cost Calculator (${period})`;
   const description = `${model.name} (${model.provider}) benchmarks, ${model.contextWindow} context window, cache read ($${model.cachedInputPer1M.toFixed(2)}/1M) & write rates, batch API discount, and cost calculator.`;
   return {
     title,
@@ -28,7 +30,10 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
   const model = getModelBySlug(slug);
   if (!model) notFound();
 
+  const period = REGISTRY_SNAPSHOT.generatedMonthYear;
+  const derived = computeDerivedMetrics(model.score, model.inputPer1M, model.outputPer1M, model.tokPerSec);
   const estimatedCacheWritePer1M = model.inputPer1M * 1.25;
+  const legacyUpgrade = REGISTRY_SNAPSHOT.legacyUpgrades[model.slug];
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -36,6 +41,7 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
     name: model.name,
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'API / Cloud',
+    dateModified: REGISTRY_SNAPSHOT.lastModifiedIso,
     url: `https://promptbill.online/models/${model.slug}`,
     provider: {
       '@type': 'Organization',
@@ -51,8 +57,8 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <SiteShell
-      title={`${model.name} - Benchmarks, Specs, Price History & Cost Calculator`}
-      subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}
+      title={`${model.name} - Benchmarks, Specs, Price History & Cost Calculator (${period})`}
+      subtitle={`promptbill.online/models/${model.slug} · ${model.provider} · Updated ${period}`}
     >
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
         <script
@@ -60,13 +66,33 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
+        {legacyUpgrade && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <span className="inline-block rounded bg-amber-900 px-2 py-0.5 text-[11px] font-bold text-white">
+                {legacyUpgrade.status}
+              </span>
+              <p className="font-medium leading-relaxed">
+                <strong>Recommended Upgrade:</strong> {legacyUpgrade.summary}
+              </p>
+            </div>
+            <Link
+              href={`/models/${legacyUpgrade.successorSlug}`}
+              className="inline-flex min-h-[40px] shrink-0 items-center justify-center rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              View {legacyUpgrade.successorName} -&gt;
+            </Link>
+          </div>
+        )}
+
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed space-y-2">
           <p>
             <strong>{model.name}</strong> ({model.provider}) ranks <strong>#{model.rank}</strong> with a score of{' '}
-            <strong>{model.score.toFixed(1)}</strong>, <strong>{model.contextWindow}</strong> context window,{' '}
+            <strong>{model.score.toFixed(1)}</strong> (<strong>{derived.valueRatio} Score/$</strong> · blended{' '}
+            <strong>${derived.blendedPricePer1M.toFixed(2)}/1M</strong>), <strong>{model.contextWindow}</strong> context window,{' '}
             <strong>{model.tokPerSec} tok/s</strong> speed, and API pricing of{' '}
             <strong>${model.inputPer1M.toFixed(2)} / 1M input</strong> and{' '}
-            <strong>${model.outputPer1M.toFixed(2)} / 1M output</strong>.
+            <strong>${model.outputPer1M.toFixed(2)} / 1M output</strong> ({model.evidence}).
           </p>
           <p className="text-xs text-slate-700">
             <strong>Caching, Batch &amp; Context Tier Summary:</strong> Cached input reads start at{' '}
