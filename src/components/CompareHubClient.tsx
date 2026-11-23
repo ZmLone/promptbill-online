@@ -47,7 +47,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
     router.push(`/compare/${canonicalSlug}`);
   };
 
-  // Curated intent-grouped matchups
   const curatedGroups = useMemo(() => {
     const findPair = (a: string, b: string) => {
       const targetCanonical = buildCanonicalPairSlug(a, b, models);
@@ -79,7 +78,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
 
   const providerPills = ['All', 'Anthropic', 'Google', 'OpenAI', 'DeepSeek', 'Qwen'];
 
-  // Group all 190 pairs by primary model (modelA) while keeping every <a> in initial HTML
   const groupedByPrimaryModel = useMemo(() => {
     const map = new Map<string, { primaryModel: CatalogModelItem; items: ComparisonPairItem[] }>();
     for (const pair of pairs) {
@@ -121,6 +119,7 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
       <Link
         key={pair.slug}
         href={`/compare/${canonicalSlug}`}
+        prefetch={true}
         className="group rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 hover:border-emerald-600 hover:bg-emerald-50/40 transition-colors flex flex-col justify-between gap-2.5"
       >
         <div className="space-y-1">
@@ -146,8 +145,8 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
 
   return (
     <div className="space-y-6">
-      {/* 1. Sticky Instant Matchup Picker Right Under the Editorial Intro */}
-      <div className="sticky top-16 z-20 rounded-xl border border-slate-300 bg-white/95 backdrop-blur p-4 shadow-sm">
+      {/* Static on mobile (< md), sticky on PC/desktop (md:sticky md:top-16) */}
+      <div className="relative md:sticky md:top-16 z-20 rounded-xl border border-slate-300 bg-white/95 md:backdrop-blur p-4 shadow-sm">
         <form onSubmit={handleCompareNow} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           <label className="md:col-span-5 space-y-1 text-xs">
             <span className="font-semibold text-slate-800 block">Select Model A</span>
@@ -194,7 +193,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
         </form>
       </div>
 
-      {/* 2. Curated "Popular & Trending Matchups" Grouped by Intent */}
       <section aria-labelledby="curated-matchups-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-emerald-800" />
@@ -224,7 +222,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
         </div>
       </section>
 
-      {/* 3. Full Directory (190 Matchups) — All Links Rendered in Initial HTML, Grouped by Model & Filterable */}
       <section aria-labelledby="all-matchups-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -246,7 +243,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
           />
         </div>
 
-        {/* Provider Quick-Filter Pill Bar */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 text-xs">
           <span className="inline-flex items-center gap-1 font-semibold text-slate-700 mr-1">
             <Filter className="w-3.5 h-3.5" />
@@ -271,7 +267,6 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
           })}
         </div>
 
-        {/* Collapsible <details> Groups by Primary Model: all 190 <a> tags remain in initial SSR/HTML */}
         <div className="space-y-3">
           {groupedByPrimaryModel.map(({ primaryModel, items }, groupIndex) => {
             const hasMatchingItems = items.some(isPairVisibleByFilter);

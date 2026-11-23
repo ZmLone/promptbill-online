@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ArrowUpDown,
   Calculator,
@@ -78,10 +78,17 @@ export function SiteShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeMobileTab, setActiveMobileTab] = useState<'leaderboard' | 'calculator' | 'compare' | 'more'>('leaderboard');
+
+  useEffect(() => {
+    router.prefetch('/');
+    router.prefetch('/compare');
+    router.prefetch('/pricing');
+  }, [router]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -119,25 +126,32 @@ export function SiteShell({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleMobileCalculatorClick = () => {
+  const handleMobileCalculatorPress = (e: React.MouseEvent | React.PointerEvent) => {
     setMobileMenuOpen(false);
     setActiveMobileTab('calculator');
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && pathname === '/') {
+      e.preventDefault();
       const el = document.getElementById('billing-calculator-heading');
       if (el) {
         window.history.replaceState(null, '', '/#billing-calculator-heading');
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: 'auto' });
       }
     }
   };
 
-  const handleMobileLeaderboardClick = () => {
+  const handleMobileLeaderboardPress = (e: React.MouseEvent | React.PointerEvent) => {
     setMobileMenuOpen(false);
     setActiveMobileTab('leaderboard');
     if (typeof window !== 'undefined' && pathname === '/') {
+      e.preventDefault();
       window.history.replaceState(null, '', '/');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
+  };
+
+  const handleMobileComparePress = () => {
+    setMobileMenuOpen(false);
+    setActiveMobileTab('compare');
   };
 
   const handleMobileMoreToggle = () => {
@@ -161,7 +175,7 @@ export function SiteShell({
         onMouseLeave={() => setMoreOpen(false)}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3.5 py-2 sm:px-6 lg:px-8">
-          <Link href="/" onClick={handleMobileLeaderboardClick} aria-label="PromptBill Home" className="flex items-center gap-2 shrink-0 min-h-[44px] pr-1">
+          <Link href="/" prefetch={true} onClick={handleMobileLeaderboardPress} aria-label="PromptBill Home" className="flex items-center gap-2 shrink-0 min-h-[44px] pr-1">
             <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-900 font-mono text-xs sm:text-sm font-bold text-white">
               PB
             </span>
@@ -181,6 +195,7 @@ export function SiteShell({
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 transition-colors ${
                     active
                       ? 'bg-slate-900 text-white'
@@ -216,6 +231,7 @@ export function SiteShell({
                           <li key={lnk.label}>
                             <Link
                               href={lnk.href}
+                              prefetch={true}
                               onClick={() => setMoreOpen(false)}
                               className="flex min-h-[36px] items-center rounded-md px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 hover:text-slate-900 font-medium"
                             >
@@ -244,6 +260,7 @@ export function SiteShell({
 
             <Link
               href="/deals"
+              prefetch={true}
               className="hidden sm:inline-flex min-h-[44px] items-center rounded-lg bg-emerald-800 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-900"
             >
               Deals
@@ -261,7 +278,6 @@ export function SiteShell({
           </div>
         </div>
 
-        {/* Consolidated Collapsible Mobile/Tablet Drawer */}
         {mobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200 bg-white px-4 py-4 shadow-lg max-h-[72vh] overflow-y-auto space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -275,6 +291,7 @@ export function SiteShell({
                       <Link
                         key={lnk.href}
                         href={lnk.href}
+                        prefetch={true}
                         onClick={() => {
                           setMobileMenuOpen(false);
                           if (lnk.href.startsWith('/compare')) setActiveMobileTab('compare');
@@ -311,13 +328,13 @@ export function SiteShell({
             PromptBill (<a href="https://promptbill.online" className="underline">https://promptbill.online</a>) · All rights reserved
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2">
-            <Link href="/" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Leaderboard</Link>
-            <Link href="/compare" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Compare Hub</Link>
-            <Link href="/models" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">All Models</Link>
-            <Link href="/pricing" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">API Pricing</Link>
-            <Link href="/about" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">About</Link>
-            <Link href="/contact" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Contact</Link>
-            <Link href="/privacy-policy" className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Privacy Policy</Link>
+            <Link href="/" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Leaderboard</Link>
+            <Link href="/compare" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Compare Hub</Link>
+            <Link href="/models" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">All Models</Link>
+            <Link href="/pricing" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">API Pricing</Link>
+            <Link href="/about" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">About</Link>
+            <Link href="/contact" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Contact</Link>
+            <Link href="/privacy-policy" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Privacy Policy</Link>
             <a href="/sitemap.xml" className="inline-flex min-h-[44px] items-center gap-1 px-2.5 py-2 hover:text-slate-950">
               Sitemap <ExternalLink className="w-3 h-3" />
             </a>
@@ -328,7 +345,6 @@ export function SiteShell({
         </div>
       </footer>
 
-      {/* Mobile Bottom 4-Tab Bar: Instant Feedback, Single Active Highlight, Never Sticks on "More" */}
       <nav
         aria-label="Mobile Quick Navigation"
         className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur px-2 py-1.5 shadow-lg"
@@ -337,8 +353,9 @@ export function SiteShell({
           <Link
             href="/"
             prefetch={true}
-            onClick={handleMobileLeaderboardClick}
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+            onPointerDown={() => setActiveMobileTab('leaderboard')}
+            onClick={handleMobileLeaderboardPress}
+            className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
               activeMobileTab === 'leaderboard'
                 ? 'bg-emerald-800 text-white'
                 : 'text-slate-700 hover:bg-slate-100'
@@ -351,8 +368,9 @@ export function SiteShell({
           <Link
             href="/#billing-calculator-heading"
             prefetch={true}
-            onClick={handleMobileCalculatorClick}
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+            onPointerDown={() => setActiveMobileTab('calculator')}
+            onClick={handleMobileCalculatorPress}
+            className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
               activeMobileTab === 'calculator'
                 ? 'bg-emerald-800 text-white'
                 : 'text-slate-700 hover:bg-slate-100'
@@ -365,11 +383,9 @@ export function SiteShell({
           <Link
             href="/compare"
             prefetch={true}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              setActiveMobileTab('compare');
-            }}
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+            onPointerDown={() => setActiveMobileTab('compare')}
+            onClick={handleMobileComparePress}
+            className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
               activeMobileTab === 'compare'
                 ? 'bg-emerald-800 text-white'
                 : 'text-slate-700 hover:bg-slate-100'
@@ -381,8 +397,11 @@ export function SiteShell({
 
           <button
             type="button"
+            onPointerDown={() => {
+              if (!mobileMenuOpen) setActiveMobileTab('more');
+            }}
             onClick={handleMobileMoreToggle}
-            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold transition-colors ${
+            className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
               activeMobileTab === 'more' && mobileMenuOpen
                 ? 'bg-emerald-800 text-white'
                 : 'text-slate-700 hover:bg-slate-100'
