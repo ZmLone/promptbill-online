@@ -43,7 +43,7 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
   return (
     <SiteShell title={`${modelA.name} vs ${modelB.name} — API Pricing, Tok/s, Elo & Benchmarks`} subtitle={`promptbill.online/compare/${modelA.slug}-vs-${modelB.slug}`}>
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed">
+        <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-xs sm:text-sm text-slate-900 leading-relaxed">
           <strong>{modelA.name}</strong> ({modelA.provider}) scores <strong>{modelA.score.toFixed(1)}</strong> at <strong>${modelA.inputPer1M.toFixed(2)}/${modelA.outputPer1M.toFixed(2)}</strong> per 1M tokens and <strong>{modelA.tokPerSec} tok/s</strong>, compared to <strong>{modelB.name}</strong> ({modelB.provider}) scoring <strong>{modelB.score.toFixed(1)}</strong> at <strong>${modelB.inputPer1M.toFixed(2)}/${modelB.outputPer1M.toFixed(2)}</strong> per 1M tokens and <strong>{modelB.tokPerSec} tok/s</strong>.
         </div>
 
@@ -53,28 +53,28 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
               Side-by-side comparison of {modelA.name} and {modelB.name} across composite score, Elo rating, API token prices, generation speed, context window, and benchmark categories.
             </caption>
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-100/90 text-xs sm:text-sm font-semibold text-slate-800">
+              <tr className="border-b border-slate-200 bg-slate-100 text-xs sm:text-sm font-semibold text-slate-900">
                 <th scope="col" className="py-3 px-3.5">Metric</th>
                 <th scope="col" className="py-3 px-3.5">
-                  <Link href={`/models/${modelA.slug}`} className="font-bold text-slate-900 underline">
+                  <Link href={`/models/${modelA.slug}`} className="inline-flex min-h-[36px] items-center font-bold text-slate-900 underline hover:text-emerald-800">
                     {modelA.name}
                   </Link>
                 </th>
                 <th scope="col" className="py-3 px-3.5">
-                  <Link href={`/models/${modelB.slug}`} className="font-bold text-slate-900 underline">
+                  <Link href={`/models/${modelB.slug}`} className="inline-flex min-h-[36px] items-center font-bold text-slate-900 underline hover:text-emerald-800">
                     {modelB.name}
                   </Link>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200/80 text-xs sm:text-sm font-mono">
+            <tbody className="divide-y divide-slate-200 text-xs sm:text-sm font-mono">
               {rows.map((r, idx) => (
-                <tr key={r.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
-                  <th scope="row" className="py-3 px-3.5 font-sans font-medium text-slate-700 text-left">
+                <tr key={r.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                  <th scope="row" className="py-3 px-3.5 font-sans font-medium text-slate-800 text-left">
                     {r.label}
                   </th>
-                  <td className="py-3 px-3.5 text-slate-900">{r.aVal}</td>
-                  <td className="py-3 px-3.5 text-slate-900">{r.bVal}</td>
+                  <td className="py-3 px-3.5 text-slate-950">{r.aVal}</td>
+                  <td className="py-3 px-3.5 text-slate-950">{r.bVal}</td>
                 </tr>
               ))}
             </tbody>
