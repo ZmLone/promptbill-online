@@ -3,7 +3,7 @@ import { ALL_MODELS, getAllProviderSlugs, getAutoComparisonPairs } from '../lib/
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://promptbill.online';
-  const lastModified = new Date('2026-11-21');
+  const lastModified = new Date('2026-11-23');
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified, changeFrequency: 'daily', priority: 1.0 },
@@ -19,7 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/tools/routing-simulator`, lastModified, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/deals`, lastModified, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/methodology`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/advertise`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/about`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/contact`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/privacy-policy`, lastModified, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/advertise`, lastModified, changeFrequency: 'monthly', priority: 0.6 },
   ];
 
   const modelRoutes: MetadataRoute.Sitemap = ALL_MODELS.map((m) => ({
