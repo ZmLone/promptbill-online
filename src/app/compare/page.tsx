@@ -6,9 +6,9 @@ import { SiteShell } from '../../components/SiteShell';
 import { CompareHubClient } from '../../components/CompareHubClient';
 
 export const metadata: Metadata = {
-  title: 'Head-to-Head LLM Comparisons (A vs B) — Benchmarks, Pricing & Speed',
+  title: 'Head-to-Head LLM Comparisons (A vs B) — Pricing, Speed & Benchmarks',
   description:
-    'Compare LLMs head-to-head across benchmark scores, Elo ratings, 3:1 blended API pricing, prompt caching, and tokens/sec on PromptBill.',
+    'Compare tracked LLMs side by side across benchmark scores, official API token pricing per 1M tokens, context windows, and tokens per second on PromptBill.',
   alternates: {
     canonical: 'https://promptbill.online/compare',
   },
@@ -19,16 +19,16 @@ export default function CompareHubPage() {
 
   const faqItems = [
     {
-      q: 'How does PromptBill calculate head-to-head API cost differences?',
-      a: 'PromptBill evaluates blended token cost using a realistic 3:1 input-to-output token mix alongside raw per-1M input and output rates, cached input discounts, batch API pricing, and tokens-per-second throughput so engineers can compare total workload cost rather than headline sticker price alone.',
+      q: 'How should I interpret head-to-head model comparisons on PromptBill?',
+      a: 'Compare official input, cached input, and output token prices per 1M tokens alongside available benchmark scores, context windows, and throughput (tok/s) for your specific prompt mix. Missing or unverified fields are shown as N/A rather than guessed.',
     },
     {
-      q: 'Why do Model A vs. Model B and Model B vs. Model A share one canonical URL?',
-      a: 'To prevent duplicate content and split ranking signals, every model pair resolves to a single canonical comparison slug ordered by higher benchmark rank first, while supporting instant model swapping inside the comparison tool.',
+      q: 'Why do Model A vs. Model B and Model B vs. Model A resolve to one canonical comparison URL?',
+      a: 'Each model pair uses a single canonical comparison slug so search indexing and comparison links remain consistent while allowing visitors to inspect both models side by side.',
     },
     {
-      q: 'Which LLMs lead flagship reasoning and budget coding in November 2026?',
-      a: 'On PromptBill rankings, Claude Fable 5.2 leads composite intelligence (93.3), Gemini 4 Neon (91.3) and GPT-6.2 Astra compete at the frontier tier, while DeepSeek V4.1 Flash, Qwen 3.7 Flash, Claude Sonnet 5.5, and Gemini 4 Carbon anchor high-value coding and cost-efficient workloads.',
+      q: 'Does a lower per-token price or higher benchmark score guarantee the best result for my app?',
+      a: 'No. Actual cost and output quality depend on your prompt structure, token lengths, caching behavior, and task evaluation on your own test cases.',
     },
   ];
 
@@ -40,11 +40,11 @@ export default function CompareHubPage() {
         name: 'PromptBill Head-to-Head LLM Comparison Hub',
         url: 'https://promptbill.online/compare',
         description:
-          'Directory of head-to-head LLM matchups comparing composite scores, category benchmarks, Elo ratings, blended API costs, and output speed.',
+          'Directory of head-to-head LLM matchups comparing benchmark scores, official API pricing, context windows, and throughput.',
       },
       {
         '@type': 'ItemList',
-        name: 'Top Curated Head-to-Head LLM Matchups',
+        name: 'Head-to-Head LLM Matchups',
         itemListElement: allPairs.slice(0, 12).map((pair, index) => ({
           '@type': 'ListItem',
           position: index + 1,
@@ -69,7 +69,7 @@ export default function CompareHubPage() {
   return (
     <SiteShell
       title="Head-to-Head LLM Comparisons (A vs B)"
-      subtitle="promptbill.online/compare · Benchmarks, 3:1 Blended Pricing, Elo & Speed"
+      subtitle="promptbill.online/compare · Official API Pricing, Benchmarks & Speed"
     >
       <script
         type="application/ld+json"
@@ -77,41 +77,45 @@ export default function CompareHubPage() {
       />
 
       <div className="space-y-4 sm:space-y-6">
-        {/* Compact Collapsible Methodology Intro on Mobile; Full Readability for SEO & GEO */}
         <section className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-6">
           <details className="group">
             <summary className="cursor-pointer min-h-[36px] flex items-center justify-between gap-2 text-sm sm:text-lg font-bold text-slate-900 list-none">
-              <span>How PromptBill Evaluates Head-to-Head LLM Matchups</span>
-              <span className="text-xs font-semibold text-emerald-800 group-open:hidden">Tap to read</span>
+              <span>How PromptBill Structures Head-to-Head LLM Comparisons</span>
+              <span className="text-xs font-semibold text-emerald-800 group-open:hidden">Read notes</span>
               <span className="hidden text-xs font-semibold text-slate-600 group-open:inline">Hide</span>
             </summary>
             <p className="mt-2.5 text-[13px] sm:text-sm text-slate-700 leading-relaxed">
-              Choosing between two frontier or open-weight models requires looking beyond a single benchmark headline. On PromptBill, every head-to-head comparison pairs composite benchmark scores and Elo ratings with granular category signals across agentic workflows (AG), coding (CO), reasoning (RE), multimodal tasks (MM), knowledge (KN), multilingual coverage (ML), instruction following (IF), and math (MA). Because real production prompts typically generate fewer output tokens than input tokens, our cost analysis highlights both raw per-1M input/output token rates and a 3:1 input-to-output blended pricing baseline alongside generation speed in tokens per second (tok/s). Comparing two models side by side helps engineering teams spot cases where a slightly lower-priced or faster model matches quality requirements at a fraction of monthly API spend, while reserving flagship reasoning models for high-complexity tasks. To keep search equity consolidated, each pair maps to one canonical matchup URL while letting you swap Model A and Model B immediately.
+              Every comparison page pairs two models from the PromptBill catalog across official input, cached input, and output token pricing per 1M tokens, context window, recorded throughput (tok/s), and benchmark metrics where available. Unverified or missing fields are displayed as N/A rather than filled in with synthetic defaults. See{' '}
+              <Link href="/methodology" className="font-semibold text-emerald-800 underline">
+                Methodology
+              </Link>{' '}
+              for provenance details and workload caveats.
             </p>
           </details>
         </section>
 
-        {/* Interactive Picker, Curated Intent Cards & Full Crawlable Matchup Directory */}
         <CompareHubClient models={ALL_MODELS} pairs={allPairs} />
 
-        {/* GEO: Key Comparison Takeaways + FAQ Section */}
-        <section aria-labelledby="comparison-takeaways-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <section
+          aria-labelledby="comparison-takeaways-heading"
+          className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4 sm:space-y-5"
+        >
           <div className="space-y-2">
-            <h2 id="comparison-takeaways-heading" className="text-base sm:text-lg font-bold text-slate-900">
-              Key Comparison Takeaways (November 2026)
+            <h2
+              id="comparison-takeaways-heading"
+              className="text-base sm:text-lg font-bold text-slate-900"
+            >
+              Comparison Notes &amp; Limitations
             </h2>
             <ul className="list-disc pl-5 space-y-1.5 text-[13px] sm:text-sm text-slate-800 leading-relaxed">
               <li>
-                <strong>Frontier Intelligence vs. Cost:</strong> Claude Fable 5.2 leads overall composite score (93.3) at $8.00/$40.00 per 1M tokens and 109 tok/s, while Gemini 4 Neon (91.3) and GPT-6.2 Astra compete closely at the top end.
+                <strong>Official vs. Router Rates:</strong> Head-to-head pages reference each model&apos;s official API pricing fields where recorded; third-party router or inference host rates can differ.
               </li>
               <li>
-                <strong>Budget Coding &amp; High-Volume Pipelines:</strong> DeepSeek V4.1 Flash and Qwen 3.7 Flash deliver dramatic token cost reductions for high-throughput tasks, whereas Claude Sonnet 5.5 and Gemini 4 Carbon balance strong coding/reasoning with moderate pricing.
+                <strong>Workload Sensitivity:</strong> Monthly spend depends on your input-to-output token ratio, prompt caching behavior, retries, and batch usage rather than list price alone.
               </li>
               <li>
-                <strong>Latency &amp; Throughput Trade-Offs:</strong> High-speed models (150+ tok/s) cut streaming wait times in interactive agents and voice/UI pipelines, whereas higher output token prices multiply bills fast on verbose generations.
-              </li>
-              <li>
-                <strong>Single Canonical Matchups:</strong> Every A-vs-B and B-vs-A pair resolves to one canonical comparison page so benchmarks, pricing tables, and calculator inputs stay unified.
+                <strong>Speed &amp; Benchmark Caveats:</strong> Throughput (tok/s) and benchmark scores are workload-dependent and should be validated against your own prompts.
               </li>
             </ul>
           </div>
@@ -122,7 +126,10 @@ export default function CompareHubPage() {
             </h3>
             <div className="space-y-2">
               {faqItems.map((item) => (
-                <details key={item.q} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[13px] sm:text-sm">
+                <details
+                  key={item.q}
+                  className="rounded-lg border border-slate-200 bg-slate-50/60 p-3 text-[13px] sm:text-sm"
+                >
                   <summary className="cursor-pointer font-semibold text-slate-900 min-h-[28px] flex items-center">
                     {item.q}
                   </summary>
@@ -133,11 +140,17 @@ export default function CompareHubPage() {
           </div>
 
           <div className="pt-2 flex flex-wrap gap-3 text-xs font-semibold">
-            <Link href="/pricing" className="inline-flex min-h-[40px] items-center text-emerald-800 underline">
-              Open Full API Cost Calculator -&gt;
+            <Link
+              href="/pricing"
+              className="inline-flex min-h-[40px] items-center text-emerald-800 underline"
+            >
+              View API Pricing -&gt;
             </Link>
-            <Link href="/tools/routing-simulator" className="inline-flex min-h-[40px] items-center text-slate-800 underline">
-              Simulate Hybrid Routing Savings -&gt;
+            <Link
+              href="/tools/routing-simulator"
+              className="inline-flex min-h-[40px] items-center text-slate-800 underline"
+            >
+              Open Routing Simulator -&gt;
             </Link>
           </div>
         </section>
