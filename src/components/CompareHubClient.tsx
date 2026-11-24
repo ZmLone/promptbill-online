@@ -14,6 +14,18 @@ interface CompareHubClientProps {
   pairs: readonly ComparisonPairItem[];
 }
 
+function fmtScore(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : 'N/A';
+}
+
+function fmtPrice(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+}
+
+function fmtSpeed(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `${val} tok/s` : 'N/A';
+}
+
 function buildCanonicalPairSlug(
   slugA: string,
   slugB: string,
@@ -35,18 +47,6 @@ function buildCanonicalPairSlug(
   return [slugA, slugB].sort()[0] === slugA
     ? `${slugA}-vs-${slugB}`
     : `${slugB}-vs-${slugA}`;
-}
-
-function fmtScore(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : 'N/A';
-}
-
-function fmtPrice(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
-}
-
-function fmtSpeed(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? `${val} tok/s` : 'N/A';
 }
 
 export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pairs }) => {

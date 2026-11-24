@@ -26,6 +26,14 @@ interface LlmSelectorClientProps {
   models: readonly SelectorModel[];
 }
 
+function fmtNum(val: number | null, digits = 1): string {
+  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(digits) : 'N/A';
+}
+
+function fmtPrice(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+}
+
 function buildCanonicalCompareSlug(
   slugA: string,
   slugB: string,
@@ -221,10 +229,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         accent: 'border-emerald-300 bg-emerald-50/70 text-emerald-950',
         badgeClass: 'bg-emerald-800 text-white',
         item: byQuality,
-        metricNote:
-          byQuality.model.score !== null
-            ? `Score ${byQuality.model.score.toFixed(1)} (${byQuality.model.benchmarkProvenance.status})`
-            : 'Score: N/A',
+        metricNote: `Score ${fmtNum(byQuality.model.score, 1)} (${byQuality.model.benchmarkProvenance.status})`,
       },
       {
         badge: 'Highest Score/$ Ratio',
@@ -232,10 +237,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         accent: 'border-slate-300 bg-slate-50/80 text-slate-900',
         badgeClass: 'bg-slate-900 text-white',
         item: byValue,
-        metricNote:
-          byValue.scorePerDollar !== null
-            ? `${byValue.scorePerDollar.toFixed(1)} Score/$`
-            : 'Score/$: N/A',
+        metricNote: `${fmtNum(byValue.scorePerDollar, 1)} Score/$ · ${fmtPrice(byValue.model.inputPer1M)}/${fmtPrice(byValue.model.outputPer1M)}`,
       },
       {
         badge: 'Fastest Listed Speed',
@@ -243,10 +245,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         accent: 'border-sky-200 bg-sky-50/60 text-slate-900',
         badgeClass: 'bg-sky-800 text-white',
         item: bySpeed,
-        metricNote:
-          bySpeed.model.tokPerSec !== null
-            ? `${bySpeed.model.tokPerSec} tok/s (${bySpeed.model.speedProvenance.status})`
-            : 'Speed: N/A',
+        metricNote: `${bySpeed.model.tokPerSec !== null ? `${bySpeed.model.tokPerSec} tok/s` : 'N/A'} (${bySpeed.model.speedProvenance.status})`,
       },
     ];
   }, [enrichedModels]);
@@ -484,12 +483,10 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                         ~{formatCurrency(spot.item.estMonthlyCost)}/mo (
                         {(monthlyCallsPreset / 1000).toFixed(0)}k calls)
                       </span>
-                    ) : m.inputPer1M !== null && m.outputPer1M !== null ? (
-                      <span className="font-mono text-slate-700">
-                        ${m.inputPer1M.toFixed(2)}/${m.outputPer1M.toFixed(2)} per 1M
-                      </span>
                     ) : (
-                      <span className="font-mono text-slate-700">Price: N/A</span>
+                      <span className="font-mono text-slate-700">
+                        {fmtPrice(m.inputPer1M)}/{fmtPrice(m.outputPer1M)} per 1M
+                      </span>
                     )}
                     <Link
                       href={`/models/${m.slug}`}
@@ -576,8 +573,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                         {m.name}
                       </Link>
                       <div className="text-xs text-slate-700 mt-0.5">
-                        {m.provider} · License: {m.license ?? 'N/A'} · Context:{' '}
-                        {m.contextWindow ?? 'N/A'} · Speed:{' '}
+                        {m.provider} · {m.license ?? 'N/A'} · {m.contextWindow ?? 'N/A'} ctx ·{' '}
                         {m.tokPerSec !== null ? `${m.tokPerSec} tok/s` : 'N/A'}
                       </div>
                     </div>
@@ -599,12 +595,13 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
 
                   <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
                     <span className="rounded bg-slate-100 px-2 py-0.5 font-bold text-slate-900">
-                      {m.score !== null ? `Score ${m.score.toFixed(1)}` : 'Score N/A'}
+                      Score {fmtNum(m.score, 1)}
                     </span>
                     <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-semibold text-emerald-900">
-                      {scorePerDollar !== null
-                        ? `${scorePerDollar.toFixed(1)} Score/$`
-                        : 'Score/$ N/A'}
+                      {fmtNum(scorePerDollar, 1)} Score/$
+                    </span>
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-slate-800">
+                      CO {m.co ?? 'N/A'} · RE {m.re ?? 'N/A'}
                     </span>
                   </div>
 
@@ -614,9 +611,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                 <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
                   <div className="font-mono">
                     <div className="font-semibold text-slate-900">
-                      {m.inputPer1M !== null && m.outputPer1M !== null
-                        ? `$${m.inputPer1M.toFixed(2)} / $${m.outputPer1M.toFixed(2)} per 1M`
-                        : 'Price: N/A'}
+                      {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)} per 1M
                     </div>
                     {monthlyCallsPreset > 0 && estMonthlyCost !== null && (
                       <div className="text-[11px] font-bold text-emerald-800">
