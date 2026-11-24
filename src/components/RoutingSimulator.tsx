@@ -28,7 +28,10 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
   );
 
   const economyModel = useMemo(
-    () => safeModels.find((m) => m.id === economyId) ?? safeModels[safeModels.length - 1] ?? safeModels[0],
+    () =>
+      safeModels.find((m) => m.id === economyId) ??
+      safeModels[safeModels.length - 1] ??
+      safeModels[0],
     [safeModels, economyId]
   );
 
@@ -110,14 +113,14 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
             Hybrid Routing Simulator
           </div>
           <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Model Routing &amp; Escalation Savings Estimate
+            Model Routing &amp; Escalation Estimate
           </h3>
           <p className="mt-1 text-sm text-slate-300">
-            Estimate cost differences when routing a portion of requests to a lower-cost model while keeping complex requests on a higher-tier model. Estimates depend on prompt complexity and task accuracy requirements.
+            Estimates cost differences when routing a share of requests to a lower-cost model while keeping complex requests on a higher-tier model.
           </p>
         </div>
         <div className="rounded-xl border border-emerald-400/40 bg-emerald-950/40 px-4 py-3 text-left md:text-right">
-          <div className="text-xs uppercase tracking-wider text-emerald-200">Estimated Monthly Savings</div>
+          <div className="text-xs uppercase tracking-wider text-emerald-200">Estimated Monthly Difference</div>
           <div className="mt-0.5 font-mono text-2xl font-bold text-emerald-300 tabular-nums">
             {simulation.monthlySavings !== null
               ? `${formatCurrency(simulation.monthlySavings)} (-${simulation.savingsPct ?? 0}%)`
@@ -130,7 +133,10 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
         <div className="lg:col-span-7 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="routing-flagship-select" className="block text-xs font-medium uppercase tracking-wider text-slate-200 mb-2">
+              <label
+                htmlFor="routing-flagship-select"
+                className="block text-xs font-medium uppercase tracking-wider text-slate-200 mb-2"
+              >
                 Primary / Complex Model
               </label>
               <select
@@ -147,8 +153,11 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
               </select>
             </div>
             <div>
-              <label htmlFor="routing-economy-select" className="block text-xs font-medium uppercase tracking-wider text-slate-200 mb-2">
-                Routed / Economy Model
+              <label
+                htmlFor="routing-economy-select"
+                className="block text-xs font-medium uppercase tracking-wider text-slate-200 mb-2"
+              >
+                Routed / Lower-Cost Model
               </label>
               <select
                 id="routing-economy-select"
@@ -221,7 +230,7 @@ export const RoutingSimulator: React.FC<Props> = ({ models, baseInputs }) => {
           <div className="rounded-xl border border-slate-800/80 bg-[#0a0f18] px-4 py-3 text-xs text-slate-300 flex items-center gap-2">
             <TrendingDown className="w-4 h-4 text-emerald-300 shrink-0" />
             <span>
-              Estimates are illustrative only and not an invoice guarantee; routing complex tasks to smaller models can reduce accuracy.
+              Estimates are illustrative only and not an invoice forecast; accuracy depends on task complexity and evaluation on your prompts.
             </span>
           </div>
         </div>

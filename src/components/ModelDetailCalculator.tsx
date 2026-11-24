@@ -178,10 +178,8 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
 
       <div className="rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
         <span>
-          <strong>Cache Read:</strong>{' '}
-          {model.cachedInputPer1M !== null ? `$${model.cachedInputPer1M.toFixed(2)}/1M` : 'Not available'}{' '}
-          · <strong>Cache Write:</strong>{' '}
-          {model.cacheWritePer1M !== null ? `$${model.cacheWritePer1M.toFixed(2)}/1M` : 'Not available'}
+          <strong>Cache Read:</strong> {formatCurrency(model.cachedInputPer1M)}/1M ·{' '}
+          <strong>Cache Write:</strong> {formatCurrency(model.cacheWritePer1M)}/1M
         </span>
         <span className="font-mono font-medium text-slate-900">
           {breakdown.activeContextTierLabel}

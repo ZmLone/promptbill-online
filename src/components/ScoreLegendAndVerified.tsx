@@ -13,8 +13,9 @@ export interface PriceChangelogItem {
   verifiedDate: string;
 }
 
-export const PRICE_CHANGELOG: PriceChangelogItem[] = changelogJson as PriceChangelogItem[];
-export const PRICES_LAST_VERIFIED_DATE = 'Nov 22, 2026';
+export const PRICE_CHANGELOG: PriceChangelogItem[] = Array.isArray(changelogJson)
+  ? (changelogJson as PriceChangelogItem[])
+  : [];
 
 export interface LegendCategoryItem {
   code: string;
@@ -23,14 +24,14 @@ export interface LegendCategoryItem {
 }
 
 export const CATEGORY_LEGEND: LegendCategoryItem[] = [
-  { code: 'AG', label: 'Agentic', desc: 'Multi-step tool use & autonomous task execution' },
-  { code: 'CO', label: 'Coding', desc: 'Code generation, debugging & repository reasoning' },
-  { code: 'RE', label: 'Reasoning', desc: 'Logic, multi-hop deduction & complex problem solving' },
-  { code: 'MM', label: 'Multimodal', desc: 'Vision, document & cross-modal understanding' },
-  { code: 'KN', label: 'Knowledge', desc: 'Broad factual recall & domain accuracy' },
-  { code: 'ML', label: 'Multilingual', desc: 'Non-English fluency & cross-lingual comprehension' },
-  { code: 'IF', label: 'Instruction Following', desc: 'Constraint adherence & structured output reliability' },
-  { code: 'MA', label: 'Math', desc: 'Quantitative & mathematical reasoning accuracy' },
+  { code: 'AG', label: 'Agentic', desc: 'Multi-step tool use and task execution category' },
+  { code: 'CO', label: 'Coding', desc: 'Code generation, debugging, and repository reasoning category' },
+  { code: 'RE', label: 'Reasoning', desc: 'Logic and multi-step problem solving category' },
+  { code: 'MM', label: 'Multimodal', desc: 'Vision and cross-modal understanding category' },
+  { code: 'KN', label: 'Knowledge', desc: 'Factual recall and domain coverage category' },
+  { code: 'ML', label: 'Multilingual', desc: 'Cross-lingual comprehension category' },
+  { code: 'IF', label: 'Instruction Following', desc: 'Constraint adherence and structured output category' },
+  { code: 'MA', label: 'Math', desc: 'Quantitative and mathematical reasoning category' },
 ];
 
 export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog?: boolean }) {
@@ -39,7 +40,7 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-xs">
         <div className="flex items-center gap-2 font-semibold text-emerald-950">
           <CheckCircle2 className="w-4 h-4 text-emerald-800 shrink-0" />
-          <span>Prices last verified: {PRICES_LAST_VERIFIED_DATE}</span>
+          <span>Provenance status is tracked per field; unverified values show N/A</span>
         </div>
         <Link
           href="/methodology"
@@ -56,8 +57,9 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
             Benchmark Column &amp; Evidence Legend
           </div>
           <div className="text-slate-700">
-            <strong className="text-slate-950">Supported</strong> = directly verified benchmark &amp; pricing coverage ·{' '}
-            <strong className="text-slate-950">Estimated</strong> = derived or projected benchmark or pricing tier.
+            <strong className="text-slate-950">Verified</strong> = recorded source and check timestamp ·{' '}
+            <strong className="text-slate-950">Estimated</strong> = estimate or snapshot without primary log ·{' '}
+            <strong className="text-slate-950">N/A</strong> = no supporting data.
           </div>
         </div>
 
@@ -69,7 +71,8 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
               className="rounded-lg border border-slate-200 bg-white px-3 py-2"
             >
               <div className="font-mono font-bold text-slate-900">
-                {item.code} <span className="font-sans font-semibold text-emerald-800">= {item.label}</span>
+                {item.code}{' '}
+                <span className="font-sans font-semibold text-emerald-800">= {item.label}</span>
               </div>
               <div className="text-[11px] text-slate-700 mt-0.5 leading-snug">{item.desc}</div>
             </div>
@@ -77,24 +80,26 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
         </div>
       </div>
 
-      {showChangelog && (
+      {showChangelog && PRICE_CHANGELOG.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
             <div className="inline-flex items-center gap-2 text-sm font-bold text-slate-900">
               <TrendingDown className="w-4 h-4 text-emerald-800" />
-              <span>API Price Drop Feed &amp; Changelog</span>
+              <span>Recorded Price Changelog</span>
             </div>
-            <span className="font-mono text-[11px] text-slate-700">
-              Last verified: {PRICES_LAST_VERIFIED_DATE}
-            </span>
           </div>
 
           <ul className="divide-y divide-slate-100 text-xs">
             {PRICE_CHANGELOG.map((entry) => (
-              <li key={entry.id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+              <li
+                key={entry.id}
+                className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5"
+              >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-[11px] font-semibold text-slate-700">{entry.date}</span>
+                    <span className="font-mono text-[11px] font-semibold text-slate-700">
+                      {entry.date}
+                    </span>
                     <Link
                       href={`/models/${entry.modelSlug}`}
                       className="inline-flex min-h-[32px] items-center font-bold text-slate-900 hover:text-emerald-800 underline-offset-2 hover:underline"
@@ -106,7 +111,7 @@ export function ScoreLegendAndVerified({ showChangelog = true }: { showChangelog
                   <p className="text-slate-800">{entry.changeSummary}</p>
                 </div>
                 <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-700 self-start sm:self-center">
-                  Verified {entry.verifiedDate}
+                  {entry.verifiedDate}
                 </span>
               </li>
             ))}

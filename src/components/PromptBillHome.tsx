@@ -1,14 +1,12 @@
 'use client';
 
-import { logEvent, posthogLog } from '../lib/posthogLog';
-
 import React, { useState, useMemo, useEffect } from 'react';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';
 import {
-  LLMModel,
-  CostInputs,
-  InputUnitMode,
+  type LLMModel,
+  type CostInputs,
+  type InputUnitMode,
   calculateModelCost,
   formatCurrency,
   formatTokenThreshold,
@@ -19,7 +17,7 @@ import { BrandMark } from './BrandMark';
 import { LivePromptTokenizer } from './LivePromptTokenizer';
 import { ComparisonMatrix } from './ComparisonMatrix';
 import { RoutingSimulator } from './RoutingSimulator';
-import { FeatureGuideAndFaq, WorkspaceTab } from './FeatureGuideAndFaq';
+import { FeatureGuideAndFaq, type WorkspaceTab } from './FeatureGuideAndFaq';
 import {
   Calculator,
   Zap,
@@ -37,23 +35,28 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-const models = modelsJson as LLMModel[];
+const models = Array.isArray(modelsJson) ? (modelsJson as LLMModel[]) : [];
+const presets = Array.isArray(presetsJson) ? presetsJson : [];
+
+function fmtRate(val: number | null | undefined): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+}
 
 export default function PromptBillHome() {
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('calculator');
-  const [selectedModelId, setSelectedModelId] = useState<string>('claude-sonnet-5-5');
-  const [activePresetId, setActivePresetId] = useState<string>('rag-assistant');
+  const [selectedModelId, setSelectedModelId] = useState<string>(models[0]?.id ?? '');
+  const [activePresetId, setActivePresetId] = useState<string>(presets[0]?.id ?? 'custom');
   const [unitMode, setUnitMode] = useState<InputUnitMode>('tokens');
-  const [cacheWriteSharePct, setCacheWriteSharePct] = useState<number>(25);
+  const [cacheWriteSharePct, setCacheWriteSharePct] = useState<number>(0);
 
   const [inputs, setInputs] = useState<CostInputs>({
     inputTokensPerCall: 6500,
     outputTokensPerCall: 650,
-    reasoningTokensPerCall: 150,
+    reasoningTokensPerCall: 0,
     callsPerDay: 2500,
-    cacheHitPercent: 60,
+    cacheHitPercent: 0,
     batchPercent: 0,
-    retriesPercent: 4,
+    retriesPercent: 0,
   });
 
   const [monthlyActiveUsers, setMonthlyActiveUsers] = useState<number>(4000);
@@ -77,13 +80,21 @@ export default function PromptBillHome() {
       setActivePresetId('custom');
       setInputs((prev) => ({
         ...prev,
-        inputTokensPerCall: inTok ? Math.max(0, Number(inTok)) : prev.inputTokensPerCall,
-        outputTokensPerCall: outTok ? Math.max(0, Number(outTok)) : prev.outputTokensPerCall,
-        reasoningTokensPerCall: rsnTok ? Math.max(0, Number(rsnTok)) : prev.reasoningTokensPerCall,
-        callsPerDay: cpd ? Math.max(0, Number(cpd)) : prev.callsPerDay,
-        cacheHitPercent: cache ? Math.min(95, Math.max(0, Number(cache))) : prev.cacheHitPercent,
-        batchPercent: batch ? Math.min(100, Math.max(0, Number(batch))) : prev.batchPercent,
-        retriesPercent: retry ? Math.min(50, Math.max(0, Number(retry))) : prev.retriesPercent,
+        inputTokensPerCall: inTok ? Math.max(0, Number(inTok) || 0) : prev.inputTokensPerCall,
+        outputTokensPerCall: outTok ? Math.max(0, Number(outTok) || 0) : prev.outputTokensPerCall,
+        reasoningTokensPerCall: rsnTok
+          ? Math.max(0, Number(rsnTok) || 0)
+          : prev.reasoningTokensPerCall,
+        callsPerDay: cpd ? Math.max(0, Number(cpd) || 0) : prev.callsPerDay,
+        cacheHitPercent: cache
+          ? Math.min(100, Math.max(0, Number(cache) || 0))
+          : prev.cacheHitPercent,
+        batchPercent: batch
+          ? Math.min(100, Math.max(0, Number(batch) || 0))
+          : prev.batchPercent,
+        retriesPercent: retry
+          ? Math.min(100, Math.max(0, Number(retry) || 0))
+          : prev.retriesPercent,
       }));
     }
   }, []);
@@ -102,17 +113,26 @@ export default function PromptBillHome() {
   );
 
   const activeBreakdown = useMemo(
-    () => calculateModelCost(selectedModel, effectiveCostInputs),
+    () =>
+      selectedModel
+        ? calculateModelCost(selectedModel, effectiveCostInputs)
+        : null,
     [selectedModel, effectiveCostInputs]
   );
 
   const cheapestModelRow = useMemo(() => {
-    return models
+    const priced = models
       .map((m) => ({ model: m, calc: calculateModelCost(m, effectiveCostInputs) }))
-      .sort((a, b) => a.calc.monthlyTotalCost - b.calc.monthlyTotalCost)[0];
+      .filter(
+        (row): row is { model: LLMModel; calc: ReturnType<typeof calculateModelCost> & { monthlyTotalCost: number } } =>
+          row.calc.hasPricingData && typeof row.calc.monthlyTotalCost === 'number'
+      )
+      .sort((a, b) => a.calc.monthlyTotalCost - b.calc.monthlyTotalCost);
+    return priced[0] ?? null;
   }, [effectiveCostInputs]);
 
   const hostingComparisons = useMemo(() => {
+    if (!selectedModel) return [];
     const endpoints =
       selectedModel.hostingEndpoints && selectedModel.hostingEndpoints.length > 0
         ? selectedModel.hostingEndpoints
@@ -122,10 +142,10 @@ export default function PromptBillHome() {
               providerType: 'Official API' as const,
               inputPer1M: selectedModel.inputPer1M,
               cachedInputPer1M: selectedModel.cachedInputPer1M,
-              cacheWritePer1M: selectedModel.cacheWritePer1M ?? selectedModel.inputPer1M,
+              cacheWritePer1M: selectedModel.cacheWritePer1M ?? null,
               outputPer1M: selectedModel.outputPer1M,
-              batchDiscount: selectedModel.batchDiscount,
-              notes: selectedModel.notes,
+              batchDiscount: selectedModel.batchDiscount ?? null,
+              notes: selectedModel.notes ?? null,
             },
           ];
 
@@ -135,35 +155,44 @@ export default function PromptBillHome() {
           ...selectedModel,
           provider: ep.host,
           inputPer1M: ep.inputPer1M,
-          cachedInputPer1M: ep.cachedInputPer1M,
-          cacheWritePer1M: ep.cacheWritePer1M,
+          cachedInputPer1M: ep.cachedInputPer1M ?? null,
+          cacheWritePer1M: ep.cacheWritePer1M ?? null,
           outputPer1M: ep.outputPer1M,
-          batchDiscount: ep.batchDiscount,
+          batchDiscount: ep.batchDiscount ?? null,
         };
         return {
           endpoint: ep,
           calc: calculateModelCost(variantModel, effectiveCostInputs),
         };
       })
-      .sort((a, b) => a.calc.monthlyTotalCost - b.calc.monthlyTotalCost);
+      .sort((a, b) => {
+        const costA = a.calc.monthlyTotalCost;
+        const costB = b.calc.monthlyTotalCost;
+        if (costA === null && costB === null) return 0;
+        if (costA === null) return 1;
+        if (costB === null) return -1;
+        return costA - costB;
+      });
   }, [selectedModel, effectiveCostInputs]);
 
-  const applyPreset = (preset: (typeof presetsJson)[number]) => {
-    logEvent('workload_preset_applied', { preset_id: preset.id });
-    posthogLog.info('workload preset applied', {
-      log_source: 'posthog_instrumentation',
-      preset_id: preset.id,
-      calls_per_day: preset.callsPerDay,
-    });
+  if (!selectedModel || !activeBreakdown) {
+    return (
+      <div className="min-h-screen bg-[#080b12] text-slate-100 p-8 text-sm">
+        No models available in the catalog snapshot.
+      </div>
+    );
+  }
+
+  const applyPreset = (preset: (typeof presets)[number]) => {
     setActivePresetId(preset.id);
     setInputs({
       inputTokensPerCall: preset.inputTokensPerCall,
       outputTokensPerCall: preset.outputTokensPerCall,
-      reasoningTokensPerCall: preset.reasoningTokensPerCall,
+      reasoningTokensPerCall: preset.reasoningTokensPerCall ?? 0,
       callsPerDay: preset.callsPerDay,
-      cacheHitPercent: preset.cacheHitPercent,
-      batchPercent: preset.batchPercent,
-      retriesPercent: preset.retriesPercent,
+      cacheHitPercent: preset.cacheHitPercent ?? 0,
+      batchPercent: preset.batchPercent ?? 0,
+      retriesPercent: preset.retriesPercent ?? 0,
     });
   };
 
@@ -173,34 +202,24 @@ export default function PromptBillHome() {
   };
 
   const handleApplyPromptTokens = (tokens: number) => {
-    logEvent('tokenizer_tokens_applied', { model_id: selectedModelId });
-    posthogLog.info('tokenizer result applied to calculator', {
-      log_source: 'posthog_instrumentation',
-      model_id: selectedModelId,
-      token_count: tokens,
-    });
     setActivePresetId('custom');
     setUnitMode('tokens');
     setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
     setActiveTab('calculator');
   };
 
-  const selectCalculatorModel = (id: string, selection_source: 'calculator' | 'matrix') => {
-    logEvent('calculator_model_selected', { model_id: id, selection_source });
-    setSelectedModelId(id);
-  };
-
   const handleSelectModelFromMatrix = (id: string) => {
-    selectCalculatorModel(id, 'matrix');
+    setSelectedModelId(id);
     setActiveTab('calculator');
   };
 
   const projectedMonthlyRevenue = monthlyActiveUsers * pricePerUserUsd;
   const aiCostShareOfRevenue =
-    projectedMonthlyRevenue > 0
+    projectedMonthlyRevenue > 0 && activeBreakdown.monthlyTotalCost !== null
       ? (activeBreakdown.monthlyTotalCost / projectedMonthlyRevenue) * 100
-      : 0;
-  const estimatedGrossMarginPct = Math.max(0, 100 - aiCostShareOfRevenue);
+      : null;
+  const estimatedGrossMarginPct =
+    aiCostShareOfRevenue !== null ? Math.max(0, 100 - aiCostShareOfRevenue) : null;
 
   const unitLabel =
     unitMode === 'tokens' ? 'Tokens' : unitMode === 'words' ? 'Words' : 'Characters';
@@ -213,9 +232,14 @@ export default function PromptBillHome() {
   }[] = [
     { id: 'calculator', label: '1. Cost Calculator', icon: Calculator },
     { id: 'tokenizer', label: '2. Prompt Tokenizer', icon: FileText },
-    { id: 'matrix', label: '3. Compare 18 Models', badge: 'CSV', icon: Table2 },
+    { id: 'matrix', label: '3. Compare Models', badge: 'CSV', icon: Table2 },
     { id: 'routing', label: '4. Routing Simulator', icon: GitBranch },
   ];
+
+  const batchPctLabel =
+    activeBreakdown.batchSupported
+      ? `${Math.round(activeBreakdown.batchDiscountRate * 100)}%`
+      : 'Not available';
 
   return (
     <div className="min-h-screen bg-[#080b12] text-slate-100">
@@ -232,19 +256,38 @@ export default function PromptBillHome() {
           </a>
 
           <nav aria-label="Workspace Navigation" className="hidden md:flex items-center gap-2 text-sm text-slate-200">
-            <button type="button" onClick={() => jumpToTab('calculator')} className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => jumpToTab('calculator')}
+              className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors"
+            >
               Calculator
             </button>
-            <button type="button" onClick={() => jumpToTab('tokenizer')} className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => jumpToTab('tokenizer')}
+              className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors"
+            >
               Tokenizer
             </button>
-            <button type="button" onClick={() => jumpToTab('matrix')} className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors">
-              18-Model Matrix
+            <button
+              type="button"
+              onClick={() => jumpToTab('matrix')}
+              className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors"
+            >
+              Model Matrix
             </button>
-            <button type="button" onClick={() => jumpToTab('routing')} className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => jumpToTab('routing')}
+              className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors"
+            >
               Routing
             </button>
-            <a href="#feature-guide" className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors">
+            <a
+              href="#feature-guide"
+              className="inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 hover:bg-slate-800/70 hover:text-white transition-colors"
+            >
               Guide &amp; FAQ
             </a>
           </nav>
@@ -263,22 +306,19 @@ export default function PromptBillHome() {
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-[#0e1422] px-3.5 py-1.5 text-xs text-slate-200">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              LLM API Cost Intelligence - Cache Write/Read - Context Tiers - Hosting Comparison
+              LLM API Cost Estimator · Caching · Batch &amp; Context Tiers · Endpoints
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1]">
-              Calculate, Compare &amp; Optimize Your AI API Bill.
+              Calculate &amp; Compare AI API Token Costs.
             </h1>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Model <span className="text-white font-medium">prompt cache write vs. read discounts</span>,{' '}
-              <span className="text-white font-medium">50% batch API pricing</span>,{' '}
-              <span className="text-white font-medium">long-context pricing tiers</span>, and{' '}
-              <span className="text-white font-medium">multi-provider hosting &amp; router rates</span>.
+              Estimate 30-day API spend using model-specific caching rates, batch discounts where supported, long-context thresholds, and endpoint comparisons.
             </p>
           </div>
 
           <div className="w-full lg:w-80 shrink-0 rounded-2xl border border-slate-800 bg-[#0d121d] p-5 space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-300">
-              <span>Active Model ({selectedModel.contextWindow})</span>
+              <span>Active Model ({selectedModel.contextWindow ?? 'N/A'})</span>
               <span className="font-mono text-emerald-300">
                 {formatCurrency(activeBreakdown.costPerRequest)}/req
               </span>
@@ -291,9 +331,11 @@ export default function PromptBillHome() {
               </span>
             </div>
             <div className="text-xs text-slate-300 flex items-center justify-between">
-              <span>Lowest cost option</span>
+              <span>Lowest listed cost</span>
               <span className="font-mono text-white tabular-nums">
-                {cheapestModelRow.model.name} ({formatCurrency(cheapestModelRow.calc.monthlyTotalCost)})
+                {cheapestModelRow
+                  ? `${cheapestModelRow.model.name} (${formatCurrency(cheapestModelRow.calc.monthlyTotalCost)})`
+                  : 'N/A'}
               </span>
             </div>
           </div>
@@ -340,41 +382,45 @@ export default function PromptBillHome() {
           <div className="rounded-2xl border border-slate-800 bg-[#0d121d] p-5 sm:p-8">
             {activeTab === 'calculator' && (
               <div className="space-y-8">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Quick-Start Workload Presets
-                    </span>
-                    <span className="text-xs text-slate-300">Click to load realistic assumptions</span>
+                {presets.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                        Workload Presets
+                      </span>
+                      <span className="text-xs text-slate-300">Select to load assumptions</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {presets.map((preset) => {
+                        const isActive = activePresetId === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => applyPreset(preset)}
+                            className={`text-left rounded-xl border p-4 transition-all ${
+                              isActive
+                                ? 'border-emerald-400/70 bg-emerald-950/30'
+                                : 'border-slate-800 bg-[#111827] hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-semibold text-xs sm:text-sm text-white">
+                                {preset.title}
+                              </span>
+                              <span className="rounded bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
+                                {preset.badge}
+                              </span>
+                            </div>
+                            <p className="mt-1.5 text-xs text-slate-300 line-clamp-2">
+                              {preset.description}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {presetsJson.map((preset) => {
-                      const isActive = activePresetId === preset.id;
-                      return (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          onClick={() => applyPreset(preset)}
-                          className={`text-left rounded-xl border p-4 transition-all ${
-                            isActive
-                              ? 'border-emerald-400/70 bg-emerald-950/30'
-                              : 'border-slate-800 bg-[#111827] hover:border-slate-700'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-semibold text-xs sm:text-sm text-white">
-                              {preset.title}
-                            </span>
-                            <span className="rounded bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
-                              {preset.badge}
-                            </span>
-                          </div>
-                          <p className="mt-1.5 text-xs text-slate-300 line-clamp-2">{preset.description}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                   <div className="lg:col-span-7 space-y-6">
@@ -404,42 +450,55 @@ export default function PromptBillHome() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="calc-model-select" className="block text-xs font-medium text-slate-200 mb-1.5">
+                        <label
+                          htmlFor="calc-model-select"
+                          className="block text-xs font-medium text-slate-200 mb-1.5"
+                        >
                           Model Selection
                         </label>
                         <select
                           id="calc-model-select"
                           value={selectedModelId}
-                          onChange={(e) => selectCalculatorModel(e.target.value, 'calculator')}
+                          onChange={(e) => setSelectedModelId(e.target.value)}
                           className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
                         >
                           {models.map((m) => (
                             <option key={m.id} value={m.id}>
-                              {m.name} — {m.provider} (${m.inputPer1M}/${m.outputPer1M})
+                              {m.name} — {m.provider} ({fmtRate(m.inputPer1M)}/{fmtRate(m.outputPer1M)})
                             </option>
                           ))}
                         </select>
                       </div>
 
                       <div>
-                        <label htmlFor="calc-calls-per-day" className="block text-xs font-medium text-slate-200 mb-1.5">
+                        <label
+                          htmlFor="calc-calls-per-day"
+                          className="block text-xs font-medium text-slate-200 mb-1.5"
+                        >
                           API Calls / Requests per Day
                         </label>
                         <input
                           id="calc-calls-per-day"
                           type="number"
-                          min={1}
+                          min={0}
                           value={inputs.callsPerDay}
                           onChange={(e) => {
                             setActivePresetId('custom');
-                            setInputs({ ...inputs, callsPerDay: Math.max(0, Number(e.target.value)) });
+                            const parsed = Number(e.target.value);
+                            setInputs({
+                              ...inputs,
+                              callsPerDay: Number.isFinite(parsed) && parsed >= 0 ? parsed : 0,
+                            });
                           }}
                           className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-[#131a29] px-3 py-2.5 font-mono text-sm text-white focus:border-emerald-400 focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="calc-input-units" className="block text-xs font-medium text-slate-200 mb-1.5">
+                        <label
+                          htmlFor="calc-input-units"
+                          className="block text-xs font-medium text-slate-200 mb-1.5"
+                        >
                           Input {unitLabel} per Call{' '}
                           {unitMode !== 'tokens' && (
                             <span className="text-emerald-300 font-mono">
@@ -465,7 +524,10 @@ export default function PromptBillHome() {
                       </div>
 
                       <div>
-                        <label htmlFor="calc-output-units" className="block text-xs font-medium text-slate-200 mb-1.5">
+                        <label
+                          htmlFor="calc-output-units"
+                          className="block text-xs font-medium text-slate-200 mb-1.5"
+                        >
                           Output {unitLabel} per Call{' '}
                           {unitMode !== 'tokens' && (
                             <span className="text-emerald-300 font-mono">
@@ -503,11 +565,12 @@ export default function PromptBillHome() {
                       <div className="flex items-center gap-2">
                         <Layers className="w-4 h-4 text-emerald-300 shrink-0" />
                         <span>
-                          <strong>Context Pricing Tier:</strong> {activeBreakdown.activeContextTierLabel}
+                          <strong>Context Tier:</strong> {activeBreakdown.activeContextTierLabel}
                         </span>
                       </div>
                       <span className="font-mono text-xs text-slate-300">
-                        Threshold: {formatTokenThreshold(selectedModel.longContextThresholdTokens)} / Max {selectedModel.contextWindow}
+                        Threshold: {formatTokenThreshold(selectedModel.longContextThresholdTokens)} /
+                        Max {selectedModel.contextWindow ?? 'N/A'}
                       </span>
                     </div>
 
@@ -515,7 +578,10 @@ export default function PromptBillHome() {
                       <div className="rounded-xl border border-rose-400/50 bg-rose-950/40 p-3.5 text-xs text-rose-100 flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-rose-300 shrink-0" />
                         <span>
-                          Combined input + output tokens ({(inputs.inputTokensPerCall + inputs.outputTokensPerCall).toLocaleString()}) exceed {selectedModel.name}&apos;s {selectedModel.contextWindow} context window.
+                          Combined input + output tokens (
+                          {(inputs.inputTokensPerCall + inputs.outputTokensPerCall).toLocaleString()}
+                          ) exceed {selectedModel.name}&apos;s {selectedModel.contextWindow ?? 'N/A'}{' '}
+                          context window.
                         </span>
                       </div>
                     )}
@@ -524,56 +590,71 @@ export default function PromptBillHome() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-300">
                           <Sliders className="w-3.5 h-3.5 text-emerald-300" />
-                          Prompt Caching (Read vs. Write), Batch API &amp; Retries
+                          Prompt Caching, Batch Discount &amp; Retries
                         </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setInputs((prev) => ({
-                              ...prev,
-                              batchPercent: prev.batchPercent >= 50 ? 0 : 100,
-                            }))
-                          }
-                          className={`min-h-[36px] rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                            inputs.batchPercent > 0
-                              ? 'border-emerald-400 bg-emerald-500/20 text-emerald-200'
-                              : 'border-slate-700 bg-[#131a29] text-slate-200 hover:border-slate-500'
-                          }`}
-                        >
-                          {inputs.batchPercent > 0
-                            ? `Batch Mode Active (${inputs.batchPercent}% · ${Math.round(selectedModel.batchDiscount * 100)}% Off)`
-                            : `Enable ${Math.round(selectedModel.batchDiscount * 100)}% Batch API Discount`}
-                        </button>
+                        {activeBreakdown.batchSupported ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setInputs((prev) => ({
+                                ...prev,
+                                batchPercent: prev.batchPercent >= 50 ? 0 : 100,
+                              }))
+                            }
+                            className={`min-h-[36px] rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                              inputs.batchPercent > 0
+                                ? 'border-emerald-400 bg-emerald-500/20 text-emerald-200'
+                                : 'border-slate-700 bg-[#131a29] text-slate-200 hover:border-slate-500'
+                            }`}
+                          >
+                            {inputs.batchPercent > 0
+                              ? `Batch Active (${inputs.batchPercent}% · ${batchPctLabel} Off)`
+                              : `Enable Batch Discount (${batchPctLabel} Off)`}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400">
+                            Batch discount: Not available
+                          </span>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="rounded-xl border border-slate-800 bg-[#111827] p-4 space-y-2">
                           <div className="flex justify-between text-xs">
                             <span className="text-slate-200">Cache Read Hit Rate</span>
-                            <span className="font-mono text-emerald-300">{inputs.cacheHitPercent}%</span>
+                            <span className="font-mono text-emerald-300">
+                              {inputs.cacheHitPercent}%
+                            </span>
                           </div>
                           <input
                             type="range"
                             aria-label="Prompt Cache Read Hit Rate percentage"
                             min={0}
-                            max={95}
+                            max={100}
                             step={5}
-                            value={inputs.cacheHitPercent}
+                            disabled={selectedModel.cachedInputPer1M === null}
+                            value={
+                              selectedModel.cachedInputPer1M === null ? 0 : inputs.cacheHitPercent
+                            }
                             onChange={(e) =>
                               setInputs({ ...inputs, cacheHitPercent: Number(e.target.value) })
                             }
                             className="h-6 w-full cursor-pointer accent-emerald-400"
                           />
                           <div className="flex justify-between text-[11px] font-mono text-slate-300">
-                            <span>Read: ${activeBreakdown.cacheReadRatePer1M}/1M</span>
-                            <span>Write: ${activeBreakdown.cacheWriteRatePer1M}/1M</span>
+                            <span>Read: {formatCurrency(activeBreakdown.cacheReadRatePer1M)}/1M</span>
+                            <span>
+                              Write: {formatCurrency(activeBreakdown.cacheWriteRatePer1M)}/1M
+                            </span>
                           </div>
                         </div>
 
                         <div className="rounded-xl border border-slate-800 bg-[#111827] p-4 space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-slate-200">Fresh Write Share of Uncached</span>
-                            <span className="font-mono text-emerald-300">{cacheWriteSharePct}%</span>
+                            <span className="text-slate-200">Cache Write Share of Uncached</span>
+                            <span className="font-mono text-emerald-300">
+                              {cacheWriteSharePct}%
+                            </span>
                           </div>
                           <input
                             type="range"
@@ -581,19 +662,26 @@ export default function PromptBillHome() {
                             min={0}
                             max={100}
                             step={5}
-                            value={cacheWriteSharePct}
+                            disabled={!activeBreakdown.cacheWriteSupported}
+                            value={!activeBreakdown.cacheWriteSupported ? 0 : cacheWriteSharePct}
                             onChange={(e) => setCacheWriteSharePct(Number(e.target.value))}
                             className="h-6 w-full cursor-pointer accent-emerald-400"
                           />
                           <div className="text-[11px] text-slate-300">
-                            Models cache writes at standard or 1.25x input rate (e.g. Claude).
+                            {activeBreakdown.cacheWriteSupported
+                              ? 'Uses model-specific cache write rate where recorded.'
+                              : 'Cache write rate not recorded; uncached non-read input uses base rate.'}
                           </div>
                         </div>
 
                         <div className="rounded-xl border border-slate-800 bg-[#111827] p-4 space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-slate-200">Batch API Share ({Math.round(selectedModel.batchDiscount * 100)}% Off)</span>
-                            <span className="font-mono text-emerald-300">{inputs.batchPercent}%</span>
+                            <span className="text-slate-200">
+                              Batch Share ({batchPctLabel})
+                            </span>
+                            <span className="font-mono text-emerald-300">
+                              {activeBreakdown.batchSupported ? `${inputs.batchPercent}%` : '0%'}
+                            </span>
                           </div>
                           <input
                             type="range"
@@ -601,19 +689,24 @@ export default function PromptBillHome() {
                             min={0}
                             max={100}
                             step={5}
-                            value={inputs.batchPercent}
+                            disabled={!activeBreakdown.batchSupported}
+                            value={activeBreakdown.batchSupported ? inputs.batchPercent : 0}
                             onChange={(e) =>
                               setInputs({ ...inputs, batchPercent: Number(e.target.value) })
                             }
                             className="h-6 w-full cursor-pointer accent-emerald-400"
                           />
                           <div className="text-[11px] font-mono text-slate-300">
-                            Eff. Rates: ${activeBreakdown.effectiveInputRatePer1M.toFixed(2)} In / ${activeBreakdown.effectiveOutputRatePer1M.toFixed(2)} Out
+                            Eff. Rates: {formatCurrency(activeBreakdown.effectiveInputRatePer1M)} In /{' '}
+                            {formatCurrency(activeBreakdown.effectiveOutputRatePer1M)} Out
                           </div>
                         </div>
 
                         <div className="rounded-xl border border-slate-800 bg-[#111827] p-4 space-y-2">
-                          <label htmlFor="calc-reasoning-tokens" className="block text-xs text-slate-200">
+                          <label
+                            htmlFor="calc-reasoning-tokens"
+                            className="block text-xs text-slate-200"
+                          >
                             Reasoning / Thinking Tokens / Call
                           </label>
                           <input
@@ -621,18 +714,22 @@ export default function PromptBillHome() {
                             type="number"
                             min={0}
                             step={100}
-                            value={inputs.reasoningTokensPerCall}
-                            onChange={(e) =>
+                            value={inputs.reasoningTokensPerCall ?? 0}
+                            onChange={(e) => {
+                              const parsed = Number(e.target.value);
                               setInputs({
                                 ...inputs,
-                                reasoningTokensPerCall: Math.max(0, Number(e.target.value)),
-                              })
-                            }
+                                reasoningTokensPerCall:
+                                  Number.isFinite(parsed) && parsed >= 0 ? parsed : 0,
+                              });
+                            }}
                             className="min-h-[42px] w-full rounded-lg border border-slate-700 bg-[#0b1019] px-3 py-2 font-mono text-sm text-white"
                           />
                           <div className="flex justify-between text-xs pt-1">
                             <span className="text-slate-300">Retry Buffer</span>
-                            <span className="font-mono text-amber-300">+{inputs.retriesPercent}%</span>
+                            <span className="font-mono text-amber-300">
+                              +{inputs.retriesPercent ?? 0}%
+                            </span>
                           </div>
                           <input
                             type="range"
@@ -640,7 +737,7 @@ export default function PromptBillHome() {
                             min={0}
                             max={30}
                             step={1}
-                            value={inputs.retriesPercent}
+                            value={inputs.retriesPercent ?? 0}
                             onChange={(e) =>
                               setInputs({ ...inputs, retriesPercent: Number(e.target.value) })
                             }
@@ -654,10 +751,10 @@ export default function PromptBillHome() {
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-200">
                           <Server className="w-4 h-4 text-emerald-300" />
-                          Hosting &amp; Router Comparison — {selectedModel.name}
+                          Endpoint Comparison — {selectedModel.name}
                         </div>
                         <span className="text-xs font-mono text-emerald-300">
-                          Cheapest: {hostingComparisons[0]?.endpoint.host}
+                          Lowest 30-day estimate: {hostingComparisons[0]?.endpoint.host ?? 'N/A'}
                         </span>
                       </div>
 
@@ -665,7 +762,7 @@ export default function PromptBillHome() {
                         <table className="w-full text-left border-collapse text-xs">
                           <thead>
                             <tr className="border-b border-slate-800 bg-[#0b1019] text-slate-300">
-                              <th scope="col" className="py-2.5 px-3">Host / Router</th>
+                              <th scope="col" className="py-2.5 px-3">Host / Endpoint</th>
                               <th scope="col" className="py-2.5 px-3">In / Out ($/1M)</th>
                               <th scope="col" className="py-2.5 px-3">Cache R/W</th>
                               <th scope="col" className="py-2.5 px-3 text-right">30-Day Bill</th>
@@ -673,13 +770,19 @@ export default function PromptBillHome() {
                           </thead>
                           <tbody className="divide-y divide-slate-800/80 font-mono">
                             {hostingComparisons.map(({ endpoint, calc }, idx) => (
-                              <tr key={endpoint.host} className={idx === 0 ? 'bg-emerald-950/20' : ''}>
-                                <th scope="row" className="py-2.5 px-3 font-sans text-left text-white font-medium">
+                              <tr
+                                key={endpoint.host}
+                                className={idx === 0 ? 'bg-emerald-950/20' : ''}
+                              >
+                                <th
+                                  scope="row"
+                                  className="py-2.5 px-3 font-sans text-left text-white font-medium"
+                                >
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span>{endpoint.host}</span>
-                                    {idx === 0 && (
-                                      <span className="rounded bg-emerald-500/20 border border-emerald-400/40 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200">
-                                        Lowest Cost
+                                    {endpoint.providerType && (
+                                      <span className="text-[10px] text-slate-400 font-normal">
+                                        ({endpoint.providerType})
                                       </span>
                                     )}
                                   </div>
@@ -690,10 +793,11 @@ export default function PromptBillHome() {
                                   )}
                                 </th>
                                 <td className="py-2.5 px-3 text-slate-200">
-                                  ${endpoint.inputPer1M.toFixed(2)} / ${endpoint.outputPer1M.toFixed(2)}
+                                  {fmtRate(endpoint.inputPer1M)} / {fmtRate(endpoint.outputPer1M)}
                                 </td>
                                 <td className="py-2.5 px-3 text-slate-300">
-                                  ${endpoint.cachedInputPer1M.toFixed(2)} / ${endpoint.cacheWritePer1M.toFixed(2)}
+                                  {fmtRate(endpoint.cachedInputPer1M)} /{' '}
+                                  {fmtRate(endpoint.cacheWritePer1M)}
                                 </td>
                                 <td className="py-2.5 px-3 text-right font-bold text-emerald-300">
                                   {formatCurrency(calc.monthlyTotalCost)}
@@ -728,7 +832,7 @@ export default function PromptBillHome() {
 
                       <div className="space-y-2.5 pt-3 border-t border-slate-800 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-slate-300">Input Tokens (cache + tier adjusted)</span>
+                          <span className="text-slate-300">Input Tokens</span>
                           <span className="font-mono text-white tabular-nums">
                             {formatCurrency(activeBreakdown.monthlyInputCost)}
                           </span>
@@ -746,7 +850,7 @@ export default function PromptBillHome() {
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-300">Retry &amp; Error Overhead</span>
+                          <span className="text-slate-300">Retry Buffer Overhead</span>
                           <span className="font-mono text-amber-300 tabular-nums">
                             +{formatCurrency(activeBreakdown.monthlyRetryOverheadCost)}
                           </span>
@@ -764,30 +868,44 @@ export default function PromptBillHome() {
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4 text-emerald-300" />
                         <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-                          AI SaaS Gross Margin Check
+                          Budget &amp; Margin Estimate
                         </h3>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label htmlFor="saas-active-users" className="block text-xs text-slate-300 mb-1.5">Active Paying Users</label>
+                          <label
+                            htmlFor="saas-active-users"
+                            className="block text-xs text-slate-300 mb-1.5"
+                          >
+                            Active Users
+                          </label>
                           <input
                             id="saas-active-users"
                             type="number"
                             min={1}
                             value={monthlyActiveUsers}
-                            onChange={(e) => setMonthlyActiveUsers(Math.max(1, Number(e.target.value)))}
+                            onChange={(e) =>
+                              setMonthlyActiveUsers(Math.max(1, Number(e.target.value) || 1))
+                            }
                             className="min-h-[42px] w-full rounded-lg border border-slate-700 bg-[#0b1019] px-3 py-2 font-mono text-sm text-white"
                           />
                         </div>
                         <div>
-                          <label htmlFor="saas-price-per-user" className="block text-xs text-slate-300 mb-1.5">Price / User ($/mo)</label>
+                          <label
+                            htmlFor="saas-price-per-user"
+                            className="block text-xs text-slate-300 mb-1.5"
+                          >
+                            Price / User ($/mo)
+                          </label>
                           <input
                             id="saas-price-per-user"
                             type="number"
                             min={1}
                             value={pricePerUserUsd}
-                            onChange={(e) => setPricePerUserUsd(Math.max(1, Number(e.target.value)))}
+                            onChange={(e) =>
+                              setPricePerUserUsd(Math.max(1, Number(e.target.value) || 1))
+                            }
                             className="min-h-[42px] w-full rounded-lg border border-slate-700 bg-[#0b1019] px-3 py-2 font-mono text-sm text-white"
                           />
                         </div>
@@ -795,15 +913,19 @@ export default function PromptBillHome() {
 
                       <div className="rounded-xl bg-[#0b1019] border border-slate-800 p-3.5 flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-slate-300">Est. AI COGS % of Revenue</div>
+                          <div className="text-xs text-slate-300">Est. API Share of Revenue</div>
                           <div className="font-mono text-lg font-bold text-white tabular-nums">
-                            {aiCostShareOfRevenue.toFixed(1)}%
+                            {aiCostShareOfRevenue !== null
+                              ? `${aiCostShareOfRevenue.toFixed(1)}%`
+                              : 'N/A'}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs text-slate-300">Gross Margin After LLM Spend</div>
+                          <div className="text-xs text-slate-300">Gross Margin After API Spend</div>
                           <div className="font-mono text-lg font-bold text-emerald-300 tabular-nums">
-                            {estimatedGrossMarginPct.toFixed(1)}%
+                            {estimatedGrossMarginPct !== null
+                              ? `${estimatedGrossMarginPct.toFixed(1)}%`
+                              : 'N/A'}
                           </div>
                         </div>
                       </div>
@@ -849,27 +971,27 @@ export default function PromptBillHome() {
                 PromptBill Pro - One-Time License
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                Export Client Budgets, Model Scenarios &amp; Routing Plans for $9
+                Export Cost Scenarios &amp; Routing Plans for $9
               </h2>
               <p className="text-sm sm:text-base text-slate-200">
-                Built for indie builders, AI agencies, and engineering leads who need clean cost sheets, scenario comparisons, and routing math without recurring monthly SaaS bloat.
+                Built for developers and teams comparing multi-model API costs, caching, batch options, and routing splits.
               </p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-sm text-slate-200">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-300 shrink-0" />
-                  Unlimited multi-model cost comparisons
+                  Multi-model cost comparisons
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-300 shrink-0" />
-                  Prompt caching, batch &amp; retry modeling
+                  Caching, batch &amp; retry modeling
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-300 shrink-0" />
-                  Hybrid economy-to-flagship routing math
+                  Hybrid model routing estimates
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-300 shrink-0" />
-                  Instant license key delivery via Dodo Payments
+                  One-time license checkout
                 </li>
               </ul>
             </div>
@@ -880,22 +1002,13 @@ export default function PromptBillHome() {
               <div className="text-xs text-slate-300">One-time payment - No subscription</div>
               <a
                 href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
-                onClick={() => {
-                  if (process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL) {
-                    logEvent('pro_checkout_started', { plan: 'lifetime_pro' });
-                    posthogLog.info('pro checkout navigation started', {
-                      log_source: 'posthog_instrumentation',
-                      plan: 'lifetime_pro',
-                    });
-                  }
-                }}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-300 transition-colors"
               >
                 Get PromptBill Pro <ArrowUpRight className="w-4 h-4" />
               </a>
               <div className="flex items-center justify-center gap-1.5 text-xs text-slate-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
-                <span>Verified at promptbill.online</span>
+                <span>promptbill.online</span>
               </div>
             </div>
           </div>
@@ -910,23 +1023,44 @@ export default function PromptBillHome() {
             <span>- promptbill.online</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => jumpToTab('calculator')} className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white">
+            <button
+              type="button"
+              onClick={() => jumpToTab('calculator')}
+              className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white"
+            >
               Calculator
             </button>
-            <button type="button" onClick={() => jumpToTab('tokenizer')} className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white">
+            <button
+              type="button"
+              onClick={() => jumpToTab('tokenizer')}
+              className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white"
+            >
               Tokenizer
             </button>
-            <button type="button" onClick={() => jumpToTab('matrix')} className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white">
+            <button
+              type="button"
+              onClick={() => jumpToTab('matrix')}
+              className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white"
+            >
               Matrix
             </button>
-            <button type="button" onClick={() => jumpToTab('routing')} className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white">
+            <button
+              type="button"
+              onClick={() => jumpToTab('routing')}
+              className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white"
+            >
               Routing
             </button>
-            <a href="/sitemap.xml" className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white">Sitemap</a>
+            <a
+              href="/sitemap.xml"
+              className="inline-flex min-h-[36px] items-center px-2.5 py-1.5 hover:text-white"
+            >
+              Sitemap
+            </a>
           </div>
           <div className="flex items-center gap-1.5 text-slate-300">
             <Cpu className="w-3.5 h-3.5" />
-            <span>Model rate card snapshot: November 2026</span>
+            <span>PromptBill Catalog</span>
           </div>
         </div>
       </footer>
