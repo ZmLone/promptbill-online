@@ -4,33 +4,44 @@ import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../../lib/modelRegistry'
 
 export const dynamic = 'force-static';
 
+function fmtScore(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : 'N/A';
+}
+
+function fmtPrice(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+}
+
 export async function GET() {
   const copy = buildDynamicSeoCopy(REGISTRY_SNAPSHOT.generatedMonthYear);
   const lines: string[] = [
     '# PromptBill',
     '',
-    `> LLM API Cost Calculator, Semantic Leaderboard, Prompt Caching & Batch API Estimator, Context-Tiered Pricing Checker, and Multi-Host / Router Comparison at https://promptbill.online (${copy.monthYear}).`,
+    `> LLM API pricing reference, benchmark overview, token counter, and routing simulator at https://promptbill.online (${copy.monthYear}).`,
     '',
-    '## Live Snapshot Highlights',
+    '## Snapshot Summary',
     `- ${copy.codingLeaderLine}`,
     `- ${copy.valueLeaderLine}`,
     `- ${copy.speedLeaderLine}`,
     '',
-    '## Core Calculators & Tools',
-    '- [LLM Cost & Leaderboard Workspace](https://promptbill.online/): Interactive cost calculator, 14-column benchmark grid, and Pareto frontier scatter plot.',
-    '- [Head-to-Head Model Comparisons Hub](https://promptbill.online/compare): Compare flagship, coding, reasoning, and budget LLMs side-by-side.',
-    '- [All Models Directory](https://promptbill.online/models): Full catalog of tracked models with input, cached read, cache write, output pricing, and throughput.',
-    '- [API Pricing Reference](https://promptbill.online/pricing): Token pricing comparison across providers and tiers.',
-    '- [LLM Selector](https://promptbill.online/tools/llm-selector): Filter models by task, monthly budget, score, and license.',
-    '- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts and input/cached costs.',
-    '- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate savings from hybrid economy-to-flagship model routing.',
+    '## Core Pages & Tools',
+    '- [PromptBill Home](https://promptbill.online/): Dedicated hub for rankings, comparisons, pricing, and tools.',
+    '- [LLM Leaderboard](https://promptbill.online/leaderboard): Evidence-aware rankings showing scores, official API prices, and throughput where recorded.',
+    '- [Head-to-Head Model Comparisons](https://promptbill.online/compare): Compare tracked models side-by-side.',
+    '- [All Models Directory](https://promptbill.online/models): Full catalog of tracked models.',
+    '- [API Pricing](https://promptbill.online/pricing): Token pricing across providers and endpoints.',
+    '- [LLM Selector](https://promptbill.online/tools/llm-selector): Filter models by workload, price, score, and license.',
+    '- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts and input costs.',
+    '- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate cost differences from routing requests across models.',
     '',
     '## Tracked Models',
   ];
 
   for (const m of ALL_MODELS) {
+    const ctxLabel = m.contextWindow ?? 'N/A';
+    const speedLabel = typeof m.tokPerSec === 'number' && Number.isFinite(m.tokPerSec) ? `${m.tokPerSec} tok/s` : 'N/A';
     lines.push(
-      `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${m.score.toFixed(1)}, $${m.inputPer1M.toFixed(2)}/$${m.outputPer1M.toFixed(2)} per 1M, cached read $${m.cachedInputPer1M.toFixed(2)}/1M, ${m.contextWindow} context, ${m.tokPerSec} tok/s (${m.evidence}).`
+      `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${fmtScore(m.score)} (${m.benchmarkProvenance.status}), Official In/Out ${fmtPrice(m.inputPer1M)}/${fmtPrice(m.outputPer1M)} per 1M, Cached Read ${fmtPrice(m.cachedInputPer1M)}/1M, Context ${ctxLabel}, Speed ${speedLabel} (${m.speedProvenance.status}).`
     );
   }
 
