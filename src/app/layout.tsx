@@ -8,11 +8,11 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),
   title: {
-    default: 'PromptBill — LLM Leaderboard, API Pricing & AI Cost Tools',
+    default: 'PromptBill — LLM API Pricing, Token Cost Calculator & Benchmark Leaderboard',
     template: '%s | PromptBill',
   },
   description:
-    'Compare LLM rankings, head-to-head matchups, token pricing, coding picks, token counts, and hybrid routing on promptbill.online.',
+    'Compare LLM API token pricing per 1M tokens, prompt cache read/write rates, batch discounts, output speed (tok/s), coding benchmarks, and head-to-head model matchups.',
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
   },
@@ -26,7 +26,7 @@ const siteJsonLd = {
       name: 'PromptBill',
       url: 'https://promptbill.online',
       description:
-        'LLM benchmark leaderboard, model comparisons, API pricing calculators, token counter, and routing simulator.',
+        'LLM benchmark leaderboard, API token cost calculator, head-to-head model comparisons, token counter, and routing simulator.',
     },
     {
       '@type': 'Organization',

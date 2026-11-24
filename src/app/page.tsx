@@ -11,15 +11,14 @@ import {
   Cpu,
   ArrowRight,
   Zap,
-  ShieldCheck,
 } from 'lucide-react';
 import { SiteShell } from '../components/SiteShell';
 import { ALL_MODELS, getAllProviderSlugs } from '../lib/catalog';
 
 export const metadata: Metadata = {
-  title: 'PromptBill — LLM Leaderboard, API Pricing & AI Cost Tools',
+  title: 'PromptBill — LLM API Pricing, Token Cost Calculator & Benchmark Leaderboard',
   description:
-    'Dedicated hub for LLM rankings, A vs B model comparisons, API token pricing, model selection, coding picks, token counting, and routing.',
+    'Compare LLM API pricing per 1M tokens, benchmark scores, tokens per second, coding picks, token counts, and hybrid model routing on promptbill.online.',
   alternates: {
     canonical: '/',
   },
@@ -30,56 +29,56 @@ const ROUTE_CARDS = [
     href: '/leaderboard',
     title: 'LLM Leaderboard',
     badge: 'Rankings',
-    description: 'Compare composite benchmark scores, Elo ratings, output speed (tok/s), and value per dollar.',
+    description: 'Rankings by composite benchmark score, Elo rating, value per dollar, and tokens per second.',
     icon: ArrowUpDown,
   },
   {
     href: '/compare',
     title: 'Compare (A vs B)',
     badge: 'Matchups',
-    description: 'Side-by-side head-to-head model breakdowns across pricing, context window, and capability scores.',
+    description: 'Side-by-side comparison of two models across token pricing, context window, and task scores.',
     icon: Scale,
   },
   {
     href: '/pricing',
     title: 'API Pricing',
     badge: 'Billing',
-    description: 'Inspect input, cached read, cache write, and output rates per 1M tokens across providers.',
+    description: 'Input, cached input, cache write, and output token rates per 1M tokens across providers.',
     icon: Calculator,
   },
   {
     href: '/tools/llm-selector',
     title: 'LLM Selector',
     badge: 'Tool',
-    description: 'Filter models by workload category, monthly budget, benchmark score, and open/closed license.',
+    description: 'Filter models by task type, monthly budget, benchmark score, and license.',
     icon: Sparkles,
   },
   {
     href: '/best-llms-for-coding',
     title: 'Best for Coding',
     badge: 'Coding',
-    description: 'Top-ranked models for software engineering, code generation, debugging, and agentic workflows.',
+    description: 'Top-scoring models for software engineering, code generation, debugging, and tool use.',
     icon: Code2,
   },
   {
     href: '/tools/token-counter',
     title: 'Token Counter',
     badge: 'Tool',
-    description: 'Estimate prompt token counts and input/cached token costs before sending production traffic.',
+    description: 'Estimate prompt token counts and input/cached token spend before deploying.',
     icon: FileText,
   },
   {
     href: '/tools/routing-simulator',
     title: 'Routing Simulator',
     badge: 'Tool',
-    description: 'Model cost savings when routing routine prompts to fast/cheap models and complex tasks to flagships.',
+    description: 'Calculate savings from routing simple requests to lower-cost models and complex prompts to flagships.',
     icon: GitBranch,
   },
   {
     href: '/models',
     title: 'All Tracked Models',
     badge: 'Directory',
-    description: 'Browse every model in the registry with full specs, rate limits, and historical price snapshots.',
+    description: 'Complete model catalog with API rate limits, context windows, and price history.',
     icon: Cpu,
   },
 ];
@@ -91,10 +90,9 @@ export default function HomePage() {
   return (
     <SiteShell
       title="Compare LLM Costs, Speed & Benchmarks in One Place"
-      subtitle="promptbill.online · Dedicated Hub for Rankings, Pricing, Comparisons & AI Tools"
+      subtitle="promptbill.online · LLM Rankings, API Pricing, Model Comparisons & Cost Tools"
     >
       <div className="space-y-8">
-        {/* Hero / Quick Action Banner */}
         <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8 shadow-2xs">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="max-w-2xl space-y-3">
@@ -105,12 +103,12 @@ export default function HomePage() {
                 </span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
-                Pick the right LLM by cost, speed, and task fit—without guessing your bill.
+                Compare model accuracy, token pricing, and throughput before you ship.
               </h2>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Jump straight into live leaderboard rankings, A-vs-B model matchups, API token pricing,
-                coding recommendations, token counting, or hybrid routing on{' '}
-                <strong className="font-semibold text-slate-900">promptbill.online</strong>.
+                PromptBill (<strong className="font-semibold text-slate-900">promptbill.online</strong>)
+                organizes LLM data into dedicated pages for benchmark rankings, A-vs-B model matchups,
+                API token rates, coding picks, prompt token estimation, and multi-model routing.
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
@@ -126,18 +124,18 @@ export default function HomePage() {
                   prefetch={true}
                   className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
                 >
-                  <span>Explore API Pricing</span>
+                  <span>View API Pricing</span>
                 </Link>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 lg:w-80 shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+            <div className="grid grid-cols-2 gap-3 lg:w-72 shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
               <div className="rounded-lg border border-slate-200/80 bg-white p-3">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   Models
                 </div>
                 <div className="mt-1 font-mono text-xl font-bold text-slate-900">{modelCount}</div>
-                <div className="text-[11px] text-slate-600 mt-0.5">Live catalog</div>
+                <div className="text-[11px] text-slate-600 mt-0.5">Indexed catalog</div>
               </div>
               <div className="rounded-lg border border-slate-200/80 bg-white p-3">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -146,23 +144,16 @@ export default function HomePage() {
                 <div className="mt-1 font-mono text-xl font-bold text-slate-900">{providerCount}</div>
                 <div className="text-[11px] text-slate-600 mt-0.5">API &amp; hosts</div>
               </div>
-              <div className="col-span-2 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3 flex items-center justify-between">
-                <div className="text-xs font-medium text-emerald-950">
-                  Mobile-first tools with instant navigation
-                </div>
-                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Dedicated Route Directory Grid */}
         <section aria-label="PromptBill Sections and Tools" className="space-y-4">
           <div className="flex items-baseline justify-between gap-2">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-              Explore Dedicated Tools &amp; Rankings
+              Explore Rankings, Pricing &amp; Tools
             </h2>
-            <span className="text-xs text-slate-500">Tap any card to open</span>
+            <span className="text-xs text-slate-500">Select a section</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -202,43 +193,19 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* GEO / Concise Answer Block for Search & AI Engines */}
         <section
-          aria-label="PromptBill Overview"
+          aria-label="PromptBill Reference Guide"
           className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-2 text-sm text-slate-700"
         >
-          <h2 className="text-base font-bold text-slate-900">How PromptBill Works</h2>
+          <h2 className="text-base font-bold text-slate-900">PromptBill Directory &amp; Use Cases</h2>
           <p className="leading-relaxed">
-            PromptBill (<code className="font-mono text-xs text-slate-900">promptbill.online</code>)
-            organizes LLM evaluation and API cost analysis into focused pages: use{' '}
-            <Link href="/leaderboard" className="font-semibold text-emerald-800 underline">
-              /leaderboard
-            </Link>{' '}
-            for overall rankings,{' '}
-            <Link href="/compare" className="font-semibold text-emerald-800 underline">
-              /compare
-            </Link>{' '}
-            for side-by-side model matchups,{' '}
-            <Link href="/pricing" className="font-semibold text-emerald-800 underline">
-              /pricing
-            </Link>{' '}
-            for per-million-token rates,{' '}
-            <Link href="/best-llms-for-coding" className="font-semibold text-emerald-800 underline">
-              /best-llms-for-coding
-            </Link>{' '}
-            for coding benchmarks, and{' '}
-            <Link href="/tools/llm-selector" className="font-semibold text-emerald-800 underline">
-              /tools/llm-selector
-            </Link>
-            ,{' '}
-            <Link href="/tools/token-counter" className="font-semibold text-emerald-800 underline">
-              /tools/token-counter
-            </Link>
-            , and{' '}
-            <Link href="/tools/routing-simulator" className="font-semibold text-emerald-800 underline">
-              /tools/routing-simulator
-            </Link>{' '}
-            for interactive planning.
+            Use <Link href="/leaderboard" className="font-semibold text-emerald-800 underline">/leaderboard</Link> to rank models by benchmark score, Elo, and speed;{' '}
+            <Link href="/compare" className="font-semibold text-emerald-800 underline">/compare</Link> for direct model matchups;{' '}
+            <Link href="/pricing" className="font-semibold text-emerald-800 underline">/pricing</Link> for per-million-token API costs;{' '}
+            <Link href="/best-llms-for-coding" className="font-semibold text-emerald-800 underline">/best-llms-for-coding</Link> for coding rankings; and{' '}
+            <Link href="/tools/llm-selector" className="font-semibold text-emerald-800 underline">/tools/llm-selector</Link>,{' '}
+            <Link href="/tools/token-counter" className="font-semibold text-emerald-800 underline">/tools/token-counter</Link>, and{' '}
+            <Link href="/tools/routing-simulator" className="font-semibold text-emerald-800 underline">/tools/routing-simulator</Link> for interactive estimation.
           </p>
         </section>
       </div>
