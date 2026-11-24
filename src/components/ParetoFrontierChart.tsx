@@ -161,6 +161,7 @@ export const ParetoFrontierChart: React.FC<ParetoFrontierChartProps> = ({ models
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
+    license: 'https://creativecommons.org/licenses/by/4.0/',
     name:
       mode === 'price'
         ? 'PromptBill LLM Intelligence vs. Blended API Token Cost Pareto Frontier'
