@@ -82,18 +82,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 8.2,
+        "inputPer1M": 8,
         "cachedInputPer1M": 0.42,
         "cacheWritePer1M": 8.2,
-        "outputPer1M": 41,
+        "outputPer1M": 40,
         "batchDiscount": 0.35,
         "latencyMs": 455,
         "notes": "Unified fallback & multi-provider routing",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -180,18 +180,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 2.05,
+        "inputPer1M": 2,
         "cachedInputPer1M": 0.11,
         "cacheWritePer1M": 2.05,
-        "outputPer1M": 10.25,
+        "outputPer1M": 10,
         "batchDiscount": 0.35,
         "latencyMs": 310,
         "notes": "Single API key across providers",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -278,18 +278,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 1.05,
+        "inputPer1M": 1,
         "cachedInputPer1M": 0.06,
         "cacheWritePer1M": 1.05,
-        "outputPer1M": 5.2,
+        "outputPer1M": 5,
         "batchDiscount": 0.35,
         "latencyMs": 245,
         "notes": "Easy failover routing",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -376,18 +376,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 0.22,
+        "inputPer1M": 0.2,
         "cachedInputPer1M": 0.025,
         "cacheWritePer1M": 0.22,
-        "outputPer1M": 1.35,
+        "outputPer1M": 1.25,
         "batchDiscount": 0.35,
         "latencyMs": 185,
         "notes": "Unified billing",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -490,18 +490,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 8.2,
+        "inputPer1M": 8,
         "cachedInputPer1M": 0.22,
         "cacheWritePer1M": 10.25,
-        "outputPer1M": 41,
+        "outputPer1M": 40,
         "batchDiscount": 0.35,
         "latencyMs": 450,
         "notes": "Cross-provider fallback",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -604,18 +604,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 4.15,
+        "inputPer1M": 4,
         "cachedInputPer1M": 0.22,
         "cacheWritePer1M": 5.2,
-        "outputPer1M": 20.5,
+        "outputPer1M": 20,
         "batchDiscount": 0.35,
         "latencyMs": 385,
         "notes": "Unified router key",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -718,18 +718,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 2.1,
+        "inputPer1M": 2,
         "cachedInputPer1M": 0.11,
         "cacheWritePer1M": 2.6,
-        "outputPer1M": 10.3,
+        "outputPer1M": 10,
         "batchDiscount": 0.35,
         "latencyMs": 285,
         "notes": "Multi-model gateway access",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -832,18 +832,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 0.84,
+        "inputPer1M": 0.1,
         "cachedInputPer1M": 0.05,
         "cacheWritePer1M": 1.05,
-        "outputPer1M": 4.2,
+        "outputPer1M": 0.5,
         "batchDiscount": 0.35,
         "latencyMs": 210,
         "notes": "Router fallback support",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -930,18 +930,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 3.1,
+        "inputPer1M": 3,
         "cachedInputPer1M": 0.16,
         "cacheWritePer1M": 3.1,
-        "outputPer1M": 15.4,
+        "outputPer1M": 15,
         "batchDiscount": 0.35,
         "latencyMs": 340,
         "notes": "Unified gateway endpoint",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1028,18 +1028,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 2.08,
+        "inputPer1M": 2,
         "cachedInputPer1M": 0.11,
         "cacheWritePer1M": 2.08,
-        "outputPer1M": 10.3,
+        "outputPer1M": 10,
         "batchDiscount": 0.35,
         "latencyMs": 260,
         "notes": "Multi-model router access",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1126,18 +1126,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 0.53,
+        "inputPer1M": 1.5,
         "cachedInputPer1M": 0.035,
         "cacheWritePer1M": 0.53,
-        "outputPer1M": 3.15,
+        "outputPer1M": 7.5,
         "batchDiscount": 0.35,
         "latencyMs": 195,
         "notes": "Gateway routing",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1224,18 +1224,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 2.1,
+        "inputPer1M": 2,
         "cachedInputPer1M": 0.22,
         "cacheWritePer1M": 2.1,
-        "outputPer1M": 6.3,
+        "outputPer1M": 6,
         "batchDiscount": 0.3,
         "latencyMs": 275,
         "notes": "Unified router access",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1322,18 +1322,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 1.32,
+        "inputPer1M": 1.25,
         "cachedInputPer1M": 0.14,
         "cacheWritePer1M": 1.32,
-        "outputPer1M": 2.65,
+        "outputPer1M": 2.5,
         "batchDiscount": 0.3,
         "latencyMs": 240,
         "notes": "Router access",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1420,18 +1420,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 3.15,
+        "inputPer1M": 0.192,
         "cachedInputPer1M": 0.18,
         "cacheWritePer1M": 3.15,
-        "outputPer1M": 15.6,
+        "outputPer1M": 16,
         "batchDiscount": 0.35,
         "latencyMs": 350,
         "notes": "Global router endpoint",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1534,18 +1534,18 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 1,
+        "inputPer1M": 0.6,
         "cachedInputPer1M": 0.09,
         "cacheWritePer1M": 1,
-        "outputPer1M": 4.2,
+        "outputPer1M": 3,
         "batchDiscount": 0.35,
         "latencyMs": 245,
         "notes": "Unified router access",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
-        "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
@@ -1692,6 +1692,22 @@
         "sourceUrl": null,
         "lastVerified": null,
         "evidenceStatus": "Estimated"
+      },
+      {
+        "host": "OpenRouter",
+        "providerType": "Router",
+        "inputPer1M": 0.0507,
+        "cachedInputPer1M": null,
+        "cacheWritePer1M": null,
+        "outputPer1M": 0.2028,
+        "batchDiscount": null,
+        "latencyMs": null,
+        "notes": "Synced from OpenRouter (deepseek/deepseek-v4.1-flash)",
+        "currency": "USD",
+        "pricingUnit": "per 1M tokens",
+        "sourceUrl": "https://openrouter.ai/api/v1/models",
+        "lastVerified": "2026-11-24T14:43:18.397Z",
+        "evidenceStatus": "Verified"
       }
     ]
   },
