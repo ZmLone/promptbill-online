@@ -1,19 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-});
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),
@@ -23,9 +13,6 @@ export const metadata: Metadata = {
   },
   description:
     'Compare LLM benchmark scores, API token pricing, head-to-head model matchups, speed (Tok/s), and 30-day cost & margin calculators on promptbill.online.',
-  alternates: {
-    canonical: 'https://promptbill.online/',
-  },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
   },
@@ -53,23 +40,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">
-        {children}
-        <Script
-          id="promptbill-jsonld"
+      <head>
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
         {adsenseClient ? (
-          <Script
-            id="promptbill-adsense"
+          <script
+            async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
-            strategy="lazyOnload"
             crossOrigin="anonymous"
           />
         ) : null}
-      </body>
+      </head>
+      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body>
     </html>
   );
 }
