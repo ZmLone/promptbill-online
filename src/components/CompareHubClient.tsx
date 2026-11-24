@@ -14,17 +14,39 @@ interface CompareHubClientProps {
   pairs: readonly ComparisonPairItem[];
 }
 
-function buildCanonicalPairSlug(slugA: string, slugB: string, models: readonly CatalogModelItem[]): string {
+function buildCanonicalPairSlug(
+  slugA: string,
+  slugB: string,
+  models: readonly CatalogModelItem[]
+): string {
   const rankMap = new Map<string, number>();
-  models.forEach((m) => rankMap.set(m.slug, m.rank));
+  models.forEach((m) => {
+    if (typeof m.rank === 'number' && Number.isFinite(m.rank)) {
+      rankMap.set(m.slug, m.rank);
+    }
+  });
 
-  const rankA = rankMap.get(slugA) ?? 999;
-  const rankB = rankMap.get(slugB) ?? 999;
+  const rankA = rankMap.get(slugA) ?? 999999;
+  const rankB = rankMap.get(slugB) ?? 999999;
 
   if (rankA !== rankB) {
     return rankA < rankB ? `${slugA}-vs-${slugB}` : `${slugB}-vs-${slugA}`;
   }
-  return [slugA, slugB].sort()[0] === slugA ? `${slugA}-vs-${slugB}` : `${slugB}-vs-${slugA}`;
+  return [slugA, slugB].sort()[0] === slugA
+    ? `${slugA}-vs-${slugB}`
+    : `${slugB}-vs-${slugA}`;
+}
+
+function fmtScore(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : 'N/A';
+}
+
+function fmtPrice(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+}
+
+function fmtSpeed(val: number | null): string {
+  return typeof val === 'number' && Number.isFinite(val) ? `${val} tok/s` : 'N/A';
 }
 
 export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pairs }) => {
@@ -52,7 +74,11 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
       const targetCanonical = buildCanonicalPairSlug(a, b, models);
       return (
         pairs.find((p) => p.slug === targetCanonical) ||
-        pairs.find((p) => (p.modelA.slug === a && p.modelB.slug === b) || (p.modelA.slug === b && p.modelB.slug === a))
+        pairs.find(
+          (p) =>
+            (p.modelA.slug === a && p.modelB.slug === b) ||
+            (p.modelA.slug === b && p.modelB.slug === a)
+        )
       );
     };
 
@@ -79,7 +105,10 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
   const providerPills = ['All', 'Anthropic', 'Google', 'OpenAI', 'DeepSeek', 'Qwen'];
 
   const groupedByPrimaryModel = useMemo(() => {
-    const map = new Map<string, { primaryModel: CatalogModelItem; items: ComparisonPairItem[] }>();
+    const map = new Map<
+      string,
+      { primaryModel: CatalogModelItem; items: ComparisonPairItem[] }
+    >();
     for (const pair of pairs) {
       const key = pair.modelA.slug;
       const existing = map.get(key);
@@ -114,7 +143,11 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
   };
 
   const renderMatchupCard = (pair: ComparisonPairItem) => {
-    const canonicalSlug = buildCanonicalPairSlug(pair.modelA.slug, pair.modelB.slug, models);
+    const canonicalSlug = buildCanonicalPairSlug(
+      pair.modelA.slug,
+      pair.modelB.slug,
+      models
+    );
     return (
       <Link
         key={pair.slug}
@@ -127,16 +160,18 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
             {pair.modelA.name} vs. {pair.modelB.name}
           </div>
           <div className="font-mono text-xs font-semibold text-emerald-800">
-            Score {pair.modelA.score.toFixed(1)} vs {pair.modelB.score.toFixed(1)}
+            Score {fmtScore(pair.modelA.score)} vs {fmtScore(pair.modelB.score)}
           </div>
         </div>
 
         <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-2 font-mono text-[11px] text-slate-700">
           <span>
-            ${pair.modelA.inputPer1M}/${pair.modelA.outputPer1M} ({pair.modelA.tokPerSec} tok/s)
+            {fmtPrice(pair.modelA.inputPer1M)}/{fmtPrice(pair.modelA.outputPer1M)} (
+            {fmtSpeed(pair.modelA.tokPerSec)})
           </span>
           <span>
-            ${pair.modelB.inputPer1M}/${pair.modelB.outputPer1M} ({pair.modelB.tokPerSec} tok/s)
+            {fmtPrice(pair.modelB.inputPer1M)}/{fmtPrice(pair.modelB.outputPer1M)} (
+            {fmtSpeed(pair.modelB.tokPerSec)})
           </span>
         </div>
       </Link>
@@ -145,9 +180,11 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
 
   return (
     <div className="space-y-6">
-      {/* Static on mobile (< md), sticky on PC/desktop (md:sticky md:top-16) */}
       <div className="relative md:sticky md:top-16 z-20 rounded-xl border border-slate-300 bg-white/95 md:backdrop-blur p-4 shadow-sm">
-        <form onSubmit={handleCompareNow} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+        <form
+          onSubmit={handleCompareNow}
+          className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end"
+        >
           <label className="md:col-span-5 space-y-1 text-xs">
             <span className="font-semibold text-slate-800 block">Select Model A</span>
             <select
@@ -158,7 +195,7 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
             >
               {models.map((m) => (
                 <option key={m.id} value={m.slug}>
-                  {m.name} ({m.provider} · Score {m.score.toFixed(1)})
+                  {m.name} ({m.provider} · Score {fmtScore(m.score)})
                 </option>
               ))}
             </select>
@@ -174,7 +211,7 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
             >
               {models.map((m) => (
                 <option key={m.id} value={m.slug}>
-                  {m.name} ({m.provider} · Score {m.score.toFixed(1)})
+                  {m.name} ({m.provider} · Score {fmtScore(m.score)})
                 </option>
               ))}
             </select>
@@ -193,7 +230,10 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
         </form>
       </div>
 
-      <section aria-labelledby="curated-matchups-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
+      <section
+        aria-labelledby="curated-matchups-heading"
+        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5"
+      >
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-emerald-800" />
           <h2 id="curated-matchups-heading" className="text-lg font-bold text-slate-900">
@@ -214,7 +254,7 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
         <div className="space-y-3 pt-2 border-t border-slate-100">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800">
             <Code2 className="w-4 h-4 text-emerald-800" />
-            <span>Best Budget Coding</span>
+            <span>Budget &amp; Coding Matchups</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {curatedGroups.budgetCoding.map(renderMatchupCard)}
@@ -222,14 +262,17 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
         </div>
       </section>
 
-      <section aria-labelledby="all-matchups-heading" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
+      <section
+        aria-labelledby="all-matchups-heading"
+        className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 id="all-matchups-heading" className="text-lg font-bold text-slate-900">
               All Head-to-Head Model Matchups ({pairs.length})
             </h2>
             <p className="text-xs text-slate-700 mt-0.5">
-              Grouped by primary model with composite scores, pricing, and speed on every card.
+              Grouped by primary model with scores, official API pricing, and throughput where available.
             </p>
           </div>
 
@@ -277,14 +320,17 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
               <details
                 key={primaryModel.slug}
                 open={shouldForceOpen ? true : undefined}
-                className={`${hasMatchingItems ? 'block' : 'hidden'} rounded-xl border border-slate-200 bg-slate-50/40 p-3.5 sm:p-4`}
+                className={`${
+                  hasMatchingItems ? 'block' : 'hidden'
+                } rounded-xl border border-slate-200 bg-slate-50/40 p-3.5 sm:p-4`}
               >
                 <summary className="cursor-pointer min-h-[36px] flex items-center justify-between gap-2 text-sm sm:text-base font-bold text-slate-900">
                   <span>
                     All {primaryModel.name} Comparisons ({items.length})
                   </span>
                   <span className="font-mono text-xs text-slate-600">
-                    Score {primaryModel.score.toFixed(1)} · ${primaryModel.inputPer1M}/${primaryModel.outputPer1M}
+                    Score {fmtScore(primaryModel.score)} · {fmtPrice(primaryModel.inputPer1M)}/
+                    {fmtPrice(primaryModel.outputPer1M)}
                   </span>
                 </summary>
 
