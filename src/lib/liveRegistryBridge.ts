@@ -1,72 +1,117 @@
 import modelsJson from '../data/models.json';
 
+export type ProvenanceStatus = 'Verified' | 'Estimated' | 'Unavailable';
+
+export interface FieldProvenance {
+  status: ProvenanceStatus;
+  sourceUrl: string | null;
+  lastVerified: string | null;
+  currency?: string | null;
+  pricingUnit?: string | null;
+  hardwareOrProvider?: string | null;
+  conditions?: string | null;
+  notes?: string | null;
+}
+
 export interface LivePriceHistoryEntry {
   date: string;
   inputPer1M: number;
   outputPer1M: number;
   note?: string;
+  sourceUrl?: string | null;
+}
+
+export interface LiveHostingEndpoint {
+  host: string;
+  providerType?: 'Official API' | 'Router' | 'Inference Cloud' | string;
+  inputPer1M: number;
+  cachedInputPer1M?: number | null;
+  cacheWritePer1M?: number | null;
+  outputPer1M: number;
+  batchDiscount?: number | null;
+  latencyMs?: number | null;
+  notes?: string | null;
+  currency?: string;
+  pricingUnit?: string;
+  sourceUrl?: string | null;
+  lastVerified?: string | null;
+  evidenceStatus?: ProvenanceStatus | string;
 }
 
 export interface LiveModelRecord {
   id: string;
   slug?: string;
-  rank?: number;
+  rank?: number | null;
   name: string;
   provider?: string;
   providerSlug?: string;
-  family?: string;
-  license?: 'Open' | 'Closed' | string;
-  evidence?: 'Supported' | 'Estimated' | string;
-  score?: number;
-  interval?: string;
-  elo?: number;
-  inputPer1M: number;
-  cachedInputPer1M?: number;
-  outputPer1M: number;
-  contextWindow?: string;
-  maxOutputTokens?: string;
-  tokPerSec?: number;
-  ag?: number;
-  co?: number;
-  re?: number;
-  mm?: number;
-  kn?: number;
-  ml?: number;
-  if?: number;
-  ma?: number;
-  rpmLimit?: string;
-  tpmLimit?: string;
-  tpdLimit?: string;
-  batchDiscount?: number;
-  bestFor?: string;
-  notes?: string;
+  family?: string | null;
+  license?: 'Open' | 'Closed' | string | null;
+  evidence?: ProvenanceStatus | string | null;
+  score?: number | null;
+  qualityScore?: number | null;
+  interval?: string | null;
+  elo?: number | null;
+  inputPer1M?: number | null;
+  cachedInputPer1M?: number | null;
+  cacheWritePer1M?: number | null;
+  outputPer1M?: number | null;
+  longContextMultiplierInput?: number | null;
+  longContextMultiplierOutput?: number | null;
+  longContextThresholdTokens?: number | null;
+  contextWindow?: string | null;
+  maxOutputTokens?: string | null;
+  tokPerSec?: number | null;
+  speedTokensPerSec?: number | null;
+  ag?: number | null;
+  co?: number | null;
+  re?: number | null;
+  mm?: number | null;
+  kn?: number | null;
+  ml?: number | null;
+  if?: number | null;
+  ma?: number | null;
+  rpmLimit?: string | null;
+  tpmLimit?: string | null;
+  tpdLimit?: string | null;
+  batchDiscount?: number | null;
+  tier?: string | null;
+  bestFor?: string | null;
+  notes?: string | null;
+  pricingProvenance?: FieldProvenance;
+  benchmarkProvenance?: FieldProvenance;
+  speedProvenance?: FieldProvenance;
   priceHistory?: LivePriceHistoryEntry[];
+  hostingEndpoints?: LiveHostingEndpoint[];
 }
 
 export interface PriceableModelShape {
   id?: string;
   slug?: string;
   name?: string;
-  inputPer1M: number;
-  outputPer1M: number;
-  cachedInputPer1M?: number;
-  rank?: number;
-  score?: number;
-  elo?: number;
-  tokPerSec?: number;
-  contextWindow?: string;
-  evidence?: 'Supported' | 'Estimated' | string;
+  inputPer1M: number | null;
+  outputPer1M: number | null;
+  cachedInputPer1M?: number | null;
+  cacheWritePer1M?: number | null;
+  batchDiscount?: number | null;
+  rank?: number | null;
+  score?: number | null;
+  elo?: number | null;
+  tokPerSec?: number | null;
+  contextWindow?: string | null;
+  evidence?: ProvenanceStatus | string | null;
   priceHistory?: Array<{
     date: string;
     inputPer1M: number;
     outputPer1M: number;
     note: string;
+    sourceUrl?: string | null;
   }>;
 }
 
-const LIVE_RECORDS = modelsJson as LiveModelRecord[];
+const LIVE_RECORDS = Array.isArray(modelsJson) ? (modelsJson as LiveModelRecord[]) : [];
 
-function normalizeSlugLike(val: string | undefined): string {
+function normalizeSlugLike(val: string | undefined | null): string {
   return String(val || '')
     .toLowerCase()
     .replace(/^[^/]+\//, '')
@@ -111,36 +156,80 @@ export function findLiveRecord(model: { id?: string; slug?: string; name?: strin
   return undefined;
 }
 
+function validNumberOrUndefined(val: unknown): number | null | undefined {
+  if (val === undefined) return undefined;
+  if (val === null) return null;
+  if (typeof val === 'number' && Number.isFinite(val) && val >= 0) return val;
+  return undefined;
+}
+
 export function applyLiveRegistryPricing<T extends PriceableModelShape>(model: T): T {
   const live = findLiveRecord(model);
   if (!live) return model;
 
-  const inputPer1M = typeof live.inputPer1M === 'number' ? live.inputPer1M : model.inputPer1M;
-  const outputPer1M = typeof live.outputPer1M === 'number' ? live.outputPer1M : model.outputPer1M;
-  const cachedInputPer1M =
-    typeof live.cachedInputPer1M === 'number'
-      ? live.cachedInputPer1M
-      : Number((inputPer1M * 0.1).toFixed(4));
+  const officialEp = Array.isArray(live.hostingEndpoints)
+    ? live.hostingEndpoints.find((ep) => ep && ep.providerType === 'Official API')
+    : undefined;
+
+  const resolvedIn =
+    validNumberOrUndefined(officialEp?.inputPer1M) ??
+    validNumberOrUndefined(live.inputPer1M) ??
+    model.inputPer1M;
+  const resolvedOut =
+    validNumberOrUndefined(officialEp?.outputPer1M) ??
+    validNumberOrUndefined(live.outputPer1M) ??
+    model.outputPer1M;
+  const resolvedCached =
+    validNumberOrUndefined(officialEp?.cachedInputPer1M) ??
+    validNumberOrUndefined(live.cachedInputPer1M) ??
+    model.cachedInputPer1M ??
+    null;
+  const resolvedCacheWrite =
+    validNumberOrUndefined(officialEp?.cacheWritePer1M) ??
+    validNumberOrUndefined(live.cacheWritePer1M) ??
+    model.cacheWritePer1M ??
+    null;
+  const resolvedBatch =
+    validNumberOrUndefined(officialEp?.batchDiscount) ??
+    validNumberOrUndefined(live.batchDiscount) ??
+    model.batchDiscount ??
+    null;
+
+  const resolvedScore =
+    validNumberOrUndefined(live.score) ??
+    validNumberOrUndefined(live.qualityScore) ??
+    model.score ??
+    null;
+  const resolvedSpeed =
+    validNumberOrUndefined(live.tokPerSec) ??
+    validNumberOrUndefined(live.speedTokensPerSec) ??
+    model.tokPerSec ??
+    null;
 
   return {
     ...model,
-    inputPer1M,
-    outputPer1M,
-    cachedInputPer1M,
-    ...(typeof live.rank === 'number' ? { rank: live.rank } : {}),
-    ...(typeof live.score === 'number' ? { score: live.score } : {}),
-    ...(typeof live.elo === 'number' ? { elo: live.elo } : {}),
-    ...(typeof live.tokPerSec === 'number' ? { tokPerSec: live.tokPerSec } : {}),
-    ...(live.contextWindow ? { contextWindow: live.contextWindow } : {}),
-    ...(live.evidence === 'Supported' || live.evidence === 'Estimated' ? { evidence: live.evidence } : {}),
-    ...(Array.isArray(live.priceHistory) && live.priceHistory.length > 0
+    inputPer1M: resolvedIn,
+    outputPer1M: resolvedOut,
+    cachedInputPer1M: resolvedCached,
+    cacheWritePer1M: resolvedCacheWrite,
+    batchDiscount: resolvedBatch,
+    ...(live.rank !== undefined ? { rank: validNumberOrUndefined(live.rank) ?? null } : {}),
+    score: resolvedScore,
+    ...(live.elo !== undefined ? { elo: validNumberOrUndefined(live.elo) ?? null } : {}),
+    tokPerSec: resolvedSpeed,
+    ...(live.contextWindow !== undefined ? { contextWindow: live.contextWindow } : {}),
+    ...(live.evidence ? { evidence: live.evidence } : {}),
+    ...(Array.isArray(live.priceHistory)
       ? {
-          priceHistory: live.priceHistory.map((h) => ({
-            date: h.date,
-            inputPer1M: h.inputPer1M,
-            outputPer1M: h.outputPer1M,
-            note: h.note || 'Synced from src/data/models.json',
-          })),
+          priceHistory: live.priceHistory
+            .filter((h) => h && typeof h.date === 'string' && typeof h.inputPer1M === 'number' && typeof h.outputPer1M === 'number')
+            .map((h) => ({
+              date: h.date,
+              inputPer1M: h.inputPer1M,
+              outputPer1M: h.outputPer1M,
+              note: h.note || 'Recorded price entry',
+              sourceUrl: h.sourceUrl ?? null,
+            })),
         }
       : {}),
   };
