@@ -8,11 +8,11 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),
   title: {
-    default: 'PromptBill — LLM Leaderboard & API Cost Calculator',
+    default: 'PromptBill — LLM Leaderboard, API Pricing & AI Cost Tools',
     template: '%s | PromptBill',
   },
   description:
-    'Compare LLM benchmark scores, API token pricing, head-to-head model matchups, speed (Tok/s), and 30-day cost & margin calculators on promptbill.online.',
+    'Compare LLM rankings, head-to-head matchups, token pricing, coding picks, token counts, and hybrid routing on promptbill.online.',
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
   },
@@ -25,7 +25,8 @@ const siteJsonLd = {
       '@type': 'WebSite',
       name: 'PromptBill',
       url: 'https://promptbill.online',
-      description: 'LLM benchmark rankings, model comparisons, and API token cost calculators.',
+      description:
+        'LLM benchmark leaderboard, model comparisons, API pricing calculators, token counter, and routing simulator.',
     },
     {
       '@type': 'Organization',
@@ -53,7 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ) : null}
       </head>
-      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased">{children}</body>
+      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }
