@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ALL_MODELS } from '../lib/catalog';
+import { calculateModelCost, formatCurrency } from '../lib/pricingEngine';
 import {
   Award,
   TrendingUp,
@@ -25,27 +26,32 @@ interface LlmSelectorClientProps {
   models: readonly SelectorModel[];
 }
 
-function buildCanonicalCompareSlug(slugA: string, slugB: string, models: readonly SelectorModel[]): string {
+function buildCanonicalCompareSlug(
+  slugA: string,
+  slugB: string,
+  models: readonly SelectorModel[]
+): string {
   const rankMap = new Map<string, number>();
-  models.forEach((m) => rankMap.set(m.slug, m.rank));
-  const rankA = rankMap.get(slugA) ?? 999;
-  const rankB = rankMap.get(slugB) ?? 999;
+  models.forEach((m) => {
+    if (typeof m.rank === 'number' && Number.isFinite(m.rank)) {
+      rankMap.set(m.slug, m.rank);
+    }
+  });
+  const rankA = rankMap.get(slugA) ?? 999999;
+  const rankB = rankMap.get(slugB) ?? 999999;
   if (rankA !== rankB) {
     return rankA < rankB ? `${slugA}-vs-${slugB}` : `${slugB}-vs-${slugA}`;
   }
-  return [slugA, slugB].sort()[0] === slugA ? `${slugA}-vs-${slugB}` : `${slugB}-vs-${slugA}`;
+  return [slugA, slugB].sort()[0] === slugA
+    ? `${slugA}-vs-${slugB}`
+    : `${slugB}-vs-${slugA}`;
 }
 
-function estimateMonthlySpend(model: SelectorModel, monthlyCalls: number): number {
-  if (monthlyCalls <= 0) return 0;
-  // Realistic 3,500 input tokens (with 50% cached read) + 500 output tokens per call
-  const inputTok = 3500;
-  const outputTok = 500;
-  const blendedInputRate = 0.5 * model.inputPer1M + 0.5 * model.cachedInputPer1M;
-  return (
-    (monthlyCalls * inputTok * blendedInputRate) / 1_000_000 +
-    (monthlyCalls * outputTok * model.outputPer1M) / 1_000_000
-  );
+function compareNullableNum(a: number | null, b: number | null, desc = true): number {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return desc ? b - a : a - b;
 }
 
 export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) => {
@@ -61,7 +67,6 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState<boolean>(false);
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
 
-  // Hydrate filter state from incoming URL query params on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -82,7 +87,7 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
       found = true;
     }
     if (score && !Number.isNaN(Number(score))) {
-      setMinScore(Math.min(92, Math.max(65, Number(score))));
+      setMinScore(Math.min(92, Math.max(0, Number(score))));
       found = true;
     }
     if (openWeight === 'true') {
@@ -102,7 +107,6 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
     }
   }, []);
 
-  // Sync URL query params after user interaction (canonical stays clean /tools/llm-selector)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!hasUserInteracted.current) return;
@@ -129,84 +133,123 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
   }, [maxOutputPrice, minScore, openWeightOnly]);
 
   const enrichedModels = useMemo(() => {
+    const callsPerDay = monthlyCallsPreset > 0 ? monthlyCallsPreset / 30 : 0;
     return models
       .filter((m) => {
-        if (m.outputPer1M > maxOutputPrice) return false;
-        if (m.score < minScore) return false;
+        if (m.outputPer1M !== null && m.outputPer1M > maxOutputPrice) return false;
+        if (m.score !== null && m.score < minScore) return false;
         if (openWeightOnly && m.license !== 'Open') return false;
-        if (goal === 'coding') return m.co >= 76 || m.bestFor.toLowerCase().includes('cod');
-        if (goal === 'reasoning') return m.re >= 78 || m.ag >= 78;
-        if (goal === 'classification') return m.outputPer1M <= 4.0 || m.bestFor.toLowerCase().includes('class');
-        if (goal === 'fast') return m.tokPerSec >= 150;
+        if (goal === 'coding') {
+          return (
+            (typeof m.co === 'number' && m.co >= 76) ||
+            (m.bestFor ?? '').toLowerCase().includes('cod')
+          );
+        }
+        if (goal === 'reasoning') {
+          return (
+            (typeof m.re === 'number' && m.re >= 78) ||
+            (typeof m.ag === 'number' && m.ag >= 78)
+          );
+        }
+        if (goal === 'classification') {
+          return (
+            (typeof m.outputPer1M === 'number' && m.outputPer1M <= 4.0) ||
+            (m.bestFor ?? '').toLowerCase().includes('class')
+          );
+        }
+        if (goal === 'fast') {
+          return typeof m.tokPerSec === 'number' && m.tokPerSec >= 150;
+        }
         return true;
       })
       .map((m) => {
-        const scorePerDollar = m.outputPer1M > 0 ? Number((m.score / m.outputPer1M).toFixed(1)) : m.score;
-        const estMonthlyCost = estimateMonthlySpend(m, monthlyCallsPreset);
-        return { model: m, scorePerDollar, estMonthlyCost };
+        const calc = calculateModelCost(m, {
+          inputTokensPerCall: 3500,
+          outputTokensPerCall: 500,
+          reasoningTokensPerCall: 0,
+          callsPerDay,
+          cacheHitPercent: 0,
+          cacheWriteSharePercent: 0,
+          batchPercent: 0,
+          retriesPercent: 0,
+        });
+        return {
+          model: m,
+          scorePerDollar: calc.valueScore,
+          estMonthlyCost: calc.hasPricingData ? calc.monthlyTotalCost : null,
+        };
       });
   }, [models, goal, maxOutputPrice, minScore, openWeightOnly, monthlyCallsPreset]);
 
   const sortedResults = useMemo(() => {
     const arr = [...enrichedModels];
     arr.sort((a, b) => {
-      if (sortMode === 'value') return b.scorePerDollar - a.scorePerDollar;
-      if (sortMode === 'price') return a.model.outputPer1M - b.model.outputPer1M;
-      if (sortMode === 'speed') return b.model.tokPerSec - a.model.tokPerSec;
-      // 'best': workload-aware primary metric
-      if (goal === 'coding') return b.model.co - a.model.co || b.model.score - a.model.score;
-      if (goal === 'reasoning') return b.model.re - a.model.re || b.model.score - a.model.score;
-      if (goal === 'classification') return b.scorePerDollar - a.scorePerDollar;
-      if (goal === 'fast') return b.model.tokPerSec - a.model.tokPerSec;
-      return b.model.score - a.model.score;
+      if (sortMode === 'value') return compareNullableNum(a.scorePerDollar, b.scorePerDollar, true);
+      if (sortMode === 'price') return compareNullableNum(a.model.outputPer1M, b.model.outputPer1M, false);
+      if (sortMode === 'speed') return compareNullableNum(a.model.tokPerSec, b.model.tokPerSec, true);
+      if (goal === 'coding') {
+        const cmpCo = compareNullableNum(a.model.co, b.model.co, true);
+        return cmpCo !== 0 ? cmpCo : compareNullableNum(a.model.score, b.model.score, true);
+      }
+      if (goal === 'reasoning') {
+        const cmpRe = compareNullableNum(a.model.re, b.model.re, true);
+        return cmpRe !== 0 ? cmpRe : compareNullableNum(a.model.score, b.model.score, true);
+      }
+      if (goal === 'classification') return compareNullableNum(a.scorePerDollar, b.scorePerDollar, true);
+      if (goal === 'fast') return compareNullableNum(a.model.tokPerSec, b.model.tokPerSec, true);
+      return compareNullableNum(a.model.score, b.model.score, true);
     });
     return arr;
   }, [enrichedModels, sortMode, goal]);
 
-  // Dynamic Top 3 Picks Spotlight for current filters
   const top3Spotlight = useMemo(() => {
     if (enrichedModels.length === 0) return [];
-    const byQuality = [...enrichedModels].sort((a, b) => {
-      if (goal === 'coding') return b.model.co - a.model.co || b.model.score - a.model.score;
-      if (goal === 'reasoning') return b.model.re - a.model.re || b.model.score - a.model.score;
-      return b.model.score - a.model.score;
-    })[0];
-
-    const byValue = [...enrichedModels].sort((a, b) => b.scorePerDollar - a.scorePerDollar)[0];
-    const bySpeed = [...enrichedModels].sort((a, b) => b.model.tokPerSec - a.model.tokPerSec)[0];
+    const byQuality = [...enrichedModels].sort((a, b) =>
+      compareNullableNum(a.model.score, b.model.score, true)
+    )[0];
+    const byValue = [...enrichedModels].sort((a, b) =>
+      compareNullableNum(a.scorePerDollar, b.scorePerDollar, true)
+    )[0];
+    const bySpeed = [...enrichedModels].sort((a, b) =>
+      compareNullableNum(a.model.tokPerSec, b.model.tokPerSec, true)
+    )[0];
 
     return [
       {
-        badge: '#1 Highest Quality',
+        badge: 'Highest Listed Score',
         icon: Award,
         accent: 'border-emerald-300 bg-emerald-50/70 text-emerald-950',
         badgeClass: 'bg-emerald-800 text-white',
         item: byQuality,
         metricNote:
-          goal === 'coding'
-            ? `Coding ${byQuality.model.co} · Score ${byQuality.model.score.toFixed(1)}`
-            : goal === 'reasoning'
-            ? `Reasoning ${byQuality.model.re} · Score ${byQuality.model.score.toFixed(1)}`
-            : `Score ${byQuality.model.score.toFixed(1)}`,
+          byQuality.model.score !== null
+            ? `Score ${byQuality.model.score.toFixed(1)} (${byQuality.model.benchmarkProvenance.status})`
+            : 'Score: N/A',
       },
       {
-        badge: '#1 Best Value (Score/$)',
+        badge: 'Highest Score/$ Ratio',
         icon: TrendingUp,
         accent: 'border-slate-300 bg-slate-50/80 text-slate-900',
         badgeClass: 'bg-slate-900 text-white',
         item: byValue,
-        metricNote: `${byValue.scorePerDollar.toFixed(1)} Score/$ · $${byValue.model.inputPer1M}/${byValue.model.outputPer1M}`,
+        metricNote:
+          byValue.scorePerDollar !== null
+            ? `${byValue.scorePerDollar.toFixed(1)} Score/$`
+            : 'Score/$: N/A',
       },
       {
-        badge: '#1 Fastest Throughput',
+        badge: 'Fastest Listed Speed',
         icon: Zap,
         accent: 'border-sky-200 bg-sky-50/60 text-slate-900',
         badgeClass: 'bg-sky-800 text-white',
         item: bySpeed,
-        metricNote: `${bySpeed.model.tokPerSec} tok/s · Score ${bySpeed.model.score.toFixed(1)}`,
+        metricNote:
+          bySpeed.model.tokPerSec !== null
+            ? `${bySpeed.model.tokPerSec} tok/s (${bySpeed.model.speedProvenance.status})`
+            : 'Speed: N/A',
       },
     ];
-  }, [enrichedModels, goal]);
+  }, [enrichedModels]);
 
   const toggleCompareSelection = (slug: string) => {
     setSelectedForCompare((prev) => {
@@ -227,17 +270,19 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
   };
 
   const WORKLOAD_TABS: { id: TaskGoal; label: string }[] = [
-    { id: 'all', label: 'All Top Models' },
-    { id: 'coding', label: 'Best for Coding' },
-    { id: 'reasoning', label: 'Deep Reasoning & Agents' },
-    { id: 'classification', label: 'Low-Cost Classification & RAG' },
-    { id: 'fast', label: 'Fastest Speed (150+ Tok/s)' },
+    { id: 'all', label: 'All Models' },
+    { id: 'coding', label: 'Coding' },
+    { id: 'reasoning', label: 'Reasoning & Agents' },
+    { id: 'classification', label: 'Classification & RAG' },
+    { id: 'fast', label: 'Fast Speed (150+ Tok/s)' },
   ];
 
   return (
-    <section aria-label="Interactive LLM Filter and Budget Tool" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
-      {/* Row 1: Horizontal Swipe Carousel for Workload Pills (Mobile & Desktop) */}
-      <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar text-xs">
+    <section
+      aria-label="Interactive LLM Filter and Budget Tool"
+      className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5"
+    >
+      <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 text-xs">
         {WORKLOAD_TABS.map((tab) => {
           const active = goal === tab.id;
           return (
@@ -260,10 +305,8 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         })}
       </div>
 
-      {/* Row 2: Mobile Compact Filter Toggle Button + Sort & Monthly Budget Controls */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 text-xs">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Mobile "Filters (N)" drawer button */}
           <button
             type="button"
             aria-expanded={mobileFiltersOpen}
@@ -274,7 +317,6 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
             <span>Filters ({activeAdvancedFilterCount})</span>
           </button>
 
-          {/* Monthly Budget Estimator Toggle */}
           <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 p-1">
             <span className="hidden sm:inline-flex items-center gap-1 pl-2 pr-1 font-semibold text-slate-700">
               <DollarSign className="w-3.5 h-3.5 text-emerald-800" />
@@ -307,8 +349,10 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
           </div>
         </div>
 
-        {/* Sort Selector Dropdown */}
-        <label htmlFor="selector-sort-by" className="inline-flex items-center gap-2 font-semibold text-slate-800">
+        <label
+          htmlFor="selector-sort-by"
+          className="inline-flex items-center gap-2 font-semibold text-slate-800"
+        >
           <span>Sort by:</span>
           <select
             id="selector-sort-by"
@@ -327,12 +371,17 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         </label>
       </div>
 
-      {/* Advanced Sliders & Open-Weight Switch: Always open on desktop (md:grid), collapsible on mobile */}
-      <div className={`${mobileFiltersOpen ? 'grid' : 'hidden'} md:grid grid-cols-1 md:grid-cols-3 gap-4 text-xs`}>
+      <div
+        className={`${
+          mobileFiltersOpen ? 'grid' : 'hidden'
+        } md:grid grid-cols-1 md:grid-cols-3 gap-4 text-xs`}
+      >
         <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 space-y-1.5">
           <div className="flex justify-between font-medium text-slate-800">
             <span>Max Output Price</span>
-            <span className="font-mono font-bold text-slate-900">${maxOutputPrice.toFixed(2)} / 1M</span>
+            <span className="font-mono font-bold text-slate-900">
+              ${maxOutputPrice.toFixed(2)} / 1M
+            </span>
           </div>
           <input
             type="range"
@@ -392,11 +441,10 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         </div>
       </div>
 
-      {/* Top 3 Picks Spotlight for Active Filters */}
       {top3Spotlight.length > 0 && (
         <div className="space-y-2.5 pt-1">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Top 3 Picks for Your Filters
+            Top Picks for Current Filters
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {top3Spotlight.map((spot) => {
@@ -408,15 +456,22 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                   className={`rounded-xl border p-3.5 flex flex-col justify-between gap-2.5 ${spot.accent}`}
                 >
                   <div className="space-y-1.5">
-                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${spot.badgeClass}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ${spot.badgeClass}`}
+                    >
                       <Icon className="w-3.5 h-3.5" />
                       <span>{spot.badge}</span>
                     </span>
                     <div className="flex items-baseline justify-between gap-2">
-                      <Link href={`/models/${m.slug}`} className="font-bold text-base text-slate-950 hover:underline">
+                      <Link
+                        href={`/models/${m.slug}`}
+                        className="font-bold text-base text-slate-950 hover:underline"
+                      >
                         {m.name}
                       </Link>
-                      <span className="font-mono text-xs font-semibold text-slate-700">{m.provider}</span>
+                      <span className="font-mono text-xs font-semibold text-slate-700">
+                        {m.provider}
+                      </span>
                     </div>
                     <div className="font-mono text-xs font-semibold text-slate-800">
                       {spot.metricNote}
@@ -424,16 +479,22 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-xs">
-                    {monthlyCallsPreset > 0 ? (
+                    {monthlyCallsPreset > 0 && spot.item.estMonthlyCost !== null ? (
                       <span className="font-mono font-bold text-emerald-900">
-                        ~${spot.item.estMonthlyCost.toFixed(2)}/mo ({(monthlyCallsPreset / 1000).toFixed(0)}k calls)
+                        ~{formatCurrency(spot.item.estMonthlyCost)}/mo (
+                        {(monthlyCallsPreset / 1000).toFixed(0)}k calls)
                       </span>
-                    ) : (
+                    ) : m.inputPer1M !== null && m.outputPer1M !== null ? (
                       <span className="font-mono text-slate-700">
                         ${m.inputPer1M.toFixed(2)}/${m.outputPer1M.toFixed(2)} per 1M
                       </span>
+                    ) : (
+                      <span className="font-mono text-slate-700">Price: N/A</span>
                     )}
-                    <Link href={`/models/${m.slug}`} className="font-semibold text-emerald-900 hover:underline">
+                    <Link
+                      href={`/models/${m.slug}`}
+                      className="font-semibold text-emerald-900 hover:underline"
+                    >
                       Details -&gt;
                     </Link>
                   </div>
@@ -444,10 +505,9 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         </div>
       )}
 
-      {/* Compare Selected Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs">
         <span className="font-medium text-slate-700">
-          Showing <strong>{sortedResults.length}</strong> models · Tick any 2 models to compare side-by-side
+          Showing <strong>{sortedResults.length}</strong> models · Select any 2 models to compare
         </span>
 
         <div className="flex items-center gap-2">
@@ -477,7 +537,6 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
         </div>
       </div>
 
-      {/* Results Grid */}
       {sortedResults.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-700 space-y-3">
           <p>No models matched those exact filter thresholds.</p>
@@ -517,7 +576,9 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
                         {m.name}
                       </Link>
                       <div className="text-xs text-slate-700 mt-0.5">
-                        {m.provider} · {m.license} · {m.contextWindow} ctx · {m.tokPerSec} tok/s
+                        {m.provider} · License: {m.license ?? 'N/A'} · Context:{' '}
+                        {m.contextWindow ?? 'N/A'} · Speed:{' '}
+                        {m.tokPerSec !== null ? `${m.tokPerSec} tok/s` : 'N/A'}
                       </div>
                     </div>
 
@@ -538,27 +599,29 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
 
                   <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
                     <span className="rounded bg-slate-100 px-2 py-0.5 font-bold text-slate-900">
-                      Score {m.score.toFixed(1)}
+                      {m.score !== null ? `Score ${m.score.toFixed(1)}` : 'Score N/A'}
                     </span>
                     <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-semibold text-emerald-900">
-                      {scorePerDollar.toFixed(1)} Score/$
-                    </span>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-slate-800">
-                      CO {m.co} · RE {m.re}
+                      {scorePerDollar !== null
+                        ? `${scorePerDollar.toFixed(1)} Score/$`
+                        : 'Score/$ N/A'}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-700">{m.bestFor}</p>
+                  {m.bestFor && <p className="text-xs text-slate-700">{m.bestFor}</p>}
                 </div>
 
                 <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
                   <div className="font-mono">
                     <div className="font-semibold text-slate-900">
-                      ${m.inputPer1M.toFixed(2)} / ${m.outputPer1M.toFixed(2)} per 1M
+                      {m.inputPer1M !== null && m.outputPer1M !== null
+                        ? `$${m.inputPer1M.toFixed(2)} / $${m.outputPer1M.toFixed(2)} per 1M`
+                        : 'Price: N/A'}
                     </div>
-                    {monthlyCallsPreset > 0 && (
+                    {monthlyCallsPreset > 0 && estMonthlyCost !== null && (
                       <div className="text-[11px] font-bold text-emerald-800">
-                        Est. ${estMonthlyCost.toFixed(2)}/mo ({(monthlyCallsPreset / 1000).toFixed(0)}k calls)
+                        Est. {formatCurrency(estMonthlyCost)}/mo (
+                        {(monthlyCallsPreset / 1000).toFixed(0)}k calls)
                       </div>
                     )}
                   </div>

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test:pricing": "node --experimental-strip-types src/lib/__tests__/pricingEngine.test.ts"
   },
   "dependencies": {
     "lucide-react": "^0.460.0",

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  LLMModel,
+  type LLMModel,
   estimatePromptTokensFromText,
   formatCurrency,
 } from '../lib/pricingEngine';
@@ -14,7 +14,7 @@ interface Props {
   onApplyInputTokens: (tokens: number) => void;
 }
 
-const SAMPLE_PROMPT = `You are a senior financial and API infrastructure analyst. Review the attached customer ticket, extract the account tier, error code, and SLA impact, and return a strict JSON summary with remediation steps.`;
+const SAMPLE_PROMPT = `You are a technical analyst. Summarize the attached payload, identify any API rate-limit or timeout errors, and return structured JSON.`;
 
 export const LivePromptTokenizer: React.FC<Props> = ({
   models,
@@ -27,17 +27,20 @@ export const LivePromptTokenizer: React.FC<Props> = ({
     const chars = promptText.length;
     const words = promptText.trim() ? promptText.trim().split(/\s+/).length : 0;
     const estimatedTokens = estimatePromptTokensFromText(promptText, selectedModel.provider);
-    const singlePromptCost = (estimatedTokens * selectedModel.inputPer1M) / 1_000_000;
-    const costAt100kCalls = singlePromptCost * 100_000;
+    const hasPrice = typeof selectedModel.inputPer1M === 'number' && Number.isFinite(selectedModel.inputPer1M);
+    const rate = hasPrice ? (selectedModel.inputPer1M as number) : null;
+    const singlePromptCost = rate !== null ? (estimatedTokens * rate) / 1_000_000 : null;
+    const costAt100kCalls = singlePromptCost !== null ? singlePromptCost * 100_000 : null;
 
-    return { chars, words, estimatedTokens, singlePromptCost, costAt100kCalls };
+    return { chars, words, estimatedTokens, singlePromptCost, costAt100kCalls, rate };
   }, [promptText, selectedModel]);
 
   const top3CheapestForPrompt = useMemo(() => {
-    return [...models]
+    return models
+      .filter((m) => typeof m.inputPer1M === 'number' && Number.isFinite(m.inputPer1M))
       .map((m) => {
         const toks = estimatePromptTokensFromText(promptText, m.provider);
-        const cost100k = ((toks * m.inputPer1M) / 1_000_000) * 100_000;
+        const cost100k = ((toks * (m.inputPer1M as number)) / 1_000_000) * 100_000;
         return { model: m, toks, cost100k };
       })
       .sort((a, b) => a.cost100k - b.cost100k)
@@ -50,13 +53,13 @@ export const LivePromptTokenizer: React.FC<Props> = ({
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300">
             <FileText className="w-3.5 h-3.5" />
-            Tool 2 of 4 · Live Prompt Tokenizer
+            Estimated Prompt Token Counter
           </div>
           <h3 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Paste Any System Prompt to Measure Exact Token Cost
+            Estimate Prompt Tokens &amp; Input Cost
           </h3>
           <p className="mt-1 text-sm text-slate-400">
-            Converts raw text into provider-adjusted token counts (GPT vs. Claude vs. Gemini) and pushes the result into the Cost Calculator.
+            Estimated token counts use character-length heuristics by provider; actual token counts vary by tokenizer, code, JSON, and special characters. Text stays in your browser.
           </p>
         </div>
 
@@ -66,7 +69,7 @@ export const LivePromptTokenizer: React.FC<Props> = ({
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors shrink-0"
         >
           <ArrowDownToLine className="w-4 h-4" />
-          Apply {stats.estimatedTokens.toLocaleString()} Tokens to Calculator
+          Apply ~{stats.estimatedTokens.toLocaleString()} Est. Tokens
         </button>
       </div>
 
@@ -76,7 +79,7 @@ export const LivePromptTokenizer: React.FC<Props> = ({
             rows={6}
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
-            placeholder="Paste your system prompt, RAG context chunk, or few-shot examples here..."
+            placeholder="Paste your prompt or context text here..."
             className="w-full rounded-xl border border-slate-700 bg-[#111827] p-4 font-mono text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none leading-relaxed"
           />
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
@@ -84,7 +87,7 @@ export const LivePromptTokenizer: React.FC<Props> = ({
               <span>{stats.chars.toLocaleString()} chars</span>
               <span>{stats.words.toLocaleString()} words</span>
               <span className="text-emerald-400 font-semibold">
-                ~{stats.estimatedTokens.toLocaleString()} tokens ({selectedModel.provider})
+                Est. ~{stats.estimatedTokens.toLocaleString()} tokens
               </span>
             </div>
             <button
@@ -100,12 +103,14 @@ export const LivePromptTokenizer: React.FC<Props> = ({
         <div className="lg:col-span-5 space-y-3">
           <div className="rounded-xl border border-slate-800 bg-[#111827] p-4">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Prompt Input Cost on {selectedModel.name}</span>
-              <span className="font-mono text-slate-300">${selectedModel.inputPer1M.toFixed(2)}/1M</span>
+              <span>Est. Prompt Input Cost on {selectedModel.name}</span>
+              <span className="font-mono text-slate-300">
+                {stats.rate !== null ? `$${stats.rate.toFixed(2)}/1M` : 'N/A'}
+              </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <div>
-                <div className="text-[11px] text-slate-500">Per single call</div>
+                <div className="text-[11px] text-slate-500">Per call</div>
                 <div className="font-mono text-lg font-bold text-white tabular-nums">
                   {formatCurrency(stats.singlePromptCost)}
                 </div>
@@ -122,12 +127,15 @@ export const LivePromptTokenizer: React.FC<Props> = ({
           <div className="rounded-xl border border-slate-800 bg-[#0b1019] p-4 space-y-2">
             <div className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              Lowest Input Spend for This Prompt (100K calls)
+              Lowest Listed Input Cost (100K calls)
             </div>
             {top3CheapestForPrompt.map(({ model, toks, cost100k }) => (
-              <div key={model.id} className="flex items-center justify-between text-xs py-1 border-b border-slate-800/60 last:border-none">
+              <div
+                key={model.id}
+                className="flex items-center justify-between text-xs py-1 border-b border-slate-800/60 last:border-none"
+              >
                 <span className="text-slate-300">
-                  {model.name} <span className="text-slate-500">({toks} tok)</span>
+                  {model.name} <span className="text-slate-500">(~{toks} tok)</span>
                 </span>
                 <span className="font-mono font-semibold text-emerald-300 tabular-nums">
                   {formatCurrency(cost100k)}
