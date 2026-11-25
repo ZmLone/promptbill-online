@@ -1,9 +1,21 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  preload: false,
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  preload: false,
+});
 
 const SITE_TITLE = 'PromptBill — LLM API Pricing & Token Calculator';
 const SITE_DESCRIPTION =
@@ -61,16 +73,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
+      </head>
+      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased overflow-x-hidden">
+        {children}
         {adsenseClient ? (
-          <script
-            async
+          <Script
+            id="adsense-init"
+            strategy="lazyOnload"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
             crossOrigin="anonymous"
           />
         ) : null}
-      </head>
-      <body className="bg-[#f8fafc] text-slate-900 font-sans antialiased overflow-x-hidden">
-        {children}
       </body>
     </html>
   );
