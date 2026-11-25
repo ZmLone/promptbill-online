@@ -280,7 +280,7 @@ export function SiteShell({
       <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-700">
         <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="font-medium text-slate-800 text-center sm:text-left">
-            PromptBill (<a href="https://promptbill.online" className="underline">https://promptbill.online</a>) · All rights reserved
+            <a href="https://promptbill.online" className="underline hover:text-slate-950">PromptBill</a> · All rights reserved
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2">
             <Link href="/" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Home</Link>

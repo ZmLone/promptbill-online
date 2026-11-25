@@ -99,12 +99,12 @@ const CORE_TOOLS = [
 ];
 
 const SHORTLIST_LINKS = [
-  { href: '/best-llms-for-coding', label: 'Best LLMs for Coding' },
-  { href: '/best-open-weight-llms', label: 'Best Open-Weight LLMs' },
-  { href: '/cheapest-llms-for-classification', label: 'Cheapest for Classification' },
-  { href: '/fastest-llms-tokens-per-second', label: 'Fastest Models (tok/s)' },
-  { href: '/models', label: 'All Model Pages' },
-  { href: '/methodology', label: 'Provenance Methodology' },
+  { href: '/best-llms-for-coding', label: 'Coding Model Rankings' },
+  { href: '/best-open-weight-llms', label: 'Open-Weight Model Directory' },
+  { href: '/cheapest-llms-for-classification', label: 'Low-Cost Classification Models' },
+  { href: '/fastest-llms-tokens-per-second', label: 'High-Throughput Models (tok/s)' },
+  { href: '/models', label: 'Browse All Model Specs' },
+  { href: '/methodology', label: 'Data Provenance Methodology' },
 ];
 
 export default function HomePage() {
@@ -194,25 +194,25 @@ export default function HomePage() {
               href="/pricing"
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
             >
-              API Pricing Table
+              Explore Token Rates
             </Link>
             <Link
               href="/leaderboard"
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
             >
-              Leaderboard
+              View Model Rankings
             </Link>
             <Link
               href="/compare"
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
             >
-              Compare Models
+              Compare Two LLMs
             </Link>
             <Link
               href="/tools/llm-selector"
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
             >
-              LLM Selector
+              Filter by Workload
             </Link>
           </div>
         </section>
@@ -235,7 +235,7 @@ export default function HomePage() {
               href="/methodology"
               className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
             >
-              How provenance works -&gt;
+              Provenance Rules
             </Link>
           </div>
 
@@ -243,9 +243,8 @@ export default function HomePage() {
             {CORE_TOOLS.map((tool) => {
               const Icon = tool.icon;
               return (
-                <Link
+                <article
                   key={tool.href}
-                  href={tool.href}
                   className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-emerald-600/60 hover:shadow-xs transition-all flex flex-col justify-between gap-3"
                 >
                   <div className="space-y-2.5">
@@ -257,15 +256,20 @@ export default function HomePage() {
                         {tool.badge}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-900 flex items-center justify-between gap-1">
-                      <span>{tool.title}</span>
-                      <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
+                    <h3 className="text-base font-bold text-slate-900">
+                      <Link
+                        href={tool.href}
+                        className="inline-flex items-center justify-between gap-1.5 group-hover:text-emerald-900 hover:underline"
+                      >
+                        <span>{tool.title}</span>
+                        <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
+                      </Link>
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {tool.description}
                     </p>
                   </div>
-                </Link>
+                </article>
               );
             })}
           </div>
@@ -295,7 +299,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Catalog Snapshot (Cards on Mobile, Table on Desktop) */}
+        {/* Catalog Snapshot (Single Responsive Table to avoid duplicate anchor texts in DOM) */}
         <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
@@ -303,88 +307,48 @@ export default function HomePage() {
                 Catalog Pricing &amp; Context Snapshot
               </h2>
               <p className="text-xs sm:text-sm text-slate-600">
-                Tap any model to open its dedicated calculator, endpoint table, and capability scores.
+                Select any model to open its dedicated calculator, endpoint table, and capability scores.
               </p>
             </div>
             <Link
               href="/pricing"
               className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
             >
-              View full pricing table ({ALL_MODELS.length}) -&gt;
+              Full {ALL_MODELS.length}-Model Rate Table
             </Link>
           </div>
 
-          {/* Mobile Card List */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden">
-            {featuredModels.map((m) => (
-              <Link
-                key={m.id}
-                href={`/models/${m.slug}`}
-                className="rounded-2xl border border-slate-200 bg-white p-4 hover:border-emerald-600/60 space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="text-xs font-medium text-slate-500">{m.provider}</div>
-                    <div className="text-base font-bold text-slate-900">{m.name}</div>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                      m.pricingProvenance.status === 'Verified'
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        : 'bg-amber-50 text-amber-900 border border-amber-200'
-                    }`}
-                  >
-                    {m.pricingProvenance.status}
-                  </span>
-                </div>
-
-                <dl className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-2.5 text-xs">
-                  <div>
-                    <dt className="text-slate-500">Input / 1M</dt>
-                    <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.inputPer1M)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-slate-500">Output / 1M</dt>
-                    <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.outputPer1M)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-slate-500">Context</dt>
-                    <dd className="font-mono font-semibold text-slate-900">{m.contextWindow ?? 'N/A'}</dd>
-                  </div>
-                </dl>
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-            <table className="w-full text-left border-collapse text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <caption className="sr-only">
                 Sample LLM API rates per 1 million tokens and context windows on PromptBill
               </caption>
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700">
-                  <th scope="col" className="py-3 px-4">Model</th>
-                  <th scope="col" className="py-3 px-3">Provenance</th>
+                  <th scope="col" className="py-3 px-3.5 sm:px-4">Model</th>
+                  <th scope="col" className="py-3 px-3 hidden sm:table-cell">Provenance</th>
                   <th scope="col" className="py-3 px-3">Input / 1M</th>
-                  <th scope="col" className="py-3 px-3">Cached / 1M</th>
+                  <th scope="col" className="py-3 px-3 hidden md:table-cell">Cached / 1M</th>
                   <th scope="col" className="py-3 px-3">Output / 1M</th>
-                  <th scope="col" className="py-3 px-4 text-right">Context</th>
+                  <th scope="col" className="py-3 px-3.5 sm:px-4 text-right">Context</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {featuredModels.map((m) => (
                   <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
-                    <th scope="row" className="py-3 px-4 text-left font-normal">
+                    <th scope="row" className="py-3 px-3.5 sm:px-4 text-left font-normal">
                       <Link
                         href={`/models/${m.slug}`}
                         className="font-semibold text-slate-900 hover:text-emerald-800 hover:underline"
                       >
                         {m.name}
                       </Link>
-                      <span className="block text-xs text-slate-500">{m.provider}</span>
+                      <span className="block text-[11px] sm:text-xs text-slate-500">
+                        {m.provider}
+                        <span className="sm:hidden"> · {m.pricingProvenance.status}</span>
+                      </span>
                     </th>
-                    <td className="py-3 px-3">
+                    <td className="py-3 px-3 hidden sm:table-cell">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                           m.pricingProvenance.status === 'Verified'
@@ -398,11 +362,11 @@ export default function HomePage() {
                       </span>
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.inputPer1M)}</td>
-                    <td className="py-3 px-3 font-mono text-emerald-800">
+                    <td className="py-3 px-3 font-mono text-emerald-800 hidden md:table-cell">
                       {fmtRate(m.cachedInputPer1M)}
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.outputPer1M)}</td>
-                    <td className="py-3 px-4 font-mono text-right text-slate-700">
+                    <td className="py-3 px-3.5 sm:px-4 font-mono text-right text-slate-700">
                       {m.contextWindow ?? 'N/A'}
                     </td>
                   </tr>
@@ -434,9 +398,27 @@ export default function HomePage() {
               </p>
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
-              <h3 className="font-semibold text-slate-900">Why are some prices marked Estimated?</h3>
+              <h3 className="font-semibold text-slate-900">How are official provider rates verified?</h3>
               <p className="leading-relaxed">
-                Entries without a verified primary citation or verification timestamp are labeled Estimated or N/A so you can distinguish verified provider quotes from catalog estimates.
+                Verified entries cross-check primary provider rate cards such as{' '}
+                <a
+                  href="https://platform.openai.com/docs/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-emerald-800 underline underline-offset-2"
+                >
+                  OpenAI API Pricing Docs
+                </a>{' '}
+                and{' '}
+                <a
+                  href="https://docs.anthropic.com/en/docs/about-claude/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-emerald-800 underline underline-offset-2"
+                >
+                  Anthropic Claude Pricing Docs
+                </a>
+                ; unverified entries remain clearly labeled Estimated.
               </p>
             </div>
           </div>
