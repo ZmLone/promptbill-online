@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import posthog from 'posthog-js';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';
 import {
@@ -202,10 +203,17 @@ export default function PromptBillHome() {
   };
 
   const handleApplyPromptTokens = (tokens: number) => {
+    posthog.capture('token_estimate_applied');
     setActivePresetId('custom');
     setUnitMode('tokens');
     setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
     setActiveTab('calculator');
+  };
+
+  const handleCheckoutStart = () => {
+    if (process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL) {
+      posthog.capture('checkout_started', { product: 'promptbill_pro' });
+    }
   };
 
   const handleSelectModelFromMatrix = (id: string) => {
@@ -1002,6 +1010,7 @@ export default function PromptBillHome() {
               <div className="text-xs text-slate-300">One-time payment - No subscription</div>
               <a
                 href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
+                onClick={handleCheckoutStart}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-300 transition-colors"
               >
                 Get PromptBill Pro <ArrowUpRight className="w-4 h-4" />

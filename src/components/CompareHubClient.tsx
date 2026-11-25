@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { ALL_MODELS, getAutoComparisonPairs } from '../lib/catalog';
 import { ArrowRight, Flame, Code2, Sparkles, Filter } from 'lucide-react';
 
@@ -66,6 +67,10 @@ export const CompareHubClient: React.FC<CompareHubClientProps> = ({ models, pair
     e.preventDefault();
     if (!modelASlug || !modelBSlug || modelASlug === modelBSlug) return;
     const canonicalSlug = buildCanonicalPairSlug(modelASlug, modelBSlug, models);
+    posthog.capture('comparison_requested', {
+      model_a_slug: modelASlug,
+      model_b_slug: modelBSlug,
+    });
     router.push(`/compare/${canonicalSlug}`);
   };
 
