@@ -35,11 +35,11 @@ export const metadata: Metadata = {
       { url: '/icon.svg', type: 'image/svg+xml' },
     ],
     shortcut: '/favicon.ico',
-    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-touch-icon.svg', type: 'image/svg+xml' }],
   },
   other: {
-    'theme-color': '#064e3b',
-    'og:updated_time': '2026-11-25T14:50:00+05:30',
+    'theme-color': '#0f172a',
+    'og:updated_time': '2026-11-25T14:55:00+05:30',
   },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
