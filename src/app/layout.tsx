@@ -7,7 +7,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 
 const SITE_TITLE = 'PromptBill — LLM API Pricing & Token Calculator';
 const SITE_DESCRIPTION =
-  'Compare LLM API token pricing per 1M tokens, prompt cache read/write rates, batch discounts, output speed (tok/s), coding benchmarks, and head-to-head model matchups.';
+  'Compare LLM API token rates per 1M tokens, prompt cache and batch discounts, output speed (tok/s), and model benchmarks on PromptBill.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://promptbill.online'),

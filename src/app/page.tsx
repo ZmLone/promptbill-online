@@ -19,7 +19,7 @@ import {
 
 const HOME_TITLE = 'PromptBill — LLM API Pricing & Token Calculator';
 const HOME_DESCRIPTION =
-  'Compare LLM API token rates per 1M tokens, calculate 30-day API spend with prompt caching and batch discounts, and inspect model benchmarks and provenance on PromptBill.';
+  'Compare LLM API token pricing per 1M tokens, estimate 30-day API spend with caching and batch discounts, and inspect model benchmarks.';
 
 export const metadata: Metadata = {
   title: {
