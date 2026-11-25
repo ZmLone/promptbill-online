@@ -21,14 +21,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const model = getModelBySlug(slug);
-  if (!model) return { title: 'Model Not Found - PromptBill' };
+  if (!model) return { title: 'Model Not Found' };
   const period = REGISTRY_SNAPSHOT.generatedMonthYear;
-  const title = `${model.name} API Pricing, Caching & Cost Calculator (${period})`;
+  const title = `${model.name} Pricing & Calculator (${period})`;
   const priceSummary =
     model.inputPer1M !== null && model.outputPer1M !== null
-      ? `$${model.inputPer1M.toFixed(2)}/$${model.outputPer1M.toFixed(2)} per 1M tokens`
+      ? `${formatCurrency(model.inputPer1M)}/${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status})`
       : 'pricing details on PromptBill';
-  const description = `${model.name} (${model.provider}) API token rates (${priceSummary}), context window (${model.contextWindow ?? 'N/A'}), and cost calculator.`;
+  const description = `${model.name} (${model.provider}) token rates (${priceSummary}), context window (${model.contextWindow ?? 'N/A'}), and cost calculator.`;
   return {
     title,
     description,
@@ -53,44 +53,17 @@ export default async function ModelDetailPage({
     model.tokPerSec
   );
   const legacyUpgrade = REGISTRY_SNAPSHOT.legacyUpgrades[model.slug];
-
-  const jsonLd: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: model.name,
-    applicationCategory: 'DeveloperApplication',
-    operatingSystem: 'API / Cloud',
-    ...(REGISTRY_SNAPSHOT.lastModifiedIso
-      ? { dateModified: REGISTRY_SNAPSHOT.lastModifiedIso }
-      : {}),
-    url: `https://promptbill.online/models/${model.slug}`,
-    provider: {
-      '@type': 'Organization',
-      name: model.provider,
-    },
-    ...(model.inputPer1M !== null
-      ? {
-          offers: {
-            '@type': 'Offer',
-            price: model.inputPer1M.toFixed(2),
-            priceCurrency: model.pricingProvenance.currency || 'USD',
-            description: `Official input ${formatCurrency(model.inputPer1M)}/1M, cached read ${formatCurrency(model.cachedInputPer1M)}/1M, output ${formatCurrency(model.outputPer1M)}/1M`,
-          },
-        }
-      : {}),
-  };
+  const isVerifiedPricing = model.pricingProvenance.status === 'Verified';
+  const pricingHeadingLabel = isVerifiedPricing
+    ? 'Verified Provider Rate Snapshot'
+    : 'Estimated Rate Snapshot (Unverified)';
 
   return (
     <SiteShell
-      title={`${model.name} API Pricing & Benchmarks (${period})`}
+      title={`${model.name} Pricing & Benchmarks (${period})`}
       subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}
     >
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-
         {legacyUpgrade && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
@@ -110,10 +83,9 @@ export default async function ModelDetailPage({
           </div>
         )}
 
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed space-y-2">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-xs sm:text-sm text-slate-800 leading-relaxed space-y-2">
           <p>
-            <strong>{model.name}</strong> ({model.provider}) · Rank:{' '}
-            <strong>{model.rank !== null ? `#${model.rank}` : 'N/A'}</strong> · Score:{' '}
+            <strong>{model.name}</strong> ({model.provider}) · Score:{' '}
             <strong>{model.score !== null ? model.score.toFixed(1) : 'N/A'}</strong> (
             {model.benchmarkProvenance.status}) · Value:{' '}
             <strong>
@@ -132,7 +104,7 @@ export default async function ModelDetailPage({
             ({model.speedProvenance.status}).
           </p>
           <p className="text-xs text-slate-700">
-            <strong>Official Pricing &amp; Provenance:</strong> Input{' '}
+            <strong>{pricingHeadingLabel}:</strong> Input{' '}
             <span className="font-mono font-semibold text-slate-900">
               {formatCurrency(model.inputPer1M)}/1M
             </span>
@@ -148,8 +120,8 @@ export default async function ModelDetailPage({
             <span className="font-mono font-semibold text-slate-900">
               {formatCurrency(model.cacheWritePer1M)}/1M
             </span>{' '}
-            ({model.pricingProvenance.status}; verified{' '}
-            {model.pricingProvenance.lastVerified ?? 'N/A'}).
+            (Status: {model.pricingProvenance.status}; verified date:{' '}
+            {model.pricingProvenance.lastVerified ?? 'Not recorded'}).
           </p>
         </div>
 
@@ -164,7 +136,9 @@ export default async function ModelDetailPage({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-            <div className="text-xs text-slate-700">Official Price (In / Out)</div>
+            <div className="text-xs text-slate-700">
+              {isVerifiedPricing ? 'Verified Price (In / Out)' : 'Estimated Price (In / Out)'}
+            </div>
             <div className="mt-1 font-mono text-xl font-bold text-slate-900">
               {model.inputPer1M !== null && model.outputPer1M !== null
                 ? `$${model.inputPer1M.toFixed(2)} / $${model.outputPer1M.toFixed(2)}`
@@ -222,7 +196,7 @@ export default async function ModelDetailPage({
           <div className="overflow-x-auto rounded-lg border border-slate-200">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <caption className="sr-only">
-                Endpoints and pricing records for {model.name}
+                Endpoints and pricing entries for {model.name}
               </caption>
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-800">
@@ -240,7 +214,9 @@ export default async function ModelDetailPage({
                     </th>
                     <td className="py-2.5 px-3 text-slate-700">{ep.providerType ?? 'N/A'}</td>
                     <td className="py-2.5 px-3 font-mono text-slate-800">
-                      ${ep.inputPer1M.toFixed(2)} / ${ep.outputPer1M.toFixed(2)}
+                      {ep.inputPer1M !== null && ep.outputPer1M !== null
+                        ? `$${ep.inputPer1M.toFixed(2)} / $${ep.outputPer1M.toFixed(2)}`
+                        : 'N/A'}
                     </td>
                     <td className="py-2.5 px-3 text-slate-700">{ep.evidenceStatus ?? 'N/A'}</td>
                   </tr>
