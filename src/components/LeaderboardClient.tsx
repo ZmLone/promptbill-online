@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import posthog from 'posthog-js';
 import { ALL_MODELS, getAllProviderSlugs, type CatalogModel } from '../lib/catalog';
 import { calculateModelCost, formatCurrency } from '../lib/pricingEngine';
 import { SiteShell } from './SiteShell';
@@ -219,6 +220,10 @@ export function LeaderboardClient() {
       : 'PromptBill — https://promptbill.online';
     try {
       await navigator.clipboard.writeText(summary);
+      posthog.capture('leaderboard_summary_shared', {
+        chart_mode: chartMode,
+        model_slug: selectedModel?.slug,
+      });
       setCopiedShare(true);
       setTimeout(() => setCopiedShare(false), 2000);
     } catch {

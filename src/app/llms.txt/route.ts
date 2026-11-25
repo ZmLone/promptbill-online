@@ -1,4 +1,6 @@
-import { NextResponse } from 'next/server';
+import { SeverityNumber } from '@opentelemetry/api-logs';
+import { after, NextResponse } from 'next/server';
+import { posthogLog, posthogLogProvider } from '../../../instrumentation';
 import { ALL_MODELS } from '../../lib/catalog';
 import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../../lib/modelRegistry';
 
@@ -13,6 +15,12 @@ function fmtPrice(val: number | null): string {
 }
 
 export async function GET() {
+  posthogLog.emit({
+    body: 'llms.txt generation started',
+    severityNumber: SeverityNumber.INFO,
+    attributes: { route: '/llms.txt' },
+  });
+
   const copy = buildDynamicSeoCopy(REGISTRY_SNAPSHOT.generatedMonthYear);
   const lines: string[] = [
     '# PromptBill',
@@ -44,6 +52,17 @@ export async function GET() {
       `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${fmtScore(m.score)} (${m.benchmarkProvenance.status}), Official In/Out ${fmtPrice(m.inputPer1M)}/${fmtPrice(m.outputPer1M)} per 1M, Cached Read ${fmtPrice(m.cachedInputPer1M)}/1M, Context ${ctxLabel}, Speed ${speedLabel} (${m.speedProvenance.status}).`
     );
   }
+
+  posthogLog.emit({
+    body: 'llms.txt generation completed',
+    severityNumber: SeverityNumber.INFO,
+    attributes: {
+      route: '/llms.txt',
+      model_count: ALL_MODELS.length,
+    },
+  });
+
+  after(() => posthogLogProvider.forceFlush().catch(() => {}));
 
   return new NextResponse(lines.join('\n'), {
     status: 200,
