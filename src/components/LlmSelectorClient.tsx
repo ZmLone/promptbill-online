@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import posthog from 'posthog-js';
 import { useRouter } from 'next/navigation';
 import { ALL_MODELS } from '../lib/catalog';
 import { calculateModelCost, formatCurrency } from '../lib/pricingEngine';
@@ -265,6 +266,10 @@ export const LlmSelectorClient: React.FC<LlmSelectorClientProps> = ({ models }) 
       selectedForCompare[1],
       models
     );
+    posthog.capture('llm_selector_comparison_started', {
+      model_a_slug: selectedForCompare[0],
+      model_b_slug: selectedForCompare[1],
+    });
     router.push(`/compare/${canonicalSlug}`);
   };
 

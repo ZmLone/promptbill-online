@@ -1,8 +1,14 @@
-export function logEvent(_eventName: string, _props?: Record<string, unknown>) {}
+import posthog from 'posthog-js';
+
+type LogAttributes = Parameters<typeof posthog.logger.info>[1];
+
+export function logEvent(eventName: string, props?: LogAttributes) {
+  posthog.logger.info(eventName, props);
+}
 
 export const posthogLog = {
-  info: (_message: string, _meta?: Record<string, unknown>) => {},
-  warn: (_message: string, _meta?: Record<string, unknown>) => {},
-  error: (_message: string, _meta?: Record<string, unknown>) => {},
-  capture: (_eventName: string, _props?: Record<string, unknown>) => {},
+  info: (message: string, meta?: LogAttributes) => posthog.logger.info(message, meta),
+  warn: (message: string, meta?: LogAttributes) => posthog.logger.warn(message, meta),
+  error: (message: string, meta?: LogAttributes) => posthog.logger.error(message, meta),
+  capture: (eventName: string, props?: LogAttributes) => logEvent(eventName, props),
 };

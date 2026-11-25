@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import posthog from 'posthog-js';
+import { posthogLog } from '../lib/posthogLog';
 import modelsJson from '../data/models.json';
 import presetsJson from '../data/presets.json';
 import {
@@ -184,6 +186,13 @@ export default function PromptBillHome() {
   }
 
   const applyPreset = (preset: (typeof presets)[number]) => {
+    posthog.capture('calculator_preset_applied', {
+      preset_id: preset.id,
+    });
+    posthogLog.info('calculator preset applied', {
+      action: 'calculator_preset_applied',
+      preset_id: preset.id,
+    });
     setActivePresetId(preset.id);
     setInputs({
       inputTokensPerCall: preset.inputTokensPerCall,
@@ -202,6 +211,9 @@ export default function PromptBillHome() {
   };
 
   const handleApplyPromptTokens = (tokens: number) => {
+    posthog.capture('calculator_prompt_tokens_applied', {
+      token_count: tokens,
+    });
     setActivePresetId('custom');
     setUnitMode('tokens');
     setInputs((prev) => ({ ...prev, inputTokensPerCall: tokens }));
@@ -209,6 +221,15 @@ export default function PromptBillHome() {
   };
 
   const handleSelectModelFromMatrix = (id: string) => {
+    posthog.capture('calculator_model_selected', {
+      model_id: id,
+      selection_source: 'comparison_matrix',
+    });
+    posthogLog.info('calculator model selected from comparison matrix', {
+      action: 'calculator_model_selected',
+      model_id: id,
+      selection_source: 'comparison_matrix',
+    });
     setSelectedModelId(id);
     setActiveTab('calculator');
   };
@@ -1002,6 +1023,15 @@ export default function PromptBillHome() {
               <div className="text-xs text-slate-300">One-time payment - No subscription</div>
               <a
                 href={process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL || '#workspace'}
+                onClick={() => {
+                  if (process.env.NEXT_PUBLIC_DODO_CHECKOUT_URL) {
+                    posthog.capture('pro_license_checkout_started');
+                    posthogLog.info('pro license checkout started', {
+                      action: 'pro_license_checkout_started',
+                      product: 'pro_license',
+                    });
+                  }
+                }}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-300 transition-colors"
               >
                 Get PromptBill Pro <ArrowUpRight className="w-4 h-4" />
