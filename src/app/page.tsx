@@ -4,10 +4,22 @@ import Link from 'next/link';
 import { ALL_MODELS } from '../lib/catalog';
 import { getRegistryFreshnessSummary } from '../lib/freshness';
 import { formatCurrency } from '../lib/pricingEngine';
+import { SiteShell } from '../components/SiteShell';
+import { HomeInteractiveWorkbench } from '../components/HomeInteractiveWorkbench';
+import {
+  Table2,
+  Trophy,
+  Scale,
+  FileText,
+  SlidersHorizontal,
+  GitBranch,
+  ArrowUpRight,
+  ShieldCheck,
+} from 'lucide-react';
 
 const HOME_TITLE = 'PromptBill — LLM API Pricing & Token Calculator';
 const HOME_DESCRIPTION =
-  'Compare LLM API token pricing per 1M tokens, estimate monthly API spend, inspect model benchmarks, and check provenance status across catalog models on PromptBill.';
+  'Compare LLM API token rates per 1M tokens, calculate 30-day API spend with prompt caching and batch discounts, and inspect model benchmarks and provenance on PromptBill.';
 
 export const metadata: Metadata = {
   title: {
@@ -35,9 +47,69 @@ function fmtRate(val: number | null): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
+const CORE_TOOLS = [
+  {
+    href: '/pricing',
+    title: 'API Token Pricing Table',
+    badge: 'Per 1M Tokens',
+    description:
+      'Compare input, cached read, and output rates across tracked models with clear Verified, Estimated, and Unavailable provenance labels.',
+    icon: Table2,
+  },
+  {
+    href: '/leaderboard',
+    title: 'Benchmark Leaderboard',
+    badge: 'Scores & Value',
+    description:
+      'Sort models by benchmark score, coding (CO), reasoning (RE), output speed (tok/s), and score-per-dollar efficiency.',
+    icon: Trophy,
+  },
+  {
+    href: '/compare',
+    title: 'Head-to-Head Compare',
+    badge: 'Side-by-Side',
+    description:
+      'Evaluate two or more LLMs side by side across token pricing, context window capacity, domain scores, and endpoint options.',
+    icon: Scale,
+  },
+  {
+    href: '/tools/token-counter',
+    title: 'Live Prompt Tokenizer',
+    badge: 'Token & Cost',
+    description:
+      'Paste real prompts or system instructions to estimate token counts and per-request spend across model families.',
+    icon: FileText,
+  },
+  {
+    href: '/tools/llm-selector',
+    title: 'Interactive LLM Selector',
+    badge: 'Task & Budget',
+    description:
+      'Filter models by workload type, monthly budget cap, minimum context window, and open-weight vs closed license.',
+    icon: SlidersHorizontal,
+  },
+  {
+    href: '/tools/routing-simulator',
+    title: 'Hybrid Routing Simulator',
+    badge: 'Cost Savings',
+    description:
+      'Simulate splitting routine requests to economy models while reserving flagship models for complex reasoning calls.',
+    icon: GitBranch,
+  },
+];
+
+const SHORTLIST_LINKS = [
+  { href: '/best-llms-for-coding', label: 'Best LLMs for Coding' },
+  { href: '/best-open-weight-llms', label: 'Best Open-Weight LLMs' },
+  { href: '/cheapest-llms-for-classification', label: 'Cheapest for Classification' },
+  { href: '/fastest-llms-tokens-per-second', label: 'Fastest Models (tok/s)' },
+  { href: '/models', label: 'All Model Pages' },
+  { href: '/methodology', label: 'Provenance Methodology' },
+];
+
 export default function HomePage() {
   const freshness = getRegistryFreshnessSummary();
-  const featuredModels = ALL_MODELS.slice(0, 6);
+  const featuredModels = ALL_MODELS.slice(0, 8);
 
   const webAppJsonLd = {
     '@context': 'https://schema.org',
@@ -60,214 +132,316 @@ export default function HomePage() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'What does PromptBill help developers compare?',
+        name: 'What does PromptBill offer developers and AI teams?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'PromptBill compares LLM API token rates per 1 million input, cached input, and output tokens alongside context windows, throughput metrics, and monthly cost estimates while separating verified records from estimated entries.',
+          text: 'PromptBill provides an LLM API token pricing table, 30-day API cost estimator with prompt caching and batch discounts, benchmark leaderboard, head-to-head model comparisons, prompt token counter, model selector, and hybrid routing simulator.',
         },
       },
       {
         '@type': 'Question',
-        name: 'How does PromptBill handle estimated or unverified pricing and benchmarks?',
+        name: 'How are LLM API costs calculated on PromptBill?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Records without verified primary citations or verification timestamps are labeled Estimated or Unavailable rather than presented as verified official quotes, and missing prices remain N/A instead of defaulting to zero.',
+          text: 'PromptBill calculates monthly spend from daily request volume, input tokens, cached input read share, output tokens, and model-specific batch discounts per 1 million tokens. When a price is unavailable, it displays N/A rather than zero.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How does PromptBill separate verified pricing from estimates?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Every pricing and benchmark record carries an explicit provenance status: Verified when backed by a primary source citation and check date, Estimated when unverified, and Unavailable when data is missing.',
         },
       },
     ],
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 space-y-7 sm:space-y-9 overflow-x-hidden">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+    <SiteShell
+      title="LLM API Pricing, Token Cost Calculator & Benchmarks"
+      subtitle={`promptbill.online · ${freshness.totalModels} Models Tracked · Transparent Provenance`}
+    >
+      <div className="space-y-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
 
-      <section className="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-slate-50/70 to-emerald-50/30 p-5 sm:p-8 shadow-xs space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 font-medium text-slate-800">
-            promptbill.online · LLM API Cost &amp; Provenance Directory
-          </span>
-          <span className="font-mono text-[11px] sm:text-xs text-slate-600">
-            {freshness.totalModels} models · {freshness.verifiedPricingCount} verified · {freshness.estimatedPricingCount} estimated
-          </span>
-        </div>
-
-        <div className="space-y-3 max-w-3xl">
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
-            LLM API Pricing, Cost Estimation &amp; Model Benchmarks
-          </h1>
-          <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-            PromptBill helps engineers compare per-1M-token input, cached, and output rates, context limits, benchmark scores, and monthly spend estimates across {freshness.totalModels} catalog models with explicit provenance labels so estimated numbers are never mistaken for verified quotes.
-          </p>
-        </div>
-
-        <nav aria-label="Primary quick actions" className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
-          <Link
-            href="/pricing"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors text-center"
-          >
-            Pricing Table
-          </Link>
-          <Link
-            href="/leaderboard"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors text-center"
-          >
-            Leaderboard
-          </Link>
-          <Link
-            href="/compare"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors text-center"
-          >
-            Compare Models
-          </Link>
-          <Link
-            href="/tools/token-counter"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors text-center"
-          >
-            Token Counter
-          </Link>
-          <Link
-            href="/tools/llm-selector"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors text-center"
-          >
-            LLM Selector
-          </Link>
-          <Link
-            href="/tools/routing-simulator"
-            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors text-center"
-          >
-            Routing Simulator
-          </Link>
-        </nav>
-      </section>
-
-      <section aria-labelledby="key-tools-heading" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="key-tools-heading" className="text-lg sm:text-xl font-bold text-slate-900">
-            Core Workflows &amp; Calculators
-          </h2>
-          <Link href="/methodology" className="text-xs sm:text-sm font-semibold text-slate-700 underline underline-offset-4">
-            Provenance Methodology
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/pricing"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-slate-400 hover:shadow-xs transition-all space-y-2"
-          >
-            <h3 className="text-base font-bold text-slate-900 group-hover:underline">
-              Token Rate Comparison
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Inspect input, cached read, and output rates per 1M tokens side by side with clear Verified, Estimated, and Unavailable status labels.
-            </p>
-          </Link>
-
-          <Link
-            href="/tools/llm-selector"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-slate-400 hover:shadow-xs transition-all space-y-2"
-          >
-            <h3 className="text-base font-bold text-slate-900 group-hover:underline">
-              Model Selector &amp; Routing
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Match models to coding, reasoning, classification, or high-throughput workloads using context windows, token counters, and routing simulators.
-            </p>
-          </Link>
-
-          <Link
-            href="/best-llms-for-coding"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-slate-400 hover:shadow-xs transition-all space-y-2"
-          >
-            <h3 className="text-base font-bold text-slate-900 group-hover:underline">
-              Curated Shortlists &amp; Benchmarks
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Explore focused views for coding, open-weight models, classification, and throughput while separating verified records from estimates.
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      <section aria-labelledby="catalog-preview-heading" className="space-y-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="space-y-0.5">
-            <h2 id="catalog-preview-heading" className="text-lg sm:text-xl font-bold text-slate-900">
-              Catalog Snapshot ({ALL_MODELS.length} Models)
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600">
-              Open any model page to adjust call volume, cache hit rate, and batch settings in the 30-day cost calculator.
-            </p>
+        {/* Value Proposition & Primary Actions */}
+        <section className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50/80 to-emerald-50/40 p-5 sm:p-7 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-900">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
+              Per-1M-Token Rates · Caching &amp; Batch Math · Benchmark Value
+            </span>
+            <span className="font-mono text-slate-600">
+              Catalog: {freshness.totalModels} models · {freshness.verifiedPricingCount} verified ·{' '}
+              {freshness.estimatedPricingCount} estimated
+            </span>
           </div>
-          <Link href="/models" className="text-xs sm:text-sm font-semibold text-slate-800 underline underline-offset-4">
-            All {ALL_MODELS.length} models -&gt;
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {featuredModels.map((m) => (
+          <p className="max-w-3xl text-sm sm:text-base text-slate-700 leading-relaxed">
+            <strong>PromptBill</strong> helps developers and AI engineering teams estimate monthly LLM API bills, compare input, cached, and output token rates, and evaluate model benchmarks side by side—with clear provenance badges so unverified estimates are never confused with verified provider quotes.
+          </p>
+
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 pt-1">
             <Link
-              key={m.id}
-              href={`/models/${m.slug}`}
-              className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 hover:border-slate-400 hover:shadow-xs transition-all flex flex-col justify-between gap-4"
+              href="/pricing"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
             >
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2 text-xs text-slate-600">
-                  <span className="truncate font-medium">{m.provider}</span>
-                  <span className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[11px] font-medium text-slate-800">
+              API Pricing Table
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+            >
+              Leaderboard
+            </Link>
+            <Link
+              href="/compare"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
+            >
+              Compare Models
+            </Link>
+            <Link
+              href="/tools/llm-selector"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
+            >
+              LLM Selector
+            </Link>
+          </div>
+        </section>
+
+        {/* Interactive Cost Estimator right on the Homepage */}
+        <HomeInteractiveWorkbench models={ALL_MODELS} />
+
+        {/* Everything PromptBill Offers */}
+        <section aria-labelledby="platform-tools-heading" className="space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <h2 id="platform-tools-heading" className="text-lg sm:text-xl font-bold text-slate-900">
+                What You Can Do on PromptBill
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600">
+                Six focused tools for pricing transparency, token estimation, and model selection.
+              </p>
+            </div>
+            <Link
+              href="/methodology"
+              className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
+            >
+              How provenance works -&gt;
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {CORE_TOOLS.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-emerald-600/60 hover:shadow-xs transition-all flex flex-col justify-between gap-3"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-800 group-hover:bg-emerald-50 group-hover:text-emerald-800 transition-colors">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
+                        {tool.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-900 flex items-center justify-between gap-1">
+                      <span>{tool.title}</span>
+                      <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      {tool.description}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Curated Use-Case Guides */}
+        <section
+          aria-labelledby="curated-views-heading"
+          className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="curated-views-heading" className="text-base sm:text-lg font-bold text-slate-900">
+              Curated Shortlists &amp; Directory Views
+            </h2>
+            <span className="text-xs text-slate-500">Direct task-based rankings</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {SHORTLIST_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex min-h-[40px] items-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/60 hover:text-emerald-950 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Catalog Snapshot (Cards on Mobile, Table on Desktop) */}
+        <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <h2 id="catalog-snapshot-heading" className="text-lg sm:text-xl font-bold text-slate-900">
+                Catalog Pricing &amp; Context Snapshot
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600">
+                Tap any model to open its dedicated calculator, endpoint table, and capability scores.
+              </p>
+            </div>
+            <Link
+              href="/pricing"
+              className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
+            >
+              View full pricing table ({ALL_MODELS.length}) -&gt;
+            </Link>
+          </div>
+
+          {/* Mobile Card List */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden">
+            {featuredModels.map((m) => (
+              <Link
+                key={m.id}
+                href={`/models/${m.slug}`}
+                className="rounded-2xl border border-slate-200 bg-white p-4 hover:border-emerald-600/60 space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-medium text-slate-500">{m.provider}</div>
+                    <div className="text-base font-bold text-slate-900">{m.name}</div>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                      m.pricingProvenance.status === 'Verified'
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-amber-50 text-amber-900 border border-amber-200'
+                    }`}
+                  >
                     {m.pricingProvenance.status}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 group-hover:underline">
-                  {m.name}
-                </h3>
-              </div>
 
-              <dl className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-xs">
-                <div>
-                  <dt className="text-slate-500">Input / 1M</dt>
-                  <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.inputPer1M)}</dd>
-                </div>
-                <div>
-                  <dt className="text-slate-500">Output / 1M</dt>
-                  <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.outputPer1M)}</dd>
-                </div>
-                <div>
-                  <dt className="text-slate-500">Context</dt>
-                  <dd className="font-mono font-semibold text-slate-900">{m.contextWindow ?? 'N/A'}</dd>
-                </div>
-              </dl>
-            </Link>
-          ))}
-        </div>
-      </section>
+                <dl className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-2.5 text-xs">
+                  <div>
+                    <dt className="text-slate-500">Input / 1M</dt>
+                    <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.inputPer1M)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Output / 1M</dt>
+                    <dd className="font-mono font-semibold text-slate-900">{fmtRate(m.outputPer1M)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Context</dt>
+                    <dd className="font-mono font-semibold text-slate-900">{m.contextWindow ?? 'N/A'}</dd>
+                  </div>
+                </dl>
+              </Link>
+            ))}
+          </div>
 
-      <section aria-labelledby="home-faq-heading" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4">
-        <h2 id="home-faq-heading" className="text-lg font-bold text-slate-900">
-          Frequently Asked Questions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-slate-700">
-          <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4 space-y-1.5">
-            <h3 className="font-semibold text-slate-900">What is PromptBill?</h3>
-            <p className="leading-relaxed">
-              PromptBill is an LLM API token cost comparison and estimation directory showing per-million-token rates, context windows, model comparisons, and provenance status.
-            </p>
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            <table className="w-full text-left border-collapse text-sm">
+              <caption className="sr-only">
+                Sample LLM API rates per 1 million tokens and context windows on PromptBill
+              </caption>
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700">
+                  <th scope="col" className="py-3 px-4">Model</th>
+                  <th scope="col" className="py-3 px-3">Provenance</th>
+                  <th scope="col" className="py-3 px-3">Input / 1M</th>
+                  <th scope="col" className="py-3 px-3">Cached / 1M</th>
+                  <th scope="col" className="py-3 px-3">Output / 1M</th>
+                  <th scope="col" className="py-3 px-4 text-right">Context</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {featuredModels.map((m) => (
+                  <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
+                    <th scope="row" className="py-3 px-4 text-left font-normal">
+                      <Link
+                        href={`/models/${m.slug}`}
+                        className="font-semibold text-slate-900 hover:text-emerald-800 hover:underline"
+                      >
+                        {m.name}
+                      </Link>
+                      <span className="block text-xs text-slate-500">{m.provider}</span>
+                    </th>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          m.pricingProvenance.status === 'Verified'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-900 border border-amber-200'
+                        }`}
+                      >
+                        {m.pricingProvenance.status === 'Verified'
+                          ? 'Verified'
+                          : 'Estimated (Unverified)'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.inputPer1M)}</td>
+                    <td className="py-3 px-3 font-mono text-emerald-800">
+                      {fmtRate(m.cachedInputPer1M)}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.outputPer1M)}</td>
+                    <td className="py-3 px-4 font-mono text-right text-slate-700">
+                      {m.contextWindow ?? 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4 space-y-1.5">
-            <h3 className="font-semibold text-slate-900">Why are some figures marked Estimated?</h3>
-            <p className="leading-relaxed">
-              When a model entry does not yet have a verified primary citation or verification date in the snapshot, PromptBill marks it Estimated or N/A rather than presenting it as a verified official quote.
-            </p>
+        </section>
+
+        {/* Visible FAQ for Users & Search / Generative Engines */}
+        <section
+          aria-labelledby="home-faq-heading"
+          className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4"
+        >
+          <h2 id="home-faq-heading" className="text-lg font-bold text-slate-900">
+            Frequently Asked Questions
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-slate-700">
+            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
+              <h3 className="font-semibold text-slate-900">What does PromptBill offer?</h3>
+              <p className="leading-relaxed">
+                PromptBill combines an API token pricing table, 30-day cost calculator, benchmark leaderboard, model comparison tool, prompt tokenizer, and routing simulator in one directory.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
+              <h3 className="font-semibold text-slate-900">How are monthly costs estimated?</h3>
+              <p className="leading-relaxed">
+                Estimates multiply daily calls over 30 days using each model&apos;s per-1M-token input, cached read, and output rates plus batch discounts where available.
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
+              <h3 className="font-semibold text-slate-900">Why are some prices marked Estimated?</h3>
+              <p className="leading-relaxed">
+                Entries without a verified primary citation or verification timestamp are labeled Estimated or N/A so you can distinguish verified provider quotes from catalog estimates.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </div>
+    </SiteShell>
   );
 }
