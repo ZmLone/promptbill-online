@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   other: {
     'theme-color': '#0f172a',
-    'og:updated_time': '2026-11-25T14:58:00+05:30',
+    'og:updated_time': '2026-11-25T15:01:00+05:30',
   },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
@@ -87,6 +87,29 @@ const siteJsonLd = {
       logo: {
         '@type': 'ImageObject',
         url: 'https://promptbill.online/favicon.ico',
+      },
+      knowsAbout: [
+        'LLM API pricing',
+        'Token cost calculation',
+        'Prompt caching and batch discounts',
+        'Model benchmark leaderboards',
+        'Output tokens per second throughput',
+      ],
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'PromptBill API Pricing & Comparison Tools',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            name: 'LLM Token Cost Calculator',
+            url: 'https://promptbill.online/',
+          },
+          {
+            '@type': 'Offer',
+            name: 'API Token Pricing Table',
+            url: 'https://promptbill.online/pricing',
+          },
+        ],
       },
     },
     {
