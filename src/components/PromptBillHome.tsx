@@ -185,6 +185,9 @@ export default function PromptBillHome() {
   }
 
   const applyPreset = (preset: (typeof presets)[number]) => {
+    posthog.capture('calculator_preset_applied', {
+      preset_id: preset.id,
+    });
     setActivePresetId(preset.id);
     setInputs({
       inputTokensPerCall: preset.inputTokensPerCall,
@@ -217,6 +220,9 @@ export default function PromptBillHome() {
   };
 
   const handleSelectModelFromMatrix = (id: string) => {
+    posthog.capture('matrix_model_selected', {
+      model_id: id,
+    });
     setSelectedModelId(id);
     setActiveTab('calculator');
   };
