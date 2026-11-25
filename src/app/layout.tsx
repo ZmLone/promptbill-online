@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   other: {
-    'og:updated_time': '2026-11-25T14:20:00+05:30',
+    'og:updated_time': '2026-11-25T14:34:00+05:30',
   },
   twitter: {
     card: 'summary_large_image',
@@ -53,16 +53,37 @@ const siteJsonLd = {
   '@graph': [
     {
       '@type': 'WebSite',
+      '@id': 'https://promptbill.online/#website',
       name: 'PromptBill',
       url: 'https://promptbill.online',
       dateModified: '2026-11-25',
       description:
         'LLM benchmark leaderboard, API token cost calculator, head-to-head model comparisons, token counter, and routing simulator.',
+      publisher: {
+        '@id': 'https://promptbill.online/#organization',
+      },
     },
     {
       '@type': 'Organization',
+      '@id': 'https://promptbill.online/#organization',
       name: 'PromptBill',
       url: 'https://promptbill.online',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://promptbill.online/favicon.ico',
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': 'https://promptbill.online/#breadcrumb',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://promptbill.online/',
+        },
+      ],
     },
   ],
 };
