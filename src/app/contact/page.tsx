@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { SiteShell } from '../../components/SiteShell';
 import { BreadcrumbSchema } from '../../components/BreadcrumbSchema';
 import { ContactForm } from '../../components/ContactForm';
-import { Mail, MessageSquare, Shield, ArrowUpRight } from 'lucide-react';
+import { ContactArtworkCard } from '../../components/ContactArtworkCard';
+import { MessageSquare, Shield, ArrowUpRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Contact PromptBill',
@@ -38,15 +39,7 @@ export default function ContactPage() {
           </section>
 
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
-              <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-800">
-                <Mail className="w-4 h-4" />
-              </div>
-              <h3 className="font-semibold text-slate-900">How Messages Reach You</h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Submissions post to <code>/api/contact</code> on Vercel and can be forwarded straight to your email via Resend or to a webhook (Discord, Slack, or automation endpoint) using environment variables—while also appearing in your Vercel function logs.
-              </p>
-            </div>
+            <ContactArtworkCard />
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
               <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-800">
