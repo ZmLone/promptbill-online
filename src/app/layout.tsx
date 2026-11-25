@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     siteName: 'PromptBill',
     type: 'website',
   },
+  other: {
+    'og:updated_time': '2026-11-25T14:20:00+05:30',
+  },
   twitter: {
     card: 'summary_large_image',
     title: SITE_TITLE,
@@ -52,6 +55,7 @@ const siteJsonLd = {
       '@type': 'WebSite',
       name: 'PromptBill',
       url: 'https://promptbill.online',
+      dateModified: '2026-11-25',
       description:
         'LLM benchmark leaderboard, API token cost calculator, head-to-head model comparisons, token counter, and routing simulator.',
     },
