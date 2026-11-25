@@ -10,13 +10,11 @@ import {
   Sparkles,
   FileText,
   GitBranch,
-  Tag,
+  Megaphone,
   Code2,
   Cpu,
   Scale,
   ChevronDown,
-  Copy,
-  Check,
   ExternalLink,
   Menu,
   X,
@@ -63,7 +61,7 @@ const MORE_COLUMNS: {
       { label: 'Compare Hub (A vs B)', href: '/compare' },
       { label: 'Fable 5.2 vs Gemini 4 Neon', href: '/compare/claude-fable-5-2-vs-gemini-4-neon' },
       { label: 'Fable 5.2 vs GPT-6.2 Astra', href: '/compare/claude-fable-5-2-vs-gpt-6-2-astra' },
-      { label: 'Deals', href: '/deals' },
+      { label: 'Advertise', href: '/advertise' },
       { label: 'Methodology', href: '/methodology' },
     ],
   },
@@ -82,7 +80,6 @@ export function SiteShell({
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     router.prefetch('/');
@@ -95,13 +92,6 @@ export function SiteShell({
     setMobileMenuOpen(false);
     setMoreOpen(false);
   }, [pathname]);
-
-  const handleCopy = () => {
-    if (typeof window === 'undefined') return;
-    navigator.clipboard?.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col pb-24 lg:pb-0 text-[14px] sm:text-[15px] leading-relaxed overflow-x-hidden">
@@ -183,23 +173,13 @@ export function SiteShell({
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={handleCopy}
-              aria-label="Copy current page URL"
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
-            >
-              {copied ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
-              <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
-            </button>
-
             <Link
-              href="/deals"
+              href="/advertise"
               prefetch={true}
-              className="hidden sm:inline-flex min-h-[44px] items-center gap-1 rounded-lg bg-emerald-800 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-900"
+              className="hidden sm:inline-flex min-h-[44px] items-center gap-1.5 rounded-[14px] bg-emerald-800 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors"
             >
-              <Tag className="w-3.5 h-3.5" />
-              <span>Deals</span>
+              <Megaphone className="w-3.5 h-3.5" />
+              <span>Advertise</span>
             </Link>
 
             <button
