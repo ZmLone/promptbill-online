@@ -14,10 +14,10 @@ export interface PriceHistoryEntry {
 export interface CatalogHostingEndpoint {
   host: string;
   providerType: 'Official API' | 'Router' | 'Inference Cloud';
-  inputPer1M: number;
+  inputPer1M: number | null;
   cachedInputPer1M: number | null;
   cacheWritePer1M: number | null;
-  outputPer1M: number;
+  outputPer1M: number | null;
   batchDiscount: number | null;
   latencyMs?: number | null;
   notes?: string | null;
@@ -124,10 +124,10 @@ function normalizeRecord(rec: LiveModelRecord, index: number): CatalogModel {
         ep.providerType === 'Inference Cloud'
           ? ep.providerType
           : 'Inference Cloud',
-      inputPer1M: finiteNonNegOrNull(ep.inputPer1M) ?? 0,
+      inputPer1M: finiteNonNegOrNull(ep.inputPer1M),
       cachedInputPer1M: finiteNonNegOrNull(ep.cachedInputPer1M),
       cacheWritePer1M: finiteNonNegOrNull(ep.cacheWritePer1M),
-      outputPer1M: finiteNonNegOrNull(ep.outputPer1M) ?? 0,
+      outputPer1M: finiteNonNegOrNull(ep.outputPer1M),
       batchDiscount: finiteNonNegOrNull(ep.batchDiscount),
       latencyMs: finiteNonNegOrNull(ep.latencyMs),
       notes: nonEmptyStringOrNull(ep.notes),

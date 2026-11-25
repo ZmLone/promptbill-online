@@ -69,6 +69,7 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
     breakdown.batchSupported
       ? `${Math.round(breakdown.batchDiscountRate * 100)}%`
       : 'Not available';
+  const isUnverifiedPricing = model.pricingProvenance.status !== 'Verified';
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 space-y-4">
@@ -96,6 +97,13 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
           </span>
         )}
       </div>
+
+      {isUnverifiedPricing && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-950">
+          <strong>Estimate Warning:</strong> Pricing provenance for {model.name} is{' '}
+          <strong>{model.pricingProvenance.status}</strong> (not a verified provider quote). Confirm live rates with the provider before billing.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
         <label htmlFor="detail-input-tokens" className="space-y-1.5">
@@ -188,7 +196,7 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-200">
         <span className="text-xs text-slate-700">
-          Estimated 30-Day Spend ({breakdown.monthlyCalls.toLocaleString()} calls)
+          {isUnverifiedPricing ? 'Estimated 30-Day Spend (Unverified Rate)' : 'Estimated 30-Day Spend'} ({breakdown.monthlyCalls.toLocaleString()} calls)
         </span>
         <span className="font-mono text-2xl font-bold text-emerald-800">
           {breakdown.hasPricingData ? `${formatCurrency(breakdown.monthlyTotalCost)}/mo` : 'N/A'}
