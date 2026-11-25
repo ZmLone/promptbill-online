@@ -28,6 +28,11 @@ export const metadata: Metadata = {
     template: '%s · PromptBill',
   },
   description: SITE_DESCRIPTION,
+  robots: {
+    index: true,
+    follow: true,
+    'max-image-preview': 'large',
+  },
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -39,7 +44,7 @@ export const metadata: Metadata = {
   },
   other: {
     'theme-color': '#0f172a',
-    'og:updated_time': '2026-11-25T14:55:00+05:30',
+    'og:updated_time': '2026-11-25T14:58:00+05:30',
   },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
@@ -66,6 +71,7 @@ const siteJsonLd = {
       '@id': 'https://promptbill.online/#website',
       name: 'PromptBill',
       url: 'https://promptbill.online',
+      inLanguage: 'en',
       dateModified: '2026-11-25',
       description:
         'LLM benchmark leaderboard, API token cost calculator, head-to-head model comparisons, token counter, and routing simulator.',
