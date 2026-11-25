@@ -1,0 +1,21 @@
+{
+  "name": "PromptBill — LLM API Pricing & Token Calculator",
+  "short_name": "PromptBill",
+  "description": "Compare LLM API token rates per 1M tokens, prompt cache and batch discounts, output speed, and model benchmarks.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#064e3b",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
