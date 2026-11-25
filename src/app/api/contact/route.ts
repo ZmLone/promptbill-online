@@ -3,7 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 interface ContactPayload {
   name?: unknown;
   email?: unknown;
+  phone?: unknown;
+  company?: unknown;
   topic?: unknown;
+  budget?: unknown;
   message?: unknown;
   website?: unknown; // honeypot field for bots
 }
@@ -23,12 +26,15 @@ export async function POST(req: NextRequest) {
 
     const name = typeof body.name === 'string' ? body.name.trim() : '';
     const email = typeof body.email === 'string' ? body.email.trim() : '';
-    const topic = typeof body.topic === 'string' ? body.topic.trim() : 'General Inquiry';
+    const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+    const company = typeof body.company === 'string' ? body.company.trim() : '';
+    const topic = typeof body.topic === 'string' ? body.topic.trim() : 'Pricing Update or Correction';
+    const budget = typeof body.budget === 'string' ? body.budget.trim() : 'Not specified';
     const message = typeof body.message === 'string' ? body.message.trim() : '';
 
     if (name.length < 1 || name.length > 120) {
       return NextResponse.json(
-        { ok: false, error: 'Please enter your name (up to 120 characters).' },
+        { ok: false, error: 'Please enter your full name (up to 120 characters).' },
         { status: 400 }
       );
     }
@@ -42,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     if (message.length < 10 || message.length > 5000) {
       return NextResponse.json(
-        { ok: false, error: 'Please write a message between 10 and 5,000 characters.' },
+        { ok: false, error: 'Please write project or inquiry details between 10 and 5,000 characters.' },
         { status: 400 }
       );
     }
@@ -55,7 +61,10 @@ export async function POST(req: NextRequest) {
       submittedAt,
       name,
       email,
+      phone: phone || 'Not provided',
+      company: company || 'Not provided',
       topic,
+      budget,
       message,
       pageUrl: req.headers.get('referer') || 'https://promptbill.online/contact',
       userAgent: req.headers.get('user-agent') || 'unknown',
@@ -69,9 +78,10 @@ export async function POST(req: NextRequest) {
       const textSummary =
         `New PromptBill Contact (${record.id})\n` +
         `From: ${record.name} <${record.email}>\n` +
-        `Topic: ${record.topic}\n` +
+        `Phone: ${record.phone} | Company: ${record.company}\n` +
+        `Topic: ${record.topic} | Budget/Scale: ${record.budget}\n` +
         `Time: ${record.submittedAt}\n` +
-        `Message:\n${record.message}`;
+        `Details:\n${record.message}`;
 
       const whRes = await fetch(webhookUrl, {
         method: 'POST',
@@ -89,7 +99,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Optional Resend email delivery to your inbox
+    // 2. Resend email delivery to your inbox
     const resendApiKey = process.env.RESEND_API_KEY;
     const notifyTo = process.env.CONTACT_NOTIFY_EMAIL;
     const notifyFrom = process.env.CONTACT_FROM_EMAIL || 'PromptBill <onboarding@resend.dev>';
@@ -111,10 +121,13 @@ export async function POST(req: NextRequest) {
             `Submitted At: ${record.submittedAt}`,
             `Name: ${record.name}`,
             `Email: ${record.email}`,
-            `Topic: ${record.topic}`,
+            `Phone: ${record.phone}`,
+            `Company: ${record.company}`,
+            `Inquiry Reason: ${record.topic}`,
+            `Monthly Spend Tier: ${record.budget}`,
             `Referrer: ${record.pageUrl}`,
             '',
-            'Message:',
+            'Details:',
             record.message,
           ].join('\n'),
         }),
@@ -127,7 +140,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Always log structured payload to Vercel Runtime Logs for immediate visibility
+    // 3. Always log structured payload to Vercel Runtime Logs
     console.info('[PromptBill Contact Submission]', JSON.stringify(record));
 
     return NextResponse.json(
