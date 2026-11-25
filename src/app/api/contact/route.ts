@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 interface ContactPayload {
+  formType?: unknown;
+  accountType?: unknown;
   name?: unknown;
   email?: unknown;
-  phone?: unknown;
   company?: unknown;
   topic?: unknown;
   budget?: unknown;
+  placement?: unknown;
   message?: unknown;
   website?: unknown; // honeypot field for bots
 }
@@ -24,17 +26,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, id: 'accepted' }, { status: 200 });
     }
 
+    const rawFormType = typeof body.formType === 'string' ? body.formType.trim().toLowerCase() : 'contact';
+    const formType = rawFormType === 'enquiry' ? 'enquiry' : 'contact';
+
+    const accountType =
+      typeof body.accountType === 'string' && body.accountType.trim().length > 0
+        ? body.accountType.trim()
+        : 'Individual';
     const name = typeof body.name === 'string' ? body.name.trim() : '';
     const email = typeof body.email === 'string' ? body.email.trim() : '';
-    const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
     const company = typeof body.company === 'string' ? body.company.trim() : '';
-    const topic = typeof body.topic === 'string' ? body.topic.trim() : 'Pricing Update or Correction';
-    const budget = typeof body.budget === 'string' ? body.budget.trim() : 'Not specified';
+    const topic =
+      typeof body.topic === 'string' && body.topic.trim().length > 0
+        ? body.topic.trim()
+        : formType === 'enquiry'
+          ? 'Advertise & Sponsorship'
+          : 'Pricing Update or Correction';
+    const budget =
+      typeof body.budget === 'string' && body.budget.trim().length > 0
+        ? body.budget.trim()
+        : 'Not specified';
+    const placement =
+      typeof body.placement === 'string' && body.placement.trim().length > 0
+        ? body.placement.trim()
+        : 'Not specified';
     const message = typeof body.message === 'string' ? body.message.trim() : '';
 
     if (name.length < 1 || name.length > 120) {
       return NextResponse.json(
-        { ok: false, error: 'Please enter your full name (up to 120 characters).' },
+        { ok: false, error: 'Please enter your name (up to 120 characters).' },
         { status: 400 }
       );
     }
@@ -48,25 +68,28 @@ export async function POST(req: NextRequest) {
 
     if (message.length < 10 || message.length > 5000) {
       return NextResponse.json(
-        { ok: false, error: 'Please write project or inquiry details between 10 and 5,000 characters.' },
+        { ok: false, error: 'Please write a message between 10 and 5,000 characters.' },
         { status: 400 }
       );
     }
 
     const submittedAt = new Date().toISOString();
-    const submissionId = `msg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+    const prefix = formType === 'enquiry' ? 'enq' : 'msg';
+    const submissionId = `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 
     const record = {
       id: submissionId,
+      formType,
+      accountType,
       submittedAt,
       name,
       email,
-      phone: phone || 'Not provided',
       company: company || 'Not provided',
       topic,
       budget,
+      placement,
       message,
-      pageUrl: req.headers.get('referer') || 'https://promptbill.online/contact',
+      pageUrl: req.headers.get('referer') || `https://promptbill.online/${formType}`,
       userAgent: req.headers.get('user-agent') || 'unknown',
     };
 
@@ -75,13 +98,14 @@ export async function POST(req: NextRequest) {
     // 1. Optional webhook delivery (Slack / Discord / Zapier / Make / custom endpoint)
     const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
     if (webhookUrl) {
+      const label = formType === 'enquiry' ? 'PromptBill Enquiry / Advertise' : 'PromptBill Contact';
       const textSummary =
-        `New PromptBill Contact (${record.id})\n` +
-        `From: ${record.name} <${record.email}>\n` +
-        `Phone: ${record.phone} | Company: ${record.company}\n` +
-        `Topic: ${record.topic} | Budget/Scale: ${record.budget}\n` +
+        `New ${label} (${record.id})\n` +
+        `From: ${record.name} <${record.email}> (${record.accountType})\n` +
+        `Company: ${record.company} | Topic: ${record.topic}\n` +
+        `Budget: ${record.budget} | Placement: ${record.placement}\n` +
         `Time: ${record.submittedAt}\n` +
-        `Details:\n${record.message}`;
+        `Message:\n${record.message}`;
 
       const whRes = await fetch(webhookUrl, {
         method: 'POST',
@@ -105,6 +129,7 @@ export async function POST(req: NextRequest) {
     const notifyFrom = process.env.CONTACT_FROM_EMAIL || 'PromptBill <onboarding@resend.dev>';
 
     if (resendApiKey && notifyTo) {
+      const subjectTag = formType === 'enquiry' ? 'PromptBill Enquiry / Advertise' : 'PromptBill Contact';
       const mailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -115,19 +140,21 @@ export async function POST(req: NextRequest) {
           from: notifyFrom,
           to: [notifyTo],
           reply_to: record.email,
-          subject: `[PromptBill Contact] ${record.topic} — from ${record.name}`,
+          subject: `[${subjectTag}] ${record.topic} — from ${record.name}`,
           text: [
             `Submission ID: ${record.id}`,
+            `Type: ${formType === 'enquiry' ? 'Enquiry & Advertising' : 'Direct Contact'}`,
+            `Sender Category: ${record.accountType}`,
             `Submitted At: ${record.submittedAt}`,
             `Name: ${record.name}`,
             `Email: ${record.email}`,
-            `Phone: ${record.phone}`,
-            `Company: ${record.company}`,
-            `Inquiry Reason: ${record.topic}`,
-            `Monthly Spend Tier: ${record.budget}`,
+            `Company / Organization: ${record.company}`,
+            `Topic / Reason: ${record.topic}`,
+            `Budget / Scale: ${record.budget}`,
+            `Ad / Feature Placement: ${record.placement}`,
             `Referrer: ${record.pageUrl}`,
             '',
-            'Details:',
+            'Message:',
             record.message,
           ].join('\n'),
         }),
