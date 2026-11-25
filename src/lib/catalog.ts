@@ -311,13 +311,12 @@ export function getAllProviderSlugs(): ProviderSummary[] {
   return Array.from(map.values());
 }
 
-export function getAutoComparisonPairs(limit = 48): ComparisonPair[] {
+export function getAutoComparisonPairs(limit = 160): ComparisonPair[] {
   const pairs: ComparisonPair[] = [];
-  const slice = ALL_MODELS.slice(0, Math.min(ALL_MODELS.length, 16));
-  for (let i = 0; i < slice.length; i++) {
-    for (let j = i + 1; j < slice.length; j++) {
-      const a = slice[i];
-      const b = slice[j];
+  for (let i = 0; i < ALL_MODELS.length; i++) {
+    for (let j = i + 1; j < ALL_MODELS.length; j++) {
+      const a = ALL_MODELS[i];
+      const b = ALL_MODELS[j];
       pairs.push({
         slug: `${a.slug}-vs-${b.slug}`,
         modelA: a,
