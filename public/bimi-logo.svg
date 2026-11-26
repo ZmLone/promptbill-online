@@ -1,0 +1,8 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <title>PromptBill</title>
+  <rect width="512" height="512" fill="#131B29" />
+  <path d="M120 112 H260 C315 112 352 148 352 202 C352 256 315 292 260 292 H178 V400 H120 Z M178 162 V242 H254 C280 242 296 226 296 202 C296 178 280 162 254 162 Z" fill="#F8FAFC" />
+  <rect x="372" y="132" width="76" height="44" rx="22" fill="#1AC98E" />
+  <rect x="372" y="234" width="76" height="44" rx="22" fill="#1AC98E" />
+  <rect x="372" y="336" width="76" height="44" rx="22" fill="#1AC98E" />
+</svg>
