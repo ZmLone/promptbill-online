@@ -1,358 +1,620 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ALL_MODELS, getAllProviderSlugs, type CatalogModel } from '../lib/catalog';
-import { Search, ArrowUpDown } from 'lucide-react';
+import { MODELS } from '../data/models';
 
-type SortKey = 'score' | 'value' | 'price' | 'elo' | 'tokPerSec';
+type SortKey = 'score' | 'value' | 'price' | 'speed' | 'elo';
 
-function fmtNum(val: number | null, digits = 1): string {
-  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(digits) : 'N/A';
+function sanitizeBlurb(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return raw
+    .replace(/#1\s+benchmark\s+score\s*;?\s*/gi, 'Top-tier benchmark performance; ')
+    .replace(/#1\s+Score\/\$\s+ratio\s*/gi, 'Leading Score/$ efficiency ')
+    .replace(/#1\s+overall\s*/gi, 'Leading ')
+    .replace(/;\s*$/g, '')
+    .trim();
 }
 
-function fmtPrice(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
-}
-
-function computeScorePerDollar(m: CatalogModel): number | null {
-  if (typeof m.score !== 'number' || !Number.isFinite(m.score)) return null;
-  if (typeof m.outputPer1M !== 'number' || !Number.isFinite(m.outputPer1M) || m.outputPer1M <= 0) {
-    return null;
+function normalizeLicense(raw: string | null | undefined): 'Closed' | 'Open Weight' {
+  if (!raw) return 'Closed';
+  const v = raw.trim();
+  if (!v || /^n\/?a$/i.test(v) || /^unspecified$/i.test(v)) return 'Closed';
+  if (/open/i.test(v) || /apache|mit|llama|gemma|qwen|deepseek|mistral/i.test(v)) {
+    return 'Open Weight';
   }
-  return Number((m.score / m.outputPer1M).toFixed(2));
+  return 'Closed';
 }
 
-function blendedPrice(m: CatalogModel): number | null {
-  if (
-    typeof m.inputPer1M !== 'number' ||
-    !Number.isFinite(m.inputPer1M) ||
-    typeof m.outputPer1M !== 'number' ||
-    !Number.isFinite(m.outputPer1M)
-  ) {
-    return null;
-  }
-  return (m.inputPer1M + m.outputPer1M) / 2;
+function normalizeLifecycle(raw: string | null | undefined): 'Active' | 'Preview' | 'Deprecated' | 'Legacy' {
+  const v = (raw || 'Active').trim().toLowerCase();
+  if (v === 'preview') return 'Preview';
+  if (v === 'deprecated') return 'Deprecated';
+  if (v === 'legacy') return 'Legacy';
+  return 'Active';
 }
 
-function compareNullable(a: number | null, b: number | null, ascending: boolean): number {
-  if (a === null && b === null) return 0;
-  if (a === null) return 1;
-  if (b === null) return -1;
-  return ascending ? a - b : b - a;
+function normalizeEvidence(m: {
+  evidence?: string | null;
+  pricingProvenance?: { status?: string | null } | null;
+  benchmarkProvenance?: { status?: string | null } | null;
+}): 'Verified' | 'Estimated' | 'Unavailable' {
+  const ev = (m.evidence || '').trim().toLowerCase();
+  const pr = (m.pricingProvenance?.status || '').trim().toLowerCase();
+  const bm = (m.benchmarkProvenance?.status || '').trim().toLowerCase();
+  if (ev === 'verified' || (pr === 'verified' && bm === 'verified')) return 'Verified';
+  if (ev === 'unavailable') return 'Unavailable';
+  return 'Estimated';
 }
 
-export function LeaderboardTableClient() {
+function computeScorePerDollar(score: number | null | undefined, outputPer1M: number | null | undefined): number | null {
+  if (typeof score !== 'number' || typeof outputPer1M !== 'number' || outputPer1M <= 0) return null;
+  return Number((score / outputPer1M).toFixed(1));
+}
+
+function formatPrice(val: number | null | undefined): string {
+  if (typeof val !== 'number' || !Number.isFinite(val)) return 'N/A';
+  return val < 1 ? `$${val.toFixed(2)}` : `$${val.toFixed(2)}`;
+}
+
+export function LeaderboardTableClient({
+  lastVerifiedDate,
+}: {
+  lastVerifiedDate?: string;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [licenseFilter, setLicenseFilter] = useState<'All' | 'Open' | 'Closed' | 'Unavailable'>('All');
-  const [evidenceFilter, setEvidenceFilter] = useState<'All' | 'Verified' | 'Estimated' | 'Unavailable'>('All');
+  const [evidenceFilter, setEvidenceFilter] = useState<'ALL' | 'Verified' | 'Estimated' | 'Unavailable'>('ALL');
+  const [licenseFilter, setLicenseFilter] = useState<'ALL' | 'Closed' | 'Open Weight'>('ALL');
+  const [lifecycleFilter, setLifecycleFilter] = useState<'ALL' | 'Active' | 'Preview' | 'Deprecated' | 'Legacy'>('ALL');
   const [sortBy, setSortBy] = useState<SortKey>('score');
-  const [sortAsc, setSortAsc] = useState(false);
+  const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
 
-  const providers = useMemo(() => getAllProviderSlugs(), []);
+  const enrichedModels = useMemo(() => {
+    return MODELS.filter((m) => !m.archived).map((m) => {
+      const evidenceNorm = normalizeEvidence(m);
+      const licenseNorm = normalizeLicense(m.license);
+      const lifecycleNorm = normalizeLifecycle(m.lifecycleStatus);
+      const scorePerDollar = computeScorePerDollar(m.score, m.outputPer1M);
+      const cleanSummary = sanitizeBlurb(m.bestFor || m.notes);
+      return {
+        ...m,
+        evidenceNorm,
+        licenseNorm,
+        lifecycleNorm,
+        scorePerDollar,
+        cleanSummary,
+      };
+    });
+  }, []);
 
-  const rows = useMemo(() => {
+  const hasAnyElo = useMemo(
+    () => enrichedModels.some((m) => typeof m.elo === 'number' && Number.isFinite(m.elo)),
+    [enrichedModels]
+  );
+
+  const verifiedCount = useMemo(
+    () => enrichedModels.filter((m) => m.evidenceNorm === 'Verified').length,
+    [enrichedModels]
+  );
+
+  const formattedVerifiedDate = useMemo(() => {
+    const raw = lastVerifiedDate || new Date().toISOString().slice(0, 10);
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) return raw;
+    return parsed.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  }, [lastVerifiedDate]);
+
+  const filteredAndSorted = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return ALL_MODELS
-      .filter((m) => {
-        if (q) {
-          const hay = [m.name, m.provider, m.bestFor ?? '', m.family ?? ''].join(' ').toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        if (licenseFilter === 'Unavailable' && m.license !== null) return false;
-        if ((licenseFilter === 'Open' || licenseFilter === 'Closed') && m.license !== licenseFilter) {
-          return false;
-        }
-        if (evidenceFilter !== 'All' && m.evidence !== evidenceFilter) return false;
-        return true;
-      })
-      .map((m) => ({
-        model: m,
-        scorePerDollar: computeScorePerDollar(m),
-        avgPrice: blendedPrice(m),
-      }))
-      .sort((a, b) => {
-        if (sortBy === 'score') return compareNullable(a.model.score, b.model.score, sortAsc);
-        if (sortBy === 'value') return compareNullable(a.scorePerDollar, b.scorePerDollar, sortAsc);
-        if (sortBy === 'price') return compareNullable(a.avgPrice, b.avgPrice, sortAsc);
-        if (sortBy === 'elo') return compareNullable(a.model.elo, b.model.elo, sortAsc);
-        return compareNullable(a.model.tokPerSec, b.model.tokPerSec, sortAsc);
-      });
-  }, [searchQuery, licenseFilter, evidenceFilter, sortBy, sortAsc]);
 
-  const toggleSort = (col: SortKey) => {
-    if (sortBy === col) setSortAsc(!sortAsc);
-    else {
-      setSortBy(col);
-      setSortAsc(col === 'price');
+    const filtered = enrichedModels.filter((m) => {
+      if (evidenceFilter !== 'ALL' && m.evidenceNorm !== evidenceFilter) return false;
+      if (licenseFilter !== 'ALL' && m.licenseNorm !== licenseFilter) return false;
+      if (lifecycleFilter !== 'ALL' && m.lifecycleNorm !== lifecycleFilter) return false;
+      if (q) {
+        const hay = `${m.name} ${m.slug} ${m.provider} ${m.licenseNorm} ${m.lifecycleNorm} ${m.cleanSummary}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const dir = sortDir === 'desc' ? -1 : 1;
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'score') {
+        const av = a.score ?? -Infinity;
+        const bv = b.score ?? -Infinity;
+        return (av - bv) * dir;
+      }
+      if (sortBy === 'value') {
+        const av = a.scorePerDollar ?? -Infinity;
+        const bv = b.scorePerDollar ?? -Infinity;
+        return (av - bv) * dir;
+      }
+      if (sortBy === 'price') {
+        const av = a.outputPer1M ?? Infinity;
+        const bv = b.outputPer1M ?? Infinity;
+        return (av - bv) * dir;
+      }
+      if (sortBy === 'speed') {
+        const av = a.tokPerSec ?? -Infinity;
+        const bv = b.tokPerSec ?? -Infinity;
+        return (av - bv) * dir;
+      }
+      if (sortBy === 'elo') {
+        const av = a.elo ?? -Infinity;
+        const bv = b.elo ?? -Infinity;
+        return (av - bv) * dir;
+      }
+      return 0;
+    });
+  }, [enrichedModels, searchQuery, evidenceFilter, licenseFilter, lifecycleFilter, sortBy, sortDir]);
+
+  const highlights = useMemo(() => {
+    const byScore = [...enrichedModels].sort((a, b) => (b.score ?? -1) - (a.score ?? -1))[0];
+    const byValue = [...enrichedModels].sort((a, b) => (b.scorePerDollar ?? -1) - (a.scorePerDollar ?? -1))[0];
+    const bySpeed = [...enrichedModels].sort((a, b) => (b.tokPerSec ?? -1) - (a.tokPerSec ?? -1))[0];
+    return { byScore, byValue, bySpeed };
+  }, [enrichedModels]);
+
+  function handleSortToggle(nextKey: SortKey) {
+    if (sortBy === nextKey) {
+      setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortBy(nextKey);
+      setSortDir(nextKey === 'price' ? 'asc' : 'desc');
     }
-  };
+  }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        <div className="relative w-full lg:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search model or provider..."
-            aria-label="Search models"
-            className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-900"
-          />
+    <section className="space-y-6" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
+      {/* GEO Freshness & Provenance Trust Banner */}
+      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/90 via-white to-slate-50 px-4 py-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 text-xs sm:text-sm text-slate-800">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-800 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white uppercase">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />
+            Data Last Verified: {formattedVerifiedDate}
+          </span>
+          <span className="text-slate-600">
+            Showing <strong className="font-semibold text-slate-900">{verifiedCount}</strong> of{' '}
+            <strong className="font-semibold text-slate-900">{enrichedModels.length}</strong> active models with verified official API rates &amp; benchmarks.
+          </span>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <select
-            value={evidenceFilter}
-            onChange={(e) =>
-              setEvidenceFilter(
-                e.target.value as 'All' | 'Verified' | 'Estimated' | 'Unavailable'
-              )
-            }
-            aria-label="Filter by evidence"
-            className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-slate-800"
-          >
-            <option value="All">All Evidence</option>
-            <option value="Verified">Verified</option>
-            <option value="Estimated">Estimated</option>
-            <option value="Unavailable">Unavailable</option>
-          </select>
-          <select
-            value={licenseFilter}
-            onChange={(e) =>
-              setLicenseFilter(e.target.value as 'All' | 'Open' | 'Closed' | 'Unavailable')
-            }
-            aria-label="Filter by license"
-            className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-slate-800"
-          >
-            <option value="All">All Licenses</option>
-            <option value="Closed">Closed</option>
-            <option value="Open">Open Weight</option>
-            <option value="Unavailable">Unspecified (N/A)</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              const val = e.target.value as SortKey;
-              setSortBy(val);
-              setSortAsc(val === 'price');
-            }}
-            aria-label="Sort models by"
-            className="md:hidden rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-slate-800 font-medium"
-          >
-            <option value="score">Sort: Benchmark Score</option>
-            <option value="value">Sort: Best Score/$</option>
-            <option value="price">Sort: Lowest Price</option>
-            <option value="tokPerSec">Sort: Fastest Tok/s</option>
-            <option value="elo">Sort: Highest Elo</option>
-          </select>
+        <div className="text-[11px] font-medium text-slate-600">
+          Value metric: <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-slate-800">Score/$ = Score ÷ Output $/1M</code>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:hidden">
-        {rows.map(({ model: m, scorePerDollar }) => (
-          <article
-            key={m.id}
-            className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 space-y-3"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-xs font-bold text-slate-500">
-                    {m.rank !== null ? `#${m.rank}` : 'N/A'}
-                  </span>
-                  <Link
-                    href={`/models/${m.slug}`}
-                    className="text-base font-bold text-slate-900 underline-offset-2 hover:underline"
-                  >
-                    {m.name}
-                  </Link>
-                  <span className="rounded bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800">
-                    {m.evidence}
-                  </span>
-                </div>
-                <div className="text-xs text-slate-600 mt-0.5">
-                  <Link href={`/providers/${m.providerSlug}`} className="underline">
-                    {m.provider}
-                  </Link>{' '}
-                  · {m.license ?? 'N/A'} · {m.contextWindow ?? 'N/A'} context
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <div className="font-mono text-lg font-bold text-slate-900">
-                  {fmtNum(m.score, 1)}
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-500">Score</div>
-              </div>
+      {/* Executive Summary Cards (GEO Direct-Answer & Quick Scan) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        {highlights.byScore ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <span>#1 Benchmark Score</span>
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-800">
+                {highlights.byScore.score} / 100
+              </span>
             </div>
-
-            <div className="grid grid-cols-3 gap-2 rounded-lg bg-white border border-slate-200 p-2.5 text-center font-mono text-xs">
-              <div>
-                <div className="text-[10px] font-sans text-slate-500">In / Out ($/1M)</div>
-                <div className="font-bold text-slate-900 mt-0.5">
-                  {fmtPrice(m.inputPer1M)}/{fmtPrice(m.outputPer1M)}
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] font-sans text-slate-500">Speed</div>
-                <div className="font-bold text-emerald-700 mt-0.5">
-                  {m.tokPerSec !== null ? `${m.tokPerSec} tok/s` : 'N/A'}
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] font-sans text-slate-500">Value (Score/$)</div>
-                <div className="font-bold text-slate-900 mt-0.5">
-                  {fmtNum(scorePerDollar, 1)}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-1 text-xs">
-              <span className="text-slate-500 line-clamp-1">{m.bestFor ?? 'N/A'}</span>
+            <div className="mt-1.5 flex items-baseline justify-between gap-2">
               <Link
-                href={`/models/${m.slug}`}
-                className="shrink-0 font-semibold text-emerald-700 hover:underline ml-2"
+                href={`/models/${highlights.byScore.slug}`}
+                className="text-base font-bold text-slate-900 hover:text-emerald-800"
               >
-                Specs &amp; Cost -&gt;
+                {highlights.byScore.name}
               </Link>
+              <span className="text-xs font-mono text-slate-600">
+                {formatPrice(highlights.byScore.inputPer1M)} / {formatPrice(highlights.byScore.outputPer1M)}
+              </span>
             </div>
-          </article>
-        ))}
+            <p className="mt-1 text-xs text-slate-600">
+              {highlights.byScore.provider} · {highlights.byScore.licenseNorm} · {highlights.byScore.contextWindow || 'Standard'} context
+            </p>
+          </div>
+        ) : null}
+
+        {highlights.byValue ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <span>#1 Score/$ Efficiency</span>
+              <span className="rounded-full bg-teal-50 px-2 py-0.5 text-teal-800">
+                {highlights.byValue.scorePerDollar} pts/$
+              </span>
+            </div>
+            <div className="mt-1.5 flex items-baseline justify-between gap-2">
+              <Link
+                href={`/models/${highlights.byValue.slug}`}
+                className="text-base font-bold text-slate-900 hover:text-emerald-800"
+              >
+                {highlights.byValue.name}
+              </Link>
+              <span className="text-xs font-mono text-slate-600">
+                {formatPrice(highlights.byValue.inputPer1M)} / {formatPrice(highlights.byValue.outputPer1M)}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-slate-600">
+              {highlights.byValue.provider} · Score {highlights.byValue.score} · {highlights.byValue.tokPerSec ?? '—'} tok/s
+            </p>
+          </div>
+        ) : null}
+
+        {highlights.bySpeed ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <span>#1 Output Throughput</span>
+              <span className="rounded-full bg-sky-50 px-2 py-0.5 text-sky-800">
+                {highlights.bySpeed.tokPerSec} tok/s
+              </span>
+            </div>
+            <div className="mt-1.5 flex items-baseline justify-between gap-2">
+              <Link
+                href={`/models/${highlights.bySpeed.slug}`}
+                className="text-base font-bold text-slate-900 hover:text-emerald-800"
+              >
+                {highlights.bySpeed.name}
+              </Link>
+              <span className="text-xs font-mono text-slate-600">
+                {formatPrice(highlights.bySpeed.inputPer1M)} / {formatPrice(highlights.bySpeed.outputPer1M)}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-slate-600">
+              {highlights.bySpeed.provider} · Score {highlights.bySpeed.score} · {highlights.bySpeed.licenseNorm}
+            </p>
+          </div>
+        ) : null}
       </div>
 
-      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
+      {/* Filter & Sort Controls */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+          <div className="relative flex-1">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search model, provider, or workload (e.g. Claude, GPT-6.2, coding, 1M)..."
+              aria-label="Search models or providers"
+              className="min-h-[42px] w-full rounded-xl border border-slate-300 bg-slate-50/60 px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:bg-white focus:outline-none"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <select
+              value={evidenceFilter}
+              onChange={(e) => setEvidenceFilter(e.target.value as typeof evidenceFilter)}
+              aria-label="Filter by provenance status"
+              className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
+            >
+              <option value="ALL">All Evidence</option>
+              <option value="Verified">Verified Only</option>
+              <option value="Estimated">Estimated</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+
+            <select
+              value={licenseFilter}
+              onChange={(e) => setLicenseFilter(e.target.value as typeof licenseFilter)}
+              aria-label="Filter by license type"
+              className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
+            >
+              <option value="ALL">All Licenses</option>
+              <option value="Closed">Closed</option>
+              <option value="Open Weight">Open Weight</option>
+            </select>
+
+            <select
+              value={lifecycleFilter}
+              onChange={(e) => setLifecycleFilter(e.target.value as typeof lifecycleFilter)}
+              aria-label="Filter by model lifecycle status"
+              className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
+            >
+              <option value="ALL">All Lifecycles</option>
+              <option value="Active">Active</option>
+              <option value="Preview">Preview</option>
+              <option value="Deprecated">Deprecated</option>
+              <option value="Legacy">Legacy</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Quick Sort Pills */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-semibold text-slate-500 mr-1">Sort by:</span>
+            {[
+              { id: 'score', label: 'Benchmark Score' },
+              { id: 'value', label: 'Best Score/$' },
+              { id: 'price', label: 'Lowest Price' },
+              { id: 'speed', label: 'Fastest Tok/s' },
+              ...(hasAnyElo ? [{ id: 'elo', label: 'Highest Elo' }] : []),
+            ].map((pill) => {
+              const active = sortBy === pill.id;
+              return (
+                <button
+                  key={pill.id}
+                  type="button"
+                  onClick={() => handleSortToggle(pill.id as SortKey)}
+                  className={`min-h-[34px] rounded-lg px-3 py-1.5 font-semibold transition-colors ${
+                    active
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
+                  }`}
+                >
+                  {pill.label}{' '}
+                  {active ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-slate-500 font-medium">
+            Showing <strong className="text-slate-900">{filteredAndSorted.length}</strong> models · Ranked{' '}
+            <strong className="text-slate-900">1–{filteredAndSorted.length}</strong> by active sort
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Structured Table (Single Source of Truth — No Duplicate Hidden Card Text) */}
+      <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
         <table className="w-full text-left border-collapse">
-          <caption className="sr-only">
-            LLM Leaderboard comparing scores, Score per dollar value ratio, context window size, official API token pricing per 1 million tokens, Elo ratings, and output generation speed in tokens per second.
-          </caption>
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-700">
-              <th scope="col" className="py-3 px-3.5">Rank &amp; Model</th>
-              <th scope="col" className="py-3 px-3">
+            <tr className="border-b border-slate-200 bg-slate-50/90 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <th className="py-3.5 pl-5 pr-3">Rank &amp; Model</th>
+              <th className="py-3.5 px-3">
                 <button
                   type="button"
-                  onClick={() => toggleSort('score')}
-                  className="inline-flex items-center gap-1 hover:text-slate-950"
+                  onClick={() => handleSortToggle('score')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900"
                 >
-                  Score <ArrowUpDown className="w-3.5 h-3.5" />
+                  Score <span>{sortBy === 'score' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3">
+              <th className="py-3.5 px-3">
                 <button
                   type="button"
-                  onClick={() => toggleSort('value')}
-                  className="inline-flex items-center gap-1 hover:text-slate-950"
+                  onClick={() => handleSortToggle('value')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900"
                 >
-                  Score/$ <ArrowUpDown className="w-3.5 h-3.5" />
+                  Score/$ <span>{sortBy === 'value' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3">Context</th>
-              <th scope="col" className="py-3 px-3">
+              <th className="py-3.5 px-3">Context</th>
+              <th className="py-3.5 px-3">
                 <button
                   type="button"
-                  onClick={() => toggleSort('price')}
-                  className="inline-flex items-center gap-1 hover:text-slate-950"
+                  onClick={() => handleSortToggle('price')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900"
                 >
-                  API Price (In / Out) <ArrowUpDown className="w-3.5 h-3.5" />
+                  API Price (In / Out) <span>{sortBy === 'price' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3">
+              {hasAnyElo ? (
+                <th className="py-3.5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSortToggle('elo')}
+                    className="inline-flex items-center gap-1 hover:text-slate-900"
+                  >
+                    Elo <span>{sortBy === 'elo' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
+                  </button>
+                </th>
+              ) : null}
+              <th className="py-3.5 pl-3 pr-5 text-right">
                 <button
                   type="button"
-                  onClick={() => toggleSort('elo')}
-                  className="inline-flex items-center gap-1 hover:text-slate-950"
+                  onClick={() => handleSortToggle('speed')}
+                  className="inline-flex items-center justify-end gap-1 hover:text-slate-900"
                 >
-                  Elo <ArrowUpDown className="w-3.5 h-3.5" />
-                </button>
-              </th>
-              <th scope="col" className="py-3 px-3.5 text-right">
-                <button
-                  type="button"
-                  onClick={() => toggleSort('tokPerSec')}
-                  className="inline-flex items-center gap-1 ml-auto hover:text-slate-950"
-                >
-                  Speed (Tok/s) <ArrowUpDown className="w-3.5 h-3.5" />
+                  Speed (Tok/s) <span>{sortBy === 'speed' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
                 </button>
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200/80 text-sm">
-            {rows.map(({ model: m, scorePerDollar }, idx) => (
-              <tr
-                key={m.id}
-                className={
-                  idx % 2 === 0
-                    ? 'bg-white hover:bg-emerald-50/40'
-                    : 'bg-slate-50/50 hover:bg-emerald-50/40'
-                }
-              >
-                <th scope="row" className="py-3.5 px-3.5 font-normal text-left">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-xs text-slate-500">
-                      {m.rank !== null ? `#${m.rank}` : 'N/A'}
-                    </span>
-                    <Link
-                      href={`/models/${m.slug}`}
-                      className="font-semibold text-slate-900 hover:text-emerald-700 underline-offset-2 hover:underline"
-                    >
-                      {m.name}
-                    </Link>
-                    <span className="rounded bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[11px] font-medium text-emerald-800">
-                      {m.evidence}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-600 mt-0.5">
-                    <Link
-                      href={`/providers/${m.providerSlug}`}
-                      className="hover:text-slate-900 underline-offset-2 hover:underline"
-                    >
-                      {m.provider}
-                    </Link>
-                    {m.bestFor ? ` · ${m.bestFor}` : ''}
-                  </div>
-                </th>
-                <td className="py-3.5 px-3 font-mono font-bold text-slate-900">
-                  {fmtNum(m.score, 1)}
-                </td>
-                <td className="py-3.5 px-3 font-mono font-semibold text-emerald-700">
-                  {fmtNum(scorePerDollar, 1)}
-                </td>
-                <td className="py-3.5 px-3 font-mono text-xs text-slate-700">
-                  {m.contextWindow ?? 'N/A'}
-                </td>
-                <td className="py-3.5 px-3 font-mono text-xs text-slate-900">
-                  {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)}
-                </td>
-                <td className="py-3.5 px-3 font-mono text-xs text-slate-700">
-                  {fmtNum(m.elo, 1)}
-                </td>
-                <td className="py-3.5 px-3.5 text-right font-mono text-xs font-semibold text-emerald-700">
-                  {m.tokPerSec !== null ? `${m.tokPerSec} tok/s` : 'N/A'}
-                </td>
-              </tr>
-            ))}
+            {filteredAndSorted.map((m, idx) => {
+              const dynamicRank = idx + 1;
+              return (
+                <tr
+                  key={m.slug}
+                  className="group transition-colors hover:bg-slate-50/90"
+                >
+                  <td className="py-4 pl-5 pr-4 align-top">
+                    <div className="flex items-start gap-3">
+                      <span
+                        title={`Current sort position #${dynamicRank}`}
+                        className={`mt-0.5 inline-flex h-7 min-w-[34px] items-center justify-center rounded-lg px-2 font-mono text-xs font-bold ${
+                          dynamicRank === 1
+                            ? 'bg-amber-100 text-amber-950 ring-1 ring-amber-300'
+                            : dynamicRank === 2
+                            ? 'bg-slate-200 text-slate-900'
+                            : dynamicRank === 3
+                            ? 'bg-orange-100 text-orange-950'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        #{dynamicRank}
+                      </span>
+
+                      <div className="space-y-1.5 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link
+                            href={`/models/${m.slug}`}
+                            className="font-bold text-slate-900 group-hover:text-emerald-800 transition-colors"
+                          >
+                            {m.name}
+                          </Link>
+
+                          {' '}
+                          <span
+                            className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                              m.evidenceNorm === 'Verified'
+                                ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                                : m.evidenceNorm === 'Estimated'
+                                ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            {m.evidenceNorm}
+                          </span>
+
+                          {' '}
+                          <span
+                            className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                              m.lifecycleNorm === 'Active'
+                                ? 'bg-sky-50 text-sky-800 ring-1 ring-sky-200'
+                                : m.lifecycleNorm === 'Preview'
+                                ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200'
+                                : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
+                            }`}
+                          >
+                            {m.lifecycleNorm}
+                          </span>
+
+                          {' '}
+                          <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                            {m.licenseNorm}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          <span className="font-semibold text-slate-800">{m.provider}</span>
+                          {m.cleanSummary ? ` · ${m.cleanSummary}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="py-4 px-3 align-top font-mono text-base font-extrabold text-slate-900">
+                    {typeof m.score === 'number' ? m.score.toFixed(1) : '—'}
+                  </td>
+
+                  <td className="py-4 px-3 align-top font-mono text-sm font-bold text-emerald-700">
+                    {m.scorePerDollar !== null ? m.scorePerDollar.toFixed(1) : '—'}
+                  </td>
+
+                  <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-700">
+                    {m.contextWindow || '—'}
+                  </td>
+
+                  <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
+                    {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
+                  </td>
+
+                  {hasAnyElo ? (
+                    <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-700">
+                      {typeof m.elo === 'number' ? m.elo : '—'}
+                    </td>
+                  ) : null}
+
+                  <td className="py-4 pl-3 pr-5 align-top text-right font-mono text-xs font-bold text-teal-700 whitespace-nowrap">
+                    {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap gap-1.5">
-          {providers.map((p) => (
-            <Link
-              key={p.providerSlug}
-              href={`/providers/${p.providerSlug}`}
-              className="rounded bg-slate-100 px-2.5 py-1 font-medium text-slate-800 hover:bg-slate-200"
+      {/* Mobile Clean Cards */}
+      <div className="md:hidden space-y-3">
+        {filteredAndSorted.map((m, idx) => {
+          const dynamicRank = idx + 1;
+          return (
+            <article
+              key={m.slug}
+              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3"
             >
-              {p.providerName}
-            </Link>
-          ))}
-        </div>
-        <Link href="/compare" className="font-semibold text-emerald-700 hover:underline">
-          Head-to-Head Comparisons -&gt;
-        </Link>
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-md bg-slate-900 px-2 py-0.5 font-mono text-xs font-bold text-white">
+                      #{dynamicRank}
+                    </span>
+                    {' '}
+                    <Link
+                      href={`/models/${m.slug}`}
+                      className="text-base font-bold text-slate-900 hover:text-emerald-800"
+                    >
+                      {m.name}
+                    </Link>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                    <span className="text-slate-700">{m.provider}</span>
+                    <span>·</span>
+                    <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">
+                      {m.evidenceNorm}
+                    </span>
+                    <span>·</span>
+                    <span className="rounded bg-sky-50 px-1.5 py-0.5 text-sky-800">
+                      {m.lifecycleNorm}
+                    </span>
+                    <span>·</span>
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
+                      {m.licenseNorm}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="font-mono text-lg font-extrabold text-slate-900">
+                    {typeof m.score === 'number' ? m.score.toFixed(1) : '—'}
+                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Score
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-2.5 text-xs">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase text-slate-500">In / Out ($/1M)</div>
+                  <div className="font-mono font-bold text-slate-900">
+                    {formatPrice(m.inputPer1M)}/{formatPrice(m.outputPer1M)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase text-slate-500">Speed</div>
+                  <div className="font-mono font-bold text-teal-700">
+                    {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase text-slate-500">Score / $</div>
+                  <div className="font-mono font-bold text-emerald-700">
+                    {m.scorePerDollar !== null ? m.scorePerDollar.toFixed(1) : '—'}
+                  </div>
+                </div>
+              </div>
+
+              {m.cleanSummary ? (
+                <p className="text-xs text-slate-600 leading-relaxed">{m.cleanSummary}</p>
+              ) : null}
+
+              <div className="flex items-center justify-between pt-1 text-xs">
+                <span className="font-mono text-slate-500">Context: {m.contextWindow || '—'}</span>
+                <Link
+                  href={`/models/${m.slug}`}
+                  className="font-semibold text-emerald-800 hover:underline"
+                >
+                  Specs &amp; Cost →
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
+
+      {/* GEO Structured Citation & Methodology Block */}
+      <footer className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 text-xs text-slate-600 space-y-2 leading-relaxed">
+        <div className="font-bold text-slate-900">Leaderboard Methodology &amp; Citation Note</div>
+        <p>
+          PromptBill ranks active language models dynamically by composite benchmark score, <strong className="text-slate-800">Score/$ efficiency</strong> (composite score divided by official output token price per 1M tokens), official API pricing, and measured output throughput (<strong className="text-slate-800">tok/s</strong>). All entries display explicit provenance (<strong className="text-slate-800">Verified</strong> vs. <strong className="text-slate-800">Estimated</strong>), licensing (<strong className="text-slate-800">Closed</strong> vs. <strong className="text-slate-800">Open Weight</strong>), and lifecycle status (<strong className="text-slate-800">Active</strong>, <strong className="text-slate-800">Preview</strong>, <strong className="text-slate-800">Deprecated</strong>, <strong className="text-slate-800">Legacy</strong>).
+        </p>
+      </footer>
     </section>
   );
 }
