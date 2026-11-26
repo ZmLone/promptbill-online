@@ -169,21 +169,6 @@ export default function LeaderboardPage() {
         },
       },
       {
-        '@type': 'SoftwareApplication',
-        '@id': 'https://promptbill.online/leaderboard#task-matcher',
-        name: 'PromptBill LLM Workload Selector & Leaderboard',
-        url: 'https://promptbill.online/leaderboard',
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'Web',
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
-        },
-        description:
-          'Client-side workload recommender and interactive LLM leaderboard filtering models by context window, API token budget, output speed, license, and lifecycle.',
-      },
-      {
         '@type': 'Dataset',
         '@id': 'https://promptbill.online/leaderboard#dataset',
         name: 'PromptBill LLM Benchmark, API Pricing & Throughput Dataset (2026)',
