@@ -3834,7 +3834,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-26T19:30:42.399Z",
+      "lastVerified": "2026-11-26T19:40:51.345Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3842,7 +3842,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T19:30:42.399Z",
+      "lastVerified": "2026-11-26T19:40:51.345Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3868,7 +3868,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-26T19:30:42.399Z",
+        "lastVerified": "2026-11-26T19:40:51.345Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3889,7 +3889,8 @@
       }
     ],
     "lifecycleStatus": "Legacy",
-    "archived": false
+    "archived": false,
+    "successorSlug": null
   },
   {
     "id": "gpt-6-sol",
