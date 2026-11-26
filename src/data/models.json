@@ -742,15 +742,15 @@
     "providerSlug": "anthropic",
     "family": "Claude 5",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 77.2,
     "qualityScore": 77.2,
     "interval": null,
     "elo": null,
-    "inputPer1M": 0.8,
-    "cachedInputPer1M": 0.04,
+    "inputPer1M": 0.1,
+    "cachedInputPer1M": 0.1,
     "cacheWritePer1M": 1,
-    "outputPer1M": 4,
+    "outputPer1M": 0.5,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
     "longContextThresholdTokens": 1000000,
@@ -774,23 +774,23 @@
     "bestFor": "Sub-second Anthropic model for fast routing, support & RAG reranking",
     "notes": "Sub-second Anthropic model for fast routing, support & RAG reranking",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:55:50.764Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:55:50.764Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:55:50.764Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -800,18 +800,18 @@
       {
         "host": "Anthropic Direct API",
         "providerType": "Official API",
-        "inputPer1M": 0.8,
-        "cachedInputPer1M": 0.04,
+        "inputPer1M": 0.1,
+        "cachedInputPer1M": 0.1,
         "cacheWritePer1M": 1,
-        "outputPer1M": 4,
+        "outputPer1M": 0.5,
         "batchDiscount": 0.5,
         "latencyMs": 175,
         "notes": "Fastest Anthropic tier with prompt caching",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:55:50.764Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "AWS Bedrock",
@@ -845,7 +845,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gemini-4-neon",
