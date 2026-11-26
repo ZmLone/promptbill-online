@@ -10,6 +10,8 @@ import { formatCurrency } from '../../../lib/pricingEngine';
 
 export const revalidate = 60;
 
+const BASE_URL = 'https://promptbill.online';
+
 export function generateStaticParams() {
   return ALL_MODELS.map((m) => ({ slug: m.slug }));
 }
@@ -21,18 +23,41 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const model = getModelBySlug(slug);
-  if (!model) return { title: 'Model Not Found' };
+  if (!model) {
+    return {
+      title: 'Model Not Found · PromptBill',
+      robots: { index: false, follow: false },
+    };
+  }
   const period = REGISTRY_SNAPSHOT.generatedMonthYear;
-  const title = `${model.name} Pricing & Calculator (${period})`;
+  const canonicalUrl = `${BASE_URL}/models/${model.slug}`;
   const priceSummary =
     model.inputPer1M !== null && model.outputPer1M !== null
       ? `${formatCurrency(model.inputPer1M)}/${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status})`
       : 'pricing details on PromptBill';
-  const description = `${model.name} (${model.provider}) token rates (${priceSummary}), context window (${model.contextWindow ?? 'N/A'}), and cost calculator.`;
+  const scoreSummary =
+    model.score !== null
+      ? `score ${model.score.toFixed(1)} (${model.benchmarkProvenance.status})`
+      : 'benchmark metrics tracked on PromptBill';
+  const title = `${model.name} (${model.provider}) Pricing & Benchmarks (${period})`;
+  const description = `${model.name} by ${model.provider}: ${priceSummary}, context window ${model.contextWindow ?? 'N/A'}, ${scoreSummary}, and interactive token cost calculator.`;
+
   return {
     title,
     description,
-    alternates: { canonical: `https://promptbill.online/models/${model.slug}` },
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: 'website',
+      url: canonicalUrl,
+      siteName: 'PromptBill',
+      title,
+      description,
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
   };
 }
 
@@ -58,11 +83,118 @@ export default async function ModelDetailPage({
     ? 'Verified Provider Rate Snapshot'
     : 'Estimated Rate Snapshot (Unverified)';
 
+  const pageUrl = `${BASE_URL}/models/${model.slug}`;
+  const dateModified =
+    model.pricingProvenance.lastVerified ||
+    model.benchmarkProvenance.lastVerified ||
+    undefined;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${BASE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Models',
+            item: `${BASE_URL}/models`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: model.provider,
+            item: `${BASE_URL}/providers/${model.providerSlug}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: model.name,
+            item: pageUrl,
+          },
+        ],
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: model.name,
+        applicationCategory: 'AI Model / LLM API',
+        operatingSystem: 'Cloud API',
+        url: pageUrl,
+        ...(dateModified ? { dateModified } : {}),
+        creator: {
+          '@type': 'Organization',
+          name: model.provider,
+        },
+        ...(model.score !== null
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: Number(model.score.toFixed(1)),
+                bestRating: 100,
+                worstRating: 0,
+                ratingCount: 1,
+              },
+            }
+          : {}),
+        ...(model.inputPer1M !== null || model.outputPer1M !== null
+          ? {
+              offers: {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price:
+                  model.inputPer1M !== null && model.outputPer1M !== null
+                    ? Number(
+                        (
+                          ((model.inputPer1M + model.outputPer1M) / 2) *
+                          1
+                        ).toFixed(4)
+                      )
+                    : Number((model.inputPer1M ?? model.outputPer1M ?? 0).toFixed(4)),
+                description: `Input ${formatCurrency(model.inputPer1M)} / Output ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status})`,
+              },
+            }
+          : {}),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: `How much does ${model.name} cost per 1M tokens?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `${model.name} (${model.provider}) lists input at ${formatCurrency(model.inputPer1M)} per 1M tokens and output at ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status} pricing status; cached read ${formatCurrency(model.cachedInputPer1M)}/1M).`,
+            },
+          },
+          {
+            '@type': 'Question',
+            name: `What is the context window and benchmark score for ${model.name}?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `${model.name} has a context window of ${model.contextWindow ?? 'N/A'}, a benchmark score of ${model.score !== null ? model.score.toFixed(1) : 'N/A'} (${model.benchmarkProvenance.status}), and throughput of ${model.tokPerSec !== null ? `${model.tokPerSec} tok/s` : 'N/A'} (${model.speedProvenance.status}).`,
+            },
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <SiteShell
       title={`${model.name} Pricing & Benchmarks (${period})`}
       subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-6">
         {legacyUpgrade && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
