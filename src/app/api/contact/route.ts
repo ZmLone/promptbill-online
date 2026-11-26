@@ -133,8 +133,24 @@ function buildEmailHtml(record: {
       </tr>
 
       <tr>
-        <td style="padding:14px 24px;background-color:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#64748b;">
-          Source page: ${escapeHtml(record.pageUrl)}
+        <td style="padding:18px 24px;background-color:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;line-height:1.55;color:#64748b;text-align:center;">
+          <div style="font-weight:700;color:#334155;font-size:12px;margin-bottom:4px;">
+            PromptBill &middot; LLM API Pricing &amp; Token Calculator
+          </div>
+          <div style="margin-bottom:8px;">
+            You are receiving this notification regarding a submission on <strong>promptbill.online</strong>. Need assistance? Reach us at <a href="mailto:support@promptbill.online" style="color:#0f766e;text-decoration:underline;">support@promptbill.online</a>.
+          </div>
+          <div style="margin-bottom:10px;">
+            <a href="https://promptbill.online/about" style="color:#475569;text-decoration:underline;margin:0 6px;">About Us</a> &middot;
+            <a href="https://promptbill.online/privacy-policy" style="color:#475569;text-decoration:underline;margin:0 6px;">Privacy Policy</a> &middot;
+            <a href="https://promptbill.online/contact" style="color:#475569;text-decoration:underline;margin:0 6px;">Contact</a>
+          </div>
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;">
+            Disclaimer: Information and token pricing estimates on PromptBill are provided for general informational purposes only and may change without notice; always verify rates with official model providers.
+          </div>
+          <div style="font-size:10px;color:#94a3b8;">
+            Source page: ${escapeHtml(record.pageUrl)}
+          </div>
         </td>
       </tr>
     </table>
@@ -280,6 +296,11 @@ export async function POST(req: NextRequest) {
               '',
               'Message:',
               record.message,
+              '',
+              '---',
+              'PromptBill — LLM API Pricing & Token Calculator (promptbill.online)',
+              'About: https://promptbill.online/about | Privacy Policy: https://promptbill.online/privacy-policy | Contact: https://promptbill.online/contact',
+              'Disclaimer: Pricing figures and token estimates on PromptBill are for informational purposes only; verify with official providers.',
             ]
           : [
               `Submission ID: ${record.id}`,
@@ -292,6 +313,11 @@ export async function POST(req: NextRequest) {
               '',
               'Message:',
               record.message,
+              '',
+              '---',
+              'PromptBill — LLM API Pricing & Token Calculator (promptbill.online)',
+              'About: https://promptbill.online/about | Privacy Policy: https://promptbill.online/privacy-policy | Contact: https://promptbill.online/contact',
+              'Disclaimer: Pricing figures and token estimates on PromptBill are for informational purposes only; verify with official providers.',
             ];
 
       const mailRes = await fetch('https://api.resend.com/emails', {
