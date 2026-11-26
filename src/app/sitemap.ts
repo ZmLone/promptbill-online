@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { ALL_MODELS, getAllProviderSlugs, getAutoComparisonPairs } from '../lib/catalog';
 
 const BASE_URL = 'https://promptbill.online';
-const LAST_MODIFIED = '2026-11-25';
+const LAST_MODIFIED = '2026-11-26';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
@@ -21,7 +21,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/about',
     '/methodology',
     '/contact',
-    '/deals',
     '/advertise',
     '/privacy-policy',
   ];
