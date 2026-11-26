@@ -252,8 +252,14 @@ export async function POST(req: NextRequest) {
 
     // 2. Resend email delivery to your inbox (clean HTML card + plain-text fallback)
     const resendApiKey = process.env.RESEND_API_KEY;
-    const notifyTo = process.env.CONTACT_NOTIFY_EMAIL;
-    const notifyFrom = process.env.CONTACT_FROM_EMAIL || 'PromptBill <onboarding@resend.dev>';
+    const contactNotifyEmail =
+      process.env.CONTACT_NOTIFY_EMAIL || 'support@promptbill.online';
+    const advertiseNotifyEmail =
+      process.env.ADVERTISE_NOTIFY_EMAIL || 'advertise@promptbill.online';
+    const notifyTo =
+      formType === 'enquiry' ? advertiseNotifyEmail : contactNotifyEmail;
+    const notifyFrom =
+      process.env.CONTACT_FROM_EMAIL || 'PromptBill <noreply@promptbill.online>';
 
     if (resendApiKey && notifyTo) {
       const subjectTag =
