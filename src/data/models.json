@@ -3101,8 +3101,8 @@
     "family": null,
     "license": "Open Weights (Mistral Research)",
     "evidence": "Verified",
-    "score": 86.4,
-    "qualityScore": 86.4,
+    "score": 86.3,
+    "qualityScore": 86.3,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.7,
@@ -3134,7 +3134,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-26T19:30:42.399Z",
+      "lastVerified": "2026-11-26T21:57:06.011Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3142,7 +3142,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T19:30:42.399Z",
+      "lastVerified": "2026-11-26T21:57:06.011Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3168,7 +3168,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-26T19:30:42.399Z",
+        "lastVerified": "2026-11-26T21:57:06.011Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3189,7 +3189,8 @@
       }
     ],
     "lifecycleStatus": "Active",
-    "archived": false
+    "archived": false,
+    "successorSlug": null
   },
   {
     "id": "gpt-6-1-sol-pro",
