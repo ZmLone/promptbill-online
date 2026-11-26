@@ -26,7 +26,7 @@ export interface RegistrySnapshot {
 export const REGISTRY_SNAPSHOT: RegistrySnapshot = {
   version: '2026.11-stage1',
   generatedMonthYear: 'November 2026',
-  lastModifiedIso: null,
+  lastModifiedIso: '2026-11-26T20:23:00+05:30',
   changelog: [
     {
       date: 'November 2026',

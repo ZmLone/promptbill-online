@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   other: {
     'theme-color': '#0f172a',
-    'og:updated_time': '2026-11-25T15:01:00+05:30',
+    'og:updated_time': '2026-11-26T20:23:00+05:30',
   },
   verification: {
     google: 'i9trpcokzTtM4Y2evn9hZYidXlKhAEyrPraQWuj3FA8',
@@ -72,7 +72,7 @@ const siteJsonLd = {
       name: 'PromptBill',
       url: 'https://promptbill.online',
       inLanguage: 'en',
-      dateModified: '2026-11-25',
+      dateModified: '2026-11-26',
       description:
         'LLM benchmark leaderboard, API token cost calculator, head-to-head model comparisons, token counter, and routing simulator.',
       publisher: {

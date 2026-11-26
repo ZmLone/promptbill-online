@@ -6,7 +6,7 @@ import { SiteShell } from '../../../components/SiteShell';
 import { LlmSelectorClient } from '../../../components/LlmSelectorClient';
 
 export const metadata: Metadata = {
-  title: 'Interactive LLM Selector: Find the Best AI Model by Task, Price & Speed | PromptBill',
+  title: 'Interactive LLM Selector: Find the Best AI Model by Task, Price & Speed',
   description:
     'Filter and compare top LLMs by workload (coding, reasoning, classification, speed), monthly API budget, benchmark score, and open-weight license on PromptBill.',
   alternates: {
@@ -26,7 +26,7 @@ export default function LlmSelectorPage() {
     },
     {
       q: 'Which model leads overall benchmark intelligence for complex agentic coding?',
-      a: 'Claude Fable 5.2 ranks #1 on PromptBill with a 93.3 composite score at $8.00 input / $40.00 output per 1M tokens and 109 tokens/sec, while Gemini 4 Neon (91.3) and GPT-6.2 Astra (90.8) lead multimodal and frontier reasoning alternatives.',
+      a: 'Claude Fable 5.2 ranks #1 on PromptBill with a 93.3 composite score at $8.00 input / $40.00 output per 1M tokens and 66 tok/s, while Gemini 4 Neon (91.3) and GPT-6.2 Astra (90.8) lead multimodal and frontier reasoning alternatives.',
     },
     {
       q: 'How should I estimate monthly LLM API spend before choosing a model?',
@@ -103,7 +103,6 @@ export default function LlmSelectorPage() {
       />
 
       <div className="space-y-6">
-        {/* Visible Semantic Breadcrumb Trail */}
         <nav aria-label="Breadcrumb" className="text-xs text-slate-600 flex flex-wrap items-center gap-1.5">
           <Link href="/" className="hover:text-slate-900 underline-offset-2 hover:underline">
             Home
@@ -114,10 +113,8 @@ export default function LlmSelectorPage() {
           <span className="font-semibold text-slate-900">LLM Selector</span>
         </nav>
 
-        {/* Interactive Filter, Top 3 Spotlight, Sort, Monthly Budget Toggle & Compare Checkboxes */}
         <LlmSelectorClient models={ALL_MODELS} />
 
-        {/* GEO Block: Declarative November 2026 LLM Selection Cheat Sheet */}
         <section
           aria-labelledby="llm-cheat-sheet-heading"
           className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4"
@@ -133,13 +130,13 @@ export default function LlmSelectorPage() {
 
           <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-800 leading-relaxed">
             <li>
-              <strong>Frontier Agentic Coding &amp; Multi-File Refactoring:</strong> For frontier agentic coding, <strong>Claude Fable 5.2</strong> leads with a <strong>93.3</strong> composite score at <strong>$8.00/$40.00</strong> per 1M tokens (109 tok/s), followed closely by <strong>Gemini 4 Neon</strong> (<strong>91.3</strong>) and <strong>GPT-6.2 Astra</strong> (<strong>90.8</strong>).
+              <strong>Frontier Agentic Coding &amp; Multi-File Refactoring:</strong> For frontier agentic coding, <strong>Claude Fable 5.2</strong> leads with a <strong>93.3</strong> composite score at <strong>$8.00/$40.00</strong> per 1M tokens (66 tok/s), followed closely by <strong>Gemini 4 Neon</strong> (<strong>91.3</strong>, 115 tok/s) and <strong>GPT-6.2 Astra</strong> (<strong>90.8</strong>, 78 tok/s).
             </li>
             <li>
               <strong>High-Volume, Low-Cost Classification &amp; Extraction:</strong> For high-volume, low-cost classification, <strong>Command R7B</strong> (<strong>$0.04/$0.15</strong> per 1M), <strong>Qwen 3.7 Flash</strong> (<strong>$0.15/$0.60</strong>), and <strong>DeepSeek V4.1 Flash</strong> (<strong>$0.30/$1.20</strong>) deliver top Score/$ efficiency.
             </li>
             <li>
-              <strong>Balanced Production Coding &amp; Structured Agents:</strong> <strong>Claude Sonnet 5.5</strong> ($2.00/$10.00 per 1M) and <strong>Gemini 4 Carbon</strong> ($2.00/$10.00 per 1M, 155 tok/s) balance strong coding reliability with 95% prompt cache read discounts.
+              <strong>Balanced Production Coding &amp; Structured Agents:</strong> <strong>Claude Sonnet 5.5</strong> ($2.00/$10.00 per 1M, 132 tok/s) and <strong>Gemini 4 Carbon</strong> ($2.00/$10.00 per 1M, 155 tok/s) balance strong coding reliability with prompt cache read discounts.
             </li>
             <li>
               <strong>Sub-Second Real-Time Throughput:</strong> For streaming UI, voice pipelines, and fast routing, <strong>Command R7B</strong> (240 tok/s), <strong>GPT-5.4 Nano</strong> (215 tok/s), <strong>Qwen 3.7 Flash</strong> (210 tok/s), and <strong>Gemini 4 Hydrogen</strong> (210 tok/s) lead output speed.
@@ -166,7 +163,7 @@ export default function LlmSelectorPage() {
                   <td className="py-2.5 px-3 font-sans text-slate-900">Claude Fable 5.2</td>
                   <td className="py-2.5 px-3 font-bold text-slate-900">93.3</td>
                   <td className="py-2.5 px-3 text-slate-800">$8.00 / $40.00</td>
-                  <td className="py-2.5 px-3 text-emerald-800">109 tok/s</td>
+                  <td className="py-2.5 px-3 text-emerald-800">66 tok/s</td>
                 </tr>
                 <tr className="bg-slate-50/60">
                   <th scope="row" className="py-2.5 px-3 font-sans font-semibold text-slate-900">Deep Reasoning &amp; Agents</th>
@@ -184,17 +181,16 @@ export default function LlmSelectorPage() {
                 </tr>
                 <tr className="bg-slate-50/60">
                   <th scope="row" className="py-2.5 px-3 font-sans font-semibold text-slate-900">Fastest Throughput (150+ Tok/s)</th>
-                  <td className="py-2.5 px-3 font-sans text-slate-900">Gemini 4 Hydrogen</td>
-                  <td className="py-2.5 px-3 font-bold text-slate-900">82.5</td>
-                  <td className="py-2.5 px-3 text-slate-800">$0.50 / $3.00</td>
-                  <td className="py-2.5 px-3 text-emerald-800">210 tok/s</td>
+                  <td className="py-2.5 px-3 font-sans text-slate-900">Command R7B</td>
+                  <td className="py-2.5 px-3 font-bold text-slate-900">68.4</td>
+                  <td className="py-2.5 px-3 text-slate-800">$0.04 / $0.15</td>
+                  <td className="py-2.5 px-3 text-emerald-800">240 tok/s</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </section>
 
-        {/* Indexable Editorial Guide (350+ words) with Keyword-Rich H2 Subheadings Mapped to the 4 Workload Tabs */}
         <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-5 text-xs sm:text-sm text-slate-700 leading-relaxed">
           <div className="space-y-2">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
@@ -238,12 +234,11 @@ export default function LlmSelectorPage() {
                 4. Fastest Speed (150+ Tok/s) for Real-Time UX
               </h2>
               <p>
-                Interactive voice assistants, live autocomplete, and user-facing chat interfaces depend on high generation throughput (tokens per second) and low time-to-first-token. Models exceeding 150 to 240 tok/s—including Gemini 4 Hydrogen, GPT-5.4 Nano, Claude Haiku 5.5, and Qwen 3.7 Flash—keep streaming responses instantaneous even under heavy concurrency.
+                Interactive voice assistants, live autocomplete, and user-facing chat interfaces depend on high generation throughput (tokens per second) and low time-to-first-token. Models exceeding 150 to 240 tok/s—including Command R7B, GPT-5.4 Nano, Qwen 3.7 Flash, and Gemini 4 Hydrogen—keep streaming responses instantaneous even under heavy concurrency.
               </p>
             </section>
           </div>
 
-          {/* Visible FAQ Section matching FAQPage JSON-LD */}
           <div className="pt-4 border-t border-slate-100 space-y-3">
             <h2 className="text-base sm:text-lg font-bold text-slate-900">
               Frequently Asked Questions About Choosing an LLM
