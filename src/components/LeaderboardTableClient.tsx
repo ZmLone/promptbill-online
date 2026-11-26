@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ALL_MODELS } from '../lib/catalog';
 
 type SortKey = 'score' | 'value' | 'price' | 'speed' | 'elo';
 type LifecycleStatus = 'Active' | 'Preview' | 'Deprecated' | 'Legacy';
+type DensityMode = 'comfortable' | 'compact';
+
+const PAGE_SIZE_OPTIONS = [15, 25, 50, 100] as const;
 
 function sanitizeBlurb(raw: string | null | undefined): string {
   if (!raw) return '';
@@ -83,6 +86,10 @@ export function LeaderboardTableClient({
   const [lifecycleFilter, setLifecycleFilter] = useState<'ALL' | LifecycleStatus>('ALL');
   const [sortBy, setSortBy] = useState<SortKey>('score');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
+  const [density, setDensity] = useState<DensityMode>('comfortable');
+  const [pageSize, setPageSize] = useState<number>(25);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
 
   const enrichedModels = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,12 +112,23 @@ export function LeaderboardTableClient({
       });
   }, []);
 
-  const providers = useMemo(() => {
-    const set = new Set<string>();
-    for (const m of enrichedModels) {
-      if (m.provider) set.add(String(m.provider));
+  // Automatically enable compact density when the catalog grows large
+  useEffect(() => {
+    if (enrichedModels.length > 35) {
+      setDensity('compact');
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [enrichedModels.length]);
+
+  const providersWithCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const m of enrichedModels) {
+      if (!m.provider) continue;
+      const key = String(m.provider);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
   }, [enrichedModels]);
 
   const hasAnyElo = useMemo(
@@ -164,6 +182,15 @@ export function LeaderboardTableClient({
     setLifecycleFilter('ALL');
     setSortBy('score');
     setSortDir('desc');
+    setCurrentPage(1);
+  }
+
+  function toggleCompareSlug(slug: string) {
+    setSelectedSlugs((prev) => {
+      if (prev.includes(slug)) return prev.filter((s) => s !== slug);
+      if (prev.length >= 4) return [...prev.slice(1), slug];
+      return [...prev, slug];
+    });
   }
 
   const filteredAndSorted = useMemo(() => {
@@ -213,6 +240,17 @@ export function LeaderboardTableClient({
     });
   }, [enrichedModels, searchQuery, providerFilter, evidenceFilter, licenseFilter, lifecycleFilter, sortBy, sortDir]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+
+  const paginatedModels = useMemo(() => {
+    const startIdx = (safePage - 1) * pageSize;
+    return filteredAndSorted.slice(startIdx, startIdx + pageSize).map((item, offset) => ({
+      ...item,
+      dynamicRank: startIdx + offset + 1,
+    }));
+  }, [filteredAndSorted, safePage, pageSize]);
+
   const highlights = useMemo(() => {
     const byScore = [...enrichedModels].sort((a, b) => (b.score ?? -1) - (a.score ?? -1))[0];
     const byValue = [...enrichedModels].sort((a, b) => (b.scorePerDollar ?? -1) - (a.scorePerDollar ?? -1))[0];
@@ -221,6 +259,7 @@ export function LeaderboardTableClient({
   }, [enrichedModels]);
 
   function handleSortToggle(nextKey: SortKey) {
+    setCurrentPage(1);
     if (sortBy === nextKey) {
       setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'));
     } else {
@@ -229,9 +268,14 @@ export function LeaderboardTableClient({
     }
   }
 
+  const compareHref =
+    selectedSlugs.length >= 2
+      ? `/compare?models=${encodeURIComponent(selectedSlugs.join(','))}`
+      : '/compare';
+
   return (
-    <section className="space-y-6" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
-      {/* Top Freshness, Provenance & Lifecycle Strip */}
+    <section className="space-y-5" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
+      {/* Top Freshness, Catalog Scale & Lifecycle Bar */}
       <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50/75 via-white to-slate-50/90 p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
@@ -239,15 +283,19 @@ export function LeaderboardTableClient({
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true" />
               Verified {formattedVerifiedDate}
             </span>
-            <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-              {verifiedCount}/{enrichedModels.length} Verified
+            <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-800 ring-1 ring-slate-200">
+              {enrichedModels.length} Active Models · {providersWithCounts.length} Providers
+            </span>
+            <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
+              {verifiedCount} Verified
             </span>
             {deprecatedCount > 0 ? (
               <button
                 type="button"
-                onClick={() =>
-                  setLifecycleFilter((prev) => (prev === 'Deprecated' ? 'ALL' : 'Deprecated'))
-                }
+                onClick={() => {
+                  setLifecycleFilter((prev) => (prev === 'Deprecated' ? 'ALL' : 'Deprecated'));
+                  setCurrentPage(1);
+                }}
                 className="inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-800 ring-1 ring-rose-200 hover:bg-rose-100 transition-colors"
               >
                 {deprecatedCount} Deprecated/Legacy
@@ -255,22 +303,31 @@ export function LeaderboardTableClient({
             ) : null}
           </div>
           <p className="text-xs text-slate-600">
-            Ranked live by benchmark score, <strong className="font-semibold text-slate-800">Score/$</strong> value ratio (Score ÷ Output $/1M), token pricing per 1M, and throughput.
+            Scales cleanly as models grow: filter by provider or lifecycle, switch row density, paginate large catalogs, or pick up to 4 models to compare side by side.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
+          {selectedSlugs.length > 0 ? (
+            <Link
+              href={compareHref}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-emerald-800 px-3.5 py-1.5 font-semibold text-white hover:bg-emerald-900 transition-colors"
+            >
+              Compare Selected ({selectedSlugs.length}) →
+            </Link>
+          ) : (
+            <Link
+              href="/compare"
+              className="inline-flex min-h-[36px] items-center rounded-xl bg-slate-900 px-3.5 py-1.5 font-semibold text-white hover:bg-slate-800 transition-colors"
+            >
+              Compare Models →
+            </Link>
+          )}
           <Link
             href="/pricing"
             className="inline-flex min-h-[36px] items-center rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 font-semibold text-slate-800 hover:border-emerald-600 hover:text-emerald-900 transition-colors"
           >
-            Full Pricing Table
-          </Link>
-          <Link
-            href="/compare"
-            className="inline-flex min-h-[36px] items-center rounded-xl bg-slate-900 px-3.5 py-1.5 font-semibold text-white hover:bg-slate-800 transition-colors"
-          >
-            Compare Models →
+            Pricing Table
           </Link>
         </div>
       </div>
@@ -356,13 +413,56 @@ export function LeaderboardTableClient({
         ) : null}
       </div>
 
-      {/* Filter & Sort Toolbar */}
+      {/* Quick Provider Chips (Scales Dynamically as Providers & Models Grow) */}
+      {providersWithCounts.length > 1 ? (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs" role="region" aria-label="Provider quick filters">
+          <button
+            type="button"
+            onClick={() => {
+              setProviderFilter('ALL');
+              setCurrentPage(1);
+            }}
+            className={`shrink-0 rounded-full px-3 py-1.5 font-semibold transition-colors ${
+              providerFilter === 'ALL'
+                ? 'bg-slate-900 text-white'
+                : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            All Providers ({enrichedModels.length})
+          </button>
+          {providersWithCounts.map((prov) => {
+            const active = providerFilter === prov.name;
+            return (
+              <button
+                key={prov.name}
+                type="button"
+                onClick={() => {
+                  setProviderFilter(active ? 'ALL' : prov.name);
+                  setCurrentPage(1);
+                }}
+                className={`shrink-0 rounded-full px-3 py-1.5 font-semibold transition-colors ${
+                  active
+                    ? 'bg-emerald-800 text-white'
+                    : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {prov.name} ({prov.count})
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* Filter, Density & Sort Toolbar */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 text-xs">
           <input
             type="search"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="Search model, provider, tag..."
             aria-label="Search models or providers"
             className="sm:col-span-2 min-h-[40px] w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:bg-white focus:outline-none"
@@ -370,21 +470,27 @@ export function LeaderboardTableClient({
 
           <select
             value={providerFilter}
-            onChange={(e) => setProviderFilter(e.target.value)}
+            onChange={(e) => {
+              setProviderFilter(e.target.value);
+              setCurrentPage(1);
+            }}
             aria-label="Filter by provider"
             className="min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
           >
-            <option value="ALL">All Providers ({providers.length})</option>
-            {providers.map((p) => (
-              <option key={p} value={p}>
-                {p}
+            <option value="ALL">All Providers ({providersWithCounts.length})</option>
+            {providersWithCounts.map((p) => (
+              <option key={p.name} value={p.name}>
+                {p.name} ({p.count})
               </option>
             ))}
           </select>
 
           <select
             value={evidenceFilter}
-            onChange={(e) => setEvidenceFilter(e.target.value as typeof evidenceFilter)}
+            onChange={(e) => {
+              setEvidenceFilter(e.target.value as typeof evidenceFilter);
+              setCurrentPage(1);
+            }}
             aria-label="Filter by provenance status"
             className="min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
           >
@@ -396,7 +502,10 @@ export function LeaderboardTableClient({
 
           <select
             value={licenseFilter}
-            onChange={(e) => setLicenseFilter(e.target.value as typeof licenseFilter)}
+            onChange={(e) => {
+              setLicenseFilter(e.target.value as typeof licenseFilter);
+              setCurrentPage(1);
+            }}
             aria-label="Filter by license type"
             className="min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
           >
@@ -407,7 +516,10 @@ export function LeaderboardTableClient({
 
           <select
             value={lifecycleFilter}
-            onChange={(e) => setLifecycleFilter(e.target.value as typeof lifecycleFilter)}
+            onChange={(e) => {
+              setLifecycleFilter(e.target.value as typeof lifecycleFilter);
+              setCurrentPage(1);
+            }}
             aria-label="Filter by model lifecycle status"
             className="min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800"
           >
@@ -447,7 +559,29 @@ export function LeaderboardTableClient({
             })}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Density Switcher */}
+            <div className="inline-flex rounded-lg bg-slate-100 p-0.5 text-[11px] font-semibold">
+              <button
+                type="button"
+                onClick={() => setDensity('comfortable')}
+                className={`rounded-md px-2.5 py-1 transition-colors ${
+                  density === 'comfortable' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                }`}
+              >
+                Comfortable
+              </button>
+              <button
+                type="button"
+                onClick={() => setDensity('compact')}
+                className={`rounded-md px-2.5 py-1 transition-colors ${
+                  density === 'compact' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                }`}
+              >
+                Compact
+              </button>
+            </div>
+
             {hasActiveFilters ? (
               <button
                 type="button"
@@ -457,9 +591,9 @@ export function LeaderboardTableClient({
                 Reset filters
               </button>
             ) : null}
+
             <span className="text-slate-500 font-medium">
-              <strong className="text-slate-900">{filteredAndSorted.length}</strong> models · Ranked{' '}
-              <strong className="text-slate-900">1–{filteredAndSorted.length}</strong>
+              <strong className="text-slate-900">{filteredAndSorted.length}</strong> models
             </span>
           </div>
         </div>
@@ -538,8 +672,8 @@ export function LeaderboardTableClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 text-sm">
-                {filteredAndSorted.map((m, idx) => {
-                  const dynamicRank = idx + 1;
+                {paginatedModels.map((m) => {
+                  const { dynamicRank } = m;
                   const scorePct =
                     typeof m.score === 'number' ? Math.max(4, Math.min(100, Math.round((m.score / maxScore) * 100))) : 0;
                   const speedPct =
@@ -547,15 +681,21 @@ export function LeaderboardTableClient({
                       ? Math.max(6, Math.min(100, Math.round((m.tokPerSec / maxSpeed) * 100)))
                       : 0;
                   const isRetired = m.lifecycleNorm === 'Deprecated' || m.lifecycleNorm === 'Legacy';
+                  const isSelected = selectedSlugs.includes(m.slug);
+                  const rowPad = density === 'compact' ? 'py-2.5' : 'py-4';
 
                   return (
                     <tr
                       key={m.slug}
                       className={`group transition-colors ${
-                        isRetired ? 'bg-slate-50/60 hover:bg-slate-100/60' : 'hover:bg-slate-50/90'
+                        isSelected
+                          ? 'bg-emerald-50/40'
+                          : isRetired
+                          ? 'bg-slate-50/60 hover:bg-slate-100/60'
+                          : 'hover:bg-slate-50/90'
                       }`}
                     >
-                      <td className="py-4 pl-5 pr-4 align-top">
+                      <td className={`${rowPad} pl-5 pr-4 align-top`}>
                         <div className="flex items-start gap-3">
                           <span
                             title={`Current sort position #${dynamicRank}`}
@@ -572,7 +712,7 @@ export function LeaderboardTableClient({
                             #{dynamicRank}
                           </span>
 
-                          <div className="space-y-1.5 min-w-0">
+                          <div className="space-y-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <Link
                                 href={`/models/${m.slug}`}
@@ -611,21 +751,40 @@ export function LeaderboardTableClient({
                               <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
                                 {m.licenseNorm}
                               </span>
+
+                              {' '}
+                              <button
+                                type="button"
+                                onClick={() => toggleCompareSlug(m.slug)}
+                                className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
+                                  isSelected
+                                    ? 'bg-emerald-800 text-white'
+                                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                                }`}
+                              >
+                                {isSelected ? '✓ Selected' : '+ Compare'}
+                              </button>
                             </div>
 
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                              <span className="font-semibold text-slate-800">{m.provider}</span>
-                              {m.cleanSummary ? ` · ${m.cleanSummary}` : ''}
-                            </p>
+                            {density === 'comfortable' ? (
+                              <p className="text-xs text-slate-600 leading-relaxed">
+                                <span className="font-semibold text-slate-800">{m.provider}</span>
+                                {m.cleanSummary ? ` · ${m.cleanSummary}` : ''}
+                              </p>
+                            ) : (
+                              <p className="text-[11px] text-slate-500">
+                                <span className="font-semibold text-slate-700">{m.provider}</span>
+                              </p>
+                            )}
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-4 px-3 align-top">
+                      <td className={`${rowPad} px-3 align-top`}>
                         <div className="font-mono text-base font-extrabold text-slate-900">
                           {typeof m.score === 'number' ? m.score.toFixed(1) : '—'}
                         </div>
-                        {typeof m.score === 'number' ? (
+                        {density === 'comfortable' && typeof m.score === 'number' ? (
                           <div className="mt-1.5 h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
                             <div
                               className="h-full rounded-full bg-slate-800"
@@ -635,29 +794,29 @@ export function LeaderboardTableClient({
                         ) : null}
                       </td>
 
-                      <td className="py-4 px-3 align-top font-mono text-sm font-bold text-emerald-700">
+                      <td className={`${rowPad} px-3 align-top font-mono text-sm font-bold text-emerald-700`}>
                         {m.scorePerDollar !== null ? m.scorePerDollar.toFixed(1) : '—'}
                       </td>
 
-                      <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-700">
+                      <td className={`${rowPad} px-3 align-top font-mono text-xs font-semibold text-slate-700`}>
                         {m.contextWindow || '—'}
                       </td>
 
-                      <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
+                      <td className={`${rowPad} px-3 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap`}>
                         {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
                       </td>
 
                       {hasAnyElo ? (
-                        <td className="py-4 px-3 align-top font-mono text-xs font-semibold text-slate-700">
+                        <td className={`${rowPad} px-3 align-top font-mono text-xs font-semibold text-slate-700`}>
                           {typeof m.elo === 'number' ? m.elo : '—'}
                         </td>
                       ) : null}
 
-                      <td className="py-4 pl-3 pr-5 align-top text-right">
+                      <td className={`${rowPad} pl-3 pr-5 align-top text-right`}>
                         <div className="font-mono text-xs font-bold text-teal-700 whitespace-nowrap">
                           {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
                         </div>
-                        {typeof m.tokPerSec === 'number' ? (
+                        {density === 'comfortable' && typeof m.tokPerSec === 'number' ? (
                           <div className="mt-1.5 ml-auto h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
                             <div
                               className="h-full rounded-full bg-teal-600"
@@ -675,8 +834,9 @@ export function LeaderboardTableClient({
 
           {/* Mobile Responsive Cards */}
           <div className="md:hidden space-y-3">
-            {filteredAndSorted.map((m, idx) => {
-              const dynamicRank = idx + 1;
+            {paginatedModels.map((m) => {
+              const { dynamicRank } = m;
+              const isSelected = selectedSlugs.includes(m.slug);
               return (
                 <article
                   key={m.slug}
@@ -757,7 +917,17 @@ export function LeaderboardTableClient({
                   ) : null}
 
                   <div className="flex items-center justify-between pt-1 text-xs">
-                    <span className="font-mono text-slate-500">Context: {m.contextWindow || '—'}</span>
+                    <button
+                      type="button"
+                      onClick={() => toggleCompareSlug(m.slug)}
+                      className={`rounded-lg px-2.5 py-1 font-semibold ${
+                        isSelected
+                          ? 'bg-emerald-800 text-white'
+                          : 'bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      {isSelected ? '✓ Selected' : '+ Compare'}
+                    </button>
                     <Link
                       href={`/models/${m.slug}`}
                       className="font-semibold text-emerald-800 hover:underline"
@@ -768,6 +938,51 @@ export function LeaderboardTableClient({
                 </article>
               );
             })}
+          </div>
+
+          {/* Pagination & Page-Size Bar (Scales Smoothly for Large Model Lists) */}
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-600">
+              <span>Rows per page:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                aria-label="Rows per page"
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-800"
+              >
+                {PAGE_SIZE_OPTIONS.map((sz) => (
+                  <option key={sz} value={sz}>
+                    {sz}
+                  </option>
+                ))}
+              </select>
+              <span>
+                Page <strong className="text-slate-900">{safePage}</strong> of{' '}
+                <strong className="text-slate-900">{totalPages}</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={safePage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 disabled:opacity-40 hover:bg-slate-50"
+              >
+                ← Prev
+              </button>
+              <button
+                type="button"
+                disabled={safePage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800 disabled:opacity-40 hover:bg-slate-50"
+              >
+                Next →
+              </button>
+            </div>
           </div>
         </>
       )}
