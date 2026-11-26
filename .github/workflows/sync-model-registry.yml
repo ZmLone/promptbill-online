@@ -1,4 +1,4 @@
-name: Sync LLM Model Registry, Open PR & Flag New Models
+name: Sync Pending LLM Models, Prices & Benchmarks to Admin Queue
 
 on:
   schedule:
@@ -6,12 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  sync-catalog:
+  stage-registry-updates:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
-      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -21,32 +19,20 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Run registry pricing sync & new-model detector
-        id: sync
+      - name: Fetch OpenRouter prices, new models & benchmarks into pending queue
+        env:
+          BENCHMARK_FEED_URL: ${{ vars.BENCHMARK_FEED_URL }}
         run: |
           node scripts/sync-registry.mjs
-          echo "has_new_models=$(cat /tmp/has-new-models.txt)" >> "$GITHUB_OUTPUT"
 
-      - name: Open Pull Request if src/data/models.json pricing changed
-        uses: peter-evans/create-pull-request@v8
-        with:
-          commit-message: 'chore(data): auto-sync model pricing in src/data/models.json'
-          title: 'chore: automated LLM pricing sync'
-          body-path: /tmp/registry-sync-report.md
-          branch: chore/sync-model-registry
-          delete-branch: true
-
-      - name: Open GitHub Issue when untracked major models appear
-        if: steps.sync.outputs.has_new_models == 'true'
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const fs = require('fs');
-            const report = fs.readFileSync('/tmp/registry-sync-report.md', 'utf8');
-            const today = new Date().toISOString().slice(0, 10);
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `[Model Radar ${today}] New provider models detected on OpenRouter`,
-              body: report + '\n> Tip: Add approved models to `src/data/models.json` with `"evidence": "Estimated"` first to capture early search traffic, then flip to `"Supported"` once verified.',
-            });
+      - name: Commit staged updates to src/data/pending-registry.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/pending-registry.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(admin-queue): stage pending LLM models, prices & benchmarks"
+            git push
+          else
+            echo "No changes to src/data/pending-registry.json"
+          fi
