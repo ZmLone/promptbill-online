@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { SiteShell } from '../../components/SiteShell';
 import { AdminAuthGate } from '../../components/AdminAuthGate';
+import { RegistryApprovalDashboard } from '../../components/RegistryApprovalDashboard';
 import { isAdminPasswordConfigured, isRequestAdminAuthenticated } from '../../lib/adminAuth';
+import { ALL_MODELS } from '../../lib/catalog';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Registry Approval Admin | PromptBill',
@@ -26,11 +30,13 @@ export default async function AdminPage() {
       title="PromptBill Admin — Approve Models, Prices & Benchmarks"
       subtitle="promptbill.online/admin · Restricted Registry Approval Workspace"
     >
-      <div className="py-4 pb-16">
+      <div className="py-2 pb-16">
         <AdminAuthGate
           initialAuthenticated={authenticated}
           passwordConfigured={passwordConfigured}
-        />
+        >
+          <RegistryApprovalDashboard initialModels={ALL_MODELS} />
+        </AdminAuthGate>
       </div>
     </SiteShell>
   );
