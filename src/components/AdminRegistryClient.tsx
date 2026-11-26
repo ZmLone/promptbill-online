@@ -28,9 +28,70 @@ interface EditableOverrides {
   tokPerSec: string;
   officialInput: string;
   officialOutput: string;
+  cachedInput: string;
+  cacheWrite: string;
   routerInput: string;
   routerOutput: string;
+  batchDiscount: string;
+  contextWindow: string;
   markVerified: boolean;
+}
+
+interface LiveEditState {
+  score: string;
+  tokPerSec: string;
+  inputPer1M: string;
+  outputPer1M: string;
+  cachedInputPer1M: string;
+  cacheWritePer1M: string;
+  batchDiscount: string;
+  rpmLimit: string;
+  tpmLimit: string;
+  contextWindow: string;
+  license: string;
+  bestFor: string;
+  lifecycleStatus: string;
+  successorSlug: string;
+  archived: boolean;
+  ag: string;
+  co: string;
+  re: string;
+  mm: string;
+  kn: string;
+  ml: string;
+  ifScore: string;
+  ma: string;
+  verified: boolean;
+}
+
+interface NewManualModelState {
+  name: string;
+  slug: string;
+  provider: string;
+  license: string;
+  contextWindow: string;
+  maxOutputTokens: string;
+  inputPer1M: string;
+  outputPer1M: string;
+  cachedInputPer1M: string;
+  cacheWritePer1M: string;
+  batchDiscount: string;
+  score: string;
+  tokPerSec: string;
+  rpmLimit: string;
+  bestFor: string;
+  notes: string;
+  verified: boolean;
+}
+
+function slugify(raw: string): string {
+  return raw
+    .toLowerCase()
+    .trim()
+    .replace(/[._\s]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export function AdminRegistryClient({
@@ -42,26 +103,85 @@ export function AdminRegistryClient({
   initialPending: PendingQueuePayload;
 }) {
   const [adminPassword, setAdminPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [unlocked, setUnlocked] = useState<boolean>(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [models, setModels] = useState<any[]>(initialModels);
   const [pendingItems, setPendingItems] = useState<PendingQueueItem[]>(initialPending.items || []);
-  const [activeTab, setActiveTab] = useState<'all' | 'new_model' | 'price_update' | 'benchmark_update' | 'catalog'>('all');
+  const [activeTab, setActiveTab] = useState<
+    'all' | 'new_model' | 'price_update' | 'benchmark_update' | 'catalog' | 'manual_add'
+  >('all');
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [providerFilter, setProviderFilter] = useState<string>('ALL');
+  const [showArchived, setShowArchived] = useState<boolean>(false);
+
   const [overrides, setOverrides] = useState<Record<string, EditableOverrides>>({});
+  const [dismissedCount, setDismissedCount] = useState<number>(0);
   const [statusLog, setStatusLog] = useState<string[]>([]);
   const [publishing, setPublishing] = useState<boolean>(false);
   const [publishBanner, setPublishBanner] = useState<{ type: 'success' | 'error' | 'warn'; text: string } | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
   const [editingLiveSlug, setEditingLiveSlug] = useState<string | null>(null);
-  const [liveEditForm, setLiveEditForm] = useState<{
-    score: string;
-    tokPerSec: string;
-    inputPer1M: string;
-    outputPer1M: string;
-    verified: boolean;
-  }>({ score: '', tokPerSec: '', inputPer1M: '', outputPer1M: '', verified: true });
+  const [liveEditForm, setLiveEditForm] = useState<LiveEditState>({
+    score: '',
+    tokPerSec: '',
+    inputPer1M: '',
+    outputPer1M: '',
+    cachedInputPer1M: '',
+    cacheWritePer1M: '',
+    batchDiscount: '',
+    rpmLimit: '',
+    tpmLimit: '',
+    contextWindow: '',
+    license: '',
+    bestFor: '',
+    lifecycleStatus: 'Active',
+    successorSlug: '',
+    archived: false,
+    ag: '',
+    co: '',
+    re: '',
+    mm: '',
+    kn: '',
+    ml: '',
+    ifScore: '',
+    ma: '',
+    verified: true,
+  });
+
+  const [manualForm, setManualForm] = useState<NewManualModelState>({
+    name: '',
+    slug: '',
+    provider: 'OpenAI',
+    license: 'Proprietary',
+    contextWindow: '128K',
+    maxOutputTokens: '16384',
+    inputPer1M: '',
+    outputPer1M: '',
+    cachedInputPer1M: '',
+    cacheWritePer1M: '',
+    batchDiscount: '',
+    score: '',
+    tokPerSec: '',
+    rpmLimit: '',
+    bestFor: '',
+    notes: '',
+    verified: true,
+  });
+
+  const allProviders = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of models) {
+      if (m?.provider) set.add(String(m.provider));
+    }
+    for (const p of pendingItems) {
+      if (p?.provider) set.add(String(p.provider));
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [models, pendingItems]);
 
   function getItemEdits(item: PendingQueueItem): EditableOverrides {
     if (overrides[item.queueId]) return overrides[item.queueId];
@@ -88,6 +208,14 @@ export function AdminRegistryClient({
         item.type === 'new_model' && draft.outputPer1M !== null && draft.outputPer1M !== undefined
           ? String(draft.outputPer1M)
           : '',
+      cachedInput:
+        draft.cachedInputPer1M !== null && draft.cachedInputPer1M !== undefined
+          ? String(draft.cachedInputPer1M)
+          : '',
+      cacheWrite:
+        draft.cacheWritePer1M !== null && draft.cacheWritePer1M !== undefined
+          ? String(draft.cacheWritePer1M)
+          : '',
       routerInput:
         item.type === 'price_update'
           ? String(proposed.routerInputPer1M ?? '')
@@ -100,6 +228,11 @@ export function AdminRegistryClient({
           : draft.outputPer1M !== null && draft.outputPer1M !== undefined
           ? String(draft.outputPer1M)
           : '',
+      batchDiscount:
+        draft.batchDiscount !== null && draft.batchDiscount !== undefined
+          ? String(Math.round(Number(draft.batchDiscount) * 100))
+          : '',
+      contextWindow: draft.contextWindow ? String(draft.contextWindow) : '',
       markVerified: false,
     };
   }
@@ -119,6 +252,12 @@ export function AdminRegistryClient({
     return Number.isFinite(n) && n >= 0 ? n : null;
   }
 
+  function parseOptionalDiscount(raw: string): number | null {
+    const n = parseOptionalNum(raw);
+    if (n === null) return null;
+    return n > 1 ? Number((n / 100).toFixed(4)) : Number(n.toFixed(4));
+  }
+
   function approveItem(item: PendingQueueItem) {
     const edits = getItemEdits(item);
     const nowIso = new Date().toISOString();
@@ -133,8 +272,12 @@ export function AdminRegistryClient({
         const speedVal = parseOptionalNum(edits.tokPerSec);
         const offIn = parseOptionalNum(edits.officialInput);
         const offOut = parseOptionalNum(edits.officialOutput);
+        const cachedIn = parseOptionalNum(edits.cachedInput);
+        const cacheWr = parseOptionalNum(edits.cacheWrite);
         const rIn = parseOptionalNum(edits.routerInput);
         const rOut = parseOptionalNum(edits.routerOutput);
+        const batchDisc = parseOptionalDiscount(edits.batchDiscount);
+        const ctxVal = edits.contextWindow.trim() || item.draftModel.contextWindow || null;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const endpoints: any[] = [];
@@ -143,10 +286,10 @@ export function AdminRegistryClient({
             host: `${item.provider} Official API`,
             providerType: 'Official API',
             inputPer1M: offIn,
-            cachedInputPer1M: null,
-            cacheWritePer1M: null,
+            cachedInputPer1M: cachedIn,
+            cacheWritePer1M: cacheWr,
             outputPer1M: offOut,
-            batchDiscount: null,
+            batchDiscount: batchDisc,
             latencyMs: null,
             notes: 'Approved via PromptBill Admin',
             currency: 'USD',
@@ -185,12 +328,18 @@ export function AdminRegistryClient({
           slug: resolvedSlug,
           rank: next.length + 1,
           evidence: provStatus,
+          lifecycleStatus: 'Active',
+          archived: false,
           score: scoreVal,
           qualityScore: scoreVal,
           tokPerSec: speedVal,
           speedTokensPerSec: speedVal,
+          contextWindow: ctxVal,
           inputPer1M: offIn ?? rIn,
+          cachedInputPer1M: cachedIn,
+          cacheWritePer1M: cacheWr,
           outputPer1M: offOut ?? rOut,
+          batchDiscount: batchDisc,
           pricingProvenance: {
             status: (offIn ?? rIn) !== null ? provStatus : 'Unavailable',
             sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
@@ -228,6 +377,13 @@ export function AdminRegistryClient({
           const target = { ...next[idx] };
           const rIn = parseOptionalNum(edits.routerInput);
           const rOut = parseOptionalNum(edits.routerOutput);
+          const cachedIn = parseOptionalNum(edits.cachedInput);
+          const cacheWr = parseOptionalNum(edits.cacheWrite);
+          const batchDisc = parseOptionalDiscount(edits.batchDiscount);
+          if (cachedIn !== null) target.cachedInputPer1M = cachedIn;
+          if (cacheWr !== null) target.cacheWritePer1M = cacheWr;
+          if (batchDisc !== null) target.batchDiscount = batchDisc;
+
           const endpoints = Array.isArray(target.hostingEndpoints) ? [...target.hostingEndpoints] : [];
           const routerIdx = endpoints.findIndex(
             (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
@@ -294,6 +450,7 @@ export function AdminRegistryClient({
 
   function rejectItem(item: PendingQueueItem) {
     setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
+    setDismissedCount((c) => c + 1);
     setHasUnpublishedChanges(true);
     setStatusLog((prev) => [`Dismissed: ${item.modelName}`, ...prev]);
   }
@@ -304,6 +461,17 @@ export function AdminRegistryClient({
     }
   }
 
+  function dismissAllVisible() {
+    if (filteredPending.length === 0) return;
+    const ok = window.confirm(`Dismiss all ${filteredPending.length} visible pending item(s)?`);
+    if (!ok) return;
+    const ids = new Set(filteredPending.map((i) => i.queueId));
+    setPendingItems((prev) => prev.filter((p) => !ids.has(p.queueId)));
+    setDismissedCount((c) => c + ids.size);
+    setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [`Dismissed ${ids.size} visible pending item(s)`, ...prev]);
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function startEditingLiveModel(m: any) {
     setEditingLiveSlug(m.slug);
@@ -312,6 +480,30 @@ export function AdminRegistryClient({
       tokPerSec: m.tokPerSec !== null && m.tokPerSec !== undefined ? String(m.tokPerSec) : '',
       inputPer1M: m.inputPer1M !== null && m.inputPer1M !== undefined ? String(m.inputPer1M) : '',
       outputPer1M: m.outputPer1M !== null && m.outputPer1M !== undefined ? String(m.outputPer1M) : '',
+      cachedInputPer1M:
+        m.cachedInputPer1M !== null && m.cachedInputPer1M !== undefined ? String(m.cachedInputPer1M) : '',
+      cacheWritePer1M:
+        m.cacheWritePer1M !== null && m.cacheWritePer1M !== undefined ? String(m.cacheWritePer1M) : '',
+      batchDiscount:
+        m.batchDiscount !== null && m.batchDiscount !== undefined
+          ? String(Math.round(Number(m.batchDiscount) * 100))
+          : '',
+      rpmLimit: m.rpmLimit ? String(m.rpmLimit) : '',
+      tpmLimit: m.tpmLimit ? String(m.tpmLimit) : '',
+      contextWindow: m.contextWindow ? String(m.contextWindow) : '',
+      license: m.license ? String(m.license) : '',
+      bestFor: m.bestFor ? String(m.bestFor) : '',
+      lifecycleStatus: m.lifecycleStatus ? String(m.lifecycleStatus) : 'Active',
+      successorSlug: m.successorSlug ? String(m.successorSlug) : '',
+      archived: Boolean(m.archived),
+      ag: m.ag !== null && m.ag !== undefined ? String(m.ag) : '',
+      co: m.co !== null && m.co !== undefined ? String(m.co) : '',
+      re: m.re !== null && m.re !== undefined ? String(m.re) : '',
+      mm: m.mm !== null && m.mm !== undefined ? String(m.mm) : '',
+      kn: m.kn !== null && m.kn !== undefined ? String(m.kn) : '',
+      ml: m.ml !== null && m.ml !== undefined ? String(m.ml) : '',
+      ifScore: m.if !== null && m.if !== undefined ? String(m.if) : '',
+      ma: m.ma !== null && m.ma !== undefined ? String(m.ma) : '',
       verified: m.evidence === 'Verified',
     });
   }
@@ -322,6 +514,9 @@ export function AdminRegistryClient({
     const speedVal = parseOptionalNum(liveEditForm.tokPerSec);
     const inVal = parseOptionalNum(liveEditForm.inputPer1M);
     const outVal = parseOptionalNum(liveEditForm.outputPer1M);
+    const cachedInVal = parseOptionalNum(liveEditForm.cachedInputPer1M);
+    const cacheWrVal = parseOptionalNum(liveEditForm.cacheWritePer1M);
+    const batchVal = parseOptionalDiscount(liveEditForm.batchDiscount);
     const status = liveEditForm.verified ? 'Verified' : 'Estimated';
 
     setModels((prev) =>
@@ -334,6 +529,9 @@ export function AdminRegistryClient({
             ...endpoints[offIdx],
             inputPer1M: inVal,
             outputPer1M: outVal,
+            cachedInputPer1M: cachedInVal,
+            cacheWritePer1M: cacheWrVal,
+            batchDiscount: batchVal,
             lastVerified: nowIso,
             evidenceStatus: status,
           };
@@ -347,6 +545,25 @@ export function AdminRegistryClient({
           speedTokensPerSec: speedVal,
           inputPer1M: inVal,
           outputPer1M: outVal,
+          cachedInputPer1M: cachedInVal,
+          cacheWritePer1M: cacheWrVal,
+          batchDiscount: batchVal,
+          rpmLimit: liveEditForm.rpmLimit.trim() || null,
+          tpmLimit: liveEditForm.tpmLimit.trim() || null,
+          contextWindow: liveEditForm.contextWindow.trim() || null,
+          license: liveEditForm.license.trim() || null,
+          bestFor: liveEditForm.bestFor.trim() || null,
+          lifecycleStatus: liveEditForm.lifecycleStatus || 'Active',
+          successorSlug: liveEditForm.successorSlug.trim() || null,
+          archived: liveEditForm.archived,
+          ag: parseOptionalNum(liveEditForm.ag),
+          co: parseOptionalNum(liveEditForm.co),
+          re: parseOptionalNum(liveEditForm.re),
+          mm: parseOptionalNum(liveEditForm.mm),
+          kn: parseOptionalNum(liveEditForm.kn),
+          ml: parseOptionalNum(liveEditForm.ml),
+          if: parseOptionalNum(liveEditForm.ifScore),
+          ma: parseOptionalNum(liveEditForm.ma),
           pricingProvenance: {
             ...(m.pricingProvenance || {}),
             status: inVal !== null && outVal !== null ? status : 'Unavailable',
@@ -370,6 +587,148 @@ export function AdminRegistryClient({
     setEditingLiveSlug(null);
     setHasUnpublishedChanges(true);
     setStatusLog((prev) => [`Updated live model: ${slug}`, ...prev]);
+  }
+
+  function handleAddManualModel(e: React.FormEvent) {
+    e.preventDefault();
+    const cleanName = manualForm.name.trim();
+    if (!cleanName) return;
+    const resolvedSlug = slugify(manualForm.slug.trim() || cleanName);
+    if (!resolvedSlug) return;
+
+    const nowIso = new Date().toISOString();
+    const status = manualForm.verified ? 'Verified' : 'Estimated';
+    const inVal = parseOptionalNum(manualForm.inputPer1M);
+    const outVal = parseOptionalNum(manualForm.outputPer1M);
+    const cachedInVal = parseOptionalNum(manualForm.cachedInputPer1M);
+    const cacheWrVal = parseOptionalNum(manualForm.cacheWritePer1M);
+    const batchVal = parseOptionalDiscount(manualForm.batchDiscount);
+    const scoreVal = parseOptionalNum(manualForm.score);
+    const speedVal = parseOptionalNum(manualForm.tokPerSec);
+    const maxOutVal = parseOptionalNum(manualForm.maxOutputTokens);
+    const providerClean = manualForm.provider.trim() || 'Unknown';
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const newRecord: Record<string, any> = {
+      id: resolvedSlug,
+      slug: resolvedSlug,
+      rank: models.length + 1,
+      name: cleanName,
+      provider: providerClean,
+      providerSlug: slugify(providerClean),
+      family: null,
+      license: manualForm.license.trim() || null,
+      evidence: status,
+      lifecycleStatus: 'Active',
+      archived: false,
+      score: scoreVal,
+      qualityScore: scoreVal,
+      interval: null,
+      elo: null,
+      inputPer1M: inVal,
+      cachedInputPer1M: cachedInVal,
+      cacheWritePer1M: cacheWrVal,
+      outputPer1M: outVal,
+      longContextMultiplierInput: null,
+      longContextMultiplierOutput: null,
+      longContextThresholdTokens: null,
+      contextWindow: manualForm.contextWindow.trim() || null,
+      maxOutputTokens: maxOutVal,
+      tokPerSec: speedVal,
+      speedTokensPerSec: speedVal,
+      ag: null,
+      co: null,
+      re: null,
+      mm: null,
+      kn: null,
+      ml: null,
+      if: null,
+      ma: null,
+      rpmLimit: manualForm.rpmLimit.trim() || null,
+      tpmLimit: null,
+      tpdLimit: null,
+      batchDiscount: batchVal,
+      tier: null,
+      bestFor: manualForm.bestFor.trim() || null,
+      notes: manualForm.notes.trim() || 'Added manually via PromptBill Admin.',
+      pricingProvenance: {
+        status: inVal !== null && outVal !== null ? status : 'Unavailable',
+        sourceUrl: null,
+        lastVerified: nowIso,
+        currency: 'USD',
+        pricingUnit: 'per 1M tokens',
+        notes: 'Added via PromptBill Admin',
+      },
+      benchmarkProvenance: {
+        status: scoreVal !== null ? status : 'Unavailable',
+        sourceUrl: null,
+        lastVerified: scoreVal !== null ? nowIso : null,
+        notes: scoreVal !== null ? 'Added via PromptBill Admin' : 'No benchmark score recorded.',
+      },
+      speedProvenance: {
+        status: speedVal !== null ? status : 'Unavailable',
+        sourceUrl: null,
+        lastVerified: speedVal !== null ? nowIso : null,
+        hardwareOrProvider: null,
+        conditions: null,
+        notes: speedVal !== null ? 'Added via PromptBill Admin' : 'No speed measurement recorded.',
+      },
+      priceHistory: [],
+      hostingEndpoints:
+        inVal !== null && outVal !== null
+          ? [
+              {
+                host: `${providerClean} Official API`,
+                providerType: 'Official API',
+                inputPer1M: inVal,
+                cachedInputPer1M: cachedInVal,
+                cacheWritePer1M: cacheWrVal,
+                outputPer1M: outVal,
+                batchDiscount: batchVal,
+                latencyMs: null,
+                notes: 'Added via PromptBill Admin',
+                currency: 'USD',
+                pricingUnit: 'per 1M tokens',
+                sourceUrl: null,
+                lastVerified: nowIso,
+                evidenceStatus: status,
+              },
+            ]
+          : [],
+    };
+
+    setModels((prev) => {
+      const idx = prev.findIndex((m) => m.slug === resolvedSlug || m.id === resolvedSlug);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = newRecord;
+        return copy;
+      }
+      return [...prev, newRecord];
+    });
+
+    setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [`Added manual model: ${cleanName} (${resolvedSlug})`, ...prev]);
+    setManualForm({
+      name: '',
+      slug: '',
+      provider: providerClean,
+      license: 'Proprietary',
+      contextWindow: '128K',
+      maxOutputTokens: '16384',
+      inputPer1M: '',
+      outputPer1M: '',
+      cachedInputPer1M: '',
+      cacheWritePer1M: '',
+      batchDiscount: '',
+      score: '',
+      tokPerSec: '',
+      rpmLimit: '',
+      bestFor: '',
+      notes: '',
+      verified: true,
+    });
+    setActiveTab('catalog');
   }
 
   async function publishToGitHub() {
@@ -400,6 +759,7 @@ export function AdminRegistryClient({
       const data = await res.json();
       if (res.ok && data.ok) {
         setHasUnpublishedChanges(false);
+        setDismissedCount(0);
         setPublishBanner({ type: 'success', text: data.message });
       } else {
         setPublishBanner({
@@ -428,10 +788,32 @@ export function AdminRegistryClient({
   }
 
   const filteredPending = useMemo(() => {
-    if (activeTab === 'all') return pendingItems;
-    if (activeTab === 'catalog') return [];
-    return pendingItems.filter((i) => i.type === activeTab);
-  }, [pendingItems, activeTab]);
+    const q = searchQuery.trim().toLowerCase();
+    return pendingItems.filter((item) => {
+      if (activeTab !== 'all' && activeTab !== 'catalog' && activeTab !== 'manual_add' && item.type !== activeTab) {
+        return false;
+      }
+      if (providerFilter !== 'ALL' && item.provider !== providerFilter) return false;
+      if (q) {
+        const hay = `${item.modelName} ${item.modelSlug} ${item.provider} ${item.summary}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [pendingItems, activeTab, providerFilter, searchQuery]);
+
+  const filteredCatalog = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return models.filter((m) => {
+      if (!showArchived && m.archived) return false;
+      if (providerFilter !== 'ALL' && m.provider !== providerFilter) return false;
+      if (q) {
+        const hay = `${m.name} ${m.slug} ${m.provider} ${m.bestFor || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [models, showArchived, providerFilter, searchQuery]);
 
   const counts = useMemo(
     () => ({
@@ -457,13 +839,22 @@ export function AdminRegistryClient({
           }}
           className="space-y-3"
         >
-          <input
-            type="password"
-            placeholder="Enter admin password"
-            value={adminPassword}
-            onChange={(e) => setAdminPassword(e.target.value)}
-            className="min-h-[42px] w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter admin password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              className="min-h-[42px] w-full rounded-lg border border-slate-300 px-3 pr-16 py-2 text-sm text-slate-900"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-600 hover:text-slate-900"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
           <button
             type="submit"
             className="w-full min-h-[42px] rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900"
@@ -482,11 +873,16 @@ export function AdminRegistryClient({
           <div className="text-xs font-semibold text-slate-600">
             Last GitHub Sync: {initialPending.updatedAt ? new Date(initialPending.updatedAt).toLocaleString() : 'Not run yet'} · Live Models: {models.length}
           </div>
-          <div className="text-sm font-bold text-slate-900">
-            {pendingItems.length} item(s) waiting for your approval
+          <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-900">
+            <span>{pendingItems.length} item(s) waiting for your approval</span>
+            {dismissedCount > 0 ? (
+              <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-800">
+                {dismissedCount} dismissed in session
+              </span>
+            ) : null}
             {hasUnpublishedChanges ? (
-              <span className="ml-2 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-                Unsaved approvals ready to publish
+              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                Unsaved changes ready to publish
               </span>
             ) : null}
           </div>
@@ -507,6 +903,16 @@ export function AdminRegistryClient({
             className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             Download models.json
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setUnlocked(false);
+              setAdminPassword('');
+            }}
+            className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Lock
           </button>
         </div>
       </div>
@@ -533,6 +939,7 @@ export function AdminRegistryClient({
             { id: 'price_update', label: `Price Updates (${counts.price_update})` },
             { id: 'benchmark_update', label: `Benchmarks (${counts.benchmark_update})` },
             { id: 'catalog', label: `Edit Live Catalog (${models.length})` },
+            { id: 'manual_add', label: '+ Add Model Manually' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -549,26 +956,293 @@ export function AdminRegistryClient({
           ))}
         </div>
 
-        {activeTab !== 'catalog' && filteredPending.length > 0 ? (
-          <button
-            type="button"
-            onClick={approveAllVisible}
-            className="min-h-[38px] rounded-lg border border-emerald-700 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-100"
-          >
-            Approve All ({filteredPending.length})
-          </button>
+        {activeTab !== 'catalog' && activeTab !== 'manual_add' && filteredPending.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={approveAllVisible}
+              className="min-h-[38px] rounded-lg border border-emerald-700 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-100"
+            >
+              Approve Visible ({filteredPending.length})
+            </button>
+            <button
+              type="button"
+              onClick={dismissAllVisible}
+              className="min-h-[38px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Dismiss Visible ({filteredPending.length})
+            </button>
+          </div>
         ) : null}
       </div>
 
-      {activeTab !== 'catalog' ? (
+      {activeTab !== 'manual_add' ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 text-xs">
+          <input
+            type="search"
+            placeholder="Search by model name, slug, or provider..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="min-h-[38px] flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-slate-900"
+          />
+          <select
+            value={providerFilter}
+            onChange={(e) => setProviderFilter(e.target.value)}
+            className="min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-800"
+          >
+            <option value="ALL">All Providers ({allProviders.length})</option>
+            {allProviders.map((prov) => (
+              <option key={prov} value={prov}>
+                {prov}
+              </option>
+            ))}
+          </select>
+          {activeTab === 'catalog' ? (
+            <label className="inline-flex items-center gap-2 font-medium text-slate-700 px-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={(e) => setShowArchived(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span>Show Archived</span>
+            </label>
+          ) : null}
+          {(searchQuery || providerFilter !== 'ALL') ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setProviderFilter('ALL');
+              }}
+              className="min-h-[38px] rounded-lg border border-slate-300 px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Reset Filters
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === 'manual_add' ? (
+        <form
+          onSubmit={handleAddManualModel}
+          className="rounded-xl border border-slate-200 bg-white p-5 space-y-4 text-xs"
+        >
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Add Model Manually to Catalog</h3>
+            <p className="text-slate-600 mt-0.5">
+              Use this for flagship models before they appear on OpenRouter. After adding, click{' '}
+              <strong>Publish Approved Changes to Website</strong> at the top.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Model Name *</span>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Claude Sonnet 4.6"
+                value={manualForm.name}
+                onChange={(e) =>
+                  setManualForm({
+                    ...manualForm,
+                    name: e.target.value,
+                    slug: slugify(e.target.value),
+                  })
+                }
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">URL Slug *</span>
+              <input
+                type="text"
+                required
+                placeholder="claude-sonnet-4-6"
+                value={manualForm.slug}
+                onChange={(e) => setManualForm({ ...manualForm, slug: slugify(e.target.value) })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Provider *</span>
+              <input
+                type="text"
+                required
+                placeholder="Anthropic"
+                value={manualForm.provider}
+                onChange={(e) => setManualForm({ ...manualForm, provider: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5"
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Official In / 1M ($)</span>
+              <input
+                type="number"
+                step="any"
+                placeholder="3.00"
+                value={manualForm.inputPer1M}
+                onChange={(e) => setManualForm({ ...manualForm, inputPer1M: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Official Out / 1M ($)</span>
+              <input
+                type="number"
+                step="any"
+                placeholder="15.00"
+                value={manualForm.outputPer1M}
+                onChange={(e) => setManualForm({ ...manualForm, outputPer1M: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Cached Read / 1M ($)</span>
+              <input
+                type="number"
+                step="any"
+                placeholder="0.30"
+                value={manualForm.cachedInputPer1M}
+                onChange={(e) => setManualForm({ ...manualForm, cachedInputPer1M: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Cache Write / 1M ($)</span>
+              <input
+                type="number"
+                step="any"
+                placeholder="3.75"
+                value={manualForm.cacheWritePer1M}
+                onChange={(e) => setManualForm({ ...manualForm, cacheWritePer1M: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Batch Discount (%)</span>
+              <input
+                type="number"
+                step="1"
+                placeholder="50"
+                value={manualForm.batchDiscount}
+                onChange={(e) => setManualForm({ ...manualForm, batchDiscount: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Benchmark Score</span>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="89.5"
+                value={manualForm.score}
+                onChange={(e) => setManualForm({ ...manualForm, score: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Speed (tok/s)</span>
+              <input
+                type="number"
+                step="1"
+                placeholder="120"
+                value={manualForm.tokPerSec}
+                onChange={(e) => setManualForm({ ...manualForm, tokPerSec: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Context Window</span>
+              <input
+                type="text"
+                placeholder="200K"
+                value={manualForm.contextWindow}
+                onChange={(e) => setManualForm({ ...manualForm, contextWindow: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">License</span>
+              <input
+                type="text"
+                placeholder="Proprietary or Open-Weight"
+                value={manualForm.license}
+                onChange={(e) => setManualForm({ ...manualForm, license: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">RPM Limit</span>
+              <input
+                type="text"
+                placeholder="4,000 RPM"
+                value={manualForm.rpmLimit}
+                onChange={(e) => setManualForm({ ...manualForm, rpmLimit: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono"
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Best For / Workload Tags</span>
+              <input
+                type="text"
+                placeholder="Coding, agentic workflows, long-context synthesis"
+                value={manualForm.bestFor}
+                onChange={(e) => setManualForm({ ...manualForm, bestFor: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="font-semibold text-slate-700 block">Notes</span>
+              <input
+                type="text"
+                placeholder="Official pricing verified from provider docs"
+                value={manualForm.notes}
+                onChange={(e) => setManualForm({ ...manualForm, notes: e.target.value })}
+                className="min-h-[38px] w-full rounded-lg border border-slate-300 px-3 py-1.5"
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={manualForm.verified}
+                onChange={(e) => setManualForm({ ...manualForm, verified: e.target.checked })}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span>Mark as Verified</span>
+            </label>
+            <button
+              type="submit"
+              className="min-h-[40px] rounded-lg bg-emerald-800 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-900"
+            >
+              Add to Working Catalog
+            </button>
+          </div>
+        </form>
+      ) : activeTab !== 'catalog' ? (
         filteredPending.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">
-            No pending items in this tab. GitHub Actions checks daily at 04:00 UTC (or you can run the workflow manually in GitHub Actions).
+            No pending items match the current tab/filters. GitHub Actions checks daily at 04:00 UTC (or you can run the workflow manually in GitHub Actions).
           </div>
         ) : (
           <div className="space-y-4">
             {filteredPending.map((item) => {
               const edits = getItemEdits(item);
+              const cur = item.currentValues || {};
+              const prop = item.proposedValues || {};
               return (
                 <div
                   key={item.queueId}
@@ -590,8 +1264,44 @@ export function AdminRegistryClient({
                         </span>
                         <h3 className="text-base font-bold text-slate-900">{item.modelName}</h3>
                         <span className="text-xs text-slate-500">({item.provider})</span>
+                        {item.sourceUrl ? (
+                          <a
+                            href={item.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs font-semibold text-emerald-800 underline"
+                          >
+                            Source ↗
+                          </a>
+                        ) : null}
                       </div>
                       <p className="text-xs text-slate-700">{item.summary}</p>
+                      {(Object.keys(cur).length > 0 || Object.keys(prop).length > 0) ? (
+                        <div className="flex flex-wrap gap-3 pt-1 text-[11px] font-mono text-slate-600">
+                          {item.type === 'price_update' ? (
+                            <>
+                              <span>
+                                Current Router: ${String(cur.routerInputPer1M ?? 'N/A')} / $
+                                {String(cur.routerOutputPer1M ?? 'N/A')}
+                              </span>
+                              <span className="text-amber-900 font-semibold">
+                                Proposed Router: ${String(prop.routerInputPer1M ?? 'N/A')} / $
+                                {String(prop.routerOutputPer1M ?? 'N/A')}
+                              </span>
+                            </>
+                          ) : null}
+                          {item.type === 'benchmark_update' ? (
+                            <>
+                              <span>
+                                Current: Score {String(cur.score ?? 'N/A')}, Speed {String(cur.tokPerSec ?? 'N/A')} tok/s
+                              </span>
+                              <span className="text-emerald-900 font-semibold">
+                                Proposed: Score {String(prop.score ?? 'N/A')}, Speed {String(prop.tokPerSec ?? 'N/A')} tok/s
+                              </span>
+                            </>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -662,7 +1372,53 @@ export function AdminRegistryClient({
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
+                        <label className="space-y-1">
+                          <span className="text-slate-600 font-medium block">Cached Read / 1M</span>
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Optional"
+                            value={edits.cachedInput}
+                            onChange={(e) => updateItemEdit(item.queueId, { cachedInput: e.target.value }, item)}
+                            className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
+                          />
+                        </label>
+                        <label className="space-y-1">
+                          <span className="text-slate-600 font-medium block">Cache Write / 1M</span>
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Optional"
+                            value={edits.cacheWrite}
+                            onChange={(e) => updateItemEdit(item.queueId, { cacheWrite: e.target.value }, item)}
+                            className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
+                          />
+                        </label>
+                        <label className="space-y-1">
+                          <span className="text-slate-600 font-medium block">Batch Discount (%)</span>
+                          <input
+                            type="number"
+                            step="1"
+                            placeholder="e.g. 50"
+                            value={edits.batchDiscount}
+                            onChange={(e) => updateItemEdit(item.queueId, { batchDiscount: e.target.value }, item)}
+                            className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
+                          />
+                        </label>
                       </>
+                    ) : null}
+
+                    {item.type === 'new_model' ? (
+                      <label className="space-y-1">
+                        <span className="text-slate-600 font-medium block">Context Window</span>
+                        <input
+                          type="text"
+                          placeholder="e.g. 128K"
+                          value={edits.contextWindow}
+                          onChange={(e) => updateItemEdit(item.queueId, { contextWindow: e.target.value }, item)}
+                          className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
+                        />
+                      </label>
                     ) : null}
 
                     <label className="space-y-1">
@@ -705,122 +1461,311 @@ export function AdminRegistryClient({
           </div>
         )
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-100 font-semibold text-slate-800">
-                <th className="py-2.5 px-3">Model</th>
-                <th className="py-2.5 px-3">Score</th>
-                <th className="py-2.5 px-3">Speed (tok/s)</th>
-                <th className="py-2.5 px-3">Official In / Out</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {models.map((m) => {
-                const isEditing = editingLiveSlug === m.slug;
-                return (
-                  <tr key={m.slug} className="bg-white">
-                    <td className="py-2.5 px-3 font-semibold text-slate-900">
-                      {m.name} <span className="font-normal text-slate-500">({m.provider})</span>
-                    </td>
-                    <td className="py-2.5 px-3 font-mono">
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={liveEditForm.score}
-                          onChange={(e) => setLiveEditForm({ ...liveEditForm, score: e.target.value })}
-                          className="w-20 rounded border border-slate-300 px-2 py-1"
-                        />
-                      ) : (
-                        m.score ?? 'N/A'
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono">
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          step="1"
-                          value={liveEditForm.tokPerSec}
-                          onChange={(e) => setLiveEditForm({ ...liveEditForm, tokPerSec: e.target.value })}
-                          className="w-20 rounded border border-slate-300 px-2 py-1"
-                        />
-                      ) : (
-                        m.tokPerSec ?? 'N/A'
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 font-mono">
-                      {isEditing ? (
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="number"
-                            step="any"
-                            value={liveEditForm.inputPer1M}
-                            onChange={(e) => setLiveEditForm({ ...liveEditForm, inputPer1M: e.target.value })}
-                            className="w-20 rounded border border-slate-300 px-2 py-1"
-                          />
-                          <span>/</span>
-                          <input
-                            type="number"
-                            step="any"
-                            value={liveEditForm.outputPer1M}
-                            onChange={(e) => setLiveEditForm({ ...liveEditForm, outputPer1M: e.target.value })}
-                            className="w-20 rounded border border-slate-300 px-2 py-1"
-                          />
-                        </div>
-                      ) : (
-                        `$${m.inputPer1M ?? 'N/A'} / $${m.outputPer1M ?? 'N/A'}`
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      {isEditing ? (
-                        <label className="inline-flex items-center gap-1.5">
-                          <input
-                            type="checkbox"
-                            checked={liveEditForm.verified}
-                            onChange={(e) => setLiveEditForm({ ...liveEditForm, verified: e.target.checked })}
-                          />
-                          <span>Verified</span>
-                        </label>
-                      ) : (
-                        m.evidence || 'Estimated'
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 text-right">
-                      {isEditing ? (
-                        <div className="inline-flex gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => saveLiveModelEdit(m.slug)}
-                            className="rounded bg-emerald-800 px-2.5 py-1 font-semibold text-white"
+        <div className="space-y-4">
+          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-100 font-semibold text-slate-800">
+                  <th className="py-2.5 px-3">Model</th>
+                  <th className="py-2.5 px-3">Lifecycle</th>
+                  <th className="py-2.5 px-3">Score</th>
+                  <th className="py-2.5 px-3">Speed</th>
+                  <th className="py-2.5 px-3">Official In / Out</th>
+                  <th className="py-2.5 px-3">Cached / Batch</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredCatalog.map((m) => {
+                  const isEditing = editingLiveSlug === m.slug;
+                  return (
+                    <React.Fragment key={m.slug}>
+                      <tr className={m.archived ? 'bg-slate-50 text-slate-500' : 'bg-white'}>
+                        <td className="py-2.5 px-3 font-semibold text-slate-900">
+                          {m.name} <span className="font-normal text-slate-500">({m.provider})</span>
+                          {m.archived ? (
+                            <span className="ml-1.5 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">
+                              ARCHIVED
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                              m.lifecycleStatus === 'Deprecated' || m.lifecycleStatus === 'Legacy'
+                                ? 'bg-amber-100 text-amber-900'
+                                : m.lifecycleStatus === 'Preview'
+                                ? 'bg-indigo-100 text-indigo-900'
+                                : 'bg-emerald-50 text-emerald-900'
+                            }`}
                           >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingLiveSlug(null)}
-                            className="rounded border border-slate-300 px-2.5 py-1"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => startEditingLiveModel(m)}
-                          className="rounded border border-slate-300 px-2.5 py-1 font-semibold text-slate-800 hover:bg-slate-50"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                            {m.lifecycleStatus || 'Active'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 font-mono">{m.score ?? 'N/A'}</td>
+                        <td className="py-2.5 px-3 font-mono">
+                          {m.tokPerSec !== null && m.tokPerSec !== undefined ? `${m.tokPerSec} tok/s` : 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono">
+                          ${m.inputPer1M ?? 'N/A'} / ${m.outputPer1M ?? 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono">
+                          ${m.cachedInputPer1M ?? 'N/A'} ·{' '}
+                          {m.batchDiscount !== null && m.batchDiscount !== undefined
+                            ? `${Math.round(Number(m.batchDiscount) * 100)}%`
+                            : 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3">{m.evidence || 'Estimated'}</td>
+                        <td className="py-2.5 px-3 text-right">
+                          {isEditing ? (
+                            <div className="inline-flex gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => saveLiveModelEdit(m.slug)}
+                                className="rounded bg-emerald-800 px-2.5 py-1 font-semibold text-white"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingLiveSlug(null)}
+                                className="rounded border border-slate-300 px-2.5 py-1"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => startEditingLiveModel(m)}
+                              className="rounded border border-slate-300 px-2.5 py-1 font-semibold text-slate-800 hover:bg-slate-50"
+                            >
+                              Full Edit
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+
+                      {isEditing ? (
+                        <tr className="bg-slate-50/90">
+                          <td colSpan={8} className="p-4">
+                            <div className="space-y-3 text-xs">
+                              <div className="font-bold text-slate-900">
+                                Editing {m.name} ({m.slug})
+                              </div>
+
+                              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Official In / 1M</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={liveEditForm.inputPer1M}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, inputPer1M: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Official Out / 1M</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={liveEditForm.outputPer1M}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, outputPer1M: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Cached Read / 1M</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={liveEditForm.cachedInputPer1M}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, cachedInputPer1M: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Cache Write / 1M</span>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={liveEditForm.cacheWritePer1M}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, cacheWritePer1M: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Batch Discount (%)</span>
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    value={liveEditForm.batchDiscount}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, batchDiscount: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                              </div>
+
+                              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Benchmark Score</span>
+                                  <input
+                                    type="number"
+                                    step="0.1"
+                                    value={liveEditForm.score}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, score: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Speed (tok/s)</span>
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    value={liveEditForm.tokPerSec}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, tokPerSec: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Context Window</span>
+                                  <input
+                                    type="text"
+                                    value={liveEditForm.contextWindow}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, contextWindow: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">RPM Limit</span>
+                                  <input
+                                    type="text"
+                                    value={liveEditForm.rpmLimit}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, rpmLimit: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">License</span>
+                                  <input
+                                    type="text"
+                                    value={liveEditForm.license}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, license: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                                  />
+                                </label>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Lifecycle Status</span>
+                                  <select
+                                    value={liveEditForm.lifecycleStatus}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, lifecycleStatus: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                                  >
+                                    <option value="Active">Active</option>
+                                    <option value="Preview">Preview</option>
+                                    <option value="Deprecated">Deprecated</option>
+                                    <option value="Legacy">Legacy</option>
+                                  </select>
+                                </label>
+                                <label className="space-y-1">
+                                  <span className="text-slate-600 font-medium block">Successor Model Slug</span>
+                                  <input
+                                    type="text"
+                                    placeholder="e.g. gpt-5-4"
+                                    value={liveEditForm.successorSlug}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, successorSlug: e.target.value })
+                                    }
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
+                                  />
+                                </label>
+                                <label className="space-y-1 sm:col-span-2">
+                                  <span className="text-slate-600 font-medium block">Best For / Workload Tags</span>
+                                  <input
+                                    type="text"
+                                    value={liveEditForm.bestFor}
+                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, bestFor: e.target.value })}
+                                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                                  />
+                                </label>
+                              </div>
+
+                              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                                {[
+                                  ['AG', 'ag'],
+                                  ['CO', 'co'],
+                                  ['RE', 're'],
+                                  ['MM', 'mm'],
+                                  ['KN', 'kn'],
+                                  ['ML', 'ml'],
+                                  ['IF', 'ifScore'],
+                                  ['MA', 'ma'],
+                                ].map(([label, key]) => (
+                                  <label key={key} className="space-y-1">
+                                    <span className="text-[11px] text-slate-600 font-semibold block">{label}</span>
+                                    <input
+                                      type="number"
+                                      step="0.1"
+                                      value={liveEditForm[key as keyof LiveEditState] as string}
+                                      onChange={(e) =>
+                                        setLiveEditForm({
+                                          ...liveEditForm,
+                                          [key]: e.target.value,
+                                        })
+                                      }
+                                      className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                                    />
+                                  </label>
+                                ))}
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-5 pt-1">
+                                <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={liveEditForm.verified}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, verified: e.target.checked })
+                                    }
+                                  />
+                                  <span>Verified Status</span>
+                                </label>
+                                <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={liveEditForm.archived}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, archived: e.target.checked })
+                                    }
+                                  />
+                                  <span>Archive / Hide from Default Catalog</span>
+                                </label>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -828,7 +1773,7 @@ export function AdminRegistryClient({
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-1.5 text-xs text-slate-700">
           <div className="font-bold text-slate-900">Session Activity</div>
           <ul className="list-disc pl-5 space-y-1">
-            {statusLog.slice(0, 10).map((entry, idx) => (
+            {statusLog.slice(0, 12).map((entry, idx) => (
               <li key={idx}>{entry}</li>
             ))}
           </ul>
