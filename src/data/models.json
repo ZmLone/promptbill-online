@@ -345,7 +345,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T17:26:22.113Z",
+      "lastVerified": "2026-11-26T17:49:15.220Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -353,13 +353,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T17:26:22.113Z",
+      "lastVerified": "2026-11-26T17:49:15.220Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T17:01:04.801Z",
+      "lastVerified": "2026-11-26T17:49:15.220Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -379,7 +379,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T17:26:22.113Z",
+        "lastVerified": "2026-11-26T17:49:15.220Z",
         "evidenceStatus": "Verified"
       },
       {
