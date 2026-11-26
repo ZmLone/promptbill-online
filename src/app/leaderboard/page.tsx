@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { SiteShell } from '../../components/SiteShell';
 import { LeaderboardTableClient } from '../../components/LeaderboardTableClient';
-import { MODELS, getLastVerifiedDate } from '../../data/models';
+import { ALL_MODELS } from '../../lib/catalog';
+import { REGISTRY_SNAPSHOT } from '../../lib/modelRegistry';
 
 export const metadata: Metadata = {
   title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing & Speed',
@@ -62,9 +63,24 @@ function normalizeLicense(raw: string | null | undefined): string {
   return v;
 }
 
+function resolveLastVerifiedDate(): string {
+  const dates: string[] = [];
+  for (const m of ALL_MODELS) {
+    if (m.pricingProvenance?.lastVerified) dates.push(String(m.pricingProvenance.lastVerified));
+    if (m.benchmarkProvenance?.lastVerified) dates.push(String(m.benchmarkProvenance.lastVerified));
+    if (m.speedProvenance?.lastVerified) dates.push(String(m.speedProvenance.lastVerified));
+  }
+  dates.sort();
+  if (dates.length > 0) {
+    return dates[dates.length - 1].slice(0, 10);
+  }
+  return REGISTRY_SNAPSHOT.generatedMonthYear || '2026-11-26';
+}
+
 export default function LeaderboardPage() {
-  const activeModels = MODELS.filter((m) => !m.archived);
-  const lastVerifiedIso = getLastVerifiedDate();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activeModels = (ALL_MODELS as any[]).filter((m) => !m.archived);
+  const lastVerifiedIso = resolveLastVerifiedDate();
 
   const sortedForSchema = [...activeModels].sort(
     (a, b) => (b.score ?? -1) - (a.score ?? -1)
@@ -73,7 +89,7 @@ export default function LeaderboardPage() {
   const topScoreModel = sortedForSchema[0];
   const topValueModel = [...activeModels]
     .filter((m) => typeof m.score === 'number' && typeof m.outputPer1M === 'number' && m.outputPer1M > 0)
-    .sort((a, b) => (b.score! / b.outputPer1M!) - (a.score! / a.outputPer1M!))[0];
+    .sort((a, b) => b.score / b.outputPer1M - a.score / a.outputPer1M)[0];
   const fastestModel = [...activeModels]
     .filter((m) => typeof m.tokPerSec === 'number')
     .sort((a, b) => (b.tokPerSec ?? 0) - (a.tokPerSec ?? 0))[0];
@@ -183,8 +199,14 @@ export default function LeaderboardPage() {
               '@type': 'Answer',
               text: topScoreModel
                 ? `${topScoreModel.name} (${topScoreModel.provider}) leads composite benchmark score at ${topScoreModel.score}, while ${
-                    topValueModel ? `${topValueModel.name} leads Score/$ efficiency` : 'lightweight tiers lead value per dollar'
-                  } and ${fastestModel ? `${fastestModel.name} reaches ${fastestModel.tokPerSec} tok/s` : 'flash tiers lead throughput'}.`
+                    topValueModel
+                      ? `${topValueModel.name} leads Score/$ efficiency`
+                      : 'lightweight tiers lead value per dollar'
+                  } and ${
+                    fastestModel
+                      ? `${fastestModel.name} reaches ${fastestModel.tokPerSec} tok/s`
+                      : 'flash tiers lead throughput'
+                  }.`
                 : 'Rankings update dynamically as new verified benchmarks and official provider pricing are published.',
             },
           },

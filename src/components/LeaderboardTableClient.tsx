@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { MODELS } from '../data/models';
+import { ALL_MODELS } from '../lib/catalog';
 
 type SortKey = 'score' | 'value' | 'price' | 'speed' | 'elo';
 
@@ -54,7 +54,7 @@ function computeScorePerDollar(score: number | null | undefined, outputPer1M: nu
 
 function formatPrice(val: number | null | undefined): string {
   if (typeof val !== 'number' || !Number.isFinite(val)) return 'N/A';
-  return val < 1 ? `$${val.toFixed(2)}` : `$${val.toFixed(2)}`;
+  return `$${val.toFixed(2)}`;
 }
 
 export function LeaderboardTableClient({
@@ -70,21 +70,24 @@ export function LeaderboardTableClient({
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
 
   const enrichedModels = useMemo(() => {
-    return MODELS.filter((m) => !m.archived).map((m) => {
-      const evidenceNorm = normalizeEvidence(m);
-      const licenseNorm = normalizeLicense(m.license);
-      const lifecycleNorm = normalizeLifecycle(m.lifecycleStatus);
-      const scorePerDollar = computeScorePerDollar(m.score, m.outputPer1M);
-      const cleanSummary = sanitizeBlurb(m.bestFor || m.notes);
-      return {
-        ...m,
-        evidenceNorm,
-        licenseNorm,
-        lifecycleNorm,
-        scorePerDollar,
-        cleanSummary,
-      };
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (ALL_MODELS as any[])
+      .filter((m) => !m.archived)
+      .map((m) => {
+        const evidenceNorm = normalizeEvidence(m);
+        const licenseNorm = normalizeLicense(m.license);
+        const lifecycleNorm = normalizeLifecycle(m.lifecycleStatus);
+        const scorePerDollar = computeScorePerDollar(m.score, m.outputPer1M);
+        const cleanSummary = sanitizeBlurb(m.bestFor || m.notes);
+        return {
+          ...m,
+          evidenceNorm,
+          licenseNorm,
+          lifecycleNorm,
+          scorePerDollar,
+          cleanSummary,
+        };
+      });
   }, []);
 
   const hasAnyElo = useMemo(
@@ -172,7 +175,6 @@ export function LeaderboardTableClient({
 
   return (
     <section className="space-y-6" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
-      {/* GEO Freshness & Provenance Trust Banner */}
       <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/90 via-white to-slate-50 px-4 py-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5 text-xs sm:text-sm text-slate-800">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-800 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white uppercase">
@@ -189,7 +191,6 @@ export function LeaderboardTableClient({
         </div>
       </div>
 
-      {/* Executive Summary Cards (GEO Direct-Answer & Quick Scan) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {highlights.byScore ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
@@ -267,7 +268,6 @@ export function LeaderboardTableClient({
         ) : null}
       </div>
 
-      {/* Filter & Sort Controls */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
           <div className="relative flex-1">
@@ -320,7 +320,6 @@ export function LeaderboardTableClient({
           </div>
         </div>
 
-        {/* Quick Sort Pills */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="font-semibold text-slate-500 mr-1">Sort by:</span>
@@ -357,7 +356,6 @@ export function LeaderboardTableClient({
         </div>
       </div>
 
-      {/* Desktop Structured Table (Single Source of Truth — No Duplicate Hidden Card Text) */}
       <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -519,7 +517,6 @@ export function LeaderboardTableClient({
         </table>
       </div>
 
-      {/* Mobile Clean Cards */}
       <div className="md:hidden space-y-3">
         {filteredAndSorted.map((m, idx) => {
           const dynamicRank = idx + 1;
@@ -608,7 +605,6 @@ export function LeaderboardTableClient({
         })}
       </div>
 
-      {/* GEO Structured Citation & Methodology Block */}
       <footer className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 text-xs text-slate-600 space-y-2 leading-relaxed">
         <div className="font-bold text-slate-900">Leaderboard Methodology &amp; Citation Note</div>
         <p>
