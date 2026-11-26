@@ -1,34 +1,35 @@
 # PromptBill
 
-> LLM API Cost Calculator, Semantic Leaderboard, Head-to-Head Model Comparisons, Prompt Caching & Batch API Estimator, Context-Tiered Pricing Checker, and Multi-Host / Router Comparison at https://promptbill.online.
+> LLM API token pricing comparator, 30-day API spend estimator, benchmark leaderboard, and model directory at https://promptbill.online.
 
-## Core Calculators, Matchups & Tools
-- [LLM Cost & Leaderboard Workspace](https://promptbill.online/): Interactive cost calculator, 14-column benchmark grid, and Pareto frontier scatter plot.
-- [Head-to-Head Model Comparisons Hub](https://promptbill.online/compare): Compare flagship, coding, reasoning, and budget LLMs side-by-side across benchmarks, 3:1 blended pricing, Elo, and speed.
-- [All Models Directory](https://promptbill.online/models): Full catalog of tracked models with input, cached read, cache write, output pricing, context windows, and throughput.
-- [API Pricing Reference](https://promptbill.online/pricing): Token pricing comparison across providers and tiers.
-- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate savings from routing simple traffic to economy models and escalating complex tasks to flagship models.
-- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts across providers.
-- [LLM Selector](https://promptbill.online/tools/llm-selector): Match models to coding, reasoning, RAG, or high-throughput workloads.
+PromptBill helps developers and AI engineering teams compare per-1M-token input, cached input, and output rates, model context windows, output throughput (tok/s), benchmark scores, and Score/$ value efficiency, with explicit Verified vs. Estimated provenance labels.
 
-## Top Head-to-Head Matchups
-- [Claude Fable 5.2 vs Gemini 4 Neon](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-neon): Flagship reasoning and multimodal benchmark, pricing, and throughput comparison.
-- [Claude Fable 5.2 vs GPT-6.2 Astra](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-2-astra): Top-tier frontier comparison across intelligence score, API token cost, and speed.
-- [GPT-6.2 Astra vs Gemini 4 Neon](https://promptbill.online/compare/gpt-6-2-astra-vs-gemini-4-neon): Compare frontier reasoning, context capacity, and per-1M pricing.
-- [Claude Fable 5.2 vs Claude Opus 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-opus-5-5): Compare Anthropic flagship reasoning tiers and token economics.
-- [Claude Fable 5.2 vs Gemini 4 Carbon](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-carbon): Flagship accuracy vs. balanced efficiency trade-offs.
-- [Claude Fable 5.2 vs GPT-6.2 Sol](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-2-sol): Compare frontier model against balanced production agent pricing.
-- [Claude Fable 5.2 vs Grok 4.6](https://promptbill.online/compare/claude-fable-5-2-vs-grok-4-6): Compare benchmark score, speed, and input/output cost ratios.
-- [Claude Fable 5.2 vs Kimi K3](https://promptbill.online/compare/claude-fable-5-2-vs-kimi-k3): Compare long-context agentic performance and API cost.
-- [Claude Fable 5.2 vs Grok 4.3](https://promptbill.online/compare/claude-fable-5-2-vs-grok-4-3): Compare high-accuracy flagship vs. low-output-cost alternative.
-- [Claude Fable 5.2 vs Claude Sonnet 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-sonnet-5-5): Compare Anthropic flagship vs. balanced coding/agent workhorse.
-- [Claude Fable 5.2 vs GPT-6.1 Terra](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-6-1-terra): Compare flagship reasoning vs. economy frontier tier.
-- [Claude Fable 5.2 vs Kimi K2.7 Code](https://promptbill.online/compare/claude-fable-5-2-vs-kimi-k2-7-code): Compare flagship intelligence vs. specialized coding cost.
-- [Claude Fable 5.2 vs Gemini 4 Hydrogen](https://promptbill.online/compare/claude-fable-5-2-vs-gemini-4-hydrogen): Compare flagship score vs. high-speed 1M context ingestion.
-- [Claude Fable 5.2 vs Claude Haiku 5.5](https://promptbill.online/compare/claude-fable-5-2-vs-claude-haiku-5-5): Compare top score vs. low-latency Anthropic economy model.
-- [Claude Fable 5.2 vs DeepSeek V4.1 Flash](https://promptbill.online/compare/claude-fable-5-2-vs-deepseek-v4-1-flash): Compare flagship intelligence vs. high-value open-weight/flash cost.
-- [Claude Fable 5.2 vs Qwen 3.7 Flash](https://promptbill.online/compare/claude-fable-5-2-vs-qwen-3-7-flash): Compare flagship score vs. ultra-low-cost routing/classification model.
-- [Claude Fable 5.2 vs GPT-5.4 Nano](https://promptbill.online/compare/claude-fable-5-2-vs-gpt-5-4-nano): Compare flagship reasoning vs. fast bulk extraction model.
-- [Claude Fable 5.2 vs Command R7B](https://promptbill.online/compare/claude-fable-5-2-vs-command-r7b): Compare flagship benchmark score vs. ultra-cheap RAG/extraction pricing.
-- [Gemini 4 Neon vs GPT-6.2 Astra](https://promptbill.online/compare/gemini-4-neon-vs-gpt-6-2-astra): Head-to-head multimodal and reasoning comparison.
-- [DeepSeek V4.1 Flash vs Qwen 3.7 Flash](https://promptbill.online/compare/deepseek-v4-1-flash-vs-qwen-3-7-flash): Budget coding and high-volume efficiency showdown.
+## Core Pages & Tools
+
+- [Home & Spend Estimator](https://promptbill.online/): Overview, 30-day API cost calculator with caching and batch discounts, and core tools.
+- [Models Directory & Workload Matcher](https://promptbill.online/models): Searchable model catalog, workload matcher, compact index vs. card views, and mobile/desktop pagination.
+- [Benchmark Leaderboard](https://promptbill.online/leaderboard): Rank models by benchmark score, coding (CO), reasoning (RE), speed (tok/s), and Score/$ efficiency.
+- [Head-to-Head Compare](https://promptbill.online/compare): Side-by-side comparison of two models across pricing, context window, speed, and benchmarks.
+- [API Token Pricing](https://promptbill.online/pricing): Per-1M-token input, cached read, and output pricing table with provenance status.
+- [LLM Selector](https://promptbill.online/tools/llm-selector): Filter models by task, budget, context window, and license.
+- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt tokens and per-request cost.
+- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Model hybrid routing cost savings simulator.
+- [Methodology](https://promptbill.online/methodology): Pricing and benchmark provenance rules (Verified vs. Estimated vs. Unavailable).
+
+## Tier & Use-Case Hubs
+
+- [LLMs Under $1 / 1M Output Tokens](https://promptbill.online/tiers/under-1-dollar-per-1m): Budget and high-volume models under $1.00 per 1M output tokens.
+- [Flagship & High-Score LLMs](https://promptbill.online/tiers/flagship-reasoning): High-benchmark models for reasoning and complex tasks.
+- [Fastest LLMs (tok/s)](https://promptbill.online/tiers/high-throughput-speed): High-throughput models ranked by output tokens per second.
+- [Best LLMs for Coding](https://promptbill.online/best-llms-for-coding): Coding-focused model rankings.
+- [Best Open-Weight LLMs](https://promptbill.online/best-open-weight-llms): Open-weight model directory.
+- [Cheapest LLMs for Classification](https://promptbill.online/cheapest-llms-for-classification): Low-cost classification models.
+- [Fastest LLMs Tokens Per Second](https://promptbill.online/fastest-llms-tokens-per-second): Throughput rankings.
+
+## Provider Hubs
+
+- [OpenAI Models](https://promptbill.online/providers/openai)
+- [Anthropic Models](https://promptbill.online/providers/anthropic)
+- [Google Gemini Models](https://promptbill.online/providers/google-gemini)
+- [xAI Models](https://promptbill.online/providers/xai)
+- [Cohere Models](https://promptbill.online/providers/cohere)
