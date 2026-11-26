@@ -15,7 +15,7 @@
     "elo": null,
     "inputPer1M": 8,
     "cachedInputPer1M": 0.4,
-    "cacheWritePer1M": 8,
+    "cacheWritePer1M": 10,
     "outputPer1M": 40,
     "longContextMultiplierInput": 2,
     "longContextMultiplierOutput": 1.5,
@@ -42,7 +42,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:45:08.795Z",
+      "lastVerified": "2026-11-26T17:00:03.258Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -50,13 +50,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:45:08.795Z",
+      "lastVerified": "2026-11-26T17:00:03.258Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:45:08.795Z",
+      "lastVerified": "2026-11-26T17:00:03.258Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -68,7 +68,7 @@
         "providerType": "Official API",
         "inputPer1M": 8,
         "cachedInputPer1M": 0.4,
-        "cacheWritePer1M": 8,
+        "cacheWritePer1M": 10,
         "outputPer1M": 40,
         "batchDiscount": 0.5,
         "latencyMs": 420,
@@ -76,7 +76,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:45:08.795Z",
+        "lastVerified": "2026-11-26T17:00:03.258Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -95,7 +95,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gpt-6-2-sol",
@@ -113,7 +116,7 @@
     "elo": null,
     "inputPer1M": 2,
     "cachedInputPer1M": 0.1,
-    "cacheWritePer1M": 2,
+    "cacheWritePer1M": 2.5,
     "outputPer1M": 10,
     "longContextMultiplierInput": 2,
     "longContextMultiplierOutput": 1.5,
@@ -140,7 +143,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:13.701Z",
+      "lastVerified": "2026-11-26T17:00:30.267Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -148,13 +151,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:13.701Z",
+      "lastVerified": "2026-11-26T17:00:30.267Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:13.701Z",
+      "lastVerified": "2026-11-26T17:00:30.267Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -166,7 +169,7 @@
         "providerType": "Official API",
         "inputPer1M": 2,
         "cachedInputPer1M": 0.1,
-        "cacheWritePer1M": 2,
+        "cacheWritePer1M": 2.5,
         "outputPer1M": 10,
         "batchDiscount": 0.5,
         "latencyMs": 280,
@@ -174,7 +177,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:13.701Z",
+        "lastVerified": "2026-11-26T17:00:30.267Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -193,7 +196,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gpt-6-1-terra",
@@ -211,7 +217,7 @@
     "elo": null,
     "inputPer1M": 1,
     "cachedInputPer1M": 0.05,
-    "cacheWritePer1M": 1,
+    "cacheWritePer1M": 1.25,
     "outputPer1M": 5,
     "longContextMultiplierInput": 2,
     "longContextMultiplierOutput": 1.5,
@@ -238,7 +244,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:10.147Z",
+      "lastVerified": "2026-11-26T17:00:52.419Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -246,13 +252,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:10.147Z",
+      "lastVerified": "2026-11-26T17:00:52.419Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:10.147Z",
+      "lastVerified": "2026-11-26T17:00:52.419Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -264,7 +270,7 @@
         "providerType": "Official API",
         "inputPer1M": 1,
         "cachedInputPer1M": 0.05,
-        "cacheWritePer1M": 1,
+        "cacheWritePer1M": 1.25,
         "outputPer1M": 5,
         "batchDiscount": 0.5,
         "latencyMs": 220,
@@ -272,7 +278,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:10.147Z",
+        "lastVerified": "2026-11-26T17:00:52.419Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -291,7 +297,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gpt-5-4-nano",
@@ -336,7 +345,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:18.464Z",
+      "lastVerified": "2026-11-26T17:01:04.801Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -344,13 +353,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:18.464Z",
+      "lastVerified": "2026-11-26T17:01:04.801Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:18.464Z",
+      "lastVerified": "2026-11-26T17:01:04.801Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -370,7 +379,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:18.464Z",
+        "lastVerified": "2026-11-26T17:01:04.801Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -389,7 +398,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Deprecated",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "claude-fable-5-2",
@@ -434,7 +446,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:22.921Z",
+      "lastVerified": "2026-11-26T17:01:22.978Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -442,13 +454,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:22.921Z",
+      "lastVerified": "2026-11-26T17:01:22.978Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:22.921Z",
+      "lastVerified": "2026-11-26T17:01:22.978Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -468,7 +480,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:22.921Z",
+        "lastVerified": "2026-11-26T17:01:22.978Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -503,7 +515,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "claude-opus-5-5",
@@ -548,7 +563,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:34.737Z",
+      "lastVerified": "2026-11-26T17:01:44.725Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -556,13 +571,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:34.737Z",
+      "lastVerified": "2026-11-26T17:01:44.725Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:34.737Z",
+      "lastVerified": "2026-11-26T17:01:44.725Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -582,7 +597,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:34.737Z",
+        "lastVerified": "2026-11-26T17:01:44.725Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -617,7 +632,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "claude-sonnet-5-5",
@@ -662,7 +680,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:39.587Z",
+      "lastVerified": "2026-11-26T17:01:58.867Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -670,13 +688,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:39.587Z",
+      "lastVerified": "2026-11-26T17:01:58.867Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:48:39.587Z",
+      "lastVerified": "2026-11-26T17:01:58.867Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -696,7 +714,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:48:39.587Z",
+        "lastVerified": "2026-11-26T17:01:58.867Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -731,7 +749,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "claude-haiku-5-5",
@@ -748,8 +769,8 @@
     "interval": null,
     "elo": null,
     "inputPer1M": 0.1,
-    "cachedInputPer1M": 0.1,
-    "cacheWritePer1M": 1,
+    "cachedInputPer1M": 1.25,
+    "cacheWritePer1M": 0.125,
     "outputPer1M": 0.5,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
@@ -776,7 +797,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:55:50.764Z",
+      "lastVerified": "2026-11-26T17:02:41.194Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
@@ -784,13 +805,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:55:50.764Z",
+      "lastVerified": "2026-11-26T17:02:41.194Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-26T16:55:50.764Z",
+      "lastVerified": "2026-11-26T17:02:41.194Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -801,8 +822,8 @@
         "host": "Anthropic Direct API",
         "providerType": "Official API",
         "inputPer1M": 0.1,
-        "cachedInputPer1M": 0.1,
-        "cacheWritePer1M": 1,
+        "cachedInputPer1M": 1.25,
+        "cacheWritePer1M": 0.125,
         "outputPer1M": 0.5,
         "batchDiscount": 0.5,
         "latencyMs": 175,
@@ -810,7 +831,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-26T16:55:50.764Z",
+        "lastVerified": "2026-11-26T17:02:41.194Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -859,7 +880,7 @@
     "providerSlug": "google-gemini",
     "family": "Gemini 4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 91.3,
     "qualityScore": 91.3,
     "interval": null,
@@ -891,23 +912,23 @@
     "bestFor": "High-reasoning multimodal model; >200K prompts trigger 2x input / 1.5x output tier",
     "notes": "High-reasoning multimodal model; >200K prompts trigger 2x input / 1.5x output tier",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:42.193Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:42.193Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:42.193Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -927,8 +948,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:03:42.193Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -946,7 +967,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gemini-4-carbon",
@@ -957,7 +981,7 @@
     "providerSlug": "google-gemini",
     "family": "Gemini 4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 88,
     "qualityScore": 88,
     "interval": null,
@@ -989,23 +1013,23 @@
     "bestFor": "Strong quality-to-cost efficiency; >200K prompts trigger long-context pricing tier",
     "notes": "Strong quality-to-cost efficiency; >200K prompts trigger long-context pricing tier",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:46.984Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:46.984Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:46.984Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1025,8 +1049,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:03:46.984Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -1044,7 +1068,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "gemini-4-hydrogen",
@@ -1055,15 +1082,15 @@
     "providerSlug": "google-gemini",
     "family": "Gemini 4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 82.5,
     "qualityScore": 82.5,
     "interval": null,
     "elo": null,
-    "inputPer1M": 0.5,
-    "cachedInputPer1M": 0.03,
-    "cacheWritePer1M": 0.5,
-    "outputPer1M": 3,
+    "inputPer1M": 1.5,
+    "cachedInputPer1M": 0.075,
+    "cacheWritePer1M": 1.875,
+    "outputPer1M": 7.5,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
     "longContextThresholdTokens": 1000000,
@@ -1087,23 +1114,23 @@
     "bestFor": "High-speed 1M context workhorse for massive document ingestion",
     "notes": "High-speed 1M context workhorse for massive document ingestion",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:33.227Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:33.227Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:03:33.227Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1113,18 +1140,18 @@
       {
         "host": "Google AI Studio / Vertex AI",
         "providerType": "Official API",
-        "inputPer1M": 0.5,
-        "cachedInputPer1M": 0.03,
-        "cacheWritePer1M": 0.5,
-        "outputPer1M": 3,
+        "inputPer1M": 1.5,
+        "cachedInputPer1M": 0.075,
+        "cacheWritePer1M": 1.875,
+        "outputPer1M": 7.5,
         "batchDiscount": 0.5,
         "latencyMs": 170,
         "notes": "Low-cost 1M context ingestion",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:03:33.227Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -1142,7 +1169,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "grok-4-6",
