@@ -1,43 +1,35 @@
+import React from 'react';
 import type { Metadata } from 'next';
+import modelsJson from '../../data/models.json';
+import pendingJson from '../../data/pending-registry.json';
 import { SiteShell } from '../../components/SiteShell';
-import { AdminAuthGate } from '../../components/AdminAuthGate';
-import { RegistryApprovalDashboard } from '../../components/RegistryApprovalDashboard';
-import { isAdminPasswordConfigured, isRequestAdminAuthenticated } from '../../lib/adminAuth';
-import { ALL_MODELS } from '../../lib/catalog';
+import { AdminRegistryClient, type PendingQueuePayload } from '../../components/AdminRegistryClient';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Registry Approval Admin | PromptBill',
-  description: 'Restricted admin workspace for reviewing and approving PromptBill registry updates.',
+  title: 'Registry Approval Admin · PromptBill',
+  description: 'Review and approve staged LLM models, pricing updates, and benchmark changes.',
   robots: {
     index: false,
     follow: false,
     nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-    },
   },
 };
 
-export default async function AdminPage() {
-  const authenticated = await isRequestAdminAuthenticated();
-  const passwordConfigured = isAdminPasswordConfigured();
+export default function AdminRegistryPage() {
+  const initialModels = Array.isArray(modelsJson) ? modelsJson : [];
+  const initialPending: PendingQueuePayload =
+    pendingJson && Array.isArray((pendingJson as PendingQueuePayload).items)
+      ? (pendingJson as PendingQueuePayload)
+      : { updatedAt: null, items: [] };
 
   return (
     <SiteShell
       title="PromptBill Admin — Approve Models, Prices & Benchmarks"
-      subtitle="promptbill.online/admin · Restricted Registry Approval Workspace"
+      subtitle="Review GitHub-staged updates, edit scores/prices if needed, and publish to promptbill.online"
     >
-      <div className="py-2 pb-16">
-        <AdminAuthGate
-          initialAuthenticated={authenticated}
-          passwordConfigured={passwordConfigured}
-        >
-          <RegistryApprovalDashboard initialModels={ALL_MODELS} />
-        </AdminAuthGate>
-      </div>
+      <AdminRegistryClient initialModels={initialModels} initialPending={initialPending} />
     </SiteShell>
   );
 }
