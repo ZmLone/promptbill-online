@@ -103,7 +103,7 @@ const SHORTLIST_LINKS = [
   { href: '/best-open-weight-llms', label: 'Open-Weight Model Directory' },
   { href: '/cheapest-llms-for-classification', label: 'Low-Cost Classification Models' },
   { href: '/fastest-llms-tokens-per-second', label: 'High-Throughput Models (tok/s)' },
-  { href: '/models', label: 'Browse All Model Specs' },
+  { href: '/models', label: 'Models' },
   { href: '/methodology', label: 'Data Provenance Methodology' },
 ];
 
@@ -172,7 +172,6 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
 
-        {/* Value Proposition & Primary Actions */}
         <section className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50/80 to-emerald-50/40 p-5 sm:p-7 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-900">
@@ -209,18 +208,16 @@ export default function HomePage() {
               Compare Two LLMs
             </Link>
             <Link
-              href="/tools/llm-selector"
+              href="/models"
               className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
             >
-              Filter by Workload
+              Models
             </Link>
           </div>
         </section>
 
-        {/* Interactive Cost Estimator right on the Homepage */}
         <HomeInteractiveWorkbench models={ALL_MODELS} />
 
-        {/* Everything PromptBill Offers */}
         <section aria-labelledby="platform-tools-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
@@ -275,7 +272,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Curated Use-Case Guides */}
         <section
           aria-labelledby="curated-views-heading"
           className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3"
@@ -299,7 +295,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Catalog Snapshot (Single Responsive Table to avoid duplicate anchor texts in DOM) */}
         <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
@@ -376,7 +371,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Visible FAQ for Users & Search / Generative Engines */}
         <section
           aria-labelledby="home-faq-heading"
           className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4"

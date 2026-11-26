@@ -29,7 +29,7 @@ const PRIMARY_NAV: { href: string; label: string; icon: React.FC<{ className?: s
   { href: '/best-llms-for-coding', label: 'Best for Coding', icon: Code2 },
   { href: '/tools/token-counter', label: 'Token Counter', icon: FileText },
   { href: '/tools/routing-simulator', label: 'Routing', icon: GitBranch },
-  { href: '/models', label: 'All Models', icon: Cpu },
+  { href: '/models', label: 'Models', icon: Cpu },
 ];
 
 const MORE_COLUMNS: {
@@ -43,7 +43,7 @@ const MORE_COLUMNS: {
       { label: 'LLM Selector', href: '/tools/llm-selector' },
       { label: 'Token Counter', href: '/tools/token-counter' },
       { label: 'Routing Simulator', href: '/tools/routing-simulator' },
-      { label: 'All Tracked Models', href: '/models' },
+      { label: 'Models Directory', href: '/models' },
     ],
   },
   {
@@ -86,6 +86,7 @@ export function SiteShell({
     router.prefetch('/leaderboard');
     router.prefetch('/compare');
     router.prefetch('/pricing');
+    router.prefetch('/models');
   }, [router]);
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export function SiteShell({
           <nav aria-label="Main Navigation" className="hidden xl:flex items-center gap-1.5 text-xs font-medium">
             {PRIMARY_NAV.map((item) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active = pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
               return (
                 <Link
                   key={item.href}
@@ -199,7 +200,7 @@ export function SiteShell({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {PRIMARY_NAV.map((item) => {
                 const Icon = item.icon;
-                const active = pathname === item.href;
+                const active = pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
                 return (
                   <Link
                     key={item.href}
@@ -267,6 +268,7 @@ export function SiteShell({
             <Link href="/leaderboard" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Leaderboard</Link>
             <Link href="/compare" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Compare</Link>
             <Link href="/pricing" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">API Pricing</Link>
+            <Link href="/models" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Models</Link>
             <Link href="/best-llms-for-coding" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Coding</Link>
             <Link href="/tools/llm-selector" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Selector</Link>
             <Link href="/tools/token-counter" prefetch={true} className="inline-flex min-h-[44px] items-center px-2.5 py-2 hover:text-slate-950">Token Counter</Link>
@@ -316,16 +318,16 @@ export function SiteShell({
           </Link>
 
           <Link
-            href="/pricing"
+            href="/models"
             prefetch={true}
             className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-lg text-[11px] font-semibold ${
-              pathname?.startsWith('/pricing')
+              pathname?.startsWith('/models')
                 ? 'bg-emerald-800 text-white'
                 : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
-            <Calculator className="w-4 h-4 mb-0.5" />
-            <span>Pricing</span>
+            <Cpu className="w-4 h-4 mb-0.5" />
+            <span>Models</span>
           </Link>
 
           <Link
