@@ -1,14 +1,23 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ALL_MODELS } from '../lib/catalog';
 
 type SortKey = 'score' | 'value' | 'price' | 'speed' | 'elo';
 type LifecycleStatus = 'Active' | 'Preview' | 'Deprecated' | 'Legacy';
-type DensityMode = 'comfortable' | 'compact';
+type EvidenceStatus = 'Verified' | 'Estimated' | 'Unavailable';
+type LicenseStatus = 'Closed' | 'Open Weight';
 
-const PAGE_SIZE_OPTIONS = [15, 25, 50, 100] as const;
+const DESKTOP_PAGE_SIZES = [15, 25, 50, 100] as const;
+const MOBILE_PAGE_SIZE = 7;
+
+const SAMPLE_JOBS = [
+  'Summarize 300-page legal contracts accurately',
+  'Fast low-cost JSON extraction & routing',
+  'Multi-file coding & deep architecture refactoring',
+  'High-volume RAG support chatbot under $2/1M',
+];
 
 function sanitizeBlurb(raw: string | null | undefined): string {
   if (!raw) return '';
@@ -20,7 +29,7 @@ function sanitizeBlurb(raw: string | null | undefined): string {
     .trim();
 }
 
-function normalizeLicense(raw: string | null | undefined): 'Closed' | 'Open Weight' {
+function normalizeLicense(raw: string | null | undefined): LicenseStatus {
   if (!raw) return 'Closed';
   const v = raw.trim();
   if (!v || /^n\/?a$/i.test(v) || /^unspecified$/i.test(v)) return 'Closed';
@@ -55,7 +64,7 @@ function normalizeEvidence(m: {
   evidence?: string | null;
   pricingProvenance?: { status?: string | null } | null;
   benchmarkProvenance?: { status?: string | null } | null;
-}): 'Verified' | 'Estimated' | 'Unavailable' {
+}): EvidenceStatus {
   const ev = (m.evidence || '').trim().toLowerCase();
   const pr = (m.pricingProvenance?.status || '').trim().toLowerCase();
   const bm = (m.benchmarkProvenance?.status || '').trim().toLowerCase();
@@ -74,6 +83,214 @@ function formatPrice(val: number | null | undefined): string {
   return `$${val.toFixed(2)}`;
 }
 
+function parseContextTokens(ctx: string | number | null | undefined): number {
+  if (typeof ctx === 'number') return ctx;
+  if (!ctx) return 0;
+  const s = String(ctx).trim().toUpperCase();
+  const num = parseFloat(s.replace(/[^0-9.]/g, ''));
+  if (Number.isNaN(num)) return 0;
+  if (s.includes('M')) return num * 1_000_000;
+  if (s.includes('K')) return num * 1_000;
+  return num;
+}
+
+function getBadgeExplanation(type: 'evidence' | 'lifecycle' | 'license', value: string): {
+  title: string;
+  meaning: string;
+  impact: string;
+} {
+  if (type === 'evidence') {
+    if (value === 'Verified') {
+      return {
+        title: 'Verified Provenance',
+        meaning: 'Token rates & benchmark metrics are cross-checked against official provider docs.',
+        impact: 'Safe for production cost estimates and procurement comparisons.',
+      };
+    }
+    if (value === 'Estimated') {
+      return {
+        title: 'Estimated Telemetry',
+        meaning: 'Derived from third-party router rates or preliminary benchmark runs.',
+        impact: 'Confirm exact pricing on the provider console before high-volume runs.',
+      };
+    }
+    return {
+      title: 'Telemetry Unavailable',
+      meaning: 'Official benchmark or pricing figures are currently pending publication.',
+      impact: 'Excluded from value-per-dollar ranking calculations.',
+    };
+  }
+
+  if (type === 'lifecycle') {
+    if (value === 'Active') {
+      return {
+        title: 'Active Production Release',
+        meaning: 'Generally available (GA) endpoint with full provider SLA & ongoing support.',
+        impact: 'Recommended for new production deployments.',
+      };
+    }
+    if (value === 'Preview') {
+      return {
+        title: 'Preview / Beta Endpoint',
+        meaning: 'Early-access release whose rate limits, pricing, or weights may still shift.',
+        impact: 'Ideal for evaluation; pin model versions before shipping.',
+      };
+    }
+    if (value === 'Legacy') {
+      return {
+        title: 'Legacy Generation',
+        meaning: 'Superseded by a newer flagship or workhorse release from the same provider.',
+        impact: 'Still callable, but newer tiers usually offer higher Score/$ efficiency.',
+      };
+    }
+    return {
+      title: 'Deprecated / Scheduled Sunset',
+      meaning: 'Provider has announced retirement or migration off this model ID.',
+      impact: 'Avoid for new builds; migrate existing workloads to an Active replacement.',
+    };
+  }
+
+  if (value === 'Open Weight') {
+    return {
+      title: 'Open-Weight Model',
+      meaning: 'Model weights are downloadable for self-hosting or multi-cloud inference.',
+      impact: 'Zero vendor lock-in; deploy on Groq, Together, Fireworks, or private GPUs.',
+    };
+  }
+
+  return {
+    title: 'Closed Proprietary API',
+    meaning: 'Hosted exclusively via official provider APIs or authorized cloud partners.',
+    impact: 'Managed infrastructure with zero GPU maintenance overhead.',
+  };
+}
+
+interface EnrichedModel {
+  slug: string;
+  name: string;
+  provider: string;
+  score?: number | null;
+  inputPer1M?: number | null;
+  outputPer1M?: number | null;
+  tokPerSec?: number | null;
+  elo?: number | null;
+  contextWindow?: string | null;
+  bestFor?: string | null;
+  notes?: string | null;
+  license?: string | null;
+  evidenceNorm: EvidenceStatus;
+  licenseNorm: LicenseStatus;
+  lifecycleNorm: LifecycleStatus;
+  scorePerDollar: number | null;
+  cleanSummary: string;
+  contextTokens: number;
+}
+
+interface TaskMatchResult {
+  model: EnrichedModel;
+  fitScore: number;
+  reasons: string[];
+  badge: string;
+}
+
+function scoreModelsForJob(query: string, models: EnrichedModel[]): TaskMatchResult[] {
+  const q = query.trim().toLowerCase();
+  const wantsLongContext = /contract|document|pdf|book|repo|codebase|1m|500k|long|rag|entire|transcript/.test(q);
+  const wantsCheap = /cheap|budget|low[- ]?cost|bulk|classif|extract|tag|rout|fallback|scale|volume|\$[0-2]/.test(q);
+  const wantsFast = /fast|real[- ]?time|voice|stream|low[- ]?latency|instant|sub[- ]?second|agent/.test(q);
+  const wantsCoding = /code|coding|refactor|debug|typescript|python|sql|architect|engineer|software/.test(q);
+  const wantsReasoning = /reason|math|complex|analy|legal|research|hard|frontier|deep/.test(q);
+  const wantsOpen = /open[- ]?weight|open[- ]?source|self[- ]?host|private|on[- ]?prem|llama|qwen|deepseek/.test(q);
+
+  const candidates = models.filter((m) => m.lifecycleNorm !== 'Deprecated');
+  const pool = candidates.length > 0 ? candidates : models;
+
+  const scored = pool.map((m) => {
+    let pts = (m.score ?? 70) * 0.55;
+    const reasons: string[] = [];
+
+    if (m.lifecycleNorm === 'Active') pts += 6;
+    if (m.evidenceNorm === 'Verified') pts += 4;
+
+    if (wantsLongContext) {
+      if (m.contextTokens >= 1_000_000) {
+        pts += 22;
+        reasons.push(`${m.contextWindow} context handles large documents in one pass`);
+      } else if (m.contextTokens >= 256_000) {
+        pts += 12;
+        reasons.push(`${m.contextWindow} extended context window`);
+      } else {
+        pts -= 12;
+      }
+    }
+
+    if (wantsCheap) {
+      const val = m.scorePerDollar ?? 0;
+      pts += Math.min(28, val * 0.35);
+      if ((m.outputPer1M ?? 99) <= 3.0) {
+        reasons.push(`Low ${formatPrice(m.inputPer1M)}/${formatPrice(m.outputPer1M)} per 1M token pricing (${val.toFixed(1)} Score/$)`);
+      }
+    }
+
+    if (wantsFast) {
+      const spd = m.tokPerSec ?? 0;
+      pts += Math.min(24, (spd / 240) * 24);
+      if (spd >= 150) {
+        reasons.push(`High ${spd} tok/s throughput for low-latency responses`);
+      }
+    }
+
+    if (wantsCoding) {
+      if (/code|refactor|architect|agent|json|debug/i.test(m.cleanSummary + ' ' + m.name)) {
+        pts += 16;
+        reasons.push('Optimized for multi-file coding & structured outputs');
+      }
+      if ((m.score ?? 0) >= 85) {
+        pts += 10;
+      }
+    }
+
+    if (wantsReasoning) {
+      if ((m.score ?? 0) >= 88) {
+        pts += 18;
+        reasons.push(`High ${m.score?.toFixed(1)} composite reasoning benchmark score`);
+      }
+    }
+
+    if (wantsOpen) {
+      if (m.licenseNorm === 'Open Weight') {
+        pts += 26;
+        reasons.push('Open-weight release for flexible hosting');
+      } else {
+        pts -= 18;
+      }
+    }
+
+    if (reasons.length === 0) {
+      if ((m.score ?? 0) >= 90) reasons.push(`Top-tier ${m.score?.toFixed(1)} benchmark score`);
+      if ((m.scorePerDollar ?? 0) >= 20) reasons.push(`Strong ${m.scorePerDollar?.toFixed(1)} Score/$ value ratio`);
+      if ((m.tokPerSec ?? 0) >= 160) reasons.push(`Fast ${m.tokPerSec} tok/s output speed`);
+      if (reasons.length === 0 && m.cleanSummary) {
+        reasons.push(m.cleanSummary);
+      }
+    }
+
+    return {
+      model: m,
+      fitScore: pts,
+      reasons: reasons.slice(0, 2),
+      badge: '',
+    };
+  });
+
+  scored.sort((a, b) => b.fitScore - a.fitScore);
+  const top3 = scored.slice(0, 3);
+  if (top3[0]) top3[0].badge = 'Best Overall Fit';
+  if (top3[1]) top3[1].badge = wantsCheap ? 'Runner-Up Value' : 'Strong Alternative';
+  if (top3[2]) top3[2].badge = 'High-Efficiency Pick';
+  return top3;
+}
+
 export function LeaderboardTableClient({
   lastVerifiedDate,
 }: {
@@ -81,18 +298,40 @@ export function LeaderboardTableClient({
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [providerFilter, setProviderFilter] = useState<string>('ALL');
-  const [evidenceFilter, setEvidenceFilter] = useState<'ALL' | 'Verified' | 'Estimated' | 'Unavailable'>('ALL');
-  const [licenseFilter, setLicenseFilter] = useState<'ALL' | 'Closed' | 'Open Weight'>('ALL');
+  const [evidenceFilter, setEvidenceFilter] = useState<'ALL' | EvidenceStatus>('ALL');
+  const [licenseFilter, setLicenseFilter] = useState<'ALL' | LicenseStatus>('ALL');
   const [lifecycleFilter, setLifecycleFilter] = useState<'ALL' | LifecycleStatus>('ALL');
   const [sortBy, setSortBy] = useState<SortKey>('score');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
-  const [density, setDensity] = useState<DensityMode>('comfortable');
-  const [pageSize, setPageSize] = useState<number>(25);
+  const [desktopPageSize, setDesktopPageSize] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean>(false);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState<boolean>(false);
 
-  const enrichedModels = useMemo(() => {
+  // Interactive "Which model is right for your job?" finder state
+  const [jobPrompt, setJobPrompt] = useState<string>('');
+  const [submittedJob, setSubmittedJob] = useState<string>('');
+  const [isMatching, setIsMatching] = useState<boolean>(false);
+  const [matchedResults, setMatchedResults] = useState<TaskMatchResult[]>([]);
+  const matchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    function syncViewport() {
+      setIsMobileViewport(window.innerWidth < 768);
+    }
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+    return () => window.removeEventListener('resize', syncViewport);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (matchTimerRef.current) clearTimeout(matchTimerRef.current);
+    };
+  }, []);
+
+  const enrichedModels = useMemo<EnrichedModel[]>(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (ALL_MODELS as any[])
       .filter((m) => !m.archived)
@@ -102,6 +341,7 @@ export function LeaderboardTableClient({
         const lifecycleNorm = normalizeLifecycle(m);
         const scorePerDollar = computeScorePerDollar(m.score, m.outputPer1M);
         const cleanSummary = sanitizeBlurb(m.bestFor || m.notes);
+        const contextTokens = parseContextTokens(m.contextWindow);
         return {
           ...m,
           evidenceNorm,
@@ -109,15 +349,29 @@ export function LeaderboardTableClient({
           lifecycleNorm,
           scorePerDollar,
           cleanSummary,
+          contextTokens,
         };
       });
   }, []);
 
-  useEffect(() => {
-    if (enrichedModels.length > 35) {
-      setDensity('compact');
+  function runJobMatcher(rawText: string) {
+    const clean = rawText.trim();
+    if (!clean) {
+      setSubmittedJob('');
+      setMatchedResults([]);
+      setIsMatching(false);
+      return;
     }
-  }, [enrichedModels.length]);
+    if (matchTimerRef.current) clearTimeout(matchTimerRef.current);
+    setJobPrompt(rawText);
+    setSubmittedJob(clean);
+    setIsMatching(true);
+    matchTimerRef.current = setTimeout(() => {
+      const results = scoreModelsForJob(clean, enrichedModels);
+      setMatchedResults(results);
+      setIsMatching(false);
+    }, 460);
+  }
 
   const providersWithCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -242,16 +496,17 @@ export function LeaderboardTableClient({
     });
   }, [enrichedModels, searchQuery, providerFilter, evidenceFilter, licenseFilter, lifecycleFilter, sortBy, sortDir]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
+  const effectivePageSize = isMobileViewport ? MOBILE_PAGE_SIZE : desktopPageSize;
+  const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / effectivePageSize));
   const safePage = Math.min(currentPage, totalPages);
 
   const paginatedModels = useMemo(() => {
-    const startIdx = (safePage - 1) * pageSize;
-    return filteredAndSorted.slice(startIdx, startIdx + pageSize).map((item, offset) => ({
+    const startIdx = (safePage - 1) * effectivePageSize;
+    return filteredAndSorted.slice(startIdx, startIdx + effectivePageSize).map((item, offset) => ({
       ...item,
       dynamicRank: startIdx + offset + 1,
     }));
-  }, [filteredAndSorted, safePage, pageSize]);
+  }, [filteredAndSorted, safePage, effectivePageSize]);
 
   const highlights = useMemo(() => {
     const byScore = [...enrichedModels].sort((a, b) => (b.score ?? -1) - (a.score ?? -1))[0];
@@ -276,17 +531,215 @@ export function LeaderboardTableClient({
       : '/compare';
 
   return (
-    <section className="space-y-8 pb-20 sm:pb-6" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
-      {/* 1. Spacious Freshness & Trust Header */}
-      <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 p-5 sm:p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        <div className="space-y-2.5">
+    <section className="space-y-8 pb-24 md:pb-10" aria-label="LLM Benchmark, Pricing and Throughput Leaderboard">
+      <style>{`
+        @keyframes pbShimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes pbCardReveal {
+          0% { opacity: 0; transform: translateY(10px) scale(0.985); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .pb-shimmer {
+          background: linear-gradient(90deg, rgba(236,253,245,0.6) 25%, rgba(209,250,229,0.95) 50%, rgba(236,253,245,0.6) 75%);
+          background-size: 200% 100%;
+          animation: pbShimmer 1.25s infinite linear;
+        }
+        .pb-reveal {
+          animation: pbCardReveal 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+      `}</style>
+
+      {/* 1. Interactive "Which model is right for your job?" Finder */}
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <label
+            htmlFor="pb-job-matcher-input"
+            className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900"
+          >
+            Which model is right for your job?
+          </label>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 rounded-full px-3 py-1 w-fit">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true" />
+            Instant Local Match · Zero Data Stored
+          </span>
+        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            runJobMatcher(jobPrompt);
+          }}
+          className="group relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 rounded-2xl border-2 border-slate-200 bg-slate-50/40 p-2 transition-all focus-within:border-emerald-700 focus-within:bg-white focus-within:shadow-md focus-within:shadow-emerald-950/5"
+        >
+          <div className="flex items-center gap-3 flex-1 px-3 py-1.5">
+            <svg
+              className="h-5 w-5 shrink-0 text-slate-400 group-focus-within:text-emerald-700 transition-colors"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            <input
+              id="pb-job-matcher-input"
+              type="text"
+              value={jobPrompt}
+              onChange={(e) => setJobPrompt(e.target.value)}
+              placeholder="Type the job, e.g. summarize long contracts or refactor TypeScript..."
+              className="w-full bg-transparent text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            />
+            {jobPrompt ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setJobPrompt('');
+                  setSubmittedJob('');
+                  setMatchedResults([]);
+                }}
+                aria-label="Clear job description"
+                className="text-xs font-semibold text-slate-400 hover:text-slate-700 px-1.5 py-1"
+              >
+                Clear
+              </button>
+            ) : null}
+          </div>
+
+          <button
+            type="submit"
+            className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-5 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-emerald-900 active:scale-[0.99] transition-all cursor-pointer"
+          >
+            <span>{isMatching ? 'Matching...' : 'Find my model'}</span>
+            <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+          </button>
+        </form>
+
+        {/* Quick Example Chips */}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold text-slate-500">Try:</span>
+          {SAMPLE_JOBS.map((sample) => (
+            <button
+              key={sample}
+              type="button"
+              onClick={() => runJobMatcher(sample)}
+              className="rounded-full border border-slate-200 bg-slate-50/80 px-3 py-1 text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/60 hover:text-emerald-900 transition-colors cursor-pointer"
+            >
+              {sample}
+            </button>
+          ))}
+        </div>
+
+        {/* Animated Match Output */}
+        {isMatching ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2" aria-live="polite">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-32 rounded-2xl border border-emerald-200/70 pb-shimmer p-4 flex flex-col justify-between"
+              >
+                <div className="h-3 w-24 rounded bg-emerald-200/70" />
+                <div className="h-5 w-40 rounded bg-emerald-200/70" />
+                <div className="h-3 w-full rounded bg-emerald-200/70" />
+              </div>
+            ))}
+          </div>
+        ) : matchedResults.length > 0 ? (
+          <div className="space-y-3 pt-2" aria-live="polite">
+            <div className="flex items-center justify-between text-xs text-slate-600">
+              <span>
+                Top recommendations for <strong className="text-slate-900">“{submittedJob}”</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmittedJob('');
+                  setMatchedResults([]);
+                }}
+                className="font-semibold text-slate-500 hover:text-slate-900"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {matchedResults.map((item, idx) => (
+                <div
+                  key={item.model.slug}
+                  style={{ animationDelay: `${idx * 85}ms` }}
+                  className="pb-reveal rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/60 via-white to-slate-50/70 p-4 shadow-xs flex flex-col justify-between gap-3"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="rounded-full bg-emerald-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                        {item.badge}
+                      </span>
+                      <span className="font-mono text-xs font-bold text-slate-700">
+                        Score {item.model.score?.toFixed(1) ?? '—'}
+                      </span>
+                    </div>
+                    <div className="pt-1">
+                      <Link
+                        href={`/models/${item.model.slug}`}
+                        className="text-base font-extrabold text-slate-900 hover:text-emerald-800"
+                      >
+                        {item.model.name}
+                      </Link>
+                      <div className="text-xs font-medium text-slate-500">
+                        {item.model.provider} · {formatPrice(item.model.inputPer1M)} / {formatPrice(item.model.outputPer1M)} · {item.model.tokPerSec ?? '—'} tok/s
+                      </div>
+                    </div>
+                    <ul className="pt-1 space-y-1 text-xs text-slate-700">
+                      {item.reasons.map((r) => (
+                        <li key={r} className="flex items-start gap-1.5">
+                          <span className="text-emerald-700 font-bold">✓</span>
+                          <span>{r}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => toggleCompareSlug(item.model.slug)}
+                      className="font-semibold text-slate-700 hover:text-emerald-800"
+                    >
+                      {selectedSlugs.includes(item.model.slug) ? '✓ Added to Compare' : '+ Add to Compare'}
+                    </button>
+                    <Link
+                      href={`/models/${item.model.slug}`}
+                      className="font-bold text-emerald-800 hover:underline"
+                    >
+                      Inspect →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Describe your task, latency, or budget constraints. Matching runs 100% locally in your browser against PromptBill’s verified model catalog—your prompt is never logged or sent to external servers.
+        </p>
+      </div>
+
+      {/* 2. GEO Direct-Answer Freshness & Trust Strip */}
+      <div
+        data-geo-summary="true"
+        className="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-emerald-50/70 via-white to-slate-50 p-5 sm:p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5"
+      >
+        <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-900 px-3.5 py-1.5 text-xs font-bold tracking-wide text-white uppercase">
               <span className="h-2 w-2 rounded-full bg-emerald-300" aria-hidden="true" />
-              Verified {formattedVerifiedDate}
+              Data Last Verified: {formattedVerifiedDate}
             </span>
             <span className="inline-flex items-center rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 ring-1 ring-slate-200">
-              {verifiedCount} of {enrichedModels.length} Models Verified
+              {verifiedCount} of {enrichedModels.length} Active Models Verified
             </span>
             {deprecatedCount > 0 ? (
               <button
@@ -301,12 +754,12 @@ export function LeaderboardTableClient({
               </button>
             ) : null}
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
-            Ranked live by benchmark score, <strong className="font-semibold text-slate-900">Score/$</strong> efficiency (Score ÷ Output $/1M), official API token rates, and throughput.
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
+            Hover or focus any <strong className="font-semibold text-slate-800">Verified</strong>, <strong className="font-semibold text-slate-800">Active</strong>, or <strong className="font-semibold text-slate-800">Closed / Open Weight</strong> badge in the table below for live provenance, SLA lifecycle, and hosting details.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5 text-xs shrink-0">
           <Link
             href="/pricing"
             className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-800 hover:border-emerald-600 hover:text-emerald-900 transition-colors"
@@ -322,90 +775,107 @@ export function LeaderboardTableClient({
         </div>
       </div>
 
-      {/* 2. Leader Spotlight Strip — Horizontal Swipe on Mobile, 3-Column Grid on Desktop */}
-      <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* 3. Spacious Leader Spotlight Cards */}
+      <div className="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {highlights.byScore ? (
-          <div className="min-w-[270px] sm:min-w-[300px] md:min-w-0 snap-start rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              <span>#1 Benchmark Score</span>
-              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 font-mono text-emerald-800 ring-1 ring-emerald-200">
+          <div className="min-w-[280px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                #1 Benchmark Score
+              </span>
+              <span className="rounded-full bg-emerald-50 px-3 py-1 font-mono text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
                 {highlights.byScore.score} / 100
               </span>
             </div>
-            <div className="flex items-baseline justify-between gap-2">
+
+            <div className="space-y-1">
               <Link
                 href={`/models/${highlights.byScore.slug}`}
-                className="text-base font-bold text-slate-900 hover:text-emerald-800"
+                className="text-lg font-extrabold text-slate-900 hover:text-emerald-800 transition-colors"
               >
                 {highlights.byScore.name}
               </Link>
-              <span className="font-mono text-xs font-semibold text-slate-700">
+              <p className="text-xs text-slate-500">
+                {highlights.byScore.provider} · {highlights.byScore.licenseNorm} · {highlights.byScore.lifecycleNorm}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">API In / Out</span>
+              <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.byScore.inputPer1M)} / {formatPrice(highlights.byScore.outputPer1M)}
               </span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
-              <span>{highlights.byScore.provider} · {highlights.byScore.licenseNorm}</span>
-              <span className="font-mono">{highlights.byScore.lifecycleNorm}</span>
             </div>
           </div>
         ) : null}
 
         {highlights.byValue ? (
-          <div className="min-w-[270px] sm:min-w-[300px] md:min-w-0 snap-start rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              <span>#1 Score/$ Efficiency</span>
-              <span className="rounded-full bg-teal-50 px-2.5 py-0.5 font-mono text-teal-800 ring-1 ring-teal-200">
+          <div className="min-w-[280px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                #1 Score/$ Efficiency
+              </span>
+              <span className="rounded-full bg-teal-50 px-3 py-1 font-mono text-xs font-bold text-teal-800 ring-1 ring-teal-200">
                 {highlights.byValue.scorePerDollar} pts/$
               </span>
             </div>
-            <div className="flex items-baseline justify-between gap-2">
+
+            <div className="space-y-1">
               <Link
                 href={`/models/${highlights.byValue.slug}`}
-                className="text-base font-bold text-slate-900 hover:text-teal-800"
+                className="text-lg font-extrabold text-slate-900 hover:text-teal-800 transition-colors"
               >
                 {highlights.byValue.name}
               </Link>
-              <span className="font-mono text-xs font-semibold text-slate-700">
+              <p className="text-xs text-slate-500">
+                {highlights.byValue.provider} · Score {highlights.byValue.score} · {highlights.byValue.tokPerSec ?? '—'} tok/s
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">API In / Out</span>
+              <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.byValue.inputPer1M)} / {formatPrice(highlights.byValue.outputPer1M)}
               </span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
-              <span>{highlights.byValue.provider} · Score {highlights.byValue.score}</span>
-              <span className="font-mono">{highlights.byValue.tokPerSec ?? '—'} tok/s</span>
             </div>
           </div>
         ) : null}
 
         {highlights.bySpeed ? (
-          <div className="min-w-[270px] sm:min-w-[300px] md:min-w-0 snap-start rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              <span>#1 Output Speed</span>
-              <span className="rounded-full bg-sky-50 px-2.5 py-0.5 font-mono text-sky-800 ring-1 ring-sky-200">
+          <div className="min-w-[280px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                #1 Output Speed
+              </span>
+              <span className="rounded-full bg-sky-50 px-3 py-1 font-mono text-xs font-bold text-sky-800 ring-1 ring-sky-200">
                 {highlights.bySpeed.tokPerSec} tok/s
               </span>
             </div>
-            <div className="flex items-baseline justify-between gap-2">
+
+            <div className="space-y-1">
               <Link
                 href={`/models/${highlights.bySpeed.slug}`}
-                className="text-base font-bold text-slate-900 hover:text-sky-800"
+                className="text-lg font-extrabold text-slate-900 hover:text-sky-800 transition-colors"
               >
                 {highlights.bySpeed.name}
               </Link>
-              <span className="font-mono text-xs font-semibold text-slate-700">
+              <p className="text-xs text-slate-500">
+                {highlights.bySpeed.provider} · {highlights.bySpeed.licenseNorm} · Score {highlights.bySpeed.score ?? '—'}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">API In / Out</span>
+              <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.bySpeed.inputPer1M)} / {formatPrice(highlights.bySpeed.outputPer1M)}
               </span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5">
-              <span>{highlights.bySpeed.provider} · {highlights.bySpeed.licenseNorm}</span>
-              <span className="font-mono">Score {highlights.bySpeed.score ?? '—'}</span>
             </div>
           </div>
         ) : null}
       </div>
 
-      {/* 3. Clean Search, Collapsible Mobile Filters & Horizontal Sort Pills */}
+      {/* 4. Filter & Sort Controls */}
       <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs space-y-4">
-        {/* Search + Mobile Filter Toggle */}
         <div className="flex items-center gap-2.5">
           <div className="relative flex-1">
             <input
@@ -415,7 +885,7 @@ export function LeaderboardTableClient({
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search model or provider..."
+              placeholder="Filter table by model name, provider, or capability..."
               aria-label="Search models or providers"
               className="min-h-[44px] w-full rounded-xl border border-slate-300 bg-slate-50/70 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:bg-white focus:outline-none"
             />
@@ -436,7 +906,7 @@ export function LeaderboardTableClient({
           </button>
         </div>
 
-        {/* Provider Chips (Single Horizontal Scroll Row — Never Wraps Into a Wall of Buttons) */}
+        {/* Provider Quick Chips */}
         {providersWithCounts.length > 1 ? (
           <div
             className="flex items-center gap-2 overflow-x-auto pb-1 text-xs [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -480,7 +950,7 @@ export function LeaderboardTableClient({
           </div>
         ) : null}
 
-        {/* Dropdown Filters (Collapsible on Mobile, Always Visible on Desktop) */}
+        {/* Dropdown Filters */}
         <div
           className={`${
             mobileFiltersOpen ? 'grid' : 'hidden'
@@ -549,7 +1019,7 @@ export function LeaderboardTableClient({
           </select>
         </div>
 
-        {/* Sort Pills & Density Row */}
+        {/* Sort Pills */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <span className="shrink-0 font-semibold text-slate-500">Sort:</span>
@@ -579,27 +1049,6 @@ export function LeaderboardTableClient({
           </div>
 
           <div className="flex items-center justify-between sm:justify-end gap-3">
-            <div className="hidden md:inline-flex rounded-xl bg-slate-100 p-1 text-[11px] font-semibold">
-              <button
-                type="button"
-                onClick={() => setDensity('comfortable')}
-                className={`rounded-lg px-2.5 py-1 transition-colors ${
-                  density === 'comfortable' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
-                }`}
-              >
-                Spacious
-              </button>
-              <button
-                type="button"
-                onClick={() => setDensity('compact')}
-                className={`rounded-lg px-2.5 py-1 transition-colors ${
-                  density === 'compact' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
-                }`}
-              >
-                Compact
-              </button>
-            </div>
-
             {hasActiveFilters ? (
               <button
                 type="button"
@@ -611,13 +1060,14 @@ export function LeaderboardTableClient({
             ) : null}
 
             <span className="text-slate-500 font-medium">
-              <strong className="text-slate-900">{filteredAndSorted.length}</strong> models
+              <strong className="text-slate-900">{filteredAndSorted.length}</strong> models ·{' '}
+              {isMobileViewport ? '7 per page' : `${desktopPageSize} per page`}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 4. Empty State */}
+      {/* 5. Empty State */}
       {filteredAndSorted.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center space-y-3">
           <p className="text-sm font-semibold text-slate-800">
@@ -633,12 +1083,12 @@ export function LeaderboardTableClient({
         </div>
       ) : (
         <>
-          {/* 5A. Desktop Structured Table — Generous Breathing Room */}
-          <div className="hidden md:block overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-xs">
+          {/* 6A. Desktop Table with Sticky Column Header Bar & Interactive Status Popovers */}
+          <div className="hidden md:block rounded-3xl border border-slate-200 bg-white shadow-xs">
             <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/95 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  <th className="py-4 pl-6 pr-4">Rank &amp; Model</th>
+              <thead className="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(226,232,240,1)]">
+                <tr className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                  <th className="py-4 pl-6 pr-4 rounded-tl-3xl">Rank &amp; Model</th>
                   <th className="py-4 px-4">
                     <button
                       type="button"
@@ -678,7 +1128,7 @@ export function LeaderboardTableClient({
                       </button>
                     </th>
                   ) : null}
-                  <th className="py-4 pl-4 pr-6 text-right">
+                  <th className="py-4 pl-4 pr-6 text-right rounded-tr-3xl">
                     <button
                       type="button"
                       onClick={() => handleSortToggle('speed')}
@@ -700,12 +1150,15 @@ export function LeaderboardTableClient({
                       : 0;
                   const isRetired = m.lifecycleNorm === 'Deprecated' || m.lifecycleNorm === 'Legacy';
                   const isSelected = selectedSlugs.includes(m.slug);
-                  const rowPad = density === 'compact' ? 'py-3.5' : 'py-5';
+
+                  const evInfo = getBadgeExplanation('evidence', m.evidenceNorm);
+                  const lcInfo = getBadgeExplanation('lifecycle', m.lifecycleNorm);
+                  const licInfo = getBadgeExplanation('license', m.licenseNorm);
 
                   return (
                     <tr
                       key={m.slug}
-                      className={`group transition-colors ${
+                      className={`group/row transition-colors ${
                         isSelected
                           ? 'bg-emerald-50/45'
                           : isRetired
@@ -713,8 +1166,8 @@ export function LeaderboardTableClient({
                           : 'hover:bg-slate-50/90'
                       }`}
                     >
-                      <td className={`${rowPad} pl-6 pr-5 align-top`}>
-                        <div className="flex items-start gap-3.5">
+                      <td className="py-5 pl-6 pr-5 align-top">
+                        <div className="flex items-start gap-4">
                           <span
                             title={`Current sort position #${dynamicRank}`}
                             className={`mt-0.5 inline-flex h-8 min-w-[38px] shrink-0 items-center justify-center rounded-xl px-2 font-mono text-xs font-bold ${
@@ -734,40 +1187,84 @@ export function LeaderboardTableClient({
                             <div className="flex flex-wrap items-center gap-2">
                               <Link
                                 href={`/models/${m.slug}`}
-                                className="text-[15px] font-bold text-slate-900 group-hover:text-emerald-800 transition-colors"
+                                className="text-[15px] font-bold text-slate-900 group-hover/row:text-emerald-800 transition-colors"
                               >
                                 {m.name}
                               </Link>
 
                               {' '}
-                              <span
-                                className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
-                                  m.evidenceNorm === 'Verified'
-                                    ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
-                                    : m.evidenceNorm === 'Estimated'
-                                    ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200'
-                                    : 'bg-slate-100 text-slate-600'
-                                }`}
-                              >
-                                {m.evidenceNorm}
+                              {/* Interactive Evidence Badge Popover */}
+                              <span className="relative inline-flex items-center group/ev">
+                                <button
+                                  type="button"
+                                  aria-label={`${m.evidenceNorm}: ${evInfo.meaning}`}
+                                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold cursor-help ${
+                                    m.evidenceNorm === 'Verified'
+                                      ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                                      : m.evidenceNorm === 'Estimated'
+                                      ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200'
+                                      : 'bg-slate-100 text-slate-600'
+                                  }`}
+                                >
+                                  <span>{m.evidenceNorm}</span>
+                                  <span className="opacity-60 text-[10px]" aria-hidden="true">ⓘ</span>
+                                </button>
+                                <span
+                                  role="tooltip"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/ev:opacity-100 group-hover/ev:scale-100 group-hover/ev:translate-y-0 group-focus-within/ev:opacity-100 group-focus-within/ev:scale-100 group-focus-within/ev:translate-y-0 transition-all duration-150 absolute left-0 bottom-full mb-2 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                >
+                                  <span className="block text-xs font-bold text-emerald-300">{evInfo.title}</span>
+                                  <span className="mt-1 block text-[11px] text-slate-200 leading-relaxed">{evInfo.meaning}</span>
+                                  <span className="mt-1.5 block text-[10px] text-slate-400">{evInfo.impact}</span>
+                                </span>
                               </span>
 
                               {' '}
-                              <span
-                                className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
-                                  m.lifecycleNorm === 'Active'
-                                    ? 'bg-sky-50 text-sky-800 ring-1 ring-sky-200'
-                                    : m.lifecycleNorm === 'Preview'
-                                    ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200'
-                                    : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
-                                }`}
-                              >
-                                {m.lifecycleNorm}
+                              {/* Interactive Lifecycle Badge Popover */}
+                              <span className="relative inline-flex items-center group/lc">
+                                <button
+                                  type="button"
+                                  aria-label={`${m.lifecycleNorm}: ${lcInfo.meaning}`}
+                                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold cursor-help ${
+                                    m.lifecycleNorm === 'Active'
+                                      ? 'bg-sky-50 text-sky-800 ring-1 ring-sky-200'
+                                      : m.lifecycleNorm === 'Preview'
+                                      ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200'
+                                      : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
+                                  }`}
+                                >
+                                  <span>{m.lifecycleNorm}</span>
+                                  <span className="opacity-60 text-[10px]" aria-hidden="true">ⓘ</span>
+                                </button>
+                                <span
+                                  role="tooltip"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lc:opacity-100 group-hover/lc:scale-100 group-hover/lc:translate-y-0 group-focus-within/lc:opacity-100 group-focus-within/lc:scale-100 group-focus-within/lc:translate-y-0 transition-all duration-150 absolute left-0 bottom-full mb-2 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                >
+                                  <span className="block text-xs font-bold text-sky-300">{lcInfo.title}</span>
+                                  <span className="mt-1 block text-[11px] text-slate-200 leading-relaxed">{lcInfo.meaning}</span>
+                                  <span className="mt-1.5 block text-[10px] text-slate-400">{lcInfo.impact}</span>
+                                </span>
                               </span>
 
                               {' '}
-                              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
-                                {m.licenseNorm}
+                              {/* Interactive License Badge Popover */}
+                              <span className="relative inline-flex items-center group/lic">
+                                <button
+                                  type="button"
+                                  aria-label={`${m.licenseNorm}: ${licInfo.meaning}`}
+                                  className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700 cursor-help"
+                                >
+                                  <span>{m.licenseNorm}</span>
+                                  <span className="opacity-60 text-[10px]" aria-hidden="true">ⓘ</span>
+                                </button>
+                                <span
+                                  role="tooltip"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lic:opacity-100 group-hover/lic:scale-100 group-hover/lic:translate-y-0 group-focus-within/lic:opacity-100 group-focus-within/lic:scale-100 group-focus-within/lic:translate-y-0 transition-all duration-150 absolute left-0 bottom-full mb-2 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                >
+                                  <span className="block text-xs font-bold text-amber-300">{licInfo.title}</span>
+                                  <span className="mt-1 block text-[11px] text-slate-200 leading-relaxed">{licInfo.meaning}</span>
+                                  <span className="mt-1.5 block text-[10px] text-slate-400">{licInfo.impact}</span>
+                                </span>
                               </span>
 
                               {' '}
@@ -784,25 +1281,19 @@ export function LeaderboardTableClient({
                               </button>
                             </div>
 
-                            {density === 'comfortable' ? (
-                              <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                                <span className="font-semibold text-slate-800">{m.provider}</span>
-                                {m.cleanSummary ? ` · ${m.cleanSummary}` : ''}
-                              </p>
-                            ) : (
-                              <p className="text-xs text-slate-500">
-                                <span className="font-semibold text-slate-700">{m.provider}</span>
-                              </p>
-                            )}
+                            <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                              <span className="font-semibold text-slate-800">{m.provider}</span>
+                              {m.cleanSummary ? ` · ${m.cleanSummary}` : ''}
+                            </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className={`${rowPad} px-4 align-top`}>
+                      <td className="py-5 px-4 align-top">
                         <div className="font-mono text-base font-extrabold text-slate-900">
                           {typeof m.score === 'number' ? m.score.toFixed(1) : '—'}
                         </div>
-                        {density === 'comfortable' && typeof m.score === 'number' ? (
+                        {typeof m.score === 'number' ? (
                           <div className="mt-2 h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
                             <div
                               className="h-full rounded-full bg-slate-800"
@@ -812,29 +1303,29 @@ export function LeaderboardTableClient({
                         ) : null}
                       </td>
 
-                      <td className={`${rowPad} px-4 align-top font-mono text-sm font-bold text-emerald-700`}>
+                      <td className="py-5 px-4 align-top font-mono text-sm font-bold text-emerald-700">
                         {m.scorePerDollar !== null ? m.scorePerDollar.toFixed(1) : '—'}
                       </td>
 
-                      <td className={`${rowPad} px-4 align-top font-mono text-xs font-semibold text-slate-700`}>
+                      <td className="py-5 px-4 align-top font-mono text-xs font-semibold text-slate-700">
                         {m.contextWindow || '—'}
                       </td>
 
-                      <td className={`${rowPad} px-4 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap`}>
+                      <td className="py-5 px-4 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
                         {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
                       </td>
 
                       {hasAnyElo ? (
-                        <td className={`${rowPad} px-4 align-top font-mono text-xs font-semibold text-slate-700`}>
+                        <td className="py-5 px-4 align-top font-mono text-xs font-semibold text-slate-700">
                           {typeof m.elo === 'number' ? m.elo : '—'}
                         </td>
                       ) : null}
 
-                      <td className={`${rowPad} pl-4 pr-6 align-top text-right`}>
+                      <td className="py-5 pl-4 pr-6 align-top text-right">
                         <div className="font-mono text-xs font-bold text-teal-700 whitespace-nowrap">
                           {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
                         </div>
-                        {density === 'comfortable' && typeof m.tokPerSec === 'number' ? (
+                        {typeof m.tokPerSec === 'number' ? (
                           <div className="mt-2 ml-auto h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
                             <div
                               className="h-full rounded-full bg-teal-600"
@@ -850,7 +1341,7 @@ export function LeaderboardTableClient({
             </table>
           </div>
 
-          {/* 5B. Mobile-First Clean Cards — Spacious Touch Targets, Zero Clutter */}
+          {/* 6B. Mobile Cards (7 Models Per Page) */}
           <div className="md:hidden space-y-4">
             {paginatedModels.map((m) => {
               const { dynamicRank } = m;
@@ -862,7 +1353,6 @@ export function LeaderboardTableClient({
                     isSelected ? 'border-emerald-600 ring-1 ring-emerald-600/20' : 'border-slate-200'
                   }`}
                 >
-                  {/* Card Header: Rank + Name + Score */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-2 min-w-0">
                       <div className="flex items-center gap-2.5">
@@ -929,7 +1419,6 @@ export function LeaderboardTableClient({
                     </div>
                   </div>
 
-                  {/* 2x2 Key Metrics Grid — High Readability on Narrow Screens */}
                   <div className="grid grid-cols-2 gap-2.5 rounded-2xl bg-slate-50/90 p-3.5 text-xs">
                     <div className="space-y-0.5">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -972,7 +1461,6 @@ export function LeaderboardTableClient({
                     <p className="text-xs text-slate-600 leading-relaxed">{m.cleanSummary}</p>
                   ) : null}
 
-                  {/* Touch-Friendly 44px Action Row */}
                   <div className="flex items-center gap-2.5 pt-1 text-xs">
                     <button
                       type="button"
@@ -997,28 +1485,34 @@ export function LeaderboardTableClient({
             })}
           </div>
 
-          {/* 6. Pagination Bar */}
+          {/* 7. Pagination Bar (7 per page on mobile, customizable on desktop) */}
           <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5 text-slate-600">
-              <span>Show:</span>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                aria-label="Rows per page"
-                className="min-h-[38px] rounded-xl border border-slate-300 bg-white px-3 py-1 font-semibold text-slate-800"
-              >
-                {PAGE_SIZE_OPTIONS.map((sz) => (
-                  <option key={sz} value={sz}>
-                    {sz} rows
-                  </option>
-                ))}
-              </select>
+              {!isMobileViewport ? (
+                <>
+                  <span>Show:</span>
+                  <select
+                    value={desktopPageSize}
+                    onChange={(e) => {
+                      setDesktopPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Rows per page"
+                    className="min-h-[38px] rounded-xl border border-slate-300 bg-white px-3 py-1 font-semibold text-slate-800"
+                  >
+                    {DESKTOP_PAGE_SIZES.map((sz) => (
+                      <option key={sz} value={sz}>
+                        {sz} rows
+                      </option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <span>Showing 7 models per page ·</span>
+              )}
               <span>
                 Page <strong className="text-slate-900">{safePage}</strong> of{' '}
-                <strong className="text-slate-900">{totalPages}</strong>
+                <strong className="text-slate-900">{totalPages}</strong> ({filteredAndSorted.length} total)
               </span>
             </div>
 
@@ -1044,7 +1538,7 @@ export function LeaderboardTableClient({
         </>
       )}
 
-      {/* 7. Sticky Mobile Compare Bar (Appears Only When 1+ Models Selected) */}
+      {/* 8. Sticky Mobile Compare Bar */}
       {selectedSlugs.length > 0 ? (
         <div className="md:hidden fixed inset-x-4 bottom-4 z-40 rounded-2xl border border-emerald-700 bg-slate-950/95 px-4 py-3 text-white shadow-xl backdrop-blur-xs flex items-center justify-between gap-3">
           <div className="text-xs">
@@ -1069,11 +1563,11 @@ export function LeaderboardTableClient({
         </div>
       ) : null}
 
-      {/* 8. Methodology & GEO Citation Note */}
+      {/* 9. GEO Structured Citation & Provenance Overview */}
       <footer className="rounded-3xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6 text-xs text-slate-600 space-y-2 leading-relaxed">
-        <div className="font-bold text-slate-900">Leaderboard Methodology &amp; Citation Note</div>
+        <div className="font-bold text-slate-900">Leaderboard Provenance &amp; Citation Standard</div>
         <p>
-          PromptBill ranks language models dynamically by composite benchmark score, <strong className="text-slate-800">Score/$ efficiency</strong> (composite score divided by official output token price per 1M tokens), official API pricing, and measured output throughput (<strong className="text-slate-800">tok/s</strong>). All entries display explicit provenance (<strong className="text-slate-800">Verified</strong> vs. <strong className="text-slate-800">Estimated</strong>), licensing (<strong className="text-slate-800">Closed</strong> vs. <strong className="text-slate-800">Open Weight</strong>), and lifecycle status (<strong className="text-slate-800">Active</strong>, <strong className="text-slate-800">Preview</strong>, <strong className="text-slate-800">Deprecated</strong>, <strong className="text-slate-800">Legacy</strong>).
+          PromptBill ranks language models dynamically by composite benchmark score, <strong className="text-slate-800">Score/$ efficiency</strong> (composite score divided by official output token price per 1M tokens), official API pricing, and measured output throughput (<strong className="text-slate-800">tok/s</strong>). Every model displays live provenance (<strong className="text-slate-800">Verified</strong> vs. <strong className="text-slate-800">Estimated</strong>), SLA lifecycle (<strong className="text-slate-800">Active</strong>, <strong className="text-slate-800">Preview</strong>, <strong className="text-slate-800">Deprecated</strong>, <strong className="text-slate-800">Legacy</strong>), and hosting license (<strong className="text-slate-800">Closed</strong> vs. <strong className="text-slate-800">Open Weight</strong>).
         </p>
       </footer>
     </section>

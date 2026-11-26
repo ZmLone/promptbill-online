@@ -5,11 +5,12 @@ import { ALL_MODELS } from '../../lib/catalog';
 import { REGISTRY_SNAPSHOT } from '../../lib/modelRegistry';
 
 export const metadata: Metadata = {
-  title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing & Speed',
+  title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing, Speed & Task Matcher',
   description:
-    'Live, evidence-aware LLM leaderboard comparing verified benchmark scores, official API token pricing per 1M tokens, Score/$ value ratios, throughput (tok/s), context windows, and model lifecycle status on promptbill.online.',
+    'Interactive LLM leaderboard with task-based model finder, verified benchmark scores, Score/$ value ratios, official API token pricing per 1M tokens, throughput (tok/s), context windows, and model lifecycle status on promptbill.online.',
   keywords: [
     'LLM leaderboard',
+    'which LLM is best for my task',
     'AI model benchmark scores',
     'LLM API pricing comparison',
     'cheapest LLM API',
@@ -21,9 +22,9 @@ export const metadata: Metadata = {
     canonical: 'https://promptbill.online/leaderboard',
   },
   openGraph: {
-    title: 'LLM Leaderboard — Verified Benchmark Scores, API Pricing & Speed | PromptBill',
+    title: 'LLM Leaderboard — Benchmark Scores, API Pricing & Interactive Model Finder | PromptBill',
     description:
-      'Compare frontier and open-weight LLMs by verified benchmark score, Score/$ efficiency, API input/output rates, context window, and output speed.',
+      'Describe your workload to match the ideal LLM, or compare frontier and open-weight models by verified benchmark score, Score/$, API rates, and speed.',
     url: 'https://promptbill.online/leaderboard',
     siteName: 'PromptBill',
     type: 'website',
@@ -32,13 +33,14 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'LLM Leaderboard — Benchmark Scores, API Pricing & Speed | PromptBill',
     description:
-      'Evidence-aware LLM rankings with dynamic sorting, Score/$ value ratios, API pricing, and throughput.',
+      'Evidence-aware LLM rankings with interactive workload matching, Score/$ value ratios, API pricing, and throughput.',
   },
   robots: {
     index: true,
     follow: true,
     'max-snippet': -1,
     'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 };
 
@@ -123,11 +125,15 @@ export default function LeaderboardPage() {
         '@type': 'WebPage',
         '@id': 'https://promptbill.online/leaderboard#webpage',
         url: 'https://promptbill.online/leaderboard',
-        name: 'LLM Leaderboard — Benchmark Scores, API Pricing & Speed',
+        name: 'LLM Leaderboard — Benchmark Scores, API Pricing, Speed & Task Matcher',
         description:
           'Evidence-aware LLM rankings comparing benchmark scores, Score/$ value ratios, API token pricing per 1M tokens, context windows, and generation speed.',
         dateModified: lastVerifiedIso,
         inLanguage: 'en-US',
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['[data-geo-summary="true"]'],
+        },
         isPartOf: {
           '@type': 'WebSite',
           name: 'PromptBill',
@@ -150,6 +156,16 @@ export default function LeaderboardPage() {
             },
           ],
         },
+      },
+      {
+        '@type': 'WebApplication',
+        '@id': 'https://promptbill.online/leaderboard#task-matcher',
+        name: 'PromptBill LLM Workload & Task Selector',
+        url: 'https://promptbill.online/leaderboard',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Web',
+        description:
+          'Interactive client-side task recommender that matches natural-language workload descriptions (context size, latency, budget, coding, reasoning) to ranked LLMs.',
       },
       {
         '@type': 'Dataset',
@@ -204,6 +220,14 @@ export default function LeaderboardPage() {
             acceptedAnswer: {
               '@type': 'Answer',
               text: 'Score/$ divides a model’s composite benchmark score (0–100 scale) by its official output token price per 1 million tokens in USD. Higher Score/$ indicates stronger capability per output dollar.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What do Verified, Active, and Closed badges mean on PromptBill?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Verified means API token rates and benchmark figures are cross-checked against official provider documentation. Active indicates a production-supported endpoint (unlike Preview, Legacy, or Deprecated models). Closed indicates proprietary hosted API access, whereas Open Weight models publish downloadable weights.',
             },
           },
           {
