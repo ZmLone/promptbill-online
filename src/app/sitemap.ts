@@ -43,9 +43,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   for (const m of ALL_MODELS) {
+    const modelLastMod =
+      m.pricingProvenance?.lastVerified ||
+      m.benchmarkProvenance?.lastVerified ||
+      LAST_MODIFIED;
     entries.push({
       url: `${BASE_URL}/models/${m.slug}`,
-      lastModified: m.pricingProvenance?.lastVerified || LAST_MODIFIED,
+      lastModified: modelLastMod,
       changeFrequency: 'weekly',
       priority: 0.8,
     });

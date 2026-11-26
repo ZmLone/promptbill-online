@@ -48,8 +48,17 @@ export async function GET() {
   for (const m of ALL_MODELS) {
     const ctxLabel = m.contextWindow ?? 'N/A';
     const speedLabel = typeof m.tokPerSec === 'number' && Number.isFinite(m.tokPerSec) ? `${m.tokPerSec} tok/s` : 'N/A';
+    const pricingStatus = m.pricingProvenance?.status ?? m.evidence ?? 'Estimated';
+    const routerEp = Array.isArray(m.hostingEndpoints)
+      ? m.hostingEndpoints.find((ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || ''))))
+      : undefined;
+    const routerLabel =
+      routerEp && typeof routerEp.inputPer1M === 'number' && typeof routerEp.outputPer1M === 'number'
+        ? `, Router In/Out ${fmtPrice(routerEp.inputPer1M)}/${fmtPrice(routerEp.outputPer1M)} per 1M`
+        : '';
+
     lines.push(
-      `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${fmtScore(m.score)} (${m.benchmarkProvenance.status}), Official In/Out ${fmtPrice(m.inputPer1M)}/${fmtPrice(m.outputPer1M)} per 1M, Cached Read ${fmtPrice(m.cachedInputPer1M)}/1M, Context ${ctxLabel}, Speed ${speedLabel} (${m.speedProvenance.status}).`
+      `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${fmtScore(m.score)} (${m.benchmarkProvenance.status}), Official In/Out ${fmtPrice(m.inputPer1M)}/${fmtPrice(m.outputPer1M)} per 1M (${pricingStatus})${routerLabel}, Cached Read ${fmtPrice(m.cachedInputPer1M)}/1M, Context ${ctxLabel}, Speed ${speedLabel} (${m.speedProvenance.status}).`
     );
   }
 
@@ -64,7 +73,8 @@ export async function GET() {
 
   after(() => posthogLogProvider.forceFlush().catch(() => {}));
 
-  return new NextResponse(lines.join('\n'), {
+  return new NextResponse(lines.join('
+'), {
     status: 200,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
