@@ -159,7 +159,6 @@ async function run() {
     process.exit(1);
   }
 
-  // Optional external benchmark JSON feed: expects array of { id/slug/name, score, tokPerSec, elo, sourceUrl }
   let remoteBenchmarks = [];
   if (BENCHMARK_FEED_URL) {
     try {
@@ -208,7 +207,6 @@ async function run() {
   const existingQueue = readExistingQueue();
   const nextQueueItems = [];
 
-  // Keep any still-pending items that haven't been merged into models.json yet, unless refreshed below
   const knownModelKeys = new Set();
   for (const m of localModels) {
     knownModelKeys.add(normalizeKey(m.id));
@@ -218,7 +216,6 @@ async function run() {
 
   const refreshedQueueIds = new Set();
 
-  // 1. Stage price updates and benchmark updates for existing models into pending-registry.json
   for (const model of localModels) {
     if (!model || typeof model.id !== 'string' || !model.id.trim()) {
       summary.rejected.push('Local record missing valid id');
@@ -329,7 +326,6 @@ async function run() {
     }
   }
 
-  // 2. Stage newly discovered models into pending-registry.json (never auto-merged into models.json)
   const seenNewNormKeys = new Set();
   for (const rm of remoteModels) {
     if (!rm || typeof rm.id !== 'string' || typeof rm.name !== 'string') continue;
@@ -465,7 +461,6 @@ async function run() {
     if (summary.stagedNewModels.length >= 20) break;
   }
 
-  // Retain older unapproved items from previous runs unless already in models.json or refreshed above
   for (const oldItem of existingQueue.items) {
     if (!oldItem || !oldItem.queueId || refreshedQueueIds.has(oldItem.queueId)) continue;
     if (oldItem.type === 'new_model' && knownModelKeys.has(normalizeKey(oldItem.modelSlug || oldItem.modelId))) {

@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validate JSON syntax before committing
   try {
     const parsedModels = JSON.parse(modelsJsonContent);
     if (!Array.isArray(parsedModels) || parsedModels.length === 0) {
