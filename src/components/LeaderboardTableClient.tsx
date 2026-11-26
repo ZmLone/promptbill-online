@@ -312,6 +312,10 @@ export function LeaderboardTableClient({
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState<boolean>(false);
   const [quickCompareBase, setQuickCompareBase] = useState<string | null>(null);
 
+  // Sticky desktop column bar state (driven by scroll so it NEVER interferes with text or tooltips)
+  const tableTopRef = useRef<HTMLDivElement | null>(null);
+  const [showFloatingHeader, setShowFloatingHeader] = useState<boolean>(false);
+
   // Interactive "Which model is right for your job?" finder state
   const [jobPrompt, setJobPrompt] = useState<string>('');
   const [submittedJob, setSubmittedJob] = useState<string>('');
@@ -326,6 +330,18 @@ export function LeaderboardTableClient({
     syncViewport();
     window.addEventListener('resize', syncViewport);
     return () => window.removeEventListener('resize', syncViewport);
+  }, []);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (!tableTopRef.current) return;
+      const rect = tableTopRef.current.getBoundingClientRect();
+      const shouldShow = rect.top < 8 && rect.bottom > 180;
+      setShowFloatingHeader(shouldShow);
+    }
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -360,27 +376,35 @@ export function LeaderboardTableClient({
   function buildCompareUrl(slugs: string[]): string {
     const unique = Array.from(new Set(slugs.filter(Boolean)));
     if (unique.length === 0) return '/compare';
-    if (unique.length === 1) return `/compare?models=${encodeURIComponent(unique[0])}`;
-    return `/compare?a=${encodeURIComponent(unique[0])}&b=${encodeURIComponent(
-      unique[1]
-    )}&models=${encodeURIComponent(unique.join(','))}`;
+    const query = new URLSearchParams();
+    query.set('models', unique.join(','));
+    if (unique[0]) query.set('a', unique[0]);
+    if (unique[1]) query.set('b', unique[1]);
+    return `/compare?${query.toString()}`;
   }
 
   function navigateToCompare(slugs: string[]) {
-    const url = buildCompareUrl(slugs);
-    router.push(url);
+    const unique = Array.from(new Set(slugs.filter(Boolean)));
+    try {
+      window.localStorage.setItem('promptbill_compare_slugs', JSON.stringify(unique));
+      window.sessionStorage.setItem('promptbill_compare_slugs', JSON.stringify(unique));
+    } catch {
+      // ignore storage quota errors
+    }
+    router.push(buildCompareUrl(unique));
   }
 
   function handleCompareClick(slug: string) {
+    let nextSlugs: string[] = [];
     setSelectedSlugs((prev) => {
       if (prev.includes(slug)) {
-        return prev.filter((s) => s !== slug);
+        nextSlugs = prev.filter((s) => s !== slug);
+        return nextSlugs;
       }
-      const next = prev.length >= 4 ? [...prev.slice(1), slug] : [...prev, slug];
-      return next;
+      nextSlugs = prev.length >= 4 ? [...prev.slice(1), slug] : [...prev, slug];
+      return nextSlugs;
     });
 
-    // If user already had another model selected, pair them immediately and open /compare
     if (quickCompareBase && quickCompareBase !== slug) {
       const pair = [quickCompareBase, slug];
       setQuickCompareBase(null);
@@ -406,7 +430,7 @@ export function LeaderboardTableClient({
       const results = scoreModelsForJob(clean, enrichedModels);
       setMatchedResults(results);
       setIsMatching(false);
-    }, 520);
+    }, 640);
   }
 
   const providersWithCounts = useMemo(() => {
@@ -561,70 +585,166 @@ export function LeaderboardTableClient({
     }
   }
 
-  const compareHref = buildCompareUrl(selectedSlugs);
-
   return (
     <section
-      className="space-y-10 pb-28 md:pb-14 overflow-x-clip"
+      className="space-y-12 pb-28 md:pb-16"
       aria-label="LLM Benchmark, Pricing and Throughput Leaderboard"
     >
-      {/* Apple-inspired spring curves & smooth compositor motion */}
+      {/* Apple-inspired motion & Siri-style ambient intelligence glow */}
       <style>{`
-        @keyframes appleFloatIn {
+        @keyframes pbAppleEnter {
           0% {
             opacity: 0;
-            transform: translate3d(0, 18px, 0) scale(0.975);
+            transform: translate3d(0, 16px, 0) scale(0.98);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
           }
         }
-        @keyframes applePulseWave {
+        @keyframes pbSiriAuraSpin {
           0% {
-            transform: translateX(-100%);
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.06);
           }
           100% {
-            transform: translateX(100%);
+            transform: rotate(360deg) scale(1);
           }
         }
-        .apple-spring-card {
-          animation: appleFloatIn 0.56s cubic-bezier(0.22, 1, 0.36, 1) both;
-          transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-                      box-shadow 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-                      border-color 0.28s ease;
-          will-change: transform, opacity;
+        @keyframes pbSiriBeamSweep {
+          0% {
+            transform: translateX(-120%) skewX(-18deg);
+          }
+          100% {
+            transform: translateX(240%) skewX(-18deg);
+          }
         }
-        .apple-spring-card:hover {
-          transform: translate3d(0, -3px, 0);
+        .pb-apple-card {
+          animation: pbAppleEnter 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+          transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                      border-color 0.25s ease;
         }
-        .apple-shimmer-track {
+        .pb-apple-card:hover {
+          transform: translate3d(0, -2px, 0);
+        }
+        .pb-siri-frame {
+          position: relative;
+          border-radius: 1.15rem;
+          padding: 2px;
+          background: linear-gradient(
+            120deg,
+            #38bdf8,
+            #818cf8,
+            #e879f9,
+            #34d399,
+            #38bdf8
+          );
+          box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25);
+        }
+        .pb-siri-frame-active::before {
+          content: "";
+          position: absolute;
+          inset: -2px;
+          border-radius: 1.2rem;
+          background: conic-gradient(
+            from 0deg,
+            #22d3ee,
+            #818cf8,
+            #f472b6,
+            #fb923c,
+            #34d399,
+            #22d3ee
+          );
+          filter: blur(8px);
+          opacity: 0.78;
+          animation: pbSiriAuraSpin 2.6s linear infinite;
+          z-index: 0;
+        }
+        .pb-siri-sweep {
           position: relative;
           overflow: hidden;
         }
-        .apple-shimmer-track::after {
+        .pb-siri-sweep::after {
           content: "";
           position: absolute;
-          inset: 0;
+          top: 0;
+          bottom: 0;
+          width: 45%;
           background: linear-gradient(
             90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.65) 50%,
-            transparent 100%
+            transparent,
+            rgba(165, 180, 252, 0.28),
+            rgba(244, 114, 182, 0.22),
+            transparent
           );
-          animation: applePulseWave 1.35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: pbSiriBeamSweep 1.25s cubic-bezier(0.22, 1, 0.36, 1) infinite;
         }
         @media (prefers-reduced-motion: reduce) {
-          .apple-spring-card,
-          .apple-shimmer-track::after {
+          .pb-apple-card,
+          .pb-siri-frame-active::before,
+          .pb-siri-sweep::after {
             animation: none !important;
             transition: none !important;
           }
         }
       `}</style>
 
-      {/* 1. Interactive "Which model is right for your job?" Finder */}
-      <div className="apple-spring-card rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+      {/* Fixed Top Column Bar when scrolled over the table (never clips rows or tooltips) */}
+      {showFloatingHeader ? (
+        <div
+          aria-hidden="false"
+          className="hidden md:block fixed top-0 inset-x-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-lg shadow-sm"
+        >
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="grid grid-cols-12 items-center py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <div className="col-span-5 pl-2">Rank &amp; Model</div>
+              <div className="col-span-1">
+                <button
+                  type="button"
+                  onClick={() => handleSortToggle('score')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900 cursor-pointer"
+                >
+                  Score <span>{sortBy === 'score' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
+                </button>
+              </div>
+              <div className="col-span-1">
+                <button
+                  type="button"
+                  onClick={() => handleSortToggle('value')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900 cursor-pointer"
+                >
+                  Score/$ <span>{sortBy === 'value' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
+                </button>
+              </div>
+              <div className="col-span-1">Context</div>
+              <div className="col-span-2">
+                <button
+                  type="button"
+                  onClick={() => handleSortToggle('price')}
+                  className="inline-flex items-center gap-1 hover:text-slate-900 cursor-pointer"
+                >
+                  API Price <span>{sortBy === 'price' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
+                </button>
+              </div>
+              <div className="col-span-2 text-right pr-2">
+                <button
+                  type="button"
+                  onClick={() => handleSortToggle('speed')}
+                  className="inline-flex items-center justify-end gap-1 hover:text-slate-900 cursor-pointer"
+                >
+                  Speed <span>{sortBy === 'speed' ? (sortDir === 'desc' ? '↓' : '↑') : '⇅'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* 1. Interactive "Which model is right for your job?" Finder with Siri-style Glow */}
+      <div className="pb-apple-card rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <label
@@ -634,71 +754,76 @@ export function LeaderboardTableClient({
               Which model is right for your job?
             </label>
             <p className="text-xs sm:text-sm text-slate-500">
-              Describe your task, context window, speed, or budget—matched instantaneously on-device.
+              Describe your workload, context size, speed, or budget—matched locally in your browser.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 rounded-full px-3.5 py-1.5 w-fit shrink-0">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" aria-hidden="true" />
-            On-Device Match · Private
+          <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3.5 py-1.5 text-[11px] font-semibold text-white w-fit shrink-0">
+            <span
+              className="h-2 w-2 rounded-full bg-gradient-to-tr from-sky-400 via-fuchsia-400 to-emerald-300"
+              aria-hidden="true"
+            />
+            {isMatching ? 'Thinking through catalog...' : 'Siri-Style Task Matcher'}
           </span>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            runJobMatcher(jobPrompt);
-          }}
-          className="group relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 rounded-2xl border border-slate-200/90 bg-slate-50/60 p-2.5 transition-all duration-300 ease-out focus-within:border-emerald-700 focus-within:bg-white focus-within:shadow-lg focus-within:shadow-slate-900/5"
-        >
-          <div className="flex items-center gap-3.5 flex-1 px-3.5 py-1.5">
-            <svg
-              className="h-5 w-5 shrink-0 text-slate-400 group-focus-within:text-emerald-700 transition-colors duration-300"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-              />
-            </svg>
-            <input
-              id="pb-job-matcher-input"
-              type="text"
-              value={jobPrompt}
-              onChange={(e) => setJobPrompt(e.target.value)}
-              placeholder="Type the job, e.g. summarize long contracts or refactor TypeScript..."
-              className="w-full bg-transparent text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
-            />
-            {jobPrompt ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setJobPrompt('');
-                  setSubmittedJob('');
-                  setMatchedResults([]);
-                }}
-                aria-label="Clear job description"
-                className="text-xs font-semibold text-slate-400 hover:text-slate-700 px-2 py-1 transition-colors"
-              >
-                Clear
-              </button>
-            ) : null}
-          </div>
-
-          <button
-            type="submit"
-            className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-emerald-900 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+        <div className={`pb-siri-frame ${isMatching ? 'pb-siri-frame-active' : ''}`}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              runJobMatcher(jobPrompt);
+            }}
+            className="relative z-10 group flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 rounded-[1rem] bg-white p-2.5"
           >
-            <span>{isMatching ? 'Finding match...' : 'Find my model'}</span>
-            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
-          </button>
-        </form>
+            <div className="flex items-center gap-3.5 flex-1 px-3.5 py-1.5">
+              <svg
+                className="h-5 w-5 shrink-0 text-slate-500 group-focus-within:text-indigo-600 transition-colors duration-300"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                />
+              </svg>
+              <input
+                id="pb-job-matcher-input"
+                type="text"
+                value={jobPrompt}
+                onChange={(e) => setJobPrompt(e.target.value)}
+                placeholder="Type the job, e.g. summarize long contracts or refactor TypeScript..."
+                className="w-full bg-transparent text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              />
+              {jobPrompt ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setJobPrompt('');
+                    setSubmittedJob('');
+                    setMatchedResults([]);
+                  }}
+                  aria-label="Clear job description"
+                  className="text-xs font-semibold text-slate-400 hover:text-slate-700 px-2 py-1 transition-colors"
+                >
+                  Clear
+                </button>
+              ) : null}
+            </div>
+
+            <button
+              type="submit"
+              className="min-h-[46px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-emerald-900 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+            >
+              <span>{isMatching ? 'Matching...' : 'Find my model'}</span>
+              <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
+            </button>
+          </form>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="font-semibold text-slate-500">Examples:</span>
@@ -707,27 +832,27 @@ export function LeaderboardTableClient({
               key={sample}
               type="button"
               onClick={() => runJobMatcher(sample)}
-              className="rounded-full border border-slate-200/90 bg-slate-50/70 px-3.5 py-1.5 text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/60 hover:text-emerald-900 transition-all duration-200 cursor-pointer"
+              className="rounded-full border border-slate-200/90 bg-slate-50/80 px-3.5 py-1.5 text-slate-700 hover:border-indigo-400 hover:bg-indigo-50/40 hover:text-slate-950 transition-all duration-200 cursor-pointer"
             >
               {sample}
             </button>
           ))}
         </div>
 
-        {/* Apple-smooth Shimmer & Staggered Match Cards */}
+        {/* Siri-style Luminous Beam Loading & Staggered Match Cards */}
         {isMatching ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2" aria-live="polite">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="apple-shimmer-track h-36 rounded-2xl border border-slate-200/80 bg-slate-100/80 p-5 flex flex-col justify-between"
+                className="pb-siri-sweep h-36 rounded-2xl border border-indigo-200/70 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-fuchsia-50/20 p-5 flex flex-col justify-between"
               >
-                <div className="h-3 w-24 rounded-full bg-slate-200/90" />
+                <div className="h-3 w-24 rounded-full bg-slate-200/80" />
                 <div className="space-y-2">
-                  <div className="h-5 w-44 rounded-lg bg-slate-200/90" />
-                  <div className="h-3 w-32 rounded bg-slate-200/80" />
+                  <div className="h-5 w-44 rounded-lg bg-slate-200/80" />
+                  <div className="h-3 w-32 rounded bg-slate-200/70" />
                 </div>
-                <div className="h-3 w-full rounded bg-slate-200/80" />
+                <div className="h-3 w-full rounded bg-slate-200/70" />
               </div>
             ))}
           </div>
@@ -754,7 +879,7 @@ export function LeaderboardTableClient({
                 <div
                   key={item.model.slug}
                   style={{ animationDelay: `${idx * 110}ms` }}
-                  className="apple-spring-card rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/50 via-white to-slate-50/80 p-5 shadow-xs hover:shadow-md flex flex-col justify-between gap-4"
+                  className="pb-apple-card rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/50 via-white to-slate-50/80 p-5 shadow-xs hover:shadow-md flex flex-col justify-between gap-4"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
@@ -790,7 +915,7 @@ export function LeaderboardTableClient({
                     <button
                       type="button"
                       onClick={() => handleCompareClick(item.model.slug)}
-                      className="font-semibold text-slate-700 hover:text-emerald-800 transition-colors"
+                      className="font-semibold text-slate-700 hover:text-emerald-800 transition-colors cursor-pointer"
                     >
                       {selectedSlugs.includes(item.model.slug) ? '✓ Selected' : '+ Compare'}
                     </button>
@@ -811,7 +936,7 @@ export function LeaderboardTableClient({
       {/* 2. GEO Direct-Answer Freshness & Trust Strip */}
       <div
         data-geo-summary="true"
-        className="apple-spring-card rounded-3xl border border-slate-200/90 bg-gradient-to-br from-emerald-50/65 via-white to-slate-50 p-6 sm:p-7 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+        className="pb-apple-card rounded-3xl border border-slate-200/90 bg-gradient-to-br from-emerald-50/65 via-white to-slate-50 p-6 sm:p-7 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6"
       >
         <div className="space-y-2.5">
           <div className="flex flex-wrap items-center gap-2.5">
@@ -836,7 +961,7 @@ export function LeaderboardTableClient({
             ) : null}
           </div>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
-            Hover or focus any <strong className="font-semibold text-slate-800">Verified</strong>, <strong className="font-semibold text-slate-800">Active</strong>, or <strong className="font-semibold text-slate-800">Closed / Open Weight</strong> badge in the table for live provenance, SLA lifecycle, and hosting details. Click <strong className="font-semibold text-slate-800">+ Compare</strong> on two models to launch side-by-side comparison.
+            Hover or focus any <strong className="font-semibold text-slate-800">Verified</strong>, <strong className="font-semibold text-slate-800">Active</strong>, or <strong className="font-semibold text-slate-800">Closed / Open Weight</strong> badge in the table for live provenance, SLA lifecycle, and hosting details. Click <strong className="font-semibold text-slate-800">+ Compare</strong> on any two models to open side-by-side comparison.
           </p>
         </div>
 
@@ -864,7 +989,7 @@ export function LeaderboardTableClient({
       {/* 3. Spacious Leader Spotlight Cards */}
       <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {highlights.byScore ? (
-          <div className="apple-spring-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5">
+          <div className="pb-apple-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 #1 Benchmark Score
@@ -886,7 +1011,7 @@ export function LeaderboardTableClient({
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 text-xs">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
               <span className="text-slate-500">API In / Out</span>
               <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.byScore.inputPer1M)} / {formatPrice(highlights.byScore.outputPer1M)}
@@ -898,7 +1023,7 @@ export function LeaderboardTableClient({
         {highlights.byValue ? (
           <div
             style={{ animationDelay: '90ms' }}
-            className="apple-spring-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5"
+            className="pb-apple-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -921,7 +1046,7 @@ export function LeaderboardTableClient({
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 text-xs">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
               <span className="text-slate-500">API In / Out</span>
               <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.byValue.inputPer1M)} / {formatPrice(highlights.byValue.outputPer1M)}
@@ -933,7 +1058,7 @@ export function LeaderboardTableClient({
         {highlights.bySpeed ? (
           <div
             style={{ animationDelay: '180ms' }}
-            className="apple-spring-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5"
+            className="pb-apple-card min-w-[290px] md:min-w-0 snap-start rounded-3xl border border-slate-200 bg-white p-7 shadow-xs hover:shadow-md flex flex-col justify-between gap-5"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -956,7 +1081,7 @@ export function LeaderboardTableClient({
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 text-xs">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
               <span className="text-slate-500">API In / Out</span>
               <span className="font-mono font-bold text-slate-900">
                 {formatPrice(highlights.bySpeed.inputPer1M)} / {formatPrice(highlights.bySpeed.outputPer1M)}
@@ -967,7 +1092,7 @@ export function LeaderboardTableClient({
       </div>
 
       {/* 4. Filter & Sort Controls */}
-      <div className="apple-spring-card rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+      <div className="pb-apple-card rounded-3xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <input
@@ -1159,9 +1284,9 @@ export function LeaderboardTableClient({
         </div>
       </div>
 
-      {/* Compare Selection Banner (Appears When 1+ Models Selected) */}
+      {/* Compare Queue Banner */}
       {selectedSlugs.length > 0 ? (
-        <div className="apple-spring-card rounded-2xl border border-emerald-200 bg-emerald-50/70 px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="pb-apple-card rounded-2xl border border-emerald-200 bg-emerald-50/70 px-5 py-4 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-emerald-950">
               Compare Queue ({selectedSlugs.length}/4):
@@ -1203,7 +1328,7 @@ export function LeaderboardTableClient({
               onClick={() => navigateToCompare(selectedSlugs)}
               className="min-h-[36px] inline-flex items-center rounded-xl bg-emerald-800 px-4 py-1.5 font-bold text-white hover:bg-emerald-900 transition-colors cursor-pointer"
             >
-              {selectedSlugs.length >= 2 ? `Open Comparison (${selectedSlugs.length}) →` : 'Open /compare →'}
+              {selectedSlugs.length >= 2 ? `Compare ${selectedSlugs.length} Now →` : 'Open /compare →'}
             </button>
           </div>
         </div>
@@ -1225,10 +1350,10 @@ export function LeaderboardTableClient({
         </div>
       ) : (
         <>
-          {/* 6A. Desktop Spacious Table with Sticky Header (No overflow clipping) */}
-          <div className="hidden md:block rounded-3xl border border-slate-200 bg-white shadow-xs">
+          {/* 6A. Desktop Spacious Table */}
+          <div ref={tableTopRef} className="hidden md:block rounded-3xl border border-slate-200 bg-white shadow-xs">
             <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(226,232,240,1)]">
+              <thead className="bg-slate-50/90 border-b border-slate-200">
                 <tr className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   <th className="py-5 pl-7 pr-5 rounded-tl-3xl">Rank &amp; Model</th>
                   <th className="py-5 px-5">
@@ -1303,8 +1428,8 @@ export function LeaderboardTableClient({
                   return (
                     <tr
                       key={m.slug}
-                      style={{ animationDelay: `${Math.min(rowIdx, 8) * 45}ms` }}
-                      className={`apple-spring-card group/row ${
+                      style={{ animationDelay: `${Math.min(rowIdx, 8) * 40}ms` }}
+                      className={`pb-apple-card group/row ${
                         isSelected
                           ? 'bg-emerald-50/45'
                           : isRetired
@@ -1312,7 +1437,7 @@ export function LeaderboardTableClient({
                           : 'hover:bg-slate-50/95'
                       }`}
                     >
-                      <td className="py-6 pl-7 pr-6 align-top">
+                      <td className="py-7 pl-7 pr-6 align-top">
                         <div className="flex items-start gap-4">
                           <span
                             title={`Current sort position #${dynamicRank}`}
@@ -1329,7 +1454,7 @@ export function LeaderboardTableClient({
                             #{dynamicRank}
                           </span>
 
-                          <div className="space-y-2.5 min-w-0">
+                          <div className="space-y-3 min-w-0">
                             <div className="flex flex-wrap items-center gap-2.5">
                               <Link
                                 href={`/models/${m.slug}`}
@@ -1358,7 +1483,7 @@ export function LeaderboardTableClient({
                                 </button>
                                 <span
                                   role="tooltip"
-                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/ev:opacity-100 group-hover/ev:scale-100 group-hover/ev:translate-y-0 group-focus-within/ev:opacity-100 group-focus-within/ev:scale-100 group-focus-within/ev:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/ev:opacity-100 group-hover/ev:scale-100 group-hover/ev:translate-y-0 group-focus-within/ev:opacity-100 group-focus-within/ev:scale-100 group-focus-within/ev:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-700 bg-slate-950 p-3.5 text-left text-white shadow-2xl"
                                 >
                                   <span className="block text-xs font-bold text-emerald-300">
                                     {evInfo.title}
@@ -1392,7 +1517,7 @@ export function LeaderboardTableClient({
                                 </button>
                                 <span
                                   role="tooltip"
-                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lc:opacity-100 group-hover/lc:scale-100 group-hover/lc:translate-y-0 group-focus-within/lc:opacity-100 group-focus-within/lc:scale-100 group-focus-within/lc:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lc:opacity-100 group-hover/lc:scale-100 group-hover/lc:translate-y-0 group-focus-within/lc:opacity-100 group-focus-within/lc:scale-100 group-focus-within/lc:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-700 bg-slate-950 p-3.5 text-left text-white shadow-2xl"
                                 >
                                   <span className="block text-xs font-bold text-sky-300">
                                     {lcInfo.title}
@@ -1420,7 +1545,7 @@ export function LeaderboardTableClient({
                                 </button>
                                 <span
                                   role="tooltip"
-                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lic:opacity-100 group-hover/lic:scale-100 group-hover/lic:translate-y-0 group-focus-within/lic:opacity-100 group-focus-within/lic:scale-100 group-focus-within/lic:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-200 bg-slate-950 p-3.5 text-left text-white shadow-xl"
+                                  className="pointer-events-none opacity-0 scale-95 translate-y-1 group-hover/lic:opacity-100 group-hover/lic:scale-100 group-hover/lic:translate-y-0 group-focus-within/lic:opacity-100 group-focus-within/lic:scale-100 group-focus-within/lic:translate-y-0 transition-all duration-200 absolute left-0 bottom-full mb-2.5 z-40 w-64 rounded-2xl border border-slate-700 bg-slate-950 p-3.5 text-left text-white shadow-2xl"
                                 >
                                   <span className="block text-xs font-bold text-amber-300">
                                     {licInfo.title}
@@ -1461,7 +1586,7 @@ export function LeaderboardTableClient({
                         </div>
                       </td>
 
-                      <td className="py-6 px-5 align-top">
+                      <td className="py-7 px-5 align-top">
                         <div className="font-mono text-base font-extrabold text-slate-900">
                           {typeof m.score === 'number' ? m.score.toFixed(1) : '—'}
                         </div>
@@ -1475,25 +1600,25 @@ export function LeaderboardTableClient({
                         ) : null}
                       </td>
 
-                      <td className="py-6 px-5 align-top font-mono text-sm font-bold text-emerald-700">
+                      <td className="py-7 px-5 align-top font-mono text-sm font-bold text-emerald-700">
                         {m.scorePerDollar !== null ? m.scorePerDollar.toFixed(1) : '—'}
                       </td>
 
-                      <td className="py-6 px-5 align-top font-mono text-xs font-semibold text-slate-700">
+                      <td className="py-7 px-5 align-top font-mono text-xs font-semibold text-slate-700">
                         {m.contextWindow || '—'}
                       </td>
 
-                      <td className="py-6 px-5 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
+                      <td className="py-7 px-5 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
                         {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
                       </td>
 
                       {hasAnyElo ? (
-                        <td className="py-6 px-5 align-top font-mono text-xs font-semibold text-slate-700">
+                        <td className="py-7 px-5 align-top font-mono text-xs font-semibold text-slate-700">
                           {typeof m.elo === 'number' ? m.elo : '—'}
                         </td>
                       ) : null}
 
-                      <td className="py-6 pl-5 pr-7 align-top text-right">
+                      <td className="py-7 pl-5 pr-7 align-top text-right">
                         <div className="font-mono text-xs font-bold text-teal-700 whitespace-nowrap">
                           {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
                         </div>
@@ -1522,7 +1647,7 @@ export function LeaderboardTableClient({
                 <article
                   key={m.slug}
                   style={{ animationDelay: `${cardIdx * 65}ms` }}
-                  className={`apple-spring-card rounded-3xl border bg-white p-5 shadow-xs space-y-4 ${
+                  className={`pb-apple-card rounded-3xl border bg-white p-5 shadow-xs space-y-4 ${
                     isSelected ? 'border-emerald-600 ring-1 ring-emerald-600/20' : 'border-slate-200'
                   }`}
                 >
