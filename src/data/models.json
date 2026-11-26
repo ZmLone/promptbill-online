@@ -106,7 +106,7 @@
     "providerSlug": "openai",
     "family": "GPT-6",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 81,
     "qualityScore": 81,
     "interval": null,
@@ -138,23 +138,23 @@
     "bestFor": "Latest GPT-6.2 balanced tier for production agents & structured JSON",
     "notes": "Latest GPT-6.2 balanced tier for production agents & structured JSON",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:13.701Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:13.701Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:13.701Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -174,8 +174,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:13.701Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -204,7 +204,7 @@
     "providerSlug": "openai",
     "family": "GPT-6",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 80.1,
     "qualityScore": 80.1,
     "interval": null,
@@ -236,23 +236,23 @@
     "bestFor": "Cheapest frontier-class OpenAI tier for high-volume pipelines",
     "notes": "Cheapest frontier-class OpenAI tier for high-volume pipelines",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:10.147Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:10.147Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:10.147Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -272,8 +272,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:10.147Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -302,7 +302,7 @@
     "providerSlug": "openai",
     "family": "GPT-5.4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 73.5,
     "qualityScore": 73.5,
     "interval": null,
@@ -334,23 +334,23 @@
     "bestFor": "Ultra-fast classification, tagging, routing & bulk extraction",
     "notes": "Ultra-fast classification, tagging, routing & bulk extraction",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:18.464Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:18.464Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:18.464Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -370,8 +370,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:18.464Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -400,7 +400,7 @@
     "providerSlug": "anthropic",
     "family": "Claude 5",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 93.3,
     "qualityScore": 93.3,
     "interval": null,
@@ -432,23 +432,23 @@
     "bestFor": "#1 benchmark score; flat full 1M context rate with 1.25x cache write & 97.5% cache read discount",
     "notes": "#1 benchmark score; flat full 1M context rate with 1.25x cache write & 97.5% cache read discount",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:22.921Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:22.921Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:22.921Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -468,8 +468,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:22.921Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "AWS Bedrock",
@@ -514,7 +514,7 @@
     "providerSlug": "anthropic",
     "family": "Claude 5",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 82.7,
     "qualityScore": 82.7,
     "interval": null,
@@ -546,23 +546,23 @@
     "bestFor": "Deep architectural reasoning & multi-file refactoring",
     "notes": "Deep architectural reasoning & multi-file refactoring",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:34.737Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:34.737Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:34.737Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -582,8 +582,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:34.737Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "AWS Bedrock",
@@ -628,7 +628,7 @@
     "providerSlug": "anthropic",
     "family": "Claude 5",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 81.4,
     "qualityScore": 81.4,
     "interval": null,
@@ -660,23 +660,23 @@
     "bestFor": "Workhorse coding & agentic model with 1.25x cache write & 95% cache read discount",
     "notes": "Workhorse coding & agentic model with 1.25x cache write & 95% cache read discount",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:39.587Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:39.587Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:48:39.587Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -696,8 +696,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:48:39.587Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "AWS Bedrock",
