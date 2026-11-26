@@ -84,14 +84,181 @@ interface NewManualModelState {
   verified: boolean;
 }
 
+interface BulkImportPatch {
+  keyRaw: string;
+  slugGuess: string;
+  matchedSlug: string | null;
+  matchedName: string | null;
+  fields: Record<string, string | number>;
+}
+
 function slugify(raw: string): string {
   return raw
     .toLowerCase()
     .trim()
+    .replace(/^[^/]+\//, '')
     .replace(/[._\s]+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+const COLUMN_ALIASES: Record<string, string> = {
+  model: 'model',
+  modelslug: 'model',
+  slug: 'slug',
+  id: 'slug',
+  name: 'name',
+  modelname: 'name',
+  provider: 'provider',
+  benchmarkscore: 'score',
+  score: 'score',
+  qualityscore: 'score',
+  speed: 'tokPerSec',
+  speedtoks: 'tokPerSec',
+  tokpersec: 'tokPerSec',
+  throughput: 'tokPerSec',
+  rpmlimit: 'rpmLimit',
+  rpm: 'rpmLimit',
+  tpmlimit: 'tpmLimit',
+  tpm: 'tpmLimit',
+  license: 'license',
+  bestfor: 'bestFor',
+  bestforworkloadtags: 'bestFor',
+  workloadtags: 'bestFor',
+  tags: 'bestFor',
+  contextwindow: 'contextWindow',
+  context: 'contextWindow',
+  officialin: 'inputPer1M',
+  officialin1m: 'inputPer1M',
+  inputper1m: 'inputPer1M',
+  input: 'inputPer1M',
+  officialout: 'outputPer1M',
+  officialout1m: 'outputPer1M',
+  outputper1m: 'outputPer1M',
+  output: 'outputPer1M',
+  cachedread: 'cachedInputPer1M',
+  cachedread1m: 'cachedInputPer1M',
+  cachedinputper1m: 'cachedInputPer1M',
+  cached: 'cachedInputPer1M',
+  cachewrite: 'cacheWritePer1M',
+  cachewrite1m: 'cacheWritePer1M',
+  cachewriteper1m: 'cacheWritePer1M',
+  batchdiscount: 'batchDiscount',
+  batch: 'batchDiscount',
+  lifecyclestatus: 'lifecycleStatus',
+  lifecycle: 'lifecycleStatus',
+  successorslug: 'successorSlug',
+  successor: 'successorSlug',
+  ag: 'ag',
+  agagentic: 'ag',
+  agentic: 'ag',
+  co: 'co',
+  cocoding: 'co',
+  coding: 'co',
+  re: 're',
+  rereasoning: 're',
+  reasoning: 're',
+  mm: 'mm',
+  mmmultimodal: 'mm',
+  multimodal: 'mm',
+  kn: 'kn',
+  knknowledge: 'kn',
+  knowledge: 'kn',
+  ml: 'ml',
+  mlmultilingual: 'ml',
+  multilingual: 'ml',
+  if: 'if',
+  ifinstruction: 'if',
+  instruction: 'if',
+  ma: 'ma',
+  mamath: 'ma',
+  math: 'ma',
+};
+
+function canonicalColKey(rawHeader: string): string | null {
+  const cleaned = rawHeader
+    .toLowerCase()
+    .replace(/\(.*?\)/g, '')
+    .replace(/[^a-z0-9]/g, '');
+  if (COLUMN_ALIASES[cleaned]) return COLUMN_ALIASES[cleaned];
+  const fullCleaned = rawHeader.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return COLUMN_ALIASES[fullCleaned] || null;
+}
+
+function splitDelimitedLine(line: string, delimiter: string): string[] {
+  const cells: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === delimiter && !inQuotes) {
+      cells.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+function parseCellValue(field: string, rawVal: string): string | number | null {
+  const v = rawVal.trim();
+  if (!v || /^n\/?a$/i.test(v) || v === '-' || v === '—') return null;
+
+  const numericFields = new Set([
+    'score',
+    'tokPerSec',
+    'inputPer1M',
+    'outputPer1M',
+    'cachedInputPer1M',
+    'cacheWritePer1M',
+    'batchDiscount',
+    'ag',
+    'co',
+    're',
+    'mm',
+    'kn',
+    'ml',
+    'if',
+    'ma',
+  ]);
+
+  if (numericFields.has(field)) {
+    const cleaned = v.replace(/[$,%]/g, '').replace(/,/g, '').trim();
+    const num = Number(cleaned);
+    if (!Number.isFinite(num) || num < 0) return null;
+    if (field === 'batchDiscount' && num > 1) return Number((num / 100).toFixed(4));
+    return num;
+  }
+
+  return v;
+}
+
+function extractModelKeyAndSlug(rawModelCell: string, explicitSlugCell?: string): {
+  keyRaw: string;
+  slugGuess: string;
+} {
+  const trimmed = rawModelCell.trim();
+  if (explicitSlugCell && explicitSlugCell.trim()) {
+    return { keyRaw: trimmed || explicitSlugCell.trim(), slugGuess: slugify(explicitSlugCell) };
+  }
+  const parenMatch = trimmed.match(/\(([^)]+)\)\s*$/);
+  if (parenMatch && parenMatch[1]) {
+    return {
+      keyRaw: trimmed.replace(/\([^)]+\)\s*$/, '').trim() || parenMatch[1].trim(),
+      slugGuess: slugify(parenMatch[1]),
+    };
+  }
+  return { keyRaw: trimmed, slugGuess: slugify(trimmed) };
 }
 
 export function AdminRegistryClient({
@@ -110,7 +277,7 @@ export function AdminRegistryClient({
   const [models, setModels] = useState<any[]>(initialModels);
   const [pendingItems, setPendingItems] = useState<PendingQueueItem[]>(initialPending.items || []);
   const [activeTab, setActiveTab] = useState<
-    'all' | 'new_model' | 'price_update' | 'benchmark_update' | 'catalog' | 'manual_add'
+    'all' | 'new_model' | 'price_update' | 'benchmark_update' | 'catalog' | 'bulk_import' | 'manual_add'
   >('all');
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -123,6 +290,12 @@ export function AdminRegistryClient({
   const [publishing, setPublishing] = useState<boolean>(false);
   const [publishBanner, setPublishBanner] = useState<{ type: 'success' | 'error' | 'warn'; text: string } | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
+
+  const [bulkRawInput, setBulkRawInput] = useState<string>('');
+  const [bulkMarkVerified, setBulkMarkVerified] = useState<boolean>(true);
+  const [bulkSourceUrl, setBulkSourceUrl] = useState<string>('');
+  const [bulkPreview, setBulkPreview] = useState<BulkImportPatch[]>([]);
+  const [bulkParseError, setBulkParseError] = useState<string | null>(null);
 
   const [editingLiveSlug, setEditingLiveSlug] = useState<string | null>(null);
   const [liveEditForm, setLiveEditForm] = useState<LiveEditState>({
@@ -182,6 +355,267 @@ export function AdminRegistryClient({
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [models, pendingItems]);
+
+  function findModelMatch(keyRaw: string, slugGuess: string) {
+    const normName = slugify(keyRaw);
+    return (
+      models.find(
+        (m) =>
+          m.slug === slugGuess ||
+          m.id === slugGuess ||
+          slugify(m.slug) === slugGuess ||
+          slugify(m.name) === normName ||
+          slugify(m.name) === slugGuess
+      ) || null
+    );
+  }
+
+  function parseBulkText(rawText: string) {
+    setBulkParseError(null);
+    const trimmed = rawText.trim();
+    if (!trimmed) {
+      setBulkPreview([]);
+      return;
+    }
+
+    const patches: BulkImportPatch[] = [];
+
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        const rows = Array.isArray(parsed) ? parsed : Array.isArray(parsed.models) ? parsed.models : [parsed];
+        for (const row of rows) {
+          if (!row || typeof row !== 'object') continue;
+          const rawIdentifier = String(row.slug || row.id || row.model || row.name || '');
+          if (!rawIdentifier) continue;
+          const { keyRaw, slugGuess } = extractModelKeyAndSlug(
+            String(row.name || row.model || rawIdentifier),
+            row.slug || row.id ? String(row.slug || row.id) : undefined
+          );
+          const fields: Record<string, string | number> = {};
+          for (const [k, v] of Object.entries(row)) {
+            const mapped = canonicalColKey(k);
+            if (!mapped || mapped === 'model' || mapped === 'slug' || mapped === 'name') continue;
+            if (v === null || v === undefined || v === '') continue;
+            const parsedVal = parseCellValue(mapped, String(v));
+            if (parsedVal !== null) fields[mapped] = parsedVal;
+          }
+          const matched = findModelMatch(keyRaw, slugGuess);
+          patches.push({
+            keyRaw,
+            slugGuess,
+            matchedSlug: matched ? matched.slug : null,
+            matchedName: matched ? matched.name : null,
+            fields,
+          });
+        }
+        setBulkPreview(patches);
+        return;
+      } catch (err) {
+        setBulkParseError(`Invalid JSON: ${err instanceof Error ? err.message : String(err)}`);
+        setBulkPreview([]);
+        return;
+      }
+    }
+
+    const lines = trimmed
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^\|?[\s:-]+\|[\s|:-]*$/.test(l));
+
+    if (lines.length < 2) {
+      setBulkParseError('Paste at least a header row and one model row (CSV, TSV, Markdown table, or JSON).');
+      setBulkPreview([]);
+      return;
+    }
+
+    const headerLine = lines[0];
+    const delimiter = headerLine.includes('|')
+      ? '|'
+      : headerLine.includes('\t')
+      ? '\t'
+      : ',';
+
+    const rawHeaders = splitDelimitedLine(headerLine, delimiter).filter(
+      (h, idx, arr) => !(delimiter === '|' && h === '' && (idx === 0 || idx === arr.length - 1))
+    );
+    const mappedHeaders = rawHeaders.map((h) => canonicalColKey(h));
+
+    const modelColIdx = mappedHeaders.findIndex((h) => h === 'model' || h === 'name');
+    const slugColIdx = mappedHeaders.findIndex((h) => h === 'slug');
+    const primaryKeyIdx = modelColIdx >= 0 ? modelColIdx : slugColIdx >= 0 ? slugColIdx : 0;
+
+    for (let r = 1; r < lines.length; r++) {
+      const rawCells = splitDelimitedLine(lines[r], delimiter).filter(
+        (c, idx, arr) => !(delimiter === '|' && c === '' && (idx === 0 || idx === arr.length - 1))
+      );
+      if (rawCells.length === 0) continue;
+
+      const primaryRaw = rawCells[primaryKeyIdx] || '';
+      const explicitSlug = slugColIdx >= 0 && slugColIdx !== primaryKeyIdx ? rawCells[slugColIdx] : undefined;
+      const { keyRaw, slugGuess } = extractModelKeyAndSlug(primaryRaw, explicitSlug);
+      if (!slugGuess) continue;
+
+      const fields: Record<string, string | number> = {};
+      for (let c = 0; c < mappedHeaders.length; c++) {
+        const field = mappedHeaders[c];
+        if (!field || field === 'model' || field === 'slug' || field === 'name') continue;
+        if (c >= rawCells.length) continue;
+        const val = parseCellValue(field, rawCells[c]);
+        if (val !== null) fields[field] = val;
+      }
+
+      const matched = findModelMatch(keyRaw, slugGuess);
+      patches.push({
+        keyRaw,
+        slugGuess,
+        matchedSlug: matched ? matched.slug : null,
+        matchedName: matched ? matched.name : null,
+        fields,
+      });
+    }
+
+    if (patches.length === 0) {
+      setBulkParseError('Could not detect any model rows. Make sure the first row has column headers like Model, AG, CO, RE or Benchmark Score.');
+    }
+    setBulkPreview(patches);
+  }
+
+  function handleBulkFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = typeof reader.result === 'string' ? reader.result : '';
+      setBulkRawInput(content);
+      parseBulkText(content);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  function applyBulkPatches() {
+    const matchedPatches = bulkPreview.filter((p) => p.matchedSlug && Object.keys(p.fields).length > 0);
+    if (matchedPatches.length === 0) return;
+
+    const nowIso = new Date().toISOString();
+    const status = bulkMarkVerified ? 'Verified' : 'Estimated';
+    const patchBySlug = new Map<string, Record<string, string | number>>();
+    for (const p of matchedPatches) {
+      if (!p.matchedSlug) continue;
+      patchBySlug.set(p.matchedSlug, {
+        ...(patchBySlug.get(p.matchedSlug) || {}),
+        ...p.fields,
+      });
+    }
+
+    setModels((prev) =>
+      prev.map((m) => {
+        const patch = patchBySlug.get(m.slug);
+        if (!patch) return m;
+
+        const next = { ...m, ...patch };
+        if (patch.score !== undefined) {
+          next.score = Number(patch.score);
+          next.qualityScore = Number(patch.score);
+          next.benchmarkProvenance = {
+            ...(m.benchmarkProvenance || {}),
+            status,
+            sourceUrl: bulkSourceUrl.trim() || m.benchmarkProvenance?.sourceUrl || null,
+            lastVerified: nowIso,
+            notes: 'Imported via PromptBill Admin Bulk Importer',
+          };
+        }
+        if (
+          patch.ag !== undefined ||
+          patch.co !== undefined ||
+          patch.re !== undefined ||
+          patch.mm !== undefined ||
+          patch.kn !== undefined ||
+          patch.ml !== undefined ||
+          patch.if !== undefined ||
+          patch.ma !== undefined
+        ) {
+          next.benchmarkProvenance = {
+            ...(next.benchmarkProvenance || m.benchmarkProvenance || {}),
+            status,
+            sourceUrl: bulkSourceUrl.trim() || m.benchmarkProvenance?.sourceUrl || null,
+            lastVerified: nowIso,
+            notes: 'Capability scores imported via PromptBill Admin Bulk Importer',
+          };
+        }
+        if (patch.tokPerSec !== undefined) {
+          next.tokPerSec = Number(patch.tokPerSec);
+          next.speedTokensPerSec = Number(patch.tokPerSec);
+          next.speedProvenance = {
+            ...(m.speedProvenance || {}),
+            status,
+            sourceUrl: bulkSourceUrl.trim() || m.speedProvenance?.sourceUrl || null,
+            lastVerified: nowIso,
+            notes: 'Speed imported via PromptBill Admin Bulk Importer',
+          };
+        }
+        if (
+          patch.inputPer1M !== undefined ||
+          patch.outputPer1M !== undefined ||
+          patch.cachedInputPer1M !== undefined ||
+          patch.cacheWritePer1M !== undefined ||
+          patch.batchDiscount !== undefined
+        ) {
+          next.pricingProvenance = {
+            ...(m.pricingProvenance || {}),
+            status,
+            sourceUrl: bulkSourceUrl.trim() || m.pricingProvenance?.sourceUrl || null,
+            lastVerified: nowIso,
+            notes: 'Pricing imported via PromptBill Admin Bulk Importer',
+          };
+          const endpoints = Array.isArray(m.hostingEndpoints) ? [...m.hostingEndpoints] : [];
+          const offIdx = endpoints.findIndex((ep) => ep && ep.providerType === 'Official API');
+          if (offIdx >= 0) {
+            endpoints[offIdx] = {
+              ...endpoints[offIdx],
+              ...(patch.inputPer1M !== undefined ? { inputPer1M: Number(patch.inputPer1M) } : {}),
+              ...(patch.outputPer1M !== undefined ? { outputPer1M: Number(patch.outputPer1M) } : {}),
+              ...(patch.cachedInputPer1M !== undefined ? { cachedInputPer1M: Number(patch.cachedInputPer1M) } : {}),
+              ...(patch.cacheWritePer1M !== undefined ? { cacheWritePer1M: Number(patch.cacheWritePer1M) } : {}),
+              ...(patch.batchDiscount !== undefined ? { batchDiscount: Number(patch.batchDiscount) } : {}),
+              lastVerified: nowIso,
+              evidenceStatus: status,
+            };
+            next.hostingEndpoints = endpoints;
+          }
+        }
+        if (bulkMarkVerified) next.evidence = 'Verified';
+        return next;
+      })
+    );
+
+    setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [
+      `Bulk-updated ${patchBySlug.size} model(s) from imported file/table`,
+      ...prev,
+    ]);
+    setBulkRawInput('');
+    setBulkPreview([]);
+    setActiveTab('catalog');
+  }
+
+  function downloadSampleCsvTemplate() {
+    const sample = [
+      'Model,Slug,Benchmark Score,Speed (tok/s),RPM Limit,License,AG,CO,RE,MM,KN,ML,IF,MA,Best For',
+      ...models.slice(0, 5).map(
+        (m) =>
+          `"${m.name}",${m.slug},${m.score ?? ''},${m.tokPerSec ?? ''},"${m.rpmLimit ?? ''}",${m.license ?? 'Proprietary'},${m.ag ?? ''},${m.co ?? ''},${m.re ?? ''},${m.mm ?? ''},${m.kn ?? ''},${m.ml ?? ''},${m.if ?? ''},${m.ma ?? ''},"${m.bestFor ?? ''}"`
+      ),
+    ].join('\n');
+    const blob = new Blob([sample + '\n'], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'promptbill-bulk-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   function getItemEdits(item: PendingQueueItem): EditableOverrides {
     if (overrides[item.queueId]) return overrides[item.queueId];
@@ -790,7 +1224,13 @@ export function AdminRegistryClient({
   const filteredPending = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return pendingItems.filter((item) => {
-      if (activeTab !== 'all' && activeTab !== 'catalog' && activeTab !== 'manual_add' && item.type !== activeTab) {
+      if (
+        activeTab !== 'all' &&
+        activeTab !== 'catalog' &&
+        activeTab !== 'bulk_import' &&
+        activeTab !== 'manual_add' &&
+        item.type !== activeTab
+      ) {
         return false;
       }
       if (providerFilter !== 'ALL' && item.provider !== providerFilter) return false;
@@ -823,6 +1263,11 @@ export function AdminRegistryClient({
       benchmark_update: pendingItems.filter((i) => i.type === 'benchmark_update').length,
     }),
     [pendingItems]
+  );
+
+  const matchedBulkCount = useMemo(
+    () => bulkPreview.filter((p) => p.matchedSlug && Object.keys(p.fields).length > 0).length,
+    [bulkPreview]
   );
 
   if (!unlocked) {
@@ -939,6 +1384,7 @@ export function AdminRegistryClient({
             { id: 'price_update', label: `Price Updates (${counts.price_update})` },
             { id: 'benchmark_update', label: `Benchmarks (${counts.benchmark_update})` },
             { id: 'catalog', label: `Edit Live Catalog (${models.length})` },
+            { id: 'bulk_import', label: 'Bulk Import (CSV / Table / JSON)' },
             { id: 'manual_add', label: '+ Add Model Manually' },
           ].map((tab) => (
             <button
@@ -956,7 +1402,10 @@ export function AdminRegistryClient({
           ))}
         </div>
 
-        {activeTab !== 'catalog' && activeTab !== 'manual_add' && filteredPending.length > 0 ? (
+        {activeTab !== 'catalog' &&
+        activeTab !== 'bulk_import' &&
+        activeTab !== 'manual_add' &&
+        filteredPending.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -976,7 +1425,7 @@ export function AdminRegistryClient({
         ) : null}
       </div>
 
-      {activeTab !== 'manual_add' ? (
+      {activeTab !== 'manual_add' && activeTab !== 'bulk_import' ? (
         <div className="rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 text-xs">
           <input
             type="search"
@@ -1023,7 +1472,127 @@ export function AdminRegistryClient({
         </div>
       ) : null}
 
-      {activeTab === 'manual_add' ? (
+      {activeTab === 'bulk_import' ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4 text-xs">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Bulk Import Benchmarks, Capability Scores &amp; Metadata
+              </h3>
+              <p className="text-slate-600 mt-0.5 leading-relaxed">
+                Upload a <strong>.csv</strong> / <strong>.tsv</strong> / <strong>.json</strong> file or paste a copied Markdown/spreadsheet table (such as Capability Scores <code className="font-mono">AG–MA</code>, <code className="font-mono">Benchmark Score</code>, <code className="font-mono">Speed (tok/s)</code>, <code className="font-mono">RPM Limit</code>, <code className="font-mono">License</code>, and <code className="font-mono">Best For</code>). Models are automatically matched by name or slug.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={downloadSampleCsvTemplate}
+              className="min-h-[38px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 font-semibold text-slate-800 hover:bg-slate-50"
+            >
+              Download Sample CSV Template
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex min-h-[38px] cursor-pointer items-center rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2 font-semibold text-slate-800 hover:bg-slate-100">
+              <span>Upload CSV / TSV / JSON File</span>
+              <input
+                type="file"
+                accept=".csv,.tsv,.txt,.md,.json"
+                onChange={handleBulkFileUpload}
+                className="hidden"
+              />
+            </label>
+            <input
+              type="url"
+              placeholder="Optional verification source URL (e.g. https://...)"
+              value={bulkSourceUrl}
+              onChange={(e) => setBulkSourceUrl(e.target.value)}
+              className="min-h-[38px] flex-1 min-w-[240px] rounded-lg border border-slate-300 px-3 py-1.5"
+            />
+            <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={bulkMarkVerified}
+                onChange={(e) => setBulkMarkVerified(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span>Mark Imported Data Verified</span>
+            </label>
+          </div>
+
+          <textarea
+            rows={7}
+            placeholder={`Paste Markdown table, CSV, TSV, or JSON here, e.g.:\n| Model (slug) | AG (Agentic) | CO (Coding) | RE (Reasoning) | MM (Multimodal) | KN (Knowledge) | ML (Multilingual) |\n| GPT-6.2 Astra (gpt-6-2-astra) | 96 | 95 | 96 | 93 | 94 | 93 |`}
+            value={bulkRawInput}
+            onChange={(e) => {
+              setBulkRawInput(e.target.value);
+              parseBulkText(e.target.value);
+            }}
+            className="w-full rounded-lg border border-slate-300 p-3 font-mono text-xs text-slate-900"
+          />
+
+          {bulkParseError ? (
+            <div className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-rose-900">
+              {bulkParseError}
+            </div>
+          ) : null}
+
+          {bulkPreview.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="font-bold text-slate-900">
+                  Preview: {matchedBulkCount} of {bulkPreview.length} row(s) matched to existing catalog models
+                </div>
+                <button
+                  type="button"
+                  disabled={matchedBulkCount === 0}
+                  onClick={applyBulkPatches}
+                  className="min-h-[40px] rounded-lg bg-emerald-800 px-4 py-2 font-bold text-white hover:bg-emerald-900 disabled:opacity-50"
+                >
+                  Apply {matchedBulkCount} Matched Model Update(s)
+                </button>
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border border-slate-200">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-100 font-semibold text-slate-800">
+                      <th className="py-2 px-3">Row Input</th>
+                      <th className="py-2 px-3">Matched Live Model</th>
+                      <th className="py-2 px-3">Fields to Fill</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {bulkPreview.map((p, idx) => (
+                      <tr key={idx} className={p.matchedSlug ? 'bg-white' : 'bg-amber-50/70'}>
+                        <td className="py-2 px-3 font-semibold text-slate-900">
+                          {p.keyRaw} <span className="font-mono text-slate-500">({p.slugGuess})</span>
+                        </td>
+                        <td className="py-2 px-3">
+                          {p.matchedSlug ? (
+                            <span className="rounded bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-900">
+                              ✓ {p.matchedName} ({p.matchedSlug})
+                            </span>
+                          ) : (
+                            <span className="rounded bg-amber-100 px-2 py-0.5 font-semibold text-amber-900">
+                              Not found in live catalog (approve or add model first)
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 font-mono text-slate-700">
+                          {Object.entries(p.fields)
+                            .map(([k, v]) => `${k}: ${v}`)
+                            .join(' · ') || 'No recognized columns'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : activeTab === 'manual_add' ? (
         <form
           onSubmit={handleAddManualModel}
           className="rounded-xl border border-slate-200 bg-white p-5 space-y-4 text-xs"
