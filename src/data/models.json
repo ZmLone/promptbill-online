@@ -1281,13 +1281,13 @@
     "providerSlug": "xai",
     "family": "Grok 4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 80.2,
     "qualityScore": 80.2,
     "interval": null,
     "elo": null,
     "inputPer1M": 1.25,
-    "cachedInputPer1M": 0.12,
+    "cachedInputPer1M": 0.2,
     "cacheWritePer1M": 1.25,
     "outputPer1M": 2.5,
     "longContextMultiplierInput": 1,
@@ -1308,28 +1308,28 @@
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
-    "batchDiscount": 0.5,
+    "batchDiscount": 0.2,
     "tier": "Economy",
     "bestFor": "1M context with ultra-low $2.50/M output pricing",
     "notes": "1M context with ultra-low $2.50/M output pricing",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:23.543Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:23.543Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:23.543Z",
       "hardwareOrProvider": "xAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1340,17 +1340,17 @@
         "host": "xAI Official API",
         "providerType": "Official API",
         "inputPer1M": 1.25,
-        "cachedInputPer1M": 0.12,
+        "cachedInputPer1M": 0.2,
         "cacheWritePer1M": 1.25,
         "outputPer1M": 2.5,
-        "batchDiscount": 0.5,
+        "batchDiscount": 0.2,
         "latencyMs": 215,
         "notes": "Direct xAI endpoint",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:05:23.543Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -1368,7 +1368,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "kimi-k3",
@@ -1379,13 +1382,13 @@
     "providerSlug": "moonshot-openrouter",
     "family": "Kimi",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 85.4,
     "qualityScore": 85.4,
     "interval": null,
     "elo": null,
     "inputPer1M": 3,
-    "cachedInputPer1M": 0.15,
+    "cachedInputPer1M": 0.3,
     "cacheWritePer1M": 3,
     "outputPer1M": 15,
     "longContextMultiplierInput": 1,
@@ -1411,23 +1414,23 @@
     "bestFor": "Long-horizon agentic coding & 1M context retrieval",
     "notes": "Long-horizon agentic coding & 1M context retrieval",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:14.742Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:14.742Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:05:14.742Z",
       "hardwareOrProvider": "Moonshot Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1438,7 +1441,7 @@
         "host": "Moonshot Official API",
         "providerType": "Official API",
         "inputPer1M": 3,
-        "cachedInputPer1M": 0.15,
+        "cachedInputPer1M": 0.3,
         "cacheWritePer1M": 3,
         "outputPer1M": 15,
         "batchDiscount": 0.5,
@@ -1447,8 +1450,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:05:14.742Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -1466,7 +1469,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "kimi-k2-7-code",
@@ -1477,13 +1483,13 @@
     "providerSlug": "moonshot-openrouter",
     "family": "Kimi",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 79.8,
     "qualityScore": 79.8,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.95,
-    "cachedInputPer1M": 0.08,
+    "cachedInputPer1M": 0.19,
     "cacheWritePer1M": 0.95,
     "outputPer1M": 4,
     "longContextMultiplierInput": 1,
@@ -1504,28 +1510,28 @@
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
-    "batchDiscount": 0.5,
+    "batchDiscount": 0.4,
     "tier": "Balanced",
     "bestFor": "Specialized code generation & repository editing under $1/M input",
     "notes": "Specialized code generation & repository editing under $1/M input",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:35.678Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:35.678Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:35.678Z",
       "hardwareOrProvider": "Moonshot Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1536,17 +1542,17 @@
         "host": "Moonshot Official API",
         "providerType": "Official API",
         "inputPer1M": 0.95,
-        "cachedInputPer1M": 0.08,
+        "cachedInputPer1M": 0.19,
         "cacheWritePer1M": 0.95,
         "outputPer1M": 4,
-        "batchDiscount": 0.5,
+        "batchDiscount": 0.4,
         "latencyMs": 230,
         "notes": "Native coding endpoint",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:06:35.678Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "Together AI",
@@ -1580,7 +1586,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "deepseek-v4-1-flash",
@@ -1591,19 +1600,19 @@
     "providerSlug": "deepseek-openrouter",
     "family": "DeepSeek V4",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 76.8,
     "qualityScore": 76.8,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.3,
-    "cachedInputPer1M": 0.03,
+    "cachedInputPer1M": 0.006,
     "cacheWritePer1M": 0.3,
     "outputPer1M": 1.2,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
     "longContextThresholdTokens": 128000,
-    "contextWindow": "128K",
+    "contextWindow": "1M",
     "maxOutputTokens": null,
     "tokPerSec": 190,
     "speedTokensPerSec": 190,
@@ -1623,23 +1632,23 @@
     "bestFor": "Top production value-per-dollar; compare DeepSeek API vs Together, Fireworks, Groq & AWS Bedrock",
     "notes": "Top production value-per-dollar; compare DeepSeek API vs Together, Fireworks, Groq & AWS Bedrock",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:20.894Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:20.894Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:06:20.894Z",
       "hardwareOrProvider": "DeepSeek Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1650,7 +1659,7 @@
         "host": "DeepSeek Official API",
         "providerType": "Official API",
         "inputPer1M": 0.3,
-        "cachedInputPer1M": 0.03,
+        "cachedInputPer1M": 0.006,
         "cacheWritePer1M": 0.3,
         "outputPer1M": 1.2,
         "batchDiscount": 0.5,
@@ -1659,8 +1668,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:06:20.894Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "Fireworks AI",
@@ -1742,7 +1751,10 @@
         "lastVerified": "2026-11-24T14:43:18.397Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "qwen-3-7-flash",
@@ -1753,19 +1765,19 @@
     "providerSlug": "openrouter-qwen",
     "family": "Qwen 3.7",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 74.5,
     "qualityScore": 74.5,
     "interval": null,
     "elo": null,
-    "inputPer1M": 0.15,
-    "cachedInputPer1M": 0.02,
-    "cacheWritePer1M": 0.15,
-    "outputPer1M": 0.6,
+    "inputPer1M": 0.03,
+    "cachedInputPer1M": 0.006,
+    "cacheWritePer1M": 0.038,
+    "outputPer1M": 0.13,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
     "longContextThresholdTokens": 128000,
-    "contextWindow": "128K",
+    "contextWindow": "1M",
     "maxOutputTokens": null,
     "tokPerSec": 210,
     "speedTokensPerSec": 210,
@@ -1785,23 +1797,23 @@
     "bestFor": "#1 Score/$ ratio for routing, classification & cheap fallback across hosts",
     "notes": "#1 Score/$ ratio for routing, classification & cheap fallback across hosts",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:23.408Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:23.408Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:23.408Z",
       "hardwareOrProvider": "Qwen / Alibaba Cloud",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1811,18 +1823,18 @@
       {
         "host": "Qwen / Alibaba Cloud",
         "providerType": "Official API",
-        "inputPer1M": 0.15,
-        "cachedInputPer1M": 0.02,
-        "cacheWritePer1M": 0.15,
-        "outputPer1M": 0.6,
+        "inputPer1M": 0.03,
+        "cachedInputPer1M": 0.006,
+        "cacheWritePer1M": 0.038,
+        "outputPer1M": 0.13,
         "batchDiscount": 0.5,
         "latencyMs": 180,
         "notes": "Direct Qwen API pricing",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:07:23.408Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "Together AI",
@@ -1872,7 +1884,10 @@
         "lastVerified": null,
         "evidenceStatus": "Estimated"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "cohere-command-r7b",
@@ -1883,14 +1898,14 @@
     "providerSlug": "cohere",
     "family": "Command",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 68.4,
     "qualityScore": 68.4,
     "interval": null,
     "elo": null,
-    "inputPer1M": 0.04,
-    "cachedInputPer1M": 0.01,
-    "cacheWritePer1M": 0.04,
+    "inputPer1M": 0.0375,
+    "cachedInputPer1M": 0.004,
+    "cacheWritePer1M": 0.0375,
     "outputPer1M": 0.15,
     "longContextMultiplierInput": 1,
     "longContextMultiplierOutput": 1,
@@ -1915,23 +1930,23 @@
     "bestFor": "Ultra-cheap enterprise RAG & structured extraction model",
     "notes": "Ultra-cheap enterprise RAG & structured extraction model",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:49.989Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:49.989Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T17:07:49.989Z",
       "hardwareOrProvider": "Cohere Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -1941,9 +1956,9 @@
       {
         "host": "Cohere Official API",
         "providerType": "Official API",
-        "inputPer1M": 0.04,
-        "cachedInputPer1M": 0.01,
-        "cacheWritePer1M": 0.04,
+        "inputPer1M": 0.0375,
+        "cachedInputPer1M": 0.004,
+        "cacheWritePer1M": 0.0375,
         "outputPer1M": 0.15,
         "batchDiscount": 0.5,
         "latencyMs": 135,
@@ -1951,8 +1966,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:07:49.989Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -1970,7 +1985,10 @@
         "lastVerified": null,
         "evidenceStatus": "Estimated"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   },
   {
     "id": "pixtral-large-2502",
@@ -1981,14 +1999,14 @@
     "providerSlug": "mistral",
     "family": null,
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": null,
     "qualityScore": null,
     "interval": null,
     "elo": null,
     "inputPer1M": 2,
-    "cachedInputPer1M": null,
-    "cacheWritePer1M": null,
+    "cachedInputPer1M": 0,
+    "cacheWritePer1M": 0,
     "outputPer1M": 6,
     "longContextMultiplierInput": null,
     "longContextMultiplierOutput": null,
@@ -2008,14 +2026,14 @@
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
-    "batchDiscount": null,
+    "batchDiscount": 0.5,
     "tier": null,
     "bestFor": null,
     "notes": "Discovered via OpenRouter (mistralai/pixtral-large-2502); review official API pricing and benchmarks before publishing.",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-26T16:09:49.235Z",
+      "lastVerified": "2026-11-26T17:08:09.692Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Approved via PromptBill Admin"
@@ -2040,17 +2058,17 @@
         "host": "Mistral Official API",
         "providerType": "Official API",
         "inputPer1M": 2,
-        "cachedInputPer1M": null,
-        "cacheWritePer1M": null,
+        "cachedInputPer1M": 0,
+        "cacheWritePer1M": 0,
         "outputPer1M": 6,
-        "batchDiscount": null,
+        "batchDiscount": 0.5,
         "latencyMs": null,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-26T16:09:49.235Z",
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T17:08:09.692Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
@@ -2068,6 +2086,9 @@
         "lastVerified": "2026-11-26T16:09:49.235Z",
         "evidenceStatus": "Verified"
       }
-    ]
+    ],
+    "lifecycleStatus": "Active",
+    "successorSlug": null,
+    "archived": false
   }
 ]
