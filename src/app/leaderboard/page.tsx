@@ -227,7 +227,7 @@ export default function LeaderboardPage() {
             name: 'What do Verified, Active, and Closed badges mean on PromptBill?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Verified means API token rates and benchmark figures are cross-checked against official provider documentation. Active indicates a production-supported endpoint (unlike Preview, Legacy, or Deprecated models). Closed indicates proprietary hosted API access, whereas Open Weight models publish downloadable weights.',
+              text: 'Verified means API token rates and benchmark metrics are cross-checked against official provider documentation. Active indicates a production-supported endpoint (unlike Preview, Legacy, or Deprecated models). Closed indicates proprietary hosted API access, whereas Open Weight models publish downloadable weights.',
             },
           },
           {
