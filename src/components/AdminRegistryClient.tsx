@@ -14,7 +14,8 @@ export interface PendingQueueItem {
   summary: string;
   currentValues?: Record<string, unknown>;
   proposedValues?: Record<string, unknown>;
-  draftModel?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  draftModel?: Record<string, any>;
 }
 
 export interface PendingQueuePayload {
@@ -53,7 +54,6 @@ export function AdminRegistryClient({
   const [publishBanner, setPublishBanner] = useState<{ type: 'success' | 'error' | 'warn'; text: string } | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
-  // Quick manual benchmark/price editor for existing live models
   const [editingLiveSlug, setEditingLiveSlug] = useState<string | null>(null);
   const [liveEditForm, setLiveEditForm] = useState<{
     score: string;
@@ -125,7 +125,8 @@ export function AdminRegistryClient({
     const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
 
     setModels((prevModels) => {
-      const next = [...prevModels];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const next: any[] = [...prevModels];
 
       if (item.type === 'new_model' && item.draftModel) {
         const scoreVal = parseOptionalNum(edits.score);
@@ -174,8 +175,14 @@ export function AdminRegistryClient({
           });
         }
 
-        const newRecord = {
+        const resolvedSlug = String(item.draftModel.slug || item.modelSlug || item.modelId);
+        const resolvedId = String(item.draftModel.id || item.modelId || resolvedSlug);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const newRecord: Record<string, any> = {
           ...item.draftModel,
+          id: resolvedId,
+          slug: resolvedSlug,
           rank: next.length + 1,
           evidence: provStatus,
           score: scoreVal,
@@ -209,7 +216,7 @@ export function AdminRegistryClient({
           hostingEndpoints: endpoints,
         };
 
-        const existingIdx = next.findIndex((m) => m.slug === newRecord.slug || m.id === newRecord.id);
+        const existingIdx = next.findIndex((m) => m.slug === resolvedSlug || m.id === resolvedId);
         if (existingIdx >= 0) {
           next[existingIdx] = newRecord;
         } else {
@@ -470,7 +477,6 @@ export function AdminRegistryClient({
 
   return (
     <div className="space-y-6">
-      {/* Top Publish Bar */}
       <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="text-xs font-semibold text-slate-600">
@@ -519,7 +525,6 @@ export function AdminRegistryClient({
         </div>
       ) : null}
 
-      {/* Filter Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2 text-xs">
           {[
@@ -555,7 +560,6 @@ export function AdminRegistryClient({
         ) : null}
       </div>
 
-      {/* Pending Review Cards */}
       {activeTab !== 'catalog' ? (
         filteredPending.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">
@@ -608,7 +612,6 @@ export function AdminRegistryClient({
                     </div>
                   </div>
 
-                  {/* Optional Quick Edit Fields Before Approving */}
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 border-t border-slate-100 text-xs">
                     {item.type === 'new_model' ? (
                       <>
@@ -702,7 +705,6 @@ export function AdminRegistryClient({
           </div>
         )
       ) : (
-        /* Edit Live Catalog Models (Scores, Speeds, Official Prices) */
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
