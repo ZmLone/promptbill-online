@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 
 const LOCAL_MODELS_PATH = 'src/data/models.json';
+const PENDING_QUEUE_PATH = 'src/data/pending-registry.json';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/models';
+const BENCHMARK_FEED_URL = process.env.BENCHMARK_FEED_URL || '';
 const REPORT_PATH = process.env.REGISTRY_SYNC_REPORT_PATH || '/tmp/registry-sync-report.md';
 const NEW_MODELS_FLAG_PATH = process.env.REGISTRY_NEW_MODELS_FLAG_PATH || '/tmp/has-new-models.txt';
 
@@ -81,19 +83,35 @@ function formatContextWindowOrNull(ctxLen) {
   return `${Math.round(num / 1000)}K`;
 }
 
-function writeReport(reportLines, hasNewModels) {
+function writeReport(reportLines, hasPendingChanges) {
   try {
     fs.writeFileSync(REPORT_PATH, reportLines.join('\n') + '\n', 'utf8');
-    fs.writeFileSync(NEW_MODELS_FLAG_PATH, hasNewModels ? 'true' : 'false', 'utf8');
+    fs.writeFileSync(NEW_MODELS_FLAG_PATH, hasPendingChanges ? 'true' : 'false', 'utf8');
   } catch {
     // Ignore non-writable temporary path in restricted environments
   }
 }
 
+function readExistingQueue() {
+  try {
+    if (!fs.existsSync(PENDING_QUEUE_PATH)) {
+      return { updatedAt: null, items: [] };
+    }
+    const parsed = JSON.parse(fs.readFileSync(PENDING_QUEUE_PATH, 'utf8'));
+    if (parsed && Array.isArray(parsed.items)) {
+      return parsed;
+    }
+  } catch {
+    // Fall back to empty queue if malformed
+  }
+  return { updatedAt: null, items: [] };
+}
+
 async function run() {
   const summary = {
-    added: [],
-    updated: [],
+    stagedNewModels: [],
+    stagedPriceUpdates: [],
+    stagedBenchmarkUpdates: [],
     unchanged: [],
     rejected: [],
     failed: [],
@@ -124,19 +142,44 @@ async function run() {
     }
     remoteModels = payload.data;
   } catch (err) {
-    const msg = `Upstream OpenRouter check failed (preserving existing local catalog): ${
+    const msg = `Upstream OpenRouter check failed (preserving existing catalog and queue): ${
       err instanceof Error ? err.message : String(err)
     }`;
     summary.failed.push(msg);
-    const failReport = [
-      '## LLM Registry Sync Report (Upstream Unavailable)',
-      '',
-      `- Status: Failed safely; existing \`${LOCAL_MODELS_PATH}\` was not overwritten.`,
-      `- Error: ${msg}`,
-    ];
-    writeReport(failReport, false);
+    writeReport(
+      [
+        '## LLM Registry Sync Report (Upstream Unavailable)',
+        '',
+        `- Status: Failed safely; neither \`${LOCAL_MODELS_PATH}\` nor \`${PENDING_QUEUE_PATH}\` was overwritten.`,
+        `- Error: ${msg}`,
+      ],
+      false
+    );
     console.error(msg);
     process.exit(1);
+  }
+
+  // Optional external benchmark JSON feed: expects array of { id/slug/name, score, tokPerSec, elo, sourceUrl }
+  let remoteBenchmarks = [];
+  if (BENCHMARK_FEED_URL) {
+    try {
+      const bRes = await fetch(BENCHMARK_FEED_URL);
+      if (bRes.ok) {
+        const bPayload = await bRes.json();
+        remoteBenchmarks = Array.isArray(bPayload) ? bPayload : Array.isArray(bPayload?.data) ? bPayload.data : [];
+      }
+    } catch {
+      // Optional benchmark feed failure should not block OpenRouter pricing/model discovery
+    }
+  }
+
+  const benchmarkByKey = new Map();
+  for (const bm of remoteBenchmarks) {
+    if (!bm) continue;
+    for (const rawKey of [bm.id, bm.slug, bm.name]) {
+      const k = normalizeKey(rawKey);
+      if (k && !benchmarkByKey.has(k)) benchmarkByKey.set(k, bm);
+    }
   }
 
   const remoteByNormKey = new Map();
@@ -162,9 +205,20 @@ async function run() {
   }
 
   const checkedAtIso = new Date().toISOString();
-  let modelsJsonChanged = false;
+  const existingQueue = readExistingQueue();
+  const nextQueueItems = [];
 
-  // 1. Update ONLY the OpenRouter ('Router') endpoint entry for existing models; never overwrite Official API prices.
+  // Keep any still-pending items that haven't been merged into models.json yet, unless refreshed below
+  const knownModelKeys = new Set();
+  for (const m of localModels) {
+    knownModelKeys.add(normalizeKey(m.id));
+    knownModelKeys.add(normalizeKey(m.slug));
+    knownModelKeys.add(normalizeKey(m.name));
+  }
+
+  const refreshedQueueIds = new Set();
+
+  // 1. Stage price updates and benchmark updates for existing models into pending-registry.json
   for (const model of localModels) {
     if (!model || typeof model.id !== 'string' || !model.id.trim()) {
       summary.rejected.push('Local record missing valid id');
@@ -176,80 +230,107 @@ async function run() {
       remoteByNormKey.get(normalizeKey(model.slug)) ||
       remoteByNormKey.get(normalizeKey(model.name));
 
-    if (!match || !match.pricing) {
-      summary.unchanged.push(model.id);
-      continue;
-    }
+    let hasAnyChangeForModel = false;
 
-    const remoteIn = Number((Number(match.pricing.prompt) * 1_000_000).toFixed(4));
-    const remoteOut = Number((Number(match.pricing.completion) * 1_000_000).toFixed(4));
-    if (!Number.isFinite(remoteIn) || !Number.isFinite(remoteOut) || remoteIn < 0 || remoteOut < 0) {
-      summary.rejected.push(`Rejected OpenRouter rates for ${model.id}`);
-      continue;
-    }
+    if (match && match.pricing) {
+      const remoteIn = Number((Number(match.pricing.prompt) * 1_000_000).toFixed(4));
+      const remoteOut = Number((Number(match.pricing.completion) * 1_000_000).toFixed(4));
+      if (Number.isFinite(remoteIn) && Number.isFinite(remoteOut) && remoteIn >= 0 && remoteOut >= 0) {
+        const endpoints = Array.isArray(model.hostingEndpoints) ? model.hostingEndpoints : [];
+        const prevRouter = endpoints.find(
+          (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
+        );
+        const prevIn = prevRouter ? parseFiniteNonNeg(prevRouter.inputPer1M) : null;
+        const prevOut = prevRouter ? parseFiniteNonNeg(prevRouter.outputPer1M) : null;
 
-    if (!Array.isArray(model.hostingEndpoints)) {
-      model.hostingEndpoints = [];
-    }
+        const priceChanged =
+          prevIn === null ||
+          prevOut === null ||
+          Math.abs(remoteIn - prevIn) > 0.01 ||
+          Math.abs(remoteOut - prevOut) > 0.01;
 
-    const routerIdx = model.hostingEndpoints.findIndex(
-      (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
-    );
-
-    const prevRouter = routerIdx >= 0 ? model.hostingEndpoints[routerIdx] : null;
-    const prevIn = prevRouter ? parseFiniteNonNeg(prevRouter.inputPer1M) : null;
-    const prevOut = prevRouter ? parseFiniteNonNeg(prevRouter.outputPer1M) : null;
-
-    const changed =
-      prevIn === null ||
-      prevOut === null ||
-      Math.abs(remoteIn - prevIn) > 0.01 ||
-      Math.abs(remoteOut - prevOut) > 0.01;
-
-    if (changed) {
-      const updatedRouterEndpoint = {
-        host: prevRouter?.host || 'OpenRouter',
-        providerType: 'Router',
-        inputPer1M: remoteIn,
-        cachedInputPer1M: prevRouter?.cachedInputPer1M ?? null,
-        cacheWritePer1M: prevRouter?.cacheWritePer1M ?? null,
-        outputPer1M: remoteOut,
-        batchDiscount: prevRouter?.batchDiscount ?? null,
-        latencyMs: prevRouter?.latencyMs ?? null,
-        notes: prevRouter?.notes || `Synced from OpenRouter (${match.id})`,
-        currency: 'USD',
-        pricingUnit: 'per 1M tokens',
-        sourceUrl: OPENROUTER_URL,
-        lastVerified: checkedAtIso,
-        evidenceStatus: 'Verified',
-      };
-
-      if (routerIdx >= 0) {
-        model.hostingEndpoints[routerIdx] = updatedRouterEndpoint;
-      } else {
-        model.hostingEndpoints.push(updatedRouterEndpoint);
+        if (priceChanged) {
+          const queueId = `price:${model.slug || model.id}`;
+          refreshedQueueIds.add(queueId);
+          nextQueueItems.push({
+            queueId,
+            type: 'price_update',
+            detectedAt: checkedAtIso,
+            modelId: model.id,
+            modelSlug: model.slug || model.id,
+            modelName: model.name,
+            provider: model.provider,
+            sourceUrl: OPENROUTER_URL,
+            summary: `OpenRouter price: $${prevIn ?? 'N/A'}/$${prevOut ?? 'N/A'} -> $${remoteIn}/$${remoteOut} per 1M`,
+            currentValues: {
+              routerInputPer1M: prevIn,
+              routerOutputPer1M: prevOut,
+              officialInputPer1M: model.inputPer1M ?? null,
+              officialOutputPer1M: model.outputPer1M ?? null,
+            },
+            proposedValues: {
+              routerInputPer1M: remoteIn,
+              routerOutputPer1M: remoteOut,
+              remoteModelId: match.id,
+              lastVerified: checkedAtIso,
+            },
+          });
+          summary.stagedPriceUpdates.push(
+            `${model.name}: $${prevIn ?? 'N/A'}/$${prevOut ?? 'N/A'} -> $${remoteIn}/$${remoteOut} per 1M`
+          );
+          hasAnyChangeForModel = true;
+        }
       }
+    }
 
-      modelsJsonChanged = true;
-      summary.updated.push(
-        `${model.name} (OpenRouter endpoint: $${prevIn ?? 'N/A'}/$${prevOut ?? 'N/A'} -> $${remoteIn}/$${remoteOut} per 1M, verified ${checkedAtIso})`
-      );
-    } else {
+    const bmMatch =
+      benchmarkByKey.get(normalizeKey(model.id)) ||
+      benchmarkByKey.get(normalizeKey(model.slug)) ||
+      benchmarkByKey.get(normalizeKey(model.name));
+
+    if (bmMatch) {
+      const nextScore = parseFiniteNonNeg(bmMatch.score ?? bmMatch.qualityScore);
+      const nextSpeed = parseFiniteNonNeg(bmMatch.tokPerSec ?? bmMatch.speedTokensPerSec);
+      const scoreChanged = nextScore !== null && nextScore !== model.score;
+      const speedChanged = nextSpeed !== null && nextSpeed !== model.tokPerSec;
+
+      if (scoreChanged || speedChanged) {
+        const queueId = `benchmark:${model.slug || model.id}`;
+        refreshedQueueIds.add(queueId);
+        nextQueueItems.push({
+          queueId,
+          type: 'benchmark_update',
+          detectedAt: checkedAtIso,
+          modelId: model.id,
+          modelSlug: model.slug || model.id,
+          modelName: model.name,
+          provider: model.provider,
+          sourceUrl: bmMatch.sourceUrl || BENCHMARK_FEED_URL,
+          summary: `Score: ${model.score ?? 'N/A'} -> ${nextScore ?? model.score ?? 'N/A'}, Speed: ${model.tokPerSec ?? 'N/A'} -> ${nextSpeed ?? model.tokPerSec ?? 'N/A'} tok/s`,
+          currentValues: {
+            score: model.score ?? null,
+            tokPerSec: model.tokPerSec ?? null,
+          },
+          proposedValues: {
+            score: nextScore ?? model.score ?? null,
+            tokPerSec: nextSpeed ?? model.tokPerSec ?? null,
+            lastVerified: checkedAtIso,
+          },
+        });
+        summary.stagedBenchmarkUpdates.push(
+          `${model.name}: score ${model.score ?? 'N/A'} -> ${nextScore ?? model.score ?? 'N/A'}`
+        );
+        hasAnyChangeForModel = true;
+      }
+    }
+
+    if (!hasAnyChangeForModel) {
       summary.unchanged.push(model.id);
     }
   }
 
-  // 2. Discover new models without fabricating benchmarks, speeds, Elo, rate limits, or cache/batch defaults.
-  const knownKeys = new Set();
-  for (const m of localModels) {
-    knownKeys.add(normalizeKey(m.id));
-    knownKeys.add(normalizeKey(m.slug));
-    knownKeys.add(normalizeKey(m.name));
-  }
-
+  // 2. Stage newly discovered models into pending-registry.json (never auto-merged into models.json)
   const seenNewNormKeys = new Set();
-  const newlyDetectedDrafts = [];
-
   for (const rm of remoteModels) {
     if (!rm || typeof rm.id !== 'string' || typeof rm.name !== 'string') continue;
     const lowerId = rm.id.toLowerCase();
@@ -260,7 +341,7 @@ async function run() {
     const cleanName = cleanDisplayName(rm.name);
     const normName = normalizeKey(cleanName);
     if (!normId || !cleanName) continue;
-    if (knownKeys.has(normId) || knownKeys.has(normName)) continue;
+    if (knownModelKeys.has(normId) || knownModelKeys.has(normName)) continue;
     if (seenNewNormKeys.has(normId)) continue;
 
     seenNewNormKeys.add(normId);
@@ -276,7 +357,11 @@ async function run() {
     const routerOut = pOut !== null ? Number((pOut * 1_000_000).toFixed(4)) : null;
     const ctxStr = formatContextWindowOrNull(rm.context_length);
 
-    const candidate = {
+    const bmMatch = benchmarkByKey.get(normId) || benchmarkByKey.get(normName);
+    const bmScore = bmMatch ? parseFiniteNonNeg(bmMatch.score ?? bmMatch.qualityScore) : null;
+    const bmSpeed = bmMatch ? parseFiniteNonNeg(bmMatch.tokPerSec ?? bmMatch.speedTokensPerSec) : null;
+
+    const draftModel = {
       id: normId,
       slug: normId,
       rank: null,
@@ -286,21 +371,21 @@ async function run() {
       family: null,
       license: null,
       evidence: 'Estimated',
-      score: null,
-      qualityScore: null,
+      score: bmScore,
+      qualityScore: bmScore,
       interval: null,
       elo: null,
-      inputPer1M: null,
+      inputPer1M: routerIn,
       cachedInputPer1M: null,
       cacheWritePer1M: null,
-      outputPer1M: null,
+      outputPer1M: routerOut,
       longContextMultiplierInput: null,
       longContextMultiplierOutput: null,
       longContextThresholdTokens: null,
       contextWindow: ctxStr,
       maxOutputTokens: null,
-      tokPerSec: null,
-      speedTokensPerSec: null,
+      tokPerSec: bmSpeed,
+      speedTokensPerSec: bmSpeed,
       ag: null,
       co: null,
       re: null,
@@ -315,28 +400,28 @@ async function run() {
       batchDiscount: null,
       tier: null,
       bestFor: null,
-      notes: `Discovered via OpenRouter (${rm.id}); official API price and benchmark/speed metrics unverified.`,
+      notes: `Discovered via OpenRouter (${rm.id}); review official API pricing and benchmarks before publishing.`,
       pricingProvenance: {
         status: routerIn !== null && routerOut !== null ? 'Estimated' : 'Unavailable',
         sourceUrl: OPENROUTER_URL,
         lastVerified: checkedAtIso,
         currency: 'USD',
         pricingUnit: 'per 1M tokens',
-        notes: 'Router price recorded on OpenRouter endpoint; official direct provider API price not yet verified.',
+        notes: 'Initial rate imported from OpenRouter; verify direct provider API pricing.',
       },
       benchmarkProvenance: {
-        status: 'Unavailable',
-        sourceUrl: null,
-        lastVerified: null,
-        notes: 'No benchmark score measured or recorded.',
+        status: bmScore !== null ? 'Estimated' : 'Unavailable',
+        sourceUrl: bmMatch?.sourceUrl || null,
+        lastVerified: bmScore !== null ? checkedAtIso : null,
+        notes: bmScore !== null ? 'Imported from benchmark feed; review before publishing.' : 'No benchmark score measured or recorded.',
       },
       speedProvenance: {
-        status: 'Unavailable',
-        sourceUrl: null,
-        lastVerified: null,
+        status: bmSpeed !== null ? 'Estimated' : 'Unavailable',
+        sourceUrl: bmMatch?.sourceUrl || null,
+        lastVerified: bmSpeed !== null ? checkedAtIso : null,
         hardwareOrProvider: null,
         conditions: null,
-        notes: 'No speed measurement recorded.',
+        notes: bmSpeed !== null ? 'Imported from benchmark feed; review before publishing.' : 'No speed measurement recorded.',
       },
       priceHistory: [],
       hostingEndpoints:
@@ -362,43 +447,70 @@ async function run() {
           : [],
     };
 
-    newlyDetectedDrafts.push(candidate);
-    summary.added.push(`${cleanName} (${rm.id}) — drafted as Estimated with null benchmarks/speed`);
-    if (newlyDetectedDrafts.length >= 12) break;
+    const queueId = `new:${normId}`;
+    refreshedQueueIds.add(queueId);
+    nextQueueItems.push({
+      queueId,
+      type: 'new_model',
+      detectedAt: checkedAtIso,
+      modelId: normId,
+      modelSlug: normId,
+      modelName: cleanName,
+      provider,
+      sourceUrl: OPENROUTER_URL,
+      summary: `New model (${rm.id}) · Router $${routerIn ?? 'N/A'}/$${routerOut ?? 'N/A'} per 1M · Context ${ctxStr ?? 'N/A'}`,
+      draftModel,
+    });
+    summary.stagedNewModels.push(`${cleanName} (${rm.id})`);
+    if (summary.stagedNewModels.length >= 20) break;
   }
 
-  if (modelsJsonChanged) {
-    fs.writeFileSync(LOCAL_MODELS_PATH, JSON.stringify(localModels, null, 2) + '\n', 'utf8');
+  // Retain older unapproved items from previous runs unless already in models.json or refreshed above
+  for (const oldItem of existingQueue.items) {
+    if (!oldItem || !oldItem.queueId || refreshedQueueIds.has(oldItem.queueId)) continue;
+    if (oldItem.type === 'new_model' && knownModelKeys.has(normalizeKey(oldItem.modelSlug || oldItem.modelId))) {
+      continue;
+    }
+    nextQueueItems.push(oldItem);
   }
+
+  const nextQueuePayload = {
+    updatedAt: checkedAtIso,
+    items: nextQueueItems,
+  };
+
+  const prevSerialized = JSON.stringify(existingQueue, null, 2) + '\n';
+  const nextSerialized = JSON.stringify(nextQueuePayload, null, 2) + '\n';
+  if (prevSerialized !== nextSerialized) {
+    fs.writeFileSync(PENDING_QUEUE_PATH, nextSerialized, 'utf8');
+  }
+
+  const totalStagedNow =
+    summary.stagedNewModels.length +
+    summary.stagedPriceUpdates.length +
+    summary.stagedBenchmarkUpdates.length;
 
   const reportLines = [
-    `## LLM Registry Sync Report (${checkedAtIso})`,
+    `## LLM Registry Staging Report (${checkedAtIso})`,
     '',
-    `- **Updated (Router endpoints):** ${summary.updated.length}`,
-    `- **Newly discovered drafts (not auto-merged without review):** ${summary.added.length}`,
+    `- **Staged new models:** ${summary.stagedNewModels.length}`,
+    `- **Staged price updates:** ${summary.stagedPriceUpdates.length}`,
+    `- **Staged benchmark updates:** ${summary.stagedBenchmarkUpdates.length}`,
+    `- **Total items awaiting approval in \`/admin\`:** ${nextQueueItems.length}`,
     `- **Unchanged:** ${summary.unchanged.length}`,
     `- **Rejected:** ${summary.rejected.length}`,
-    `- **Failed:** ${summary.failed.length}`,
     '',
-    '### Updated Router Endpoints',
-    ...(summary.updated.length > 0 ? summary.updated.map((x) => `- ${x}`) : ['- None']),
+    '### Staged New Models',
+    ...(summary.stagedNewModels.length > 0 ? summary.stagedNewModels.map((x) => `- ${x}`) : ['- None']),
     '',
-    '### Newly Detected Models (Review Before Adding)',
-    ...(newlyDetectedDrafts.length > 0
-      ? [
-          ...summary.added.map((x) => `- ${x}`),
-          '',
-          '```json',
-          JSON.stringify(newlyDetectedDrafts, null, 2),
-          '```',
-        ]
-      : ['- None']),
-    ...(summary.rejected.length > 0
-      ? ['', '### Rejected Entries', ...summary.rejected.map((x) => `- ${x}`)]
-      : []),
+    '### Staged Price Updates',
+    ...(summary.stagedPriceUpdates.length > 0 ? summary.stagedPriceUpdates.map((x) => `- ${x}`) : ['- None']),
+    '',
+    '### Staged Benchmark Updates',
+    ...(summary.stagedBenchmarkUpdates.length > 0 ? summary.stagedBenchmarkUpdates.map((x) => `- ${x}`) : ['- None']),
   ];
 
-  writeReport(reportLines, newlyDetectedDrafts.length > 0);
+  writeReport(reportLines, totalStagedNow > 0);
   console.log(reportLines.join('\n'));
 }
 
