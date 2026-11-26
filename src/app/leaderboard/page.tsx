@@ -5,35 +5,35 @@ import { ALL_MODELS } from '../../lib/catalog';
 import { REGISTRY_SNAPSHOT } from '../../lib/modelRegistry';
 
 export const metadata: Metadata = {
-  title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing, Speed & Task Matcher',
+  title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Token Pricing & Speed',
   description:
-    'Interactive LLM leaderboard with task-based model finder, verified benchmark scores, Score/$ value ratios, official API token pricing per 1M tokens, throughput (tok/s), context windows, and model lifecycle status on promptbill.online.',
+    'Compare active LLMs by verified composite benchmark score, Score/$ cost-efficiency ratio, official API token pricing per 1M tokens, context window, and output speed (tok/s) on promptbill.online.',
   keywords: [
-    'LLM leaderboard',
-    'which LLM is best for my task',
-    'AI model benchmark scores',
-    'LLM API pricing comparison',
-    'cheapest LLM API',
+    'LLM leaderboard 2026',
+    'AI model benchmark comparison',
+    'LLM API pricing per 1M tokens',
     'best value LLM Score per dollar',
-    'LLM tokens per second speed',
+    'cheapest LLM API',
+    'fastest LLM tokens per second',
+    'open weight vs proprietary LLM',
     'PromptBill leaderboard',
   ],
   alternates: {
     canonical: 'https://promptbill.online/leaderboard',
   },
   openGraph: {
-    title: 'LLM Leaderboard — Benchmark Scores, API Pricing & Interactive Model Finder | PromptBill',
+    title: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing & Speed | PromptBill',
     description:
-      'Describe your workload to match the ideal LLM, or compare frontier and open-weight models by verified benchmark score, Score/$, API rates, and speed.',
+      'Evidence-aware LLM rankings comparing verified benchmark scores, Score/$ value ratios, API token rates per 1M tokens, context windows, and generation speed.',
     url: 'https://promptbill.online/leaderboard',
     siteName: 'PromptBill',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LLM Leaderboard — Benchmark Scores, API Pricing & Speed | PromptBill',
+    title: 'LLM Leaderboard (2026) — Benchmark Scores, API Pricing & Speed | PromptBill',
     description:
-      'Evidence-aware LLM rankings with interactive workload matching, Score/$ value ratios, API pricing, and throughput.',
+      'Compare frontier and open-weight LLMs by verified benchmark score, Score/$ efficiency, API pricing, and throughput.',
   },
   robots: {
     index: true,
@@ -98,7 +98,7 @@ function resolveLastVerifiedDate(): string {
   if (dates.length > 0) {
     return dates[dates.length - 1].slice(0, 10);
   }
-  return REGISTRY_SNAPSHOT.generatedMonthYear || '2026-11-26';
+  return REGISTRY_SNAPSHOT.generatedMonthYear || '2026-11-27';
 }
 
 export default function LeaderboardPage() {
@@ -118,6 +118,13 @@ export default function LeaderboardPage() {
     .filter((m) => typeof m.tokPerSec === 'number')
     .sort((a, b) => (b.tokPerSec ?? 0) - (a.tokPerSec ?? 0))[0];
 
+  const verifiedModelsCount = activeModels.filter(
+    (m) =>
+      String(m.evidence || '').toLowerCase() === 'verified' ||
+      (String(m.pricingProvenance?.status || '').toLowerCase() === 'verified' &&
+        String(m.benchmarkProvenance?.status || '').toLowerCase() === 'verified')
+  ).length;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -125,14 +132,18 @@ export default function LeaderboardPage() {
         '@type': 'WebPage',
         '@id': 'https://promptbill.online/leaderboard#webpage',
         url: 'https://promptbill.online/leaderboard',
-        name: 'LLM Leaderboard — Benchmark Scores, API Pricing, Speed & Task Matcher',
+        name: 'LLM Leaderboard (2026) — Verified Benchmark Scores, API Pricing & Speed',
         description:
           'Evidence-aware LLM rankings comparing benchmark scores, Score/$ value ratios, API token pricing per 1M tokens, context windows, and generation speed.',
         dateModified: lastVerifiedIso,
         inLanguage: 'en-US',
+        about: {
+          '@type': 'Thing',
+          name: 'Large Language Model Benchmarks and API Pricing',
+        },
         speakable: {
           '@type': 'SpeakableSpecification',
-          cssSelector: ['[data-geo-summary="true"]'],
+          cssSelector: ['[data-geo-summary="true"]', '[data-geo-facts="true"]'],
         },
         isPartOf: {
           '@type': 'WebSite',
@@ -158,23 +169,31 @@ export default function LeaderboardPage() {
         },
       },
       {
-        '@type': 'WebApplication',
+        '@type': 'SoftwareApplication',
         '@id': 'https://promptbill.online/leaderboard#task-matcher',
-        name: 'PromptBill LLM Workload & Task Selector',
+        name: 'PromptBill LLM Workload Selector & Leaderboard',
         url: 'https://promptbill.online/leaderboard',
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Web',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
         description:
-          'Interactive client-side task recommender that matches natural-language workload descriptions (context size, latency, budget, coding, reasoning) to ranked LLMs.',
+          'Client-side workload recommender and interactive LLM leaderboard filtering models by context window, API token budget, output speed, license, and lifecycle.',
       },
       {
         '@type': 'Dataset',
         '@id': 'https://promptbill.online/leaderboard#dataset',
-        name: 'PromptBill LLM Benchmark, API Pricing & Throughput Dataset',
+        name: 'PromptBill LLM Benchmark, API Pricing & Throughput Dataset (2026)',
         description:
-          'Structured dataset of large language model composite capability scores, official input/output API token rates per 1M tokens, context limits, licensing, lifecycle status, and output tokens per second.',
+          'Structured dataset of active large language model composite benchmark scores (0-100), Score/$ efficiency ratios, official input and output API prices per 1M tokens (USD), context window capacities, licensing, lifecycle status, and output speed in tokens per second.',
         url: 'https://promptbill.online/leaderboard',
         dateModified: lastVerifiedIso,
+        temporalCoverage: '2026',
+        measurementTechnique:
+          'Cross-verified official provider API pricing schedules, composite evaluation benchmarks, and standardized token throughput telemetry.',
         license: 'https://creativecommons.org/licenses/by/4.0/',
         creator: {
           '@type': 'Organization',
@@ -182,18 +201,69 @@ export default function LeaderboardPage() {
           url: 'https://promptbill.online',
         },
         variableMeasured: [
-          'Composite Benchmark Score (0-100)',
-          'Score per Dollar Value Ratio (Score / Output $/1M)',
-          'API Input Token Price (USD per 1M tokens)',
-          'API Output Token Price (USD per 1M tokens)',
-          'Generation Speed (tokens per second)',
-          'Context Window Size (tokens)',
+          {
+            '@type': 'PropertyValue',
+            name: 'Composite Benchmark Score',
+            unitText: 'points (0-100 scale)',
+          },
+          {
+            '@type': 'PropertyValue',
+            name: 'Score per Dollar Ratio (Score/$)',
+            unitText: 'benchmark points per USD per 1M output tokens',
+          },
+          {
+            '@type': 'PropertyValue',
+            name: 'API Input Token Price',
+            unitText: 'USD per 1,000,000 input tokens',
+          },
+          {
+            '@type': 'PropertyValue',
+            name: 'API Output Token Price',
+            unitText: 'USD per 1,000,000 output tokens',
+          },
+          {
+            '@type': 'PropertyValue',
+            name: 'Output Generation Throughput',
+            unitText: 'tokens per second (tok/s)',
+          },
+          {
+            '@type': 'PropertyValue',
+            name: 'Context Window Size',
+            unitText: 'tokens',
+          },
+        ],
+      },
+      {
+        '@type': 'HowTo',
+        '@id': 'https://promptbill.online/leaderboard#howto-select-llm',
+        name: 'How to Choose the Best LLM for Your Workload and API Budget',
+        description:
+          'Step-by-step method to match an AI model to your production latency, context length, and token cost constraints.',
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: 'Specify workload requirements',
+            text: 'Enter your target task, minimum context window (e.g., 256K or 1M tokens), output budget per 1M tokens, or hosting preference (Open Weight vs. Closed API).',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: 'Evaluate Score/$ efficiency and lifecycle status',
+            text: 'Compare composite benchmark scores alongside Score/$ value ratios and verify the model holds Active GA status rather than Preview or Deprecated.',
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: 'Compare top candidates side by side',
+            text: 'Select two or more models to inspect exact input/output pricing, throughput (tok/s), and context limits in the side-by-side comparison matrix.',
+          },
         ],
       },
       {
         '@type': 'ItemList',
         '@id': 'https://promptbill.online/leaderboard#itemlist',
-        name: 'Top Ranked LLMs by Composite Benchmark Score',
+        name: 'Ranked LLMs by Composite Benchmark Score',
         numberOfItems: sortedForSchema.length,
         itemListOrder: 'https://schema.org/ItemListOrderDescending',
         itemListElement: sortedForSchema.map((m, idx) => ({
@@ -205,9 +275,9 @@ export default function LeaderboardPage() {
             m
           )} · Score: ${m.score ?? 'N/A'} · API Price: $${m.inputPer1M ?? 'N/A'}/$${
             m.outputPer1M ?? 'N/A'
-          } per 1M tokens · Speed: ${m.tokPerSec ?? 'N/A'} tok/s. ${sanitizeDescription(
-            m.bestFor || m.notes
-          )}`,
+          } per 1M tokens · Context: ${m.contextWindow ?? 'N/A'} · Speed: ${
+            m.tokPerSec ?? 'N/A'
+          } tok/s. ${sanitizeDescription(m.bestFor || m.notes)}`,
         })),
       },
       {
@@ -235,7 +305,7 @@ export default function LeaderboardPage() {
             name: 'How often are LLM benchmark scores and API prices verified?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: `PromptBill syncs model registries daily and stamps every entry with Verified or Estimated provenance. Dataset last verified on ${lastVerifiedIso}.`,
+              text: `PromptBill syncs model registries daily and stamps every entry with Verified or Estimated provenance. Currently ${verifiedModelsCount} of ${activeModels.length} tracked models have Verified provenance, last updated on ${lastVerifiedIso}.`,
             },
           },
           {

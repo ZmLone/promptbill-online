@@ -966,17 +966,12 @@ export function LeaderboardTableClient({
               Describe your workload, context window, speed, budget, or hosting needs—scored across all factors locally.
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3.5 py-1.5 text-[11px] font-semibold text-white w-fit shrink-0">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                isMatching
-                  ? 'pb-siri-orb'
-                  : 'bg-gradient-to-tr from-cyan-400 via-fuchsia-400 to-emerald-300'
-              }`}
-              aria-hidden="true"
-            />
-            <span>{isMatching ? 'Evaluating constraints & trade-offs...' : 'Multi-Factor Task Engine'}</span>
-          </span>
+          {isMatching ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3.5 py-1.5 text-[11px] font-semibold text-white w-fit shrink-0">
+              <span className="pb-siri-orb h-2.5 w-2.5 rounded-full" aria-hidden="true" />
+              <span>Evaluating constraints &amp; trade-offs...</span>
+            </span>
+          ) : null}
         </div>
 
         {/* Neon Shining Perimeter Input */}
@@ -2128,12 +2123,40 @@ export function LeaderboardTableClient({
         </div>
       ) : null}
 
-      {/* 9. GEO Structured Citation & Provenance Overview */}
-      <footer className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 text-xs text-slate-600 space-y-2 leading-relaxed">
-        <div className="font-bold text-slate-900">Leaderboard Provenance &amp; Citation Standard</div>
-        <p>
-          PromptBill ranks language models dynamically by composite benchmark score, <strong className="text-slate-800">Score/$ efficiency</strong> (composite score divided by official output token price per 1M tokens), official API pricing, and measured output throughput (<strong className="text-slate-800">tok/s</strong>). Every model displays live provenance (<strong className="text-slate-800">Verified</strong> vs. <strong className="text-slate-800">Estimated</strong>), SLA lifecycle (<strong className="text-slate-800">Active</strong>, <strong className="text-slate-800">Preview</strong>, <strong className="text-slate-800">Deprecated</strong>, <strong className="text-slate-800">Legacy</strong>), and hosting license (<strong className="text-slate-800">Closed</strong> vs. <strong className="text-slate-800">Open Weight</strong>).
-        </p>
+      {/* 9. GEO Structured Citation, Definitions & Provenance Overview */}
+      <footer
+        data-geo-facts="true"
+        className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 sm:p-8 text-xs text-slate-600 space-y-5 leading-relaxed"
+      >
+        <div className="space-y-1.5">
+          <h2 className="text-sm font-extrabold text-slate-900">
+            Leaderboard Methodology, Definitions &amp; Citation Standard
+          </h2>
+          <p>
+            PromptBill (<a href="https://promptbill.online/leaderboard" className="font-semibold text-emerald-800 underline">promptbill.online/leaderboard</a>) evaluates {enrichedModels.length} language models ({verifiedCount} Verified) as of <time dateTime={lastVerifiedDate || formattedVerifiedDate}>{formattedVerifiedDate}</time>. Rankings combine composite capability benchmarks, official API token pricing per 1 million tokens, context window limits, and measured generation throughput.
+          </p>
+        </div>
+
+        <dl className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-1">
+            <dt className="font-bold text-slate-900">Score/$ Efficiency Formula</dt>
+            <dd>
+              Calculated as <code className="font-mono text-slate-800">Composite Score ÷ Output Price ($/1M)</code>. Higher values indicate greater reasoning and coding capability per dollar spent on generated tokens.
+            </dd>
+          </div>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-1">
+            <dt className="font-bold text-slate-900">Provenance &amp; SLA Lifecycle</dt>
+            <dd>
+              <strong>Verified</strong> entries match official provider rate cards; <strong>Estimated</strong> entries derive from router telemetry. <strong>Active</strong> denotes production GA endpoints, distinguishing them from <strong>Preview</strong>, <strong>Legacy</strong>, or <strong>Deprecated</strong> IDs.
+            </dd>
+          </div>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-1">
+            <dt className="font-bold text-slate-900">Hosting &amp; Licensing</dt>
+            <dd>
+              <strong>Closed</strong> models run on proprietary managed APIs, whereas <strong>Open Weight</strong> models release weights for self-hosting or multi-provider inference.
+            </dd>
+          </div>
+        </dl>
       </footer>
     </section>
   );
