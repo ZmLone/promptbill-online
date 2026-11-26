@@ -63,9 +63,31 @@ function normalizeLicense(raw: string | null | undefined): string {
   return v;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveLifecycle(m: any): 'Active' | 'Preview' | 'Deprecated' | 'Legacy' {
+  const candidates = [
+    m?.lifecycleStatus,
+    m?.lifecycle,
+    m?.status,
+    m?.modelStatus,
+    m?.availability,
+  ];
+  for (const cand of candidates) {
+    if (typeof cand !== 'string' || !cand.trim()) continue;
+    const v = cand.trim().toLowerCase();
+    if (v === 'deprecated' || v === 'deprecating' || v === 'retired') return 'Deprecated';
+    if (v === 'legacy' || v === 'superseded') return 'Legacy';
+    if (v === 'preview' || v === 'beta' || v === 'experimental') return 'Preview';
+    if (v === 'active' || v === 'ga' || v === 'generally available' || v === 'live') return 'Active';
+  }
+  if (m?.deprecated === true) return 'Deprecated';
+  return 'Active';
+}
+
 function resolveLastVerifiedDate(): string {
   const dates: string[] = [];
-  for (const m of ALL_MODELS) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const m of ALL_MODELS as any[]) {
     if (m.pricingProvenance?.lastVerified) dates.push(String(m.pricingProvenance.lastVerified));
     if (m.benchmarkProvenance?.lastVerified) dates.push(String(m.benchmarkProvenance.lastVerified));
     if (m.speedProvenance?.lastVerified) dates.push(String(m.speedProvenance.lastVerified));
@@ -163,9 +185,9 @@ export default function LeaderboardPage() {
           position: idx + 1,
           name: m.name,
           url: `https://promptbill.online/models/${m.slug}`,
-          description: `${m.provider} · ${normalizeLicense(m.license)} · Lifecycle: ${
-            m.lifecycleStatus || 'Active'
-          } · Score: ${m.score ?? 'N/A'} · API Price: $${m.inputPer1M ?? 'N/A'}/$${
+          description: `${m.provider} · ${normalizeLicense(m.license)} · Lifecycle: ${resolveLifecycle(
+            m
+          )} · Score: ${m.score ?? 'N/A'} · API Price: $${m.inputPer1M ?? 'N/A'}/$${
             m.outputPer1M ?? 'N/A'
           } per 1M tokens · Speed: ${m.tokPerSec ?? 'N/A'} tok/s. ${sanitizeDescription(
             m.bestFor || m.notes
