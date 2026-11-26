@@ -73,8 +73,7 @@ export async function GET() {
 
   after(() => posthogLogProvider.forceFlush().catch(() => {}));
 
-  return new NextResponse(lines.join('
-'), {
+  return new NextResponse(lines.join('\n'), {
     status: 200,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
