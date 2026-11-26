@@ -8,7 +8,7 @@
     "providerSlug": "openai",
     "family": "GPT-6",
     "license": null,
-    "evidence": "Estimated",
+    "evidence": "Verified",
     "score": 90.8,
     "qualityScore": 90.8,
     "interval": null,
@@ -40,23 +40,23 @@
     "bestFor": "Frontier reasoning & complex coding; 272K+ long-context multiplier",
     "notes": "Frontier reasoning & complex coding; 272K+ long-context multiplier",
     "pricingProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:45:08.795Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Snapshot entry without an independently verified primary source URL or check timestamp."
     },
     "benchmarkProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:45:08.795Z",
       "notes": "Score retained as Estimated; no external benchmark citation or test date recorded."
     },
     "speedProvenance": {
-      "status": "Estimated",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-26T16:45:08.795Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Throughput retained as Estimated; no hardware/test-condition log recorded."
@@ -76,8 +76,8 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "lastVerified": "2026-11-26T16:45:08.795Z",
+        "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
