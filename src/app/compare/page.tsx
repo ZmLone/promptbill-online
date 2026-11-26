@@ -4,23 +4,23 @@ import { DynamicCompareClient } from '../../components/DynamicCompareClient';
 import { ALL_MODELS } from '../../lib/catalog';
 
 export const metadata: Metadata = {
-  title: 'Compare LLMs Side-by-Side (2026) — Benchmark Scores, API Token Pricing & Speed | PromptBill',
+  title: 'Head-to-Head LLM Comparisons (A vs B) — Pricing, Benchmarks & Speed | PromptBill',
   description:
-    'Compare any 2 to 6 LLMs side by side across composite benchmark scores, Score/$ cost-efficiency, API input/output token prices per 1M tokens, throughput (tok/s), and context windows on promptbill.online.',
+    'Compare two or more LLMs head-to-head across benchmark scores, Score/$ efficiency, official API input/output token rates per 1M tokens, throughput (tok/s), and context windows on promptbill.online.',
   keywords: [
-    'compare LLMs side by side',
-    'AI model comparison tool',
+    'LLM comparison A vs B',
+    'head to head AI model comparison',
     'LLM API pricing comparison',
-    'LLM benchmark vs price',
+    'benchmark score vs API price',
     'PromptBill compare',
   ],
   alternates: {
     canonical: 'https://promptbill.online/compare',
   },
   openGraph: {
-    title: 'Compare LLMs Side-by-Side — Benchmark Scores, API Pricing & Speed | PromptBill',
+    title: 'Head-to-Head LLM Comparisons (A vs B) — Pricing, Benchmarks & Speed | PromptBill',
     description:
-      'Side-by-side comparison matrix for active LLMs with automatic winner highlights for benchmark score, Score/$, API pricing, and tokens per second.',
+      'Pick Model A and Model B for instant head-to-head comparison, browse trending matchups, or compare multiple models side by side.',
     url: 'https://promptbill.online/compare',
     siteName: 'PromptBill',
     type: 'website',
@@ -68,9 +68,9 @@ export default async function ComparePage({
         '@type': 'WebPage',
         '@id': 'https://promptbill.online/compare#webpage',
         url: 'https://promptbill.online/compare',
-        name: 'Compare LLMs Side-by-Side — Benchmark Scores, API Pricing & Speed',
+        name: 'Head-to-Head LLM Comparisons (A vs B) — Pricing, Benchmarks & Speed',
         description:
-          'Interactive multi-model LLM comparison tool evaluating benchmark scores, Score/$ efficiency, official API token pricing per 1M tokens, context windows, and speed.',
+          'Interactive head-to-head and multi-model LLM comparison tool evaluating benchmark scores, Score/$ efficiency, official API token pricing per 1M tokens, context windows, and speed.',
         isPartOf: {
           '@type': 'WebSite',
           name: 'PromptBill',
@@ -88,13 +88,7 @@ export default async function ComparePage({
             {
               '@type': 'ListItem',
               position: 2,
-              name: 'LLM Leaderboard',
-              item: 'https://promptbill.online/leaderboard',
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: 'Compare Models',
+              name: 'Compare LLMs',
               item: 'https://promptbill.online/compare',
             },
           ],
@@ -103,7 +97,7 @@ export default async function ComparePage({
       {
         '@type': 'SoftwareApplication',
         '@id': 'https://promptbill.online/compare#app',
-        name: 'PromptBill Side-by-Side LLM Comparator',
+        name: 'PromptBill Head-to-Head LLM Comparator',
         url: 'https://promptbill.online/compare',
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Web',
@@ -118,8 +112,8 @@ export default async function ComparePage({
 
   return (
     <SiteShell
-      title="Compare LLMs Side-by-Side"
-      subtitle="promptbill.online/compare · Dynamic Multi-Model Benchmark, Pricing & Speed Comparison"
+      title="Head-to-Head LLM Comparisons (A vs B)"
+      subtitle="promptbill.online/compare · Official API Pricing, Benchmarks & Speed"
     >
       <script
         type="application/ld+json"
@@ -128,6 +122,8 @@ export default async function ComparePage({
       <DynamicCompareClient
         models={activeModels}
         initialSlugs={requestedSlugs}
+        initialA={rawA.trim()}
+        initialB={rawB.trim()}
       />
     </SiteShell>
   );
