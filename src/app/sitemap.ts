@@ -1,77 +1,48 @@
 import type { MetadataRoute } from 'next';
-import { ALL_MODELS, getAllProviderSlugs, getAutoComparisonPairs } from '../lib/catalog';
+import { ALL_MODELS } from '../lib/catalog';
+import { getUniqueProviders, TIER_HUBS } from '../lib/hubs';
 
 const BASE_URL = 'https://promptbill.online';
-const LAST_MODIFIED = '2026-11-26';
+const CATALOG_LAST_MODIFIED = '2026-11-27';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = [
-    '',
-    '/leaderboard',
-    '/models',
-    '/pricing',
-    '/compare',
-    '/tools/llm-selector',
-    '/tools/token-counter',
-    '/tools/routing-simulator',
-    '/best-llms-for-coding',
-    '/best-open-weight-llms',
-    '/cheapest-llms-for-classification',
-    '/fastest-llms-tokens-per-second',
-    '/about',
-    '/methodology',
-    '/contact',
-    '/advertise',
-    '/privacy-policy',
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/models`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/leaderboard`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/compare`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/pricing`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/tools/llm-selector`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/tools/token-counter`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/tools/routing-simulator`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/best-llms-for-coding`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/best-open-weight-llms`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/cheapest-llms-for-classification`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/fastest-llms-tokens-per-second`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/methodology`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/about`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/contact`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/advertise`, lastModified: CATALOG_LAST_MODIFIED },
+    { url: `${BASE_URL}/privacy-policy`, lastModified: CATALOG_LAST_MODIFIED },
   ];
 
-  const entries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
-    url: `${BASE_URL}${route || '/'}`,
-    lastModified: LAST_MODIFIED,
-    changeFrequency:
-      route === '' || route === '/leaderboard' || route === '/pricing' || route === '/models' || route === '/compare'
-        ? 'daily'
-        : 'weekly',
-    priority:
-      route === ''
-        ? 1.0
-        : route === '/leaderboard' || route === '/pricing'
-        ? 0.9
-        : route === '/models' || route === '/compare'
-        ? 0.85
-        : 0.7,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const modelRoutes: MetadataRoute.Sitemap = (ALL_MODELS as any[])
+    .filter((m) => !m.archived && m.slug)
+    .map((m) => ({
+      url: `${BASE_URL}/models/${m.slug}`,
+      lastModified: CATALOG_LAST_MODIFIED,
+    }));
+
+  const providerRoutes: MetadataRoute.Sitemap = getUniqueProviders(ALL_MODELS).map((p) => ({
+    url: `${BASE_URL}/providers/${p.slug}`,
+    lastModified: CATALOG_LAST_MODIFIED,
   }));
 
-  for (const m of ALL_MODELS) {
-    const modelLastMod =
-      m.pricingProvenance?.lastVerified ||
-      m.benchmarkProvenance?.lastVerified ||
-      LAST_MODIFIED;
-    entries.push({
-      url: `${BASE_URL}/models/${m.slug}`,
-      lastModified: modelLastMod,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    });
-  }
+  const tierRoutes: MetadataRoute.Sitemap = TIER_HUBS.map((t) => ({
+    url: `${BASE_URL}/tiers/${t.slug}`,
+    lastModified: CATALOG_LAST_MODIFIED,
+  }));
 
-  for (const p of getAllProviderSlugs()) {
-    entries.push({
-      url: `${BASE_URL}/providers/${p.providerSlug}`,
-      lastModified: LAST_MODIFIED,
-      changeFrequency: 'weekly',
-      priority: 0.75,
-    });
-  }
-
-  for (const pair of getAutoComparisonPairs(160)) {
-    entries.push({
-      url: `${BASE_URL}/compare/${pair.slug}`,
-      lastModified: LAST_MODIFIED,
-      changeFrequency: 'weekly',
-      priority: 0.65,
-    });
-  }
-
-  return entries;
+  return [...staticRoutes, ...modelRoutes, ...providerRoutes, ...tierRoutes];
 }
