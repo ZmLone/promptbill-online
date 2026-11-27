@@ -6,7 +6,7 @@ import { getRegistryFreshnessSummary } from '../lib/freshness';
 import { formatCurrency } from '../lib/pricingEngine';
 import { getEffectiveModelRates } from '../lib/endpointPricing';
 import { SiteShell } from '../components/SiteShell';
-import { HomeInteractiveWorkbench } from '../components/HomeInteractiveWorkbench';
+import { HomeInteractiveHub } from '../components/HomeInteractiveHub';
 import { ProviderLogo } from '../components/ProviderLogo';
 import {
   Table2,
@@ -21,7 +21,6 @@ import {
   Sparkles,
   Layers,
   CheckCircle2,
-  Clock,
 } from 'lucide-react';
 
 const HOME_TITLE = 'PromptBill — LLM API Pricing, Multi-Endpoint Rates & Token Calculator';
@@ -52,17 +51,6 @@ export const metadata: Metadata = {
 
 function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
-}
-
-function formatReleaseDate(raw?: string | null): string {
-  if (!raw) return '2026';
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) return raw.slice(0, 10);
-  return parsed.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 }
 
 const CORE_TOOLS = [
@@ -148,16 +136,6 @@ export default function HomePage() {
     0
   );
 
-  // Newest models timeline ordered by pricingProvenance.lastVerified timestamp
-  const newModelsTimeline = [...ALL_MODELS]
-    .sort((a, b) => {
-      const dateA = a.pricingProvenance?.lastVerified ?? '';
-      const dateB = b.pricingProvenance?.lastVerified ?? '';
-      return dateB.localeCompare(dateA);
-    })
-    .slice(0, 6);
-
-  // Representative snapshot across flagship, balanced, and economy tiers
   const snapshotModels = (() => {
     const preferredSlugs = [
       'gpt-6-2-astra',
@@ -269,7 +247,7 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
 
-        {/* Hero — Open Editorial Layout (No Boxiness) */}
+        {/* Hero — Open Editorial Layout */}
         <section className="pt-2 sm:pt-6 space-y-10">
           <div className="max-w-4xl space-y-5">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-800">
@@ -310,7 +288,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Open Architectural Telemetry Strip (Hairline Dividers, Zero Heavy Boxes) */}
+          {/* Open Architectural Telemetry Strip */}
           <dl className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 border-y border-slate-200/80 py-6">
             <div>
               <dt className="text-xs font-medium text-slate-500">Tracked Models</dt>
@@ -354,116 +332,8 @@ export default function HomePage() {
           </dl>
         </section>
 
-        {/* Standout Interactive 30-Day Spend & Endpoint Calculator */}
-        <HomeInteractiveWorkbench models={ALL_MODELS} />
-
-        {/* Creative Horizontal Release Rail — New Model Timeline */}
-        <section aria-labelledby="new-models-timeline-heading" className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-            <div>
-              <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800">
-                <Clock className="h-3.5 w-3.5" />
-                <span>Release Stream</span>
-              </p>
-              <h2
-                id="new-models-timeline-heading"
-                className="mt-1 text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950"
-              >
-                New Model Timeline
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Latest model drops and verified rate card updates across tracked AI labs.
-              </p>
-            </div>
-            <Link
-              href="/models"
-              className="text-xs sm:text-sm font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-4"
-            >
-              View All {ALL_MODELS.length} Models →
-            </Link>
-          </div>
-
-          {/* Horizontal Timeline Track (Desktop) / Vertical Connected Rail (Mobile) */}
-          <div className="relative">
-            {/* Desktop Horizontal Track Line */}
-            <div
-              aria-hidden="true"
-              className="hidden lg:block absolute top-[21px] inset-x-0 h-px bg-gradient-to-r from-emerald-500/60 via-slate-300 to-slate-200/40"
-            />
-
-            <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-4">
-              {newModelsTimeline.map((m, idx) => {
-                const eff = getEffectiveModelRates(m, 'cheapest');
-                const dateLabel = formatReleaseDate(m.pricingProvenance?.lastVerified);
-                const isLatest = idx === 0;
-                return (
-                  <li
-                    key={m.id}
-                    className="group relative pl-6 lg:pl-0 border-l lg:border-l-0 border-slate-200 space-y-3"
-                  >
-                    {/* Timeline Node & Date */}
-                    <div className="flex items-center gap-2.5 lg:flex-col lg:items-start lg:gap-2">
-                      <span
-                        aria-hidden="true"
-                        className={`-left-[5px] lg:left-0 absolute lg:relative flex h-2.5 w-2.5 rounded-full ring-4 ring-[#fbfbfd] ${
-                          isLatest
-                            ? 'bg-emerald-600 shadow-[0_0_0_3px_rgba(16,185,129,0.2)]'
-                            : 'bg-slate-400 group-hover:bg-slate-950 transition-colors'
-                        }`}
-                      />
-                      <div className="flex items-center gap-1.5">
-                        <time className="font-mono text-[11px] font-semibold text-slate-500">
-                          {dateLabel}
-                        </time>
-                        {isLatest && (
-                          <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                            New
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Clean Typographic Node Content (No Heavy Box) */}
-                    <div className="space-y-1.5 pt-0.5">
-                      <div className="flex items-center gap-2">
-                        <ProviderLogo provider={m.provider} size="sm" />
-                        <span className="text-[11px] font-medium text-slate-500 truncate">
-                          {m.provider}
-                        </span>
-                      </div>
-
-                      <h3 className="text-sm font-bold text-slate-950 leading-snug">
-                        <Link
-                          href={`/models/${m.slug}`}
-                          className="group-hover:text-emerald-800 transition-colors"
-                        >
-                          {m.name}
-                        </Link>
-                      </h3>
-
-                      <div className="font-mono text-xs text-slate-700 tabular-nums">
-                        {fmtRate(eff.inputPer1M)} / {fmtRate(eff.outputPer1M)}
-                        <span className="text-slate-400"> · 1M</span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
-                        <span>{m.contextWindow ?? 'N/A'} ctx</span>
-                        {typeof m.score === 'number' && (
-                          <>
-                            <span>·</span>
-                            <span className="font-mono font-semibold text-slate-700">
-                              {m.score.toFixed(1)} pts
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </section>
+        {/* Interactive New Model Timeline (First) -> Diagonal-Wave Calculator (Second) */}
+        <HomeInteractiveHub models={ALL_MODELS} />
 
         {/* Live Catalog Snapshot — Clean Hairline Table */}
         <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
@@ -621,7 +491,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x md:divide-slate-200/80 border-y border-slate-200/80 py-6">
-            {/* Quality Leaders */}
             <div className="md:pr-8 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
@@ -655,7 +524,6 @@ export default function HomePage() {
               </ul>
             </div>
 
-            {/* Value Leaders */}
             <div className="md:px-8 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
@@ -689,7 +557,6 @@ export default function HomePage() {
               </ul>
             </div>
 
-            {/* Speed Leaders */}
             <div className="md:pl-8 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
@@ -786,7 +653,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Curated Task Hubs — Borderless Pill/Row Strip */}
+        {/* Curated Task Hubs */}
         <section aria-labelledby="curated-views-heading" className="space-y-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
@@ -827,7 +694,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Data Provenance & FAQ — Clean Editorial Section */}
+        {/* Data Provenance & FAQ */}
         <section aria-labelledby="home-faq-heading" className="space-y-6 pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>

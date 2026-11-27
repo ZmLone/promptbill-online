@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Home,
   ArrowUpDown,
   Calculator,
   Sparkles,
@@ -24,15 +23,13 @@ const PRIMARY_NAV: {
   href: string;
   label: string;
   icon: React.FC<{ className?: string }>;
-  hideOnHome?: boolean;
 }[] = [
-  { href: '/', label: 'Home', icon: Home, hideOnHome: true },
   { href: '/leaderboard', label: 'Leaderboard', icon: ArrowUpDown },
   { href: '/compare', label: 'Compare', icon: Scale },
   { href: '/pricing', label: 'API Pricing', icon: Calculator },
-  { href: '/tools/llm-selector', label: 'LLM Selector', icon: Sparkles },
+  { href: '/tools/llm-selector', label: 'Selector', icon: Sparkles },
   { href: '/best-llms-for-coding', label: 'Coding', icon: Code2 },
-  { href: '/tools/token-counter', label: 'Token Counter', icon: FileText },
+  { href: '/tools/token-counter', label: 'Tokenizer', icon: FileText },
   { href: '/tools/routing-simulator', label: 'Routing', icon: GitBranch },
   { href: '/models', label: 'Models', icon: Cpu },
 ];
@@ -87,7 +84,6 @@ export function SiteShell({
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isHome = pathname === '/';
 
   useEffect(() => {
     router.prefetch('/');
@@ -102,22 +98,21 @@ export function SiteShell({
     setMoreOpen(false);
   }, [pathname]);
 
-  const visibleDesktopNav = PRIMARY_NAV.filter((item) => !(isHome && item.hideOnHome));
-
   return (
     <div className="min-h-screen bg-[#fbfbfd] text-slate-900 flex flex-col pb-24 lg:pb-0 text-[14px] sm:text-[15px] leading-relaxed overflow-x-hidden">
       <header
-        className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur-md"
+        className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/90 backdrop-blur-md"
         onMouseLeave={() => setMoreOpen(false)}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
+          {/* Brand Logo serves as the single clean Home link */}
           <Link
             href="/"
             prefetch={true}
             aria-label="PromptBill Home"
-            className="flex items-center gap-2.5 shrink-0 min-h-[42px] pr-1 group"
+            className="flex items-center gap-2.5 shrink-0 min-h-[42px] group"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 font-mono text-xs font-bold text-white shadow-xs group-hover:bg-emerald-900 transition-colors">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 font-mono text-xs font-bold text-white shadow-xs group-hover:bg-emerald-800 transition-colors">
               PB
             </span>
             <div>
@@ -128,23 +123,28 @@ export function SiteShell({
             </div>
           </Link>
 
-          <nav aria-label="Main Navigation" className="hidden xl:flex items-center gap-1 text-xs font-medium">
-            {visibleDesktopNav.map((item) => {
+          {/* Uniformly Spaced Desktop Nav (No Home tab clutter) */}
+          <nav
+            aria-label="Main Navigation"
+            className="hidden xl:flex items-center gap-2 text-[13px] font-medium"
+          >
+            {PRIMARY_NAV.map((item) => {
               const Icon = item.icon;
               const active =
-                pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
+                pathname === item.href ||
+                (item.href !== '/' && pathname?.startsWith(`${item.href}/`));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   prefetch={true}
-                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${
+                  className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 transition-colors whitespace-nowrap ${
                     active
-                      ? 'bg-slate-950 text-white'
-                      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950'
+                      ? 'bg-slate-950 text-white font-semibold shadow-2xs'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -155,7 +155,11 @@ export function SiteShell({
                 type="button"
                 aria-expanded={moreOpen}
                 onClick={() => setMoreOpen((prev) => !prev)}
-                className="inline-flex min-h-[36px] items-center gap-1 rounded-full px-3 py-1.5 text-slate-600 hover:bg-slate-100/80 hover:text-slate-950"
+                className={`inline-flex h-9 items-center gap-1 rounded-full px-3.5 transition-colors whitespace-nowrap ${
+                  moreOpen
+                    ? 'bg-slate-100 text-slate-950 font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                }`}
               >
                 <span>More</span>
                 <ChevronDown
@@ -191,11 +195,11 @@ export function SiteShell({
             </div>
           </nav>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link
               href="/advertise"
               prefetch={true}
-              className="hidden sm:inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 transition-colors"
+              className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 transition-colors"
             >
               <Megaphone className="w-3.5 h-3.5 text-emerald-700" />
               <span>Advertise</span>
@@ -206,7 +210,7 @@ export function SiteShell({
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="xl:hidden inline-flex min-h-[42px] min-w-[42px] items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+              className="xl:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -215,18 +219,19 @@ export function SiteShell({
 
         {mobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200/80 bg-white px-4 py-5 shadow-xl max-h-[78vh] overflow-y-auto space-y-5">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {visibleDesktopNav.map((item) => {
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {PRIMARY_NAV.map((item) => {
                 const Icon = item.icon;
                 const active =
-                  pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
+                  pathname === item.href ||
+                  (item.href !== '/' && pathname?.startsWith(`${item.href}/`));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     prefetch={true}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex min-h-[44px] items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold ${
+                    className={`flex min-h-[44px] items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold ${
                       active
                         ? 'bg-slate-950 text-white'
                         : 'bg-slate-50 text-slate-900 hover:bg-slate-100'
@@ -306,8 +311,7 @@ export function SiteShell({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-100 pt-5 text-slate-600">
-            <Link href="/" prefetch={true} className="hover:text-slate-950">Home</Link>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-5 text-slate-600">
             <Link href="/leaderboard" prefetch={true} className="hover:text-slate-950">Leaderboard</Link>
             <Link href="/compare" prefetch={true} className="hover:text-slate-950">Compare</Link>
             <Link href="/pricing" prefetch={true} className="hover:text-slate-950">API Pricing</Link>
@@ -330,14 +334,14 @@ export function SiteShell({
       >
         <div className="mx-auto grid max-w-lg grid-cols-4 gap-1.5">
           <Link
-            href="/"
+            href="/pricing"
             prefetch={true}
             className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-xl text-[11px] font-semibold ${
-              isHome ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-100'
+              pathname?.startsWith('/pricing') ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <Home className="w-4 h-4 mb-0.5" />
-            <span>Home</span>
+            <Calculator className="w-4 h-4 mb-0.5" />
+            <span>Pricing</span>
           </Link>
 
           <Link

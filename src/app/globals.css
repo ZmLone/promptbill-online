@@ -20,23 +20,35 @@
   }
 }
 
-@keyframes subtlePerimeterPulse {
-  0%, 100% {
-    box-shadow: 0 24px 60px -18px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.08);
+@keyframes diagonalWaveFlow {
+  0% {
+    transform: translate3d(-4%, -4%, 0) scale(1);
+    opacity: 0.85;
   }
   50% {
-    box-shadow: 0 28px 68px -18px rgba(5, 150, 105, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.34);
+    transform: translate3d(3%, 3%, 0) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-4%, -4%, 0) scale(1);
+    opacity: 0.85;
   }
 }
 
-.pb-calculator-standout {
-  animation: subtlePerimeterPulse 7s ease-in-out infinite;
+.pb-diagonal-wave {
+  animation: diagonalWaveFlow 12s ease-in-out infinite;
+}
+
+.pb-calculator-shell {
+  box-shadow:
+    0 28px 70px -20px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .pb-clean-row {
-  transition: background-color 160ms ease, transform 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .pb-clean-row:hover {
-  background-color: rgba(241, 245, 249, 0.75);
+  background-color: rgba(241, 245, 249, 0.78);
 }

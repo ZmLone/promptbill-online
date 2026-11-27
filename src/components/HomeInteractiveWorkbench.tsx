@@ -80,7 +80,13 @@ function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
-export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] }) {
+export function HomeInteractiveWorkbench({
+  models,
+  externalSelectedSlug,
+}: {
+  models: CatalogModel[];
+  externalSelectedSlug?: string | null;
+}) {
   const defaultSlug = useMemo(() => {
     const preferred = models.find(
       (m) => m.slug === 'claude-sonnet-5-5' || m.slug === 'gemini-4-carbon'
@@ -97,6 +103,12 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
   const [useBatch, setUseBatch] = useState<boolean>(false);
   const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
   const [customHostKey, setCustomHostKey] = useState<string>('');
+
+  useEffect(() => {
+    if (externalSelectedSlug && models.some((m) => m.slug === externalSelectedSlug)) {
+      setSelectedSlug(externalSelectedSlug);
+    }
+  }, [externalSelectedSlug, models]);
 
   const selectedModel = useMemo(
     () => models.find((m) => m.slug === selectedSlug) ?? models[0],
@@ -196,14 +208,49 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
     <section
       id="estimator"
       aria-labelledby="quick-estimator-heading"
-      className="pb-calculator-standout relative overflow-hidden rounded-[28px] bg-gradient-to-b from-white via-white to-slate-50/90 p-5 sm:p-8 space-y-6"
+      className="pb-calculator-shell relative overflow-hidden rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
+      {/* Diagonal Corner-to-Corner Colorful Wave (Top-Left Emerald/Cyan -> Bottom-Right Indigo/Amber) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
-      />
+        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        {/* Top-Left Wave Crest */}
+        <div className="absolute -top-28 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-emerald-400/24 via-teal-300/16 to-cyan-400/10 blur-3xl" />
+        {/* Diagonal Sweeping SVG Wave Ribbon from Top-Left to Bottom-Right */}
+        <svg
+          viewBox="0 0 1200 600"
+          preserveAspectRatio="none"
+          className="absolute inset-0 h-full w-full opacity-65"
+        >
+          <defs>
+            <linearGradient id="pbCornerWave1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.20" />
+              <stop offset="35%" stopColor="#06B6D4" stopOpacity="0.14" />
+              <stop offset="70%" stopColor="#6366F1" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.18" />
+            </linearGradient>
+            <linearGradient id="pbCornerWave2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34D399" stopOpacity="0.16" />
+              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#EC4899" stopOpacity="0.14" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M-80,-40 C240,40 320,310 640,340 C930,365 1030,520 1280,640 L1280,450 C1020,350 880,210 600,190 C310,170 210,-10 -80,-120 Z"
+            fill="url(#pbCornerWave1)"
+          />
+          <path
+            d="M-100,60 C210,150 380,410 710,440 C970,465 1090,560 1280,670 L1280,540 C1060,440 920,310 650,285 C350,260 190,60 -100,-20 Z"
+            fill="url(#pbCornerWave2)"
+          />
+        </svg>
+        {/* Bottom-Right Opposite Corner Wave Crest */}
+        <div className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-gradient-to-tl from-indigo-500/22 via-fuchsia-400/14 to-amber-300/16 blur-3xl" />
+      </div>
 
-      <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
+      {/* Calculator Header */}
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/75 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
             <Calculator className="h-5 w-5" />
@@ -216,8 +263,8 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               >
                 30-Day API Spend Calculator
               </h2>
-              <span className="rounded-full bg-emerald-500/12 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
-                Interactive
+              <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
+                Live Math
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -231,9 +278,10 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
         </div>
       </div>
 
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-3">
+      {/* Workload Presets & Host Selector */}
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">
             Workloads
           </span>
           {WORKLOAD_PRESETS.map((p) => {
@@ -246,7 +294,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 className={`min-h-[36px] rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
                   active
                     ? 'bg-slate-950 text-white shadow-sm'
-                    : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/70'
+                    : 'bg-white/85 ring-1 ring-slate-200/80 text-slate-700 hover:bg-white'
                 }`}
               >
                 <span>{p.label}</span>
@@ -288,7 +336,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                   setEndpointMode('cheapest');
                 }
               }}
-              className="min-h-[38px] max-w-[270px] sm:max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
+              className="min-h-[38px] max-w-[270px] sm:max-w-xs rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
             >
               {endpointEval.quotes.map((q) => (
                 <option
@@ -304,7 +352,8 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
         )}
       </div>
 
-      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      {/* Calculator Body */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label
@@ -312,7 +361,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5"
             >
               <span>Select Model ({models.length} tracked)</span>
-              <span className="inline-flex items-center gap-1.5 text-slate-500">
+              <span className="inline-flex items-center gap-1.5 text-slate-600">
                 <ProviderLogo provider={selectedModel.provider} size="sm" />
                 <span>{selectedModel.provider}</span>
               </span>
@@ -321,7 +370,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               id="home-model-select"
               value={selectedModel.slug}
               onChange={(e) => setSelectedSlug(e.target.value)}
-              className="min-h-[46px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none transition-colors"
+              className="min-h-[46px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none transition-colors"
             >
               {modelDropdownRows.map(({ model: m, chosen }) => (
                 <option key={m.id} value={m.slug}>
@@ -349,7 +398,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 setPresetId('custom');
                 setCallsPerDay(Math.max(0, Number(e.target.value) || 0));
               }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
             />
           </div>
 
@@ -368,7 +417,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 setPresetId('custom');
                 setCachePct(Number(e.target.value));
               }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-400 focus:border-slate-900 focus:outline-none"
+              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-400 focus:border-slate-900 focus:outline-none"
             >
               <option value={0}>0% (No cache hits)</option>
               <option value={20}>20% Cached reads</option>
@@ -394,7 +443,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 setPresetId('custom');
                 setInputTokens(Math.max(0, Number(e.target.value) || 0));
               }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
             />
           </div>
 
@@ -415,7 +464,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 setPresetId('custom');
                 setOutputTokens(Math.max(0, Number(e.target.value) || 0));
               }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
             />
           </div>
 
@@ -454,7 +503,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
           </div>
         </div>
 
-        <div className="lg:col-span-5 rounded-2xl bg-slate-950 text-white p-6 flex flex-col justify-between gap-5 shadow-lg">
+        <div className="lg:col-span-5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white p-6 flex flex-col justify-between gap-5 shadow-xl">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-medium text-emerald-300">
