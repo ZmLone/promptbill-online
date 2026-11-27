@@ -19,6 +19,7 @@ export interface CatalogHostingEndpoint {
   cacheWritePer1M: number | null;
   outputPer1M: number | null;
   batchDiscount: number | null;
+  tokPerSec?: number | null;
   latencyMs?: number | null;
   notes?: string | null;
   currency?: string;
@@ -129,6 +130,7 @@ function normalizeRecord(rec: LiveModelRecord, index: number): CatalogModel {
       cacheWritePer1M: finiteNonNegOrNull(ep.cacheWritePer1M),
       outputPer1M: finiteNonNegOrNull(ep.outputPer1M),
       batchDiscount: finiteNonNegOrNull(ep.batchDiscount),
+      tokPerSec: finiteNonNegOrNull((ep as { tokPerSec?: unknown; speedTokensPerSec?: unknown }).tokPerSec ?? (ep as { speedTokensPerSec?: unknown }).speedTokensPerSec),
       latencyMs: finiteNonNegOrNull(ep.latencyMs),
       notes: nonEmptyStringOrNull(ep.notes),
       currency: nonEmptyStringOrNull(ep.currency) || 'USD',

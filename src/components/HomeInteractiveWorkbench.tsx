@@ -1,10 +1,16 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import type { CatalogModel } from '../lib/catalog';
-import { calculateModelCost, formatCurrency } from '../lib/pricingEngine';
-import { Calculator, ArrowRight, Sparkles, CheckCircle2, Info } from 'lucide-react';
+import { formatCurrency } from '../lib/pricingEngine';
+import {
+  evaluateModelEndpoints,
+  getEndpointKey,
+  type EndpointSelectionMode,
+} from '../lib/endpointPricing';
+import { EndpointModeSwitcher } from './EndpointModeSwitcher';
+import { Calculator, ArrowRight, Sparkles, CheckCircle2, Info, Server } from 'lucide-react';
 
 interface WorkloadPreset {
   id: string;
@@ -60,7 +66,7 @@ const WORKLOAD_PRESETS: WorkloadPreset[] = [
   },
 ];
 
-function fmtRate(val: number | null): string {
+function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
@@ -72,27 +78,50 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
   const [outputTokens, setOutputTokens] = useState<number>(600);
   const [cachePct, setCachePct] = useState<number>(50);
   const [useBatch, setUseBatch] = useState<boolean>(false);
+  const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
+  const [customHostKey, setCustomHostKey] = useState<string>('');
 
   const selectedModel = useMemo(
     () => models.find((m) => m.slug === selectedSlug) ?? models[0],
     [models, selectedSlug]
   );
 
-  const breakdown = useMemo(() => {
+  useEffect(() => {
+    setCustomHostKey('');
+  }, [selectedSlug]);
+
+  const endpointEval = useMemo(() => {
     if (!selectedModel) return null;
-    return calculateModelCost(selectedModel, {
+    return evaluateModelEndpoints(selectedModel, {
       inputTokensPerCall: Math.max(0, inputTokens),
       outputTokensPerCall: Math.max(0, outputTokens),
       reasoningTokensPerCall: 0,
       callsPerDay: Math.max(0, callsPerDay),
-      cacheHitPercent: selectedModel.cachedInputPer1M !== null ? cachePct : 0,
+      cacheHitPercent: cachePct,
       cacheWriteSharePercent: 0,
-      batchPercent: useBatch && selectedModel.batchDiscount !== null ? 100 : 0,
+      batchPercent: useBatch ? 100 : 0,
       retriesPercent: 0,
     });
   }, [selectedModel, inputTokens, outputTokens, callsPerDay, cachePct, useBatch]);
 
-  if (!selectedModel || !breakdown) return null;
+  const activeQuote = useMemo(() => {
+    if (!endpointEval) return null;
+    if (customHostKey) {
+      const matched = endpointEval.quotes.find(
+        (q) => getEndpointKey(q.endpoint, q.index) === customHostKey
+      );
+      if (matched) return matched;
+    }
+    return endpointMode === 'first-party' || endpointMode === 'official'
+      ? endpointEval.firstPartyQuote
+      : endpointEval.cheapestQuote;
+  }, [endpointEval, endpointMode, customHostKey]);
+
+  if (!selectedModel || !endpointEval || !activeQuote) return null;
+
+  const breakdown = activeQuote.breakdown;
+  const activeRates = activeQuote.modelView;
+  const hasMultipleHosts = endpointEval.quotes.length > 1;
 
   const applyPreset = (p: WorkloadPreset) => {
     setPresetId(p.id);
@@ -103,7 +132,28 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
     setUseBatch(p.batchPct > 0);
   };
 
-  const isVerified = selectedModel.pricingProvenance.status === 'Verified';
+  const handleModeSwitch = (nextMode: EndpointSelectionMode) => {
+    setEndpointMode(nextMode);
+    setCustomHostKey('');
+  };
+
+  const activeEvidence =
+    activeQuote.endpoint.evidenceStatus ?? selectedModel.pricingProvenance.status;
+  const isVerified = activeEvidence === 'Verified';
+
+  const firstCost = endpointEval.firstPartyQuote.breakdown.monthlyTotalCost;
+  const activeCost = breakdown.monthlyTotalCost;
+  const monthlySavings =
+    typeof firstCost === 'number' &&
+    typeof activeCost === 'number' &&
+    activeQuote.index !== endpointEval.firstPartyQuote.index &&
+    firstCost - activeCost > 0.005
+      ? firstCost - activeCost
+      : 0;
+  const savingsPct =
+    monthlySavings > 0 && typeof firstCost === 'number' && firstCost > 0
+      ? Math.round((monthlySavings / firstCost) * 100)
+      : 0;
 
   return (
     <section
@@ -120,11 +170,17 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               Instant API Spend Estimator
             </h2>
             <p className="text-xs text-slate-600">
-              Test a model and workload below to preview 30-day token spend before opening the full calculator.
+              Compare official provider APIs vs. third-party routers &amp; inference clouds in real time.
             </p>
           </div>
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
+          <EndpointModeSwitcher mode={endpointMode} onChange={handleModeSwitch} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1.5">
           {WORKLOAD_PRESETS.map((p) => {
             const active = presetId === p.id;
@@ -133,7 +189,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 key={p.id}
                 type="button"
                 onClick={() => applyPreset(p)}
-                className={`min-h-[36px] rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                className={`min-h-[34px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
                   active
                     ? 'border-emerald-700 bg-emerald-700 text-white'
                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white'
@@ -144,6 +200,37 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
             );
           })}
         </div>
+
+        {hasMultipleHosts && (
+          <div className="flex items-center gap-2 text-xs">
+            <label htmlFor="home-host-select" className="inline-flex items-center gap-1 font-semibold text-slate-700">
+              <Server className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Endpoint:</span>
+            </label>
+            <select
+              id="home-host-select"
+              value={getEndpointKey(activeQuote.endpoint, activeQuote.index)}
+              onChange={(e) => {
+                setCustomHostKey(e.target.value);
+                if (e.target.value === getEndpointKey(endpointEval.firstPartyQuote.endpoint, endpointEval.firstPartyQuote.index)) {
+                  setEndpointMode('first-party');
+                } else {
+                  setEndpointMode('cheapest');
+                }
+              }}
+              className="min-h-[34px] rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-900"
+            >
+              {endpointEval.quotes.map((q) => (
+                <option
+                  key={getEndpointKey(q.endpoint, q.index)}
+                  value={getEndpointKey(q.endpoint, q.index)}
+                >
+                  {q.endpoint.host} ({q.endpoint.providerType}) — {formatCurrency(q.breakdown.monthlyTotalCost)}/mo
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
@@ -161,11 +248,25 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               onChange={(e) => setSelectedSlug(e.target.value)}
               className="min-h-[44px] w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-900 focus:border-emerald-700 focus:outline-none"
             >
-              {models.map((m) => (
-                <option key={m.id} value={m.slug}>
-                  {m.name} ({m.provider}) — {fmtRate(m.inputPer1M)} / {fmtRate(m.outputPer1M)} per 1M
-                </option>
-              ))}
+              {models.map((m) => {
+                const evalPreview = evaluateModelEndpoints(m, {
+                  inputTokensPerCall: inputTokens,
+                  outputTokensPerCall: outputTokens,
+                  callsPerDay,
+                  cacheHitPercent: cachePct,
+                  batchPercent: useBatch ? 100 : 0,
+                });
+                const chosen =
+                  endpointMode === 'first-party'
+                    ? evalPreview.firstPartyQuote
+                    : evalPreview.cheapestQuote;
+                return (
+                  <option key={m.id} value={m.slug}>
+                    {m.name} ({m.provider}) — {fmtRate(chosen.modelView.inputPer1M)} /{' '}
+                    {fmtRate(chosen.modelView.outputPer1M)} per 1M via {chosen.endpoint.host}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -199,8 +300,8 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
             </label>
             <select
               id="home-cache-pct"
-              disabled={selectedModel.cachedInputPer1M === null}
-              value={selectedModel.cachedInputPer1M === null ? 0 : cachePct}
+              disabled={activeRates.cachedInputPer1M === null}
+              value={activeRates.cachedInputPer1M === null ? 0 : cachePct}
               onChange={(e) => {
                 setPresetId('custom');
                 setCachePct(Number(e.target.value));
@@ -263,9 +364,9 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               ) : (
                 <Info className="h-3.5 w-3.5 text-amber-700 shrink-0" />
               )}
-              Pricing provenance:{' '}
+              Endpoint:{' '}
               <strong className="text-slate-900">
-                {isVerified ? 'Verified' : 'Estimated (Unverified)'}
+                {activeQuote.endpoint.host} ({activeEvidence})
               </strong>
             </span>
 
@@ -294,7 +395,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
             <div className="flex items-center justify-between gap-2 text-xs text-slate-300">
               <span className="inline-flex items-center gap-1.5 font-medium text-emerald-300">
                 <Sparkles className="h-3.5 w-3.5" />
-                {selectedModel.provider}
+                {activeQuote.endpoint.host} · {activeQuote.endpoint.providerType}
               </span>
               <span className="font-mono">{selectedModel.contextWindow ?? 'N/A'} ctx</span>
             </div>
@@ -308,22 +409,28 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 {formatCurrency(breakdown.costPer1KCalls)} per 1,000 requests ·{' '}
                 {breakdown.monthlyCalls.toLocaleString()} calls/mo
               </div>
+              {monthlySavings > 0 && (
+                <div className="mt-1.5 inline-flex items-center rounded-md bg-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-200">
+                  Saves {formatCurrency(monthlySavings)}/mo ({savingsPct}%) vs.{' '}
+                  {endpointEval.firstPartyQuote.endpoint.host}
+                </div>
+              )}
             </div>
 
             <dl className="grid grid-cols-3 gap-2 border-t border-slate-800 pt-3 text-xs">
               <div>
                 <dt className="text-slate-400">Input / 1M</dt>
-                <dd className="font-mono font-semibold text-white">{fmtRate(selectedModel.inputPer1M)}</dd>
+                <dd className="font-mono font-semibold text-white">{fmtRate(activeRates.inputPer1M)}</dd>
               </div>
               <div>
                 <dt className="text-slate-400">Cached / 1M</dt>
                 <dd className="font-mono font-semibold text-emerald-300">
-                  {fmtRate(selectedModel.cachedInputPer1M)}
+                  {fmtRate(activeRates.cachedInputPer1M)}
                 </dd>
               </div>
               <div>
                 <dt className="text-slate-400">Output / 1M</dt>
-                <dd className="font-mono font-semibold text-white">{fmtRate(selectedModel.outputPer1M)}</dd>
+                <dd className="font-mono font-semibold text-white">{fmtRate(activeRates.outputPer1M)}</dd>
               </div>
             </dl>
           </div>

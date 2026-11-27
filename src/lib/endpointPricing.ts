@@ -79,6 +79,11 @@ export function buildModelForEndpoint(
     };
   }
 
+  const epSpeed =
+    ep.tokPerSec !== null && ep.tokPerSec !== undefined
+      ? ep.tokPerSec
+      : model.tokPerSec;
+
   return {
     id: model.id,
     slug: model.slug,
@@ -105,8 +110,8 @@ export function buildModelForEndpoint(
     contextWindow: model.contextWindow,
     qualityScore: model.qualityScore,
     score: model.score,
-    speedTokensPerSec: model.speedTokensPerSec,
-    tokPerSec: model.tokPerSec,
+    speedTokensPerSec: epSpeed,
+    tokPerSec: epSpeed,
     notes: ep.notes ?? model.notes,
     hostingEndpoints: model.hostingEndpoints,
   };
@@ -161,6 +166,7 @@ export function evaluateModelEndpoints(
                 cacheWritePer1M: model.cacheWritePer1M,
                 outputPer1M: model.outputPer1M,
                 batchDiscount: model.batchDiscount,
+                tokPerSec: model.tokPerSec,
                 evidenceStatus: model.pricingProvenance.status,
               },
               modelView: fallbackModel,
@@ -206,7 +212,8 @@ export function evaluateModelEndpoints(
 
 export function getEffectiveModelRates(
   model: ModelEntry,
-  mode: EndpointSelectionMode = 'cheapest'
+  mode: EndpointSelectionMode = 'cheapest',
+  calcOverrides?: Partial<EndpointCalculationInput>
 ): {
   host: string;
   providerType: string;
@@ -215,22 +222,43 @@ export function getEffectiveModelRates(
   cachedInputPer1M: number | null;
   cacheWritePer1M: number | null;
   batchDiscount: number | null;
+  tokPerSec: number | null;
   monthlyTotalCost: number | null;
+  firstPartyMonthlyCost: number | null;
+  savingsPercent: number;
+  hasThirdPartyEndpoints: boolean;
   isCheapestThirdParty: boolean;
 } {
-  const { firstPartyQuote, cheapestQuote } = evaluateModelEndpoints(model, {
-    inputTokensPerCall: 6500,
-    outputTokensPerCall: 650,
-    reasoningTokensPerCall: 0,
-    callsPerDay: 2500,
-    cacheHitPercent: 0,
-    cacheWriteSharePercent: 0,
-    batchPercent: 0,
-    retriesPercent: 0,
+  const { quotes, firstPartyQuote, cheapestQuote } = evaluateModelEndpoints(model, {
+    inputTokensPerCall: calcOverrides?.inputTokensPerCall ?? 6500,
+    outputTokensPerCall: calcOverrides?.outputTokensPerCall ?? 650,
+    reasoningTokensPerCall: calcOverrides?.reasoningTokensPerCall ?? 0,
+    callsPerDay: calcOverrides?.callsPerDay ?? 2500,
+    cacheHitPercent: calcOverrides?.cacheHitPercent ?? 0,
+    cacheWriteSharePercent: calcOverrides?.cacheWriteSharePercent ?? 0,
+    batchPercent: calcOverrides?.batchPercent ?? 0,
+    retriesPercent: calcOverrides?.retriesPercent ?? 0,
   });
 
   const chosen =
     mode === 'first-party' || mode === 'official' ? firstPartyQuote : cheapestQuote;
+
+  const chosenCost =
+    typeof chosen.breakdown.monthlyTotalCost === 'number'
+      ? chosen.breakdown.monthlyTotalCost
+      : null;
+  const officialCost =
+    typeof firstPartyQuote.breakdown.monthlyTotalCost === 'number'
+      ? firstPartyQuote.breakdown.monthlyTotalCost
+      : null;
+
+  const savingsPercent =
+    chosenCost !== null &&
+    officialCost !== null &&
+    officialCost > 0 &&
+    chosenCost < officialCost - 0.0001
+      ? Math.max(1, Math.round(((officialCost - chosenCost) / officialCost) * 100))
+      : 0;
 
   return {
     host: chosen.endpoint.host,
@@ -240,10 +268,11 @@ export function getEffectiveModelRates(
     cachedInputPer1M: chosen.modelView.cachedInputPer1M ?? null,
     cacheWritePer1M: chosen.modelView.cacheWritePer1M ?? null,
     batchDiscount: chosen.modelView.batchDiscount ?? null,
-    monthlyTotalCost:
-      typeof chosen.breakdown.monthlyTotalCost === 'number'
-        ? chosen.breakdown.monthlyTotalCost
-        : null,
+    tokPerSec: chosen.modelView.tokPerSec ?? null,
+    monthlyTotalCost: chosenCost,
+    firstPartyMonthlyCost: officialCost,
+    savingsPercent,
+    hasThirdPartyEndpoints: quotes.some((q) => q.endpoint.providerType !== 'Official API'),
     isCheapestThirdParty: chosen.index !== firstPartyQuote.index,
   };
 }

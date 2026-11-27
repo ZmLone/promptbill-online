@@ -3,6 +3,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { ModelEntry } from '../lib/catalog';
+import { getEffectiveModelRates, type EndpointSelectionMode } from '../lib/endpointPricing';
+import { EndpointModeSwitcher } from './EndpointModeSwitcher';
 
 function fmtPrice(v: unknown): string {
   return typeof v === 'number' && Number.isFinite(v) ? `$${v.toFixed(2)}` : 'N/A';
@@ -56,6 +59,7 @@ export function DynamicCompareClient({
   });
 
   const [providerTab, setProviderTab] = useState<string>('ALL');
+  const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
 
   useEffect(() => {
     if (initialA && models.some((m) => String(m.slug) === initialA)) {
@@ -82,8 +86,21 @@ export function DynamicCompareClient({
   const comparedModels = useMemo(() => {
     return activeSlugs
       .map((slug) => models.find((m) => String(m.slug) === slug))
-      .filter(Boolean);
-  }, [activeSlugs, models]);
+      .filter(Boolean)
+      .map((m) => {
+        const eff = getEffectiveModelRates(m as ModelEntry, endpointMode);
+        return {
+          ...m,
+          inputPer1M: eff.inputPer1M ?? m.inputPer1M,
+          outputPer1M: eff.outputPer1M ?? m.outputPer1M,
+          tokPerSec: eff.tokPerSec ?? m.tokPerSec,
+          _activeHost: eff.host,
+          _activeProviderType: eff.providerType,
+          _isCheapestThirdParty: eff.isCheapestThirdParty,
+          _savingsPercent: eff.savingsPercent,
+        };
+      });
+  }, [activeSlugs, models, endpointMode]);
 
   const modelA = useMemo(
     () => models.find((m) => String(m.slug) === modelASlug) || comparedModels[0],
@@ -203,12 +220,15 @@ export function DynamicCompareClient({
               Compare any two models head-to-head—or add extra models for a multi-column breakdown.
             </p>
           </div>
-          <Link
-            href="/leaderboard"
-            className="text-xs font-semibold text-emerald-800 hover:underline w-fit"
-          >
-            ← Back to Leaderboard
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <EndpointModeSwitcher mode={endpointMode} onChange={setEndpointMode} />
+            <Link
+              href="/leaderboard"
+              className="text-xs font-semibold text-emerald-800 hover:underline w-fit"
+            >
+              ← Back to Leaderboard
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -406,7 +426,15 @@ export function DynamicCompareClient({
                         isCheapestOut ? 'bg-emerald-50/50 text-emerald-900' : 'text-slate-900'
                       }`}
                     >
-                      {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)}
+                      <div>
+                        {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)}
+                      </div>
+                      <div className="mt-0.5 font-sans text-[11px] font-medium text-slate-600">
+                        {m._activeHost}
+                        {m._isCheapestThirdParty && m._savingsPercent > 0
+                          ? ` (-${m._savingsPercent}% vs official)`
+                          : ''}
+                      </div>
                     </td>
                   );
                 })}

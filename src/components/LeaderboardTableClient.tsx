@@ -3,7 +3,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ALL_MODELS } from '../lib/catalog';
+import { ALL_MODELS, type ModelEntry } from '../lib/catalog';
+import { getEffectiveModelRates, type EndpointSelectionMode } from '../lib/endpointPricing';
+import { EndpointModeSwitcher } from './EndpointModeSwitcher';
 
 type SortKey = 'score' | 'value' | 'price' | 'speed' | 'elo';
 type LifecycleStatus = 'Active' | 'Preview' | 'Deprecated' | 'Legacy';
@@ -185,6 +187,10 @@ interface EnrichedModel {
   scorePerDollar: number | null;
   cleanSummary: string;
   contextTokens: number;
+  activeHost: string;
+  activeProviderType: string;
+  isCheapestThirdParty: boolean;
+  savingsPercent: number;
 }
 
 interface WorkloadConstraints {
@@ -492,6 +498,7 @@ export function LeaderboardTableClient({
   const [evidenceFilter, setEvidenceFilter] = useState<'ALL' | EvidenceStatus>('ALL');
   const [licenseFilter, setLicenseFilter] = useState<'ALL' | LicenseStatus>('ALL');
   const [lifecycleFilter, setLifecycleFilter] = useState<'ALL' | LifecycleStatus>('ALL');
+  const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
   const [sortBy, setSortBy] = useState<SortKey>('score');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [desktopPageSize, setDesktopPageSize] = useState<number>(25);
@@ -545,23 +552,34 @@ export function LeaderboardTableClient({
     return (ALL_MODELS as any[])
       .filter((m) => !m.archived)
       .map((m) => {
+        const eff = getEffectiveModelRates(m as ModelEntry, endpointMode);
+        const effInput = eff.inputPer1M ?? m.inputPer1M;
+        const effOutput = eff.outputPer1M ?? m.outputPer1M;
+        const effSpeed = eff.tokPerSec ?? m.tokPerSec;
         const evidenceNorm = normalizeEvidence(m);
         const licenseNorm = normalizeLicense(m.license);
         const lifecycleNorm = normalizeLifecycle(m);
-        const scorePerDollar = computeScorePerDollar(m.score, m.outputPer1M);
+        const scorePerDollar = computeScorePerDollar(m.score, effOutput);
         const cleanSummary = sanitizeBlurb(m.bestFor || m.notes);
         const contextTokens = parseContextTokens(m.contextWindow);
         return {
           ...m,
+          inputPer1M: effInput,
+          outputPer1M: effOutput,
+          tokPerSec: effSpeed,
           evidenceNorm,
           licenseNorm,
           lifecycleNorm,
           scorePerDollar,
           cleanSummary,
           contextTokens,
+          activeHost: eff.host,
+          activeProviderType: eff.providerType,
+          isCheapestThirdParty: eff.isCheapestThirdParty,
+          savingsPercent: eff.savingsPercent,
         };
       });
-  }, []);
+  }, [endpointMode]);
 
   function buildCompareUrl(slugs: string[]): string {
     const unique = Array.from(new Set(slugs.filter(Boolean)));
@@ -1255,8 +1273,8 @@ export function LeaderboardTableClient({
           </select>
         </div>
 
-        {/* Sort Pills */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t border-slate-100 text-xs">
+        {/* Endpoint Routing Mode + Sort Pills */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-3.5 border-t border-slate-100 text-xs">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <span className="shrink-0 font-semibold text-slate-500">Sort:</span>
             {[
@@ -1284,7 +1302,14 @@ export function LeaderboardTableClient({
             })}
           </div>
 
-          <div className="flex items-center justify-between sm:justify-end gap-3">
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3">
+            <EndpointModeSwitcher
+              mode={endpointMode}
+              onChange={(next) => {
+                setEndpointMode(next);
+                setCurrentPage(1);
+              }}
+            />
             {hasActiveFilters ? (
               <button
                 type="button"
@@ -1628,7 +1653,15 @@ export function LeaderboardTableClient({
                       </td>
 
                       <td className="py-7 px-5 align-top font-mono text-xs font-semibold text-slate-900 whitespace-nowrap">
-                        {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
+                        <div>
+                          {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
+                        </div>
+                        {m.isCheapestThirdParty ? (
+                          <div className="mt-1 font-sans text-[10px] font-semibold text-emerald-700">
+                            via {m.activeHost}
+                            {m.savingsPercent > 0 ? ` (-${m.savingsPercent}%)` : ''}
+                          </div>
+                        ) : null}
                       </td>
 
                       {hasAnyElo ? (
@@ -1743,6 +1776,12 @@ export function LeaderboardTableClient({
                       <div className="font-mono text-sm font-bold text-slate-900">
                         {formatPrice(m.inputPer1M)} / {formatPrice(m.outputPer1M)}
                       </div>
+                      {m.isCheapestThirdParty ? (
+                        <div className="text-[10px] font-semibold text-emerald-700">
+                          via {m.activeHost}
+                          {m.savingsPercent > 0 ? ` (-${m.savingsPercent}%)` : ''}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="space-y-0.5">
