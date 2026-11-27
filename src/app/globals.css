@@ -1,11 +1,18 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 @layer base {
   body {
     background-color: #fbfbfd;
     color: #0f172a;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   .font-mono {
@@ -13,25 +20,23 @@
   }
 }
 
-@keyframes subtleBorderGlow {
+@keyframes subtlePerimeterPulse {
   0%, 100% {
-    border-color: rgba(15, 23, 42, 0.14);
+    box-shadow: 0 24px 60px -18px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.08);
   }
   50% {
-    border-color: rgba(5, 150, 105, 0.34);
+    box-shadow: 0 28px 68px -18px rgba(5, 150, 105, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.34);
   }
 }
 
-.pb-card-perimeter {
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+.pb-calculator-standout {
+  animation: subtlePerimeterPulse 7s ease-in-out infinite;
 }
 
-.pb-card-perimeter:hover {
-  border-color: rgba(15, 23, 42, 0.18);
-  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.08);
+.pb-clean-row {
+  transition: background-color 160ms ease, transform 160ms ease;
 }
 
-.pb-workbench-shell {
-  animation: subtleBorderGlow 8s ease-in-out infinite;
+.pb-clean-row:hover {
+  background-color: rgba(241, 245, 249, 0.75);
 }

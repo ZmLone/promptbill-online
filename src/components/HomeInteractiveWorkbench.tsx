@@ -10,6 +10,7 @@ import {
   type EndpointSelectionMode,
 } from '../lib/endpointPricing';
 import { EndpointModeSwitcher } from './EndpointModeSwitcher';
+import { ProviderLogo } from './ProviderLogo';
 import {
   Calculator,
   ArrowRight,
@@ -195,27 +196,32 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
     <section
       id="estimator"
       aria-labelledby="quick-estimator-heading"
-      className="pb-workbench-shell rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-8 shadow-sm space-y-6"
+      className="pb-calculator-standout relative overflow-hidden rounded-[28px] bg-gradient-to-b from-white via-white to-slate-50/90 p-5 sm:p-8 space-y-6"
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-        <div className="flex items-start sm:items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white">
-            <Calculator className="h-4 w-4" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
+      />
+
+      <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
+            <Calculator className="h-5 w-5" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2
                 id="quick-estimator-heading"
-                className="text-lg sm:text-xl font-bold tracking-tight text-slate-950"
+                className="text-lg sm:text-2xl font-extrabold tracking-tight text-slate-950"
               >
-                30-Day API Spend &amp; Endpoint Simulator
+                30-Day API Spend Calculator
               </h2>
-              <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-900">
-                Live Math
+              <span className="rounded-full bg-emerald-500/12 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                Interactive
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Model production traffic with prompt caching, batch discounts, and official vs. third-party inference hosts.
+              Simulate production traffic with prompt caching, batch discounts, and official vs. cloud hosts.
             </p>
           </div>
         </div>
@@ -225,10 +231,10 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mr-1">
-            Presets:
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+            Workloads
           </span>
           {WORKLOAD_PRESETS.map((p) => {
             const active = presetId === p.id;
@@ -237,16 +243,16 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 key={p.id}
                 type="button"
                 onClick={() => applyPreset(p)}
-                className={`min-h-[36px] rounded-full border px-3.5 py-1 text-xs font-medium transition-all ${
+                className={`min-h-[36px] rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
                   active
-                    ? 'border-slate-950 bg-slate-950 text-white shadow-xs'
-                    : 'border-slate-200 bg-slate-50/80 text-slate-700 hover:border-slate-300 hover:bg-white'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/70'
                 }`}
               >
                 <span>{p.label}</span>
                 <span
                   className={`hidden sm:inline ml-1.5 font-mono text-[11px] ${
-                    active ? 'text-slate-300' : 'text-slate-400'
+                    active ? 'text-slate-300' : 'text-slate-500'
                   }`}
                 >
                   {p.detail}
@@ -263,7 +269,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               className="inline-flex items-center gap-1.5 font-semibold text-slate-700 shrink-0"
             >
               <Server className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Route Host:</span>
+              <span>Host:</span>
             </label>
             <select
               id="home-host-select"
@@ -282,7 +288,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                   setEndpointMode('cheapest');
                 }
               }}
-              className="min-h-[38px] max-w-[270px] sm:max-w-xs rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:bg-white focus:outline-none"
+              className="min-h-[38px] max-w-[270px] sm:max-w-xs rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
             >
               {endpointEval.quotes.map((q) => (
                 <option
@@ -298,20 +304,24 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label
               htmlFor="home-model-select"
-              className="block text-xs font-semibold text-slate-700 mb-1.5"
+              className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5"
             >
-              Target Model ({models.length} tracked in catalog)
+              <span>Select Model ({models.length} tracked)</span>
+              <span className="inline-flex items-center gap-1.5 text-slate-500">
+                <ProviderLogo provider={selectedModel.provider} size="sm" />
+                <span>{selectedModel.provider}</span>
+              </span>
             </label>
             <select
               id="home-model-select"
               value={selectedModel.slug}
               onChange={(e) => setSelectedSlug(e.target.value)}
-              className="min-h-[46px] w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2 text-sm font-semibold text-slate-950 focus:border-slate-900 focus:bg-white focus:outline-none transition-colors"
+              className="min-h-[46px] w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none transition-colors"
             >
               {modelDropdownRows.map(({ model: m, chosen }) => (
                 <option key={m.id} value={m.slug}>
@@ -327,7 +337,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               htmlFor="home-calls-day"
               className="block text-xs font-semibold text-slate-700 mb-1.5"
             >
-              API Requests / Day
+              Requests / Day
             </label>
             <input
               id="home-calls-day"
@@ -409,7 +419,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
             />
           </div>
 
-          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
+          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
@@ -417,7 +427,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 <Info className="h-3.5 w-3.5 text-amber-700 shrink-0" />
               )}
               <span>
-                Provenance:{' '}
+                Source:{' '}
                 <strong className="text-slate-900">
                   {activeQuote.endpoint.host} · {activeEvidence}
                 </strong>
@@ -431,20 +441,20 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 className={`min-h-[34px] rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   useBatch
                     ? 'border-emerald-700 bg-emerald-50 text-emerald-900'
-                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 {useBatch
-                  ? `Batch API Active (${Math.round(breakdown.batchDiscountRate * 100)}% off)`
-                  : `Apply Batch (${Math.round(breakdown.batchDiscountRate * 100)}% off)`}
+                  ? `Batch API On (${Math.round(breakdown.batchDiscountRate * 100)}% off)`
+                  : `Enable Batch (${Math.round(breakdown.batchDiscountRate * 100)}% off)`}
               </button>
             ) : (
-              <span className="text-slate-500">Batch discount: Not available</span>
+              <span className="text-slate-500">Batch discount: N/A</span>
             )}
           </div>
         </div>
 
-        <div className="lg:col-span-5 rounded-2xl bg-slate-950 text-white p-6 flex flex-col justify-between gap-5">
+        <div className="lg:col-span-5 rounded-2xl bg-slate-950 text-white p-6 flex flex-col justify-between gap-5 shadow-lg">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-medium text-emerald-300">
@@ -457,10 +467,11 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
             </div>
 
             <div>
-              <div className="text-xs text-slate-400">
-                Estimated 30-Day Spend · {selectedModel.name}
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <ProviderLogo provider={selectedModel.provider} size="sm" />
+                <span>30-Day Spend · {selectedModel.name}</span>
               </div>
-              <div className="mt-1 font-mono text-3xl sm:text-4xl font-bold tracking-tight text-white tabular-nums">
+              <div className="mt-1.5 font-mono text-3xl sm:text-4xl font-bold tracking-tight text-white tabular-nums">
                 {formatCurrency(breakdown.monthlyTotalCost)}
               </div>
 
@@ -521,7 +532,7 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
               href={`/models/${selectedModel.slug}`}
               className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-400 px-4 py-2 text-xs sm:text-sm font-bold text-slate-950 hover:bg-emerald-300 transition-colors"
             >
-              <span>Inspect Model &amp; Endpoints</span>
+              <span>Inspect Endpoints</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

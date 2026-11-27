@@ -20,13 +20,18 @@ import {
   X,
 } from 'lucide-react';
 
-const PRIMARY_NAV: { href: string; label: string; icon: React.FC<{ className?: string }> }[] = [
-  { href: '/', label: 'Home', icon: Home },
+const PRIMARY_NAV: {
+  href: string;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+  hideOnHome?: boolean;
+}[] = [
+  { href: '/', label: 'Home', icon: Home, hideOnHome: true },
   { href: '/leaderboard', label: 'Leaderboard', icon: ArrowUpDown },
   { href: '/compare', label: 'Compare', icon: Scale },
   { href: '/pricing', label: 'API Pricing', icon: Calculator },
   { href: '/tools/llm-selector', label: 'LLM Selector', icon: Sparkles },
-  { href: '/best-llms-for-coding', label: 'Best for Coding', icon: Code2 },
+  { href: '/best-llms-for-coding', label: 'Coding', icon: Code2 },
   { href: '/tools/token-counter', label: 'Token Counter', icon: FileText },
   { href: '/tools/routing-simulator', label: 'Routing', icon: GitBranch },
   { href: '/models', label: 'Models', icon: Cpu },
@@ -82,6 +87,7 @@ export function SiteShell({
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isHome = pathname === '/';
 
   useEffect(() => {
     router.prefetch('/');
@@ -96,10 +102,12 @@ export function SiteShell({
     setMoreOpen(false);
   }, [pathname]);
 
+  const visibleDesktopNav = PRIMARY_NAV.filter((item) => !(isHome && item.hideOnHome));
+
   return (
     <div className="min-h-screen bg-[#fbfbfd] text-slate-900 flex flex-col pb-24 lg:pb-0 text-[14px] sm:text-[15px] leading-relaxed overflow-x-hidden">
       <header
-        className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-md"
+        className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur-md"
         onMouseLeave={() => setMoreOpen(false)}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
@@ -107,13 +115,13 @@ export function SiteShell({
             href="/"
             prefetch={true}
             aria-label="PromptBill Home"
-            className="flex items-center gap-2.5 shrink-0 min-h-[44px] pr-1 group"
+            className="flex items-center gap-2.5 shrink-0 min-h-[42px] pr-1 group"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 font-mono text-xs font-bold text-white shadow-xs group-hover:bg-emerald-900 transition-colors">
               PB
             </span>
             <div>
-              <div className="text-[15px] font-semibold tracking-tight text-slate-950 leading-none">
+              <div className="text-[15px] font-bold tracking-tight text-slate-950 leading-none">
                 PromptBill
               </div>
               <div className="text-[11px] font-mono text-slate-500 mt-0.5">promptbill.online</div>
@@ -121,7 +129,7 @@ export function SiteShell({
           </Link>
 
           <nav aria-label="Main Navigation" className="hidden xl:flex items-center gap-1 text-xs font-medium">
-            {PRIMARY_NAV.map((item) => {
+            {visibleDesktopNav.map((item) => {
               const Icon = item.icon;
               const active =
                 pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
@@ -130,7 +138,7 @@ export function SiteShell({
                   key={item.href}
                   href={item.href}
                   prefetch={true}
-                  className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${
+                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${
                     active
                       ? 'bg-slate-950 text-white'
                       : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950'
@@ -147,7 +155,7 @@ export function SiteShell({
                 type="button"
                 aria-expanded={moreOpen}
                 onClick={() => setMoreOpen((prev) => !prev)}
-                className="inline-flex min-h-[38px] items-center gap-1 rounded-full px-3 py-1.5 text-slate-600 hover:bg-slate-100/80 hover:text-slate-950"
+                className="inline-flex min-h-[36px] items-center gap-1 rounded-full px-3 py-1.5 text-slate-600 hover:bg-slate-100/80 hover:text-slate-950"
               >
                 <span>More</span>
                 <ChevronDown
@@ -187,7 +195,7 @@ export function SiteShell({
             <Link
               href="/advertise"
               prefetch={true}
-              className="hidden sm:inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 transition-colors"
+              className="hidden sm:inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 transition-colors"
             >
               <Megaphone className="w-3.5 h-3.5 text-emerald-700" />
               <span>Advertise</span>
@@ -198,7 +206,7 @@ export function SiteShell({
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="xl:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+              className="xl:hidden inline-flex min-h-[42px] min-w-[42px] items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -208,7 +216,7 @@ export function SiteShell({
         {mobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200/80 bg-white px-4 py-5 shadow-xl max-h-[78vh] overflow-y-auto space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {PRIMARY_NAV.map((item) => {
+              {visibleDesktopNav.map((item) => {
                 const Icon = item.icon;
                 const active =
                   pathname === item.href || (item.href === '/models' && pathname?.startsWith('/models'));
@@ -257,7 +265,7 @@ export function SiteShell({
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-10 sm:space-y-14 px-4 py-6 sm:py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-12 sm:space-y-16 px-4 py-6 sm:py-10 sm:px-6 lg:px-8">
         {!hidePageHeader && title ? (
           <div className="border-b border-slate-200/80 pb-4 sm:pb-6">
             {subtitle ? (
@@ -273,25 +281,25 @@ export function SiteShell({
         {children}
       </main>
 
-      <footer className="border-t border-slate-200/80 bg-white py-10 text-xs text-slate-600">
+      <footer className="border-t border-slate-200/70 bg-white py-10 text-xs text-slate-600">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="font-semibold text-slate-950 text-sm">PromptBill</div>
+              <div className="font-bold text-slate-950 text-sm">PromptBill</div>
               <p className="text-slate-500">
-                Transparent LLM API token rates, caching &amp; batch math, and multi-endpoint benchmarks.
+                Verified LLM API token pricing, caching &amp; batch cost math, and multi-endpoint benchmarks.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <a
                 href="/sitemap.xml"
-                className="inline-flex min-h-[38px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
+                className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
               >
                 Sitemap <ExternalLink className="w-3 h-3" />
               </a>
               <a
                 href="/llms.txt"
-                className="inline-flex min-h-[38px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
+                className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
               >
                 llms.txt <ExternalLink className="w-3 h-3" />
               </a>
@@ -325,9 +333,7 @@ export function SiteShell({
             href="/"
             prefetch={true}
             className={`touch-manipulation flex min-h-[44px] flex-col items-center justify-center rounded-xl text-[11px] font-semibold ${
-              pathname === '/'
-                ? 'bg-slate-950 text-white'
-                : 'text-slate-600 hover:bg-slate-100'
+              isHome ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Home className="w-4 h-4 mb-0.5" />
