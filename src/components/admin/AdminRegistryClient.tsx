@@ -310,6 +310,89 @@ function parseCellValueWithValidation(
   return { value: v, warning: null };
 }
 
+function normalizeModelFingerprint(raw: string): string {
+  return raw
+    .toLowerCase()
+    .trim()
+    .replace(/^[^/]+\//, '')
+    .replace(/\b(official|api|chat|instruct|preview|latest|exp|experimental)\b/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function areModelsLikelyDuplicate(
+  a: { slug?: string; id?: string; name?: string; provider?: string },
+  b: { slug?: string; id?: string; name?: string; provider?: string }
+): { match: boolean; reason: string } {
+  const slugA = slugify(String(a.slug || a.id || ''));
+  const slugB = slugify(String(b.slug || b.id || ''));
+  if (slugA && slugB && slugA === slugB) {
+    return { match: true, reason: `Identical slug (${slugA})` };
+  }
+
+  const nameSlugA = slugify(String(a.name || ''));
+  const nameSlugB = slugify(String(b.name || ''));
+  if (nameSlugA && nameSlugB && nameSlugA === nameSlugB) {
+    return { match: true, reason: `Identical normalized name (${a.name})` };
+  }
+
+  const fpA = normalizeModelFingerprint(String(a.name || a.slug || ''));
+  const fpB = normalizeModelFingerprint(String(b.name || b.slug || ''));
+  const provA = slugify(String(a.provider || ''));
+  const provB = slugify(String(b.provider || ''));
+  if (fpA && fpB && fpA === fpB && (!provA || !provB || provA === provB)) {
+    return { match: true, reason: `Same model fingerprint (${fpA})` };
+  }
+
+  return { match: false, reason: '' };
+}
+
+interface DuplicateCatalogGroup {
+  key: string;
+  reason: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  records: any[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findCatalogDuplicateGroups(modelsList: any[]): DuplicateCatalogGroup[] {
+  const visited = new Set<number>();
+  const groups: DuplicateCatalogGroup[] = [];
+
+  for (let i = 0; i < modelsList.length; i++) {
+    if (visited.has(i)) continue;
+    const base = modelsList[i];
+    if (!base) continue;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cluster: any[] = [base];
+    let clusterReason = '';
+
+    for (let j = i + 1; j < modelsList.length; j++) {
+      if (visited.has(j)) continue;
+      const candidate = modelsList[j];
+      if (!candidate) continue;
+      const check = areModelsLikelyDuplicate(base, candidate);
+      if (check.match) {
+        visited.add(j);
+        cluster.push(candidate);
+        if (!clusterReason) clusterReason = check.reason;
+      }
+    }
+
+    if (cluster.length > 1) {
+      visited.add(i);
+      groups.push({
+        key: String(base.slug || base.id || i),
+        reason: clusterReason || 'Duplicate slug or model name',
+        records: cluster,
+      });
+    }
+  }
+
+  return groups;
+}
+
 function extractModelKeyAndSlug(rawModelCell: string, explicitSlugCell?: string): {
   keyRaw: string;
   slugGuess: string;
@@ -352,6 +435,10 @@ export function AdminRegistryClient({
   const [showArchived, setShowArchived] = useState<boolean>(false);
 
   const [overrides, setOverrides] = useState<Record<string, EditableOverrides>>({});
+  const [duplicateAlert, setDuplicateAlert] = useState<{
+    title: string;
+    details: string[];
+  } | null>(null);
   const [dismissedCount, setDismissedCount] = useState<number>(0);
   const [statusLog, setStatusLog] = useState<string[]>([]);
   const [publishing, setPublishing] = useState<boolean>(false);
@@ -428,6 +515,68 @@ export function AdminRegistryClient({
     verified: true,
   });
   const [manualError, setManualError] = useState<string | null>(null);
+
+  const duplicateCatalogGroups = useMemo(() => findCatalogDuplicateGroups(models), [models]);
+
+  const pendingDuplicateMap = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catalogMatches: any[];
+        queueDuplicates: PendingQueueItem[];
+        reasons: string[];
+      }
+    >();
+
+    for (let i = 0; i < pendingItems.length; i++) {
+      const item = pendingItems[i];
+      const probe = {
+        slug: item.draftModel?.slug || item.modelSlug || item.modelId,
+        id: item.draftModel?.id || item.modelId,
+        name: item.draftModel?.name || item.modelName,
+        provider: item.provider,
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const catalogMatches: any[] = [];
+      const reasons = new Set<string>();
+
+      for (const m of models) {
+        const res = areModelsLikelyDuplicate(probe, m);
+        if (res.match) {
+          catalogMatches.push(m);
+          reasons.add(`Catalog match: ${m.name} (${m.slug}) — ${res.reason}`);
+        }
+      }
+
+      const queueDuplicates: PendingQueueItem[] = [];
+      for (let j = 0; j < pendingItems.length; j++) {
+        if (i === j) continue;
+        const other = pendingItems[j];
+        const otherProbe = {
+          slug: other.draftModel?.slug || other.modelSlug || other.modelId,
+          id: other.draftModel?.id || other.modelId,
+          name: other.draftModel?.name || other.modelName,
+          provider: other.provider,
+        };
+        const res = areModelsLikelyDuplicate(probe, otherProbe);
+        if (res.match) {
+          queueDuplicates.push(other);
+          reasons.add(`Pending queue duplicate: ${other.modelName} (${other.type}) — ${res.reason}`);
+        }
+      }
+
+      if (catalogMatches.length > 0 || queueDuplicates.length > 0) {
+        map.set(item.queueId, {
+          catalogMatches,
+          queueDuplicates,
+          reasons: Array.from(reasons),
+        });
+      }
+    }
+
+    return map;
+  }, [pendingItems, models]);
 
   const allProviders = useMemo(() => {
     const set = new Set<string>();
@@ -864,7 +1013,145 @@ export function AdminRegistryClient({
     return n > 1 ? Number((n / 100).toFixed(4)) : Number(n.toFixed(4));
   }
 
-  function approveItem(item: PendingQueueItem) {
+  function mergeTwoModelRecords(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    primary: Record<string, any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    secondary: Record<string, any>
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mergedEndpoints: any[] = Array.isArray(primary.hostingEndpoints)
+      ? [...primary.hostingEndpoints]
+      : [];
+    if (Array.isArray(secondary.hostingEndpoints)) {
+      for (const ep of secondary.hostingEndpoints) {
+        if (!ep) continue;
+        const exists = mergedEndpoints.some(
+          (existingEp) =>
+            existingEp &&
+            slugify(String(existingEp.host || '')) === slugify(String(ep.host || '')) &&
+            String(existingEp.providerType || '') === String(ep.providerType || '')
+        );
+        if (!exists) {
+          mergedEndpoints.push(ep);
+        }
+      }
+    }
+
+    const merged = { ...primary };
+    for (const [k, v] of Object.entries(secondary)) {
+      if (k === 'id' || k === 'slug' || k === 'rank' || k === 'hostingEndpoints') continue;
+      if ((merged[k] === null || merged[k] === undefined || merged[k] === '') && v !== null && v !== undefined && v !== '') {
+        merged[k] = v;
+      }
+    }
+    merged.hostingEndpoints = mergedEndpoints;
+    if (primary.evidence === 'Verified' || secondary.evidence === 'Verified') {
+      merged.evidence = 'Verified';
+    }
+    return merged;
+  }
+
+  function mergeDuplicateGroup(group: DuplicateCatalogGroup, keepSlug: string) {
+    const primary = group.records.find((r) => r.slug === keepSlug) || group.records[0];
+    const others = group.records.filter((r) => r !== primary);
+    if (others.length === 0) return;
+
+    let mergedRecord = { ...primary };
+    for (const dup of others) {
+      mergedRecord = mergeTwoModelRecords(mergedRecord, dup);
+    }
+
+    const removedSet = new Set(others);
+    setModels((prev) =>
+      prev
+        .filter((m) => !removedSet.has(m))
+        .map((m) => (m === primary ? mergedRecord : m))
+    );
+    setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [
+      `Merged ${others.length} duplicate record(s) into ${mergedRecord.name} (${mergedRecord.slug})`,
+      ...prev,
+    ]);
+  }
+
+  function mergeAllCatalogDuplicates() {
+    if (duplicateCatalogGroups.length === 0) return;
+    let mergedCount = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const removedSet = new Set<any>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const replacementMap = new Map<any, any>();
+
+    for (const group of duplicateCatalogGroups) {
+      // Prefer Verified record with most populated fields
+      const sorted = [...group.records].sort((a, b) => {
+        const aVer = a.evidence === 'Verified' ? 1 : 0;
+        const bVer = b.evidence === 'Verified' ? 1 : 0;
+        if (bVer !== aVer) return bVer - aVer;
+        const aFields = Object.values(a).filter((v) => v !== null && v !== undefined && v !== '').length;
+        const bFields = Object.values(b).filter((v) => v !== null && v !== undefined && v !== '').length;
+        return bFields - aFields;
+      });
+      const primary = sorted[0];
+      let combined = { ...primary };
+      for (let i = 1; i < sorted.length; i++) {
+        combined = mergeTwoModelRecords(combined, sorted[i]);
+        removedSet.add(sorted[i]);
+        mergedCount++;
+      }
+      replacementMap.set(primary, combined);
+    }
+
+    setModels((prev) =>
+      prev
+        .filter((m) => !removedSet.has(m))
+        .map((m) => (replacementMap.has(m) ? replacementMap.get(m) : m))
+    );
+    setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [
+      `Auto-merged ${mergedCount} duplicate model record(s) across ${duplicateCatalogGroups.length} group(s)`,
+      ...prev,
+    ]);
+  }
+
+  function approveItem(item: PendingQueueItem, skipConfirm = false): boolean {
+    const dupInfo = pendingDuplicateMap.get(item.queueId);
+    if (item.type === 'new_model' && dupInfo && !skipConfirm) {
+      const lines: string[] = [];
+      if (dupInfo.catalogMatches.length > 0) {
+        lines.push(
+          `Already in live catalog: ${dupInfo.catalogMatches
+            .map((m) => `${m.name} (${m.slug})`)
+            .join(', ')}`
+        );
+      }
+      if (dupInfo.queueDuplicates.length > 0) {
+        lines.push(
+          `Also duplicated in pending queue: ${dupInfo.queueDuplicates
+            .map((q) => `${q.modelName} (${q.type})`)
+            .join(', ')}`
+        );
+      }
+      const proceed = window.confirm(
+        `Duplicate model detected for "${item.modelName}":
+
+• ${lines.join(
+          '
+• '
+        )}
+
+Click OK to merge this approval into the existing catalog model (without creating a duplicate entry), or Cancel to inspect/dismiss it.`
+      );
+      if (!proceed) {
+        setDuplicateAlert({
+          title: `Approval paused — duplicate detected for ${item.modelName}`,
+          details: dupInfo.reasons,
+        });
+        return false;
+      }
+    }
+
     const edits = getItemEdits(item);
     const nowIso = new Date().toISOString();
     const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
@@ -885,10 +1172,23 @@ export function AdminRegistryClient({
         const batchDisc = parseOptionalDiscount(edits.batchDiscount);
         const ctxVal = edits.contextWindow.trim() || item.draftModel.contextWindow || null;
 
-        const resolvedSlug = String(item.draftModel.slug || item.modelSlug || item.modelId);
-        const resolvedId = String(item.draftModel.id || item.modelId || resolvedSlug);
-        const existingIdx = next.findIndex((m) => m.slug === resolvedSlug || m.id === resolvedId);
+        const rawResolvedSlug = String(item.draftModel.slug || item.modelSlug || item.modelId);
+        const rawResolvedId = String(item.draftModel.id || item.modelId || rawResolvedSlug);
+        const probeForMatch = {
+          slug: rawResolvedSlug,
+          id: rawResolvedId,
+          name: String(item.draftModel.name || item.modelName || ''),
+          provider: item.provider,
+        };
+        const existingIdx = next.findIndex(
+          (m) =>
+            m.slug === rawResolvedSlug ||
+            m.id === rawResolvedId ||
+            areModelsLikelyDuplicate(probeForMatch, m).match
+        );
         const existingModel = existingIdx >= 0 ? next[existingIdx] : null;
+        const resolvedSlug = existingModel ? String(existingModel.slug) : rawResolvedSlug;
+        const resolvedId = existingModel ? String(existingModel.id || existingModel.slug) : rawResolvedId;
 
         // Preserve non-Official/non-OpenRouter endpoints if re-approving an existing model
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1069,7 +1369,11 @@ export function AdminRegistryClient({
 
     setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
     setHasUnpublishedChanges(true);
-    setStatusLog((prev) => [`Approved: ${item.modelName} (${item.type.replace('_', ' ')})`, ...prev]);
+    setStatusLog((prev) => [
+      `Approved${item.type === 'new_model' && dupInfo?.catalogMatches?.length ? ' & merged into existing' : ''}: ${item.modelName} (${item.type.replace('_', ' ')})`,
+      ...prev,
+    ]);
+    return true;
   }
 
   function rejectItem(item: PendingQueueItem) {
@@ -1080,8 +1384,46 @@ export function AdminRegistryClient({
   }
 
   function approveAllVisible() {
+    const duplicateItems = filteredPending.filter(
+      (item) => item.type === 'new_model' && pendingDuplicateMap.has(item.queueId)
+    );
+    if (duplicateItems.length > 0) {
+      const summary = duplicateItems
+        .map((d) => {
+          const info = pendingDuplicateMap.get(d.queueId);
+          return `• ${d.modelName}: ${info?.reasons.join('; ') || 'Duplicate detected'}`;
+        })
+        .join('
+');
+      const ok = window.confirm(
+        `${duplicateItems.length} duplicate model(s) detected in this batch:
+
+${summary}
+
+Click OK to approve and merge them into existing catalog models without creating duplicates, or Cancel to review them one by one.`
+      );
+      if (!ok) {
+        setDuplicateAlert({
+          title: `Batch approval paused — ${duplicateItems.length} duplicate model(s) detected`,
+          details: duplicateItems.flatMap((d) => pendingDuplicateMap.get(d.queueId)?.reasons || []),
+        });
+        return;
+      }
+    }
+
+    const seenInBatch = new Set<string>();
     for (const item of filteredPending) {
-      approveItem(item);
+      const fp = normalizeModelFingerprint(String(item.draftModel?.name || item.modelName || item.modelSlug));
+      if (item.type === 'new_model' && fp && seenInBatch.has(fp)) {
+        // Already approved an earlier new_model row for the same model in this batch; skip creating a duplicate
+        setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
+        setStatusLog((prev) => [`Skipped duplicate queue item in batch: ${item.modelName}`, ...prev]);
+        continue;
+      }
+      if (item.type === 'new_model' && fp) {
+        seenInBatch.add(fp);
+      }
+      approveItem(item, true);
     }
   }
 
@@ -1258,10 +1600,18 @@ export function AdminRegistryClient({
       return;
     }
 
-    const existing = models.find((m) => m.slug === resolvedSlug || m.id === resolvedSlug);
+    const existing = models.find(
+      (m) =>
+        m.slug === resolvedSlug ||
+        m.id === resolvedSlug ||
+        areModelsLikelyDuplicate(
+          { slug: resolvedSlug, id: resolvedSlug, name: cleanName, provider: manualForm.provider },
+          m
+        ).match
+    );
     if (existing) {
       const ok = window.confirm(
-        `A model with slug "${resolvedSlug}" (${existing.name}) already exists. Overwrite its core fields while keeping existing hosting endpoints?`
+        `Duplicate model detected: "${existing.name}" (${existing.slug}) already exists in the catalog. Merge/update that existing model instead of creating a duplicate?`
       );
       if (!ok) return;
     }
@@ -1623,6 +1973,75 @@ export function AdminRegistryClient({
           </button>
         </div>
       </div>
+
+      {duplicateAlert ? (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs sm:text-sm text-amber-950 flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="font-bold">{duplicateAlert.title}</div>
+            <ul className="list-disc pl-5 space-y-0.5 text-xs">
+              {duplicateAlert.details.map((d, i) => (
+                <li key={i}>{d}</li>
+              ))}
+            </ul>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDuplicateAlert(null)}
+            className="rounded border border-amber-400 bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 hover:bg-amber-100"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+
+      {duplicateCatalogGroups.length > 0 ? (
+        <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 space-y-3 text-xs text-rose-950">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-bold">
+                ⚠ {duplicateCatalogGroups.length} Duplicate Model Group(s) Detected in Catalog
+              </span>
+              <span className="ml-2 text-rose-800">
+                (Publishing will be blocked until duplicate slugs are merged or resolved.)
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={mergeAllCatalogDuplicates}
+              className="min-h-[34px] rounded-lg bg-rose-800 px-3 py-1.5 font-bold text-white hover:bg-rose-900"
+            >
+              Auto-Merge All Duplicates
+            </button>
+          </div>
+          <div className="space-y-2">
+            {duplicateCatalogGroups.map((group) => (
+              <div
+                key={group.key}
+                className="rounded-lg border border-rose-200 bg-white p-2.5 flex flex-wrap items-center justify-between gap-2"
+              >
+                <div>
+                  <span className="font-semibold text-slate-900">{group.reason}:</span>{' '}
+                  <span className="font-mono text-slate-700">
+                    {group.records.map((r) => `${r.name} [${r.slug}]`).join('  vs  ')}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.records.map((r, idx) => (
+                    <button
+                      key={`${r.slug}-${idx}`}
+                      type="button"
+                      onClick={() => mergeDuplicateGroup(group, r.slug)}
+                      className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 font-semibold text-slate-800 hover:bg-emerald-50 hover:border-emerald-600"
+                    >
+                      Keep &ldquo;{r.name}&rdquo; &amp; Merge
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {publishBanner ? (
         <div
@@ -2198,6 +2617,7 @@ export function AdminRegistryClient({
               const edits = getItemEdits(item);
               const cur = item.currentValues || {};
               const prop = item.proposedValues || {};
+              const dupInfo = pendingDuplicateMap.get(item.queueId);
               return (
                 <div
                   key={item.queueId}
@@ -2219,6 +2639,14 @@ export function AdminRegistryClient({
                         </span>
                         <h3 className="text-base font-bold text-slate-900">{item.modelName}</h3>
                         <span className="text-xs text-slate-500">({item.provider})</span>
+                        {dupInfo ? (
+                          <span
+                            title={dupInfo.reasons.join(' | ')}
+                            className="rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-bold text-rose-900"
+                          >
+                            ⚠ Duplicate Detected ({dupInfo.catalogMatches.length > 0 ? 'In Catalog' : 'In Queue'})
+                          </span>
+                        ) : null}
                         {item.sourceUrl ? (
                           <a
                             href={item.sourceUrl}
@@ -2231,6 +2659,11 @@ export function AdminRegistryClient({
                         ) : null}
                       </div>
                       <p className="text-xs text-slate-700">{item.summary}</p>
+                      {dupInfo ? (
+                        <div className="rounded-lg border border-rose-200 bg-rose-50/80 px-2.5 py-1.5 text-[11px] text-rose-950">
+                          <strong>Duplicate check:</strong> {dupInfo.reasons.join(' · ')}. Approving will merge into the existing record instead of creating a duplicate.
+                        </div>
+                      ) : null}
                       {(Object.keys(cur).length > 0 || Object.keys(prop).length > 0) ? (
                         <div className="flex flex-wrap gap-3 pt-1 text-[11px] font-mono text-slate-600">
                           {item.type === 'price_update' ? (
