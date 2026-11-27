@@ -1389,8 +1389,7 @@ Click OK to merge this approval into the existing catalog model (without creatin
           const info = pendingDuplicateMap.get(d.queueId);
           return `• ${d.modelName}: ${info?.reasons.join('; ') || 'Duplicate detected'}`;
         })
-        .join('
-');
+        .join('\n');
       const ok = window.confirm(
         `${duplicateItems.length} duplicate model(s) detected in this batch:
 
