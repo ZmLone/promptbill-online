@@ -1,89 +1,36 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
-import { SiteShell } from '../../components/SiteShell';
-import { getRegistryFreshnessSummary } from '../../lib/freshness';
+import { buildCanonicalMetadata } from '../lib/canonical';
 
-export const metadata: Metadata = {
-  title: 'Methodology & Data Provenance',
+export const metadata = buildCanonicalMetadata({
+  title: 'Pricing & Benchmark Methodology | PromptBill',
   description:
-    'How PromptBill handles official vs. router API pricing, evidence statuses, missing data, benchmark limitations, and verification timestamps.',
-  alternates: {
-    canonical: '/methodology',
-  },
-};
+    'How PromptBill normalizes LLM API token prices per 1M tokens, separates official vs. router endpoints, and scores benchmark evidence.',
+  path: '/methodology',
+});
 
 export default function MethodologyPage() {
-  const freshness = getRegistryFreshnessSummary();
-
   return (
-    <SiteShell
-      title="Methodology, Data Provenance & Limitations"
-      subtitle="promptbill.online/methodology · Pricing Sources, Evidence Rules & Evaluation Caveats"
-    >
-      <div className="space-y-6 text-sm text-slate-700">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">1. Evidence &amp; Provenance Rules</h2>
-          <p className="leading-relaxed">
-            PromptBill separates data by field and hosting source rather than assigning a single blanket label to an entire model. Every pricing, benchmark, and throughput value is categorized as:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5">
-            <li>
-              <strong className="text-slate-900">Verified:</strong> Backed by a recorded source URL and verification check timestamp.
-            </li>
-            <li>
-              <strong className="text-slate-900">Estimated:</strong> Retained for reference where an estimate or unverified snapshot exists without a primary benchmark or speed audit log.
-            </li>
-            <li>
-              <strong className="text-slate-900">Unavailable / N/A:</strong> Used when no reliable supporting value exists. Missing values are never replaced with synthetic defaults or silent zeros.
-            </li>
-          </ul>
-          <p className="text-xs text-slate-500 pt-1">
-            Current catalog snapshot: {freshness.totalModels} models ·{' '}
-            {freshness.verifiedPricingCount} with verified pricing provenance ·{' '}
-            {freshness.estimatedPricingCount} estimated/unverified pricing provenance · Latest recorded check:{' '}
-            {freshness.latestVerifiedDate ?? 'Not recorded'}.
-          </p>
-        </section>
+    <main className="mx-auto max-w-4xl space-y-6 px-4 py-10">
+      <h1>PromptBill Pricing &amp; Benchmark Methodology</h1>
+      <p>
+        <strong>Direct Answer:</strong> PromptBill normalizes all LLM API token prices to USD per 1,000,000 (1M) input, cached-read, and output tokens while explicitly separating first-party official rate cards, third-party hosting/router endpoints, and estimated entries.
+      </p>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">2. Official API vs. Third-Party Hosting &amp; Router Pricing</h2>
-          <p className="leading-relaxed">
-            A price listed on an API router (such as OpenRouter) or third-party inference host is not treated as the model creator&apos;s official direct API price. Official provider rates and third-party/router endpoints are stored separately with their own rates, batch discount terms, and verification status.
-          </p>
-          <p className="leading-relaxed">
-            Always verify current rates and billing terms directly on the provider&apos;s official documentation before committing production spend.
-          </p>
-        </section>
+      <h2>How does PromptBill normalize API token pricing?</h2>
+      <p>
+        Every tracked endpoint is converted to a standard 1M-token basis so developers can compare providers on equal footing across high-volume prompts, cached context reads, and long completions.
+      </p>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">3. Benchmark Scores, Speed &amp; Workload Limitations</h2>
-          <p className="leading-relaxed">
-            No single benchmark score or tokens-per-second (tok/s) number measures general intelligence or predicts how a model will perform on your specific prompts, schemas, languages, or latency budgets.
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5">
-            <li>
-              <strong className="text-slate-900">Missing or unverified metrics:</strong> Models without a recorded score or speed value display <code className="font-mono text-xs">N/A</code> and sort to the bottom rather than receiving artificial scores.
-            </li>
-            <li>
-              <strong className="text-slate-900">Throughput differences:</strong> Output speed (tok/s) depends on prompt length, concurrency, quantization, reasoning effort, and host hardware—comparing raw numbers across different providers or test conditions is approximate.
-            </li>
-            <li>
-              <strong className="text-slate-900">Value ratio:</strong> Where both a numeric score and a positive output price per 1M tokens exist, value is shown as <code className="font-mono text-xs">Score / Output Price ($ per 1M)</code>; models missing either value show <code className="font-mono text-xs">N/A</code>.
-            </li>
-          </ul>
-          <div className="pt-2 flex flex-wrap gap-4 text-xs font-semibold">
-            <Link href="/leaderboard" className="text-emerald-800 underline">
-              Go to Leaderboard →
-            </Link>
-            <Link href="/pricing" className="text-emerald-800 underline">
-              Go to API Pricing →
-            </Link>
-            <Link href="/compare" className="text-emerald-800 underline">
-              Go to Model Comparisons →
-            </Link>
-          </div>
-        </section>
-      </div>
-    </SiteShell>
+      <h2>What is the difference between Official, Router, and Estimated provenance?</h2>
+      <ul>
+        <li><strong>Official:</strong> Sourced directly from the model creator&apos;s published API pricing documentation.</li>
+        <li><strong>Router / Third-Party Endpoint:</strong> Sourced from aggregators or hosting endpoints (such as OpenRouter) where rates or throughput can differ from direct provider endpoints.</li>
+        <li><strong>Estimated:</strong> Modeled or provisional figures awaiting direct verification before final confirmation.</li>
+      </ul>
+
+      <p>
+        Explore live rates on the <Link href="/pricing">API Pricing</Link> page or inspect individual models in the <Link href="/models">Models Directory</Link>.
+      </p>
+    </main>
   );
 }
