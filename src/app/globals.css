@@ -2,10 +2,36 @@
 
 @layer base {
   body {
-    background-color: #f8fafc;
+    background-color: #fbfbfd;
     color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   .font-mono {
     font-variant-numeric: tabular-nums;
   }
+}
+
+@keyframes subtleBorderGlow {
+  0%, 100% {
+    border-color: rgba(15, 23, 42, 0.14);
+  }
+  50% {
+    border-color: rgba(5, 150, 105, 0.34);
+  }
+}
+
+.pb-card-perimeter {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.pb-card-perimeter:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.08);
+}
+
+.pb-workbench-shell {
+  animation: subtleBorderGlow 8s ease-in-out infinite;
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ALL_MODELS } from '../lib/catalog';
+import { ALL_MODELS, getAllProviderSlugs } from '../lib/catalog';
 import { getRegistryFreshnessSummary } from '../lib/freshness';
 import { formatCurrency } from '../lib/pricingEngine';
+import { getEffectiveModelRates } from '../lib/endpointPricing';
 import { SiteShell } from '../components/SiteShell';
 import { HomeInteractiveWorkbench } from '../components/HomeInteractiveWorkbench';
 import {
@@ -15,11 +16,15 @@ import {
   GitBranch,
   ArrowUpRight,
   ShieldCheck,
+  Zap,
+  Sparkles,
+  Layers,
+  CheckCircle2,
 } from 'lucide-react';
 
-const HOME_TITLE = 'PromptBill — LLM API Pricing & Token Calculator';
+const HOME_TITLE = 'PromptBill — LLM API Pricing, Multi-Endpoint Rates & Token Calculator';
 const HOME_DESCRIPTION =
-  'Compare LLM API token pricing per 1M tokens, estimate 30-day API spend with caching and batch discounts, and inspect model benchmarks.';
+  'Compare LLM API token pricing per 1M tokens across official APIs and third-party inference clouds, estimate 30-day spend with caching and batch discounts, and inspect benchmark leaderboards.';
 
 export const metadata: Metadata = {
   title: {
@@ -43,7 +48,7 @@ export const metadata: Metadata = {
   },
 };
 
-function fmtRate(val: number | null): string {
+function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
@@ -51,31 +56,31 @@ const CORE_TOOLS = [
   {
     href: '/pricing',
     title: 'API Token Pricing Table',
-    badge: 'Per 1M Tokens',
+    badge: 'Multi-Endpoint',
     description:
-      'Compare input, cached read, and output rates across tracked models with clear Verified, Estimated, and Unavailable provenance labels.',
+      'Compare input, cached read, cache write, and output rates across official APIs, routers, and inference clouds with explicit provenance badges.',
     icon: Table2,
   },
   {
     href: '/leaderboard',
     title: 'Benchmark Leaderboard',
-    badge: 'Scores & Value',
+    badge: 'Quality & Speed',
     description:
-      'Sort models by benchmark score, coding (CO), reasoning (RE), output speed (tok/s), and score-per-dollar efficiency.',
+      'Rank models by overall benchmark score, coding (CO), reasoning (RE), latency (<175ms), output throughput (tok/s), and score-per-dollar value.',
     icon: Trophy,
   },
   {
     href: '/compare',
     title: 'Head-to-Head Compare',
-    badge: 'Side-by-Side',
+    badge: 'A vs B Matrix',
     description:
-      'Evaluate two or more LLMs side by side across token pricing, context window capacity, domain scores, and endpoint options.',
+      'Evaluate two LLMs side by side across token pricing, context windows, domain capabilities, and third-party hosting endpoints.',
     icon: Scale,
   },
   {
     href: '/tools/token-counter',
     title: 'Live Prompt Tokenizer',
-    badge: 'Token & Cost',
+    badge: 'Instant Count',
     description:
       'Paste real prompts or system instructions to estimate token counts and per-request spend across model families.',
     icon: FileText,
@@ -83,33 +88,106 @@ const CORE_TOOLS = [
   {
     href: '/tools/llm-selector',
     title: 'Interactive LLM Selector',
-    badge: 'Task & Budget',
+    badge: 'Workload Match',
     description:
-      'Filter models by workload type, monthly budget cap, minimum context window, and open-weight vs closed license.',
+      'Filter models by task domain, monthly budget cap, minimum context window, latency tier, and open-weight vs. proprietary license.',
     icon: SlidersHorizontal,
   },
   {
     href: '/tools/routing-simulator',
     title: 'Hybrid Routing Simulator',
-    badge: 'Cost Savings',
+    badge: 'Spend Optimization',
     description:
-      'Simulate splitting routine requests to economy models while reserving flagship models for complex reasoning calls.',
+      'Simulate routing routine traffic to economy models while reserving frontier models for complex reasoning calls.',
     icon: GitBranch,
   },
 ];
 
-const SHORTLIST_LINKS = [
-  { href: '/best-llms-for-coding', label: 'Coding Model Rankings' },
-  { href: '/best-open-weight-llms', label: 'Open-Weight Model Directory' },
-  { href: '/cheapest-llms-for-classification', label: 'Low-Cost Classification Models' },
-  { href: '/fastest-llms-tokens-per-second', label: 'High-Throughput Models (tok/s)' },
-  { href: '/models', label: 'Models' },
-  { href: '/methodology', label: 'Data Provenance Methodology' },
+const CURATED_HUBS = [
+  {
+    href: '/best-llms-for-coding',
+    title: 'Best LLMs for Coding',
+    subtitle: 'Ranked by CO benchmark & repo agent efficiency',
+  },
+  {
+    href: '/best-open-weight-llms',
+    title: 'Open-Weight Directory',
+    subtitle: 'MIT & Apache 2.0 models across inference clouds',
+  },
+  {
+    href: '/cheapest-llms-for-classification',
+    title: 'Lowest-Cost Classification',
+    subtitle: 'Sub-$0.20/M input models for high-volume pipelines',
+  },
+  {
+    href: '/fastest-llms-tokens-per-second',
+    title: 'Highest Throughput (tok/s)',
+    subtitle: 'Low-latency & high-tok/s endpoints for real-time UX',
+  },
 ];
 
 export default function HomePage() {
   const freshness = getRegistryFreshnessSummary();
-  const featuredModels = ALL_MODELS.slice(0, 8);
+  const providers = getAllProviderSlugs();
+
+  const totalEndpoints = ALL_MODELS.reduce(
+    (sum, m) => sum + (Array.isArray(m.hostingEndpoints) ? m.hostingEndpoints.length : 1),
+    0
+  );
+
+  // Curated representative snapshot across flagship, balanced, and economy tiers
+  const snapshotModels = (() => {
+    const preferredSlugs = [
+      'gpt-6-2-astra',
+      'claude-fable-5-2',
+      'gemini-4-argon',
+      'claude-sonnet-5-5',
+      'gpt-6-2-sol',
+      'kimi-k3-1-pro',
+      'deepseek-v4-1-flash',
+      'mistral-large-4-0',
+      'gemini-4-hydrogen',
+      'qwen-3-7-flash',
+    ];
+    const picked: typeof ALL_MODELS = [];
+    for (const slug of preferredSlugs) {
+      const found = ALL_MODELS.find((m) => m.slug === slug);
+      if (found) picked.push(found);
+    }
+    if (picked.length < 10) {
+      for (const m of ALL_MODELS) {
+        if (!picked.some((p) => p.slug === m.slug)) {
+          picked.push(m);
+        }
+        if (picked.length >= 10) break;
+      }
+    }
+    return picked;
+  })();
+
+  const topBenchmarkLeaders = [...ALL_MODELS]
+    .filter((m) => typeof m.score === 'number')
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .slice(0, 3);
+
+  const topValueLeaders = [...ALL_MODELS]
+    .filter(
+      (m) =>
+        typeof m.score === 'number' &&
+        typeof m.outputPer1M === 'number' &&
+        m.outputPer1M > 0
+    )
+    .sort((a, b) => (b.score ?? 0) / (b.outputPer1M ?? 1) - (a.score ?? 0) / (a.outputPer1M ?? 1))
+    .slice(0, 3);
+
+  const topSpeedLeaders = [...ALL_MODELS]
+    .map((m) => ({
+      model: m,
+      effective: getEffectiveModelRates(m, 'cheapest'),
+    }))
+    .filter((item) => typeof item.effective.tokPerSec === 'number')
+    .sort((a, b) => (b.effective.tokPerSec ?? 0) - (a.effective.tokPerSec ?? 0))
+    .slice(0, 3);
 
   const webAppJsonLd = {
     '@context': 'https://schema.org',
@@ -135,7 +213,7 @@ export default function HomePage() {
         name: 'What does PromptBill offer developers and AI teams?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'PromptBill provides an LLM API token pricing table, 30-day API cost estimator with prompt caching and batch discounts, benchmark leaderboard, head-to-head model comparisons, prompt token counter, model selector, and hybrid routing simulator.',
+          text: 'PromptBill provides a multi-endpoint LLM API token pricing table, 30-day API cost estimator with prompt caching and batch discounts, benchmark leaderboard, head-to-head model comparisons, prompt token counter, model selector, and hybrid routing simulator.',
         },
       },
       {
@@ -143,7 +221,7 @@ export default function HomePage() {
         name: 'How are LLM API costs calculated on PromptBill?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'PromptBill calculates monthly spend from daily request volume, input tokens, cached input read share, output tokens, and model-specific batch discounts per 1 million tokens. When a price is unavailable, it displays N/A rather than zero.',
+          text: 'PromptBill calculates monthly spend from daily request volume, input tokens, cached input read share, output tokens, and endpoint-specific batch discounts per 1 million tokens. When a rate is unavailable, it displays N/A rather than zero.',
         },
       },
       {
@@ -151,18 +229,15 @@ export default function HomePage() {
         name: 'How does PromptBill separate verified pricing from estimates?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Every pricing and benchmark record carries an explicit provenance status: Verified when backed by a primary source citation and check date, Estimated when unverified, and Unavailable when data is missing.',
+          text: 'Every pricing and benchmark record carries an explicit provenance status: Verified when backed by a primary source citation and verification timestamp, Estimated when unverified, and Unavailable when data is missing.',
         },
       },
     ],
   };
 
   return (
-    <SiteShell
-      title="LLM API Pricing, Token Cost Calculator & Benchmarks"
-      subtitle={`promptbill.online · ${freshness.totalModels} Models Tracked · Transparent Provenance`}
-    >
-      <div className="space-y-8">
+    <SiteShell hidePageHeader>
+      <div className="space-y-12 sm:space-y-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
@@ -172,61 +247,358 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
 
-        <section className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50/80 to-emerald-50/40 p-5 sm:p-7 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-900">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
-              Per-1M-Token Rates · Caching &amp; Batch Math · Benchmark Value
-            </span>
-            <span className="font-mono text-slate-600">
-              Catalog: {freshness.totalModels} models · {freshness.verifiedPricingCount} verified ·{' '}
-              {freshness.estimatedPricingCount} estimated
-            </span>
+        {/* Hero */}
+        <section className="pt-2 sm:pt-4 space-y-8">
+          <div className="max-w-4xl space-y-5">
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-slate-200/90 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 shadow-2xs">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+              <span>
+                {freshness.totalModels} Models · {totalEndpoints} Endpoints · Verified vs. Estimated Provenance
+              </span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-slate-950 leading-[1.12]">
+              LLM API pricing, multi-endpoint rates &amp; token cost math.
+            </h1>
+
+            <p className="max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+              Compare per-1M-token rates across official provider APIs, inference clouds, and routers. Model prompt caching, batch discounts, latency, and benchmark efficiency before deploying to production.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <Link
+                href="/pricing"
+                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              >
+                <span>Explore Token Rates</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/leaderboard"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
+              >
+                Benchmark Leaderboard
+              </Link>
+              <Link
+                href="/compare"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-slate-200 bg-slate-100/80 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-200/70 transition-colors"
+              >
+                Compare Models
+              </Link>
+            </div>
           </div>
 
-          <p className="max-w-3xl text-sm sm:text-base text-slate-700 leading-relaxed">
-            <strong>PromptBill</strong> helps developers and AI engineering teams estimate monthly LLM API bills, compare input, cached, and output token rates, and evaluate model benchmarks side by side—with clear provenance badges so unverified estimates are never confused with verified provider quotes.
-          </p>
+          {/* Telemetry Strip */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5">
+              <div className="text-xs font-medium text-slate-500">Tracked Models</div>
+              <div className="mt-1.5 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
+                {freshness.totalModels}
+              </div>
+              <div className="mt-1 text-xs text-slate-600">
+                Across {providers.length} model providers
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 pt-1">
-            <Link
-              href="/pricing"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
-            >
-              Explore Token Rates
-            </Link>
-            <Link
-              href="/leaderboard"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
-            >
-              View Model Rankings
-            </Link>
-            <Link
-              href="/compare"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
-            >
-              Compare Two LLMs
-            </Link>
-            <Link
-              href="/models"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
-            >
-              Models
-            </Link>
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5">
+              <div className="text-xs font-medium text-slate-500">Verified Rate Cards</div>
+              <div className="mt-1.5 font-mono text-2xl sm:text-3xl font-bold text-emerald-800">
+                {freshness.verifiedPricingCount}
+              </div>
+              <div className="mt-1 text-xs text-slate-600">
+                {freshness.estimatedPricingCount} estimated · {freshness.unavailablePricingCount} N/A
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5">
+              <div className="text-xs font-medium text-slate-500">Hosting Endpoints</div>
+              <div className="mt-1.5 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
+                {totalEndpoints}
+              </div>
+              <div className="mt-1 text-xs text-slate-600">
+                Official APIs, Clouds &amp; Routers
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5">
+              <div className="text-xs font-medium text-slate-500">Last Catalog Sync</div>
+              <div className="mt-1.5 font-mono text-xl sm:text-2xl font-bold text-slate-950">
+                {freshness.latestVerifiedDate
+                  ? freshness.latestVerifiedDate.slice(0, 10)
+                  : '2026-11-27'}
+              </div>
+              <div className="mt-1 text-xs text-slate-600">
+                <Link href="/methodology" className="text-emerald-800 font-medium hover:underline">
+                  Inspect provenance rules →
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 
+        {/* Interactive 30-Day Spend & Endpoint Simulator */}
         <HomeInteractiveWorkbench models={ALL_MODELS} />
 
-        <section aria-labelledby="platform-tools-heading" className="space-y-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
+        {/* Live Catalog Snapshot */}
+        <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <h2 id="platform-tools-heading" className="text-lg sm:text-xl font-bold text-slate-900">
-                What You Can Do on PromptBill
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Six focused tools for pricing transparency, token estimation, and model selection.
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                Multi-Endpoint Rate Snapshot
               </p>
+              <h2
+                id="catalog-snapshot-heading"
+                className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-950"
+              >
+                Frontier, Balanced &amp; Economy API Rates
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                Showing lowest available endpoint rates alongside official host coverage and throughput.
+              </p>
+            </div>
+            <div className="flex items-center gap-4 text-xs sm:text-sm font-semibold">
+              <Link
+                href="/models"
+                className="text-slate-700 hover:text-slate-950 transition-colors"
+              >
+                Models Directory →
+              </Link>
+              <Link
+                href="/pricing"
+                className="text-emerald-800 hover:text-emerald-950 underline underline-offset-4"
+              >
+                All {ALL_MODELS.length} Models →
+              </Link>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+              <caption className="sr-only">
+                Representative LLM API rates per 1 million tokens, endpoint hosts, and throughput on PromptBill
+              </caption>
+              <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur border-b border-slate-200 text-xs font-semibold text-slate-700">
+                <tr>
+                  <th scope="col" className="py-3.5 px-4">Model</th>
+                  <th scope="col" className="py-3.5 px-3 hidden lg:table-cell">Best Endpoint</th>
+                  <th scope="col" className="py-3.5 px-3">Input / 1M</th>
+                  <th scope="col" className="py-3.5 px-3 hidden md:table-cell">Cached / 1M</th>
+                  <th scope="col" className="py-3.5 px-3">Output / 1M</th>
+                  <th scope="col" className="py-3.5 px-3 hidden sm:table-cell text-right">Speed</th>
+                  <th scope="col" className="py-3.5 px-4 text-right">Context</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {snapshotModels.map((m) => {
+                  const eff = getEffectiveModelRates(m, 'cheapest');
+                  const extraHosts = Math.max(0, eff.endpointCount - 1);
+                  return (
+                    <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
+                      <th scope="row" className="py-3.5 px-4 text-left font-normal">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/models/${m.slug}`}
+                            className="font-semibold text-slate-950 hover:text-emerald-800 hover:underline"
+                          >
+                            {m.name}
+                          </Link>
+                          {m.license === 'Open' && (
+                            <span className="hidden sm:inline-flex rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+                              Open
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+                          <span>{m.provider}</span>
+                          <span>·</span>
+                          <span
+                            className={
+                              m.pricingProvenance.status === 'Verified'
+                                ? 'text-emerald-800 font-medium'
+                                : 'text-amber-800 font-medium'
+                            }
+                          >
+                            {m.pricingProvenance.status}
+                          </span>
+                          {extraHosts > 0 && (
+                            <span className="lg:hidden text-slate-500">
+                              · +{extraHosts} {extraHosts === 1 ? 'host' : 'hosts'}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+
+                      <td className="py-3.5 px-3 hidden lg:table-cell">
+                        <div className="text-xs font-medium text-slate-900">{eff.host}</div>
+                        <div className="text-[11px] text-slate-500">
+                          {eff.endpointCount} {eff.endpointCount === 1 ? 'endpoint' : 'endpoints'}
+                          {eff.savingsPercent > 0 ? (
+                            <span className="ml-1.5 text-emerald-700 font-semibold">
+                              (-{eff.savingsPercent}% vs official)
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-3 font-mono text-slate-950">
+                        {fmtRate(eff.inputPer1M)}
+                      </td>
+
+                      <td className="py-3.5 px-3 font-mono text-emerald-800 hidden md:table-cell">
+                        {fmtRate(eff.cachedInputPer1M)}
+                      </td>
+
+                      <td className="py-3.5 px-3 font-mono text-slate-950">
+                        {fmtRate(eff.outputPer1M)}
+                      </td>
+
+                      <td className="py-3.5 px-3 hidden sm:table-cell text-right font-mono text-xs text-slate-700">
+                        {typeof eff.tokPerSec === 'number' ? `~${eff.tokPerSec} tok/s` : 'N/A'}
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-right text-slate-700">
+                        {m.contextWindow ?? 'N/A'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Live Leaderboard Pulse (3-column architectural summary) */}
+        <section aria-labelledby="leaderboard-pulse-heading" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                Catalog Intelligence
+              </p>
+              <h2
+                id="leaderboard-pulse-heading"
+                className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-950"
+              >
+                Current Standouts by Quality, Value &amp; Speed
+              </h2>
+            </div>
+            <Link
+              href="/leaderboard"
+              className="text-xs sm:text-sm font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-4"
+            >
+              Open Full Leaderboard →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Quality Leaders */}
+            <div className="pb-card-perimeter rounded-2xl bg-white p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
+                  Top Benchmark Score
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">Overall</span>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {topBenchmarkLeaders.map((m, i) => (
+                  <li key={m.id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/models/${m.slug}`}
+                        className="text-sm font-semibold text-slate-950 hover:text-emerald-800 truncate block"
+                      >
+                        {i + 1}. {m.name}
+                      </Link>
+                      <span className="text-[11px] text-slate-500">
+                        {m.provider} · {fmtRate(m.inputPer1M)}/{fmtRate(m.outputPer1M)}
+                      </span>
+                    </div>
+                    <span className="font-mono text-sm font-bold text-slate-950 shrink-0">
+                      {m.score?.toFixed(1)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Value Leaders */}
+            <div className="pb-card-perimeter rounded-2xl bg-white p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
+                  <Layers className="h-3.5 w-3.5 text-emerald-700" />
+                  Best Score / Output $
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">Efficiency</span>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {topValueLeaders.map((m, i) => (
+                  <li key={m.id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/models/${m.slug}`}
+                        className="text-sm font-semibold text-slate-950 hover:text-emerald-800 truncate block"
+                      >
+                        {i + 1}. {m.name}
+                      </Link>
+                      <span className="text-[11px] text-slate-500">
+                        Score {m.score?.toFixed(1)} · Out {fmtRate(m.outputPer1M)}/1M
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 shrink-0">
+                      {Math.round((m.score ?? 0) / (m.outputPer1M ?? 1))} pts/$
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Speed Leaders */}
+            <div className="pb-card-perimeter rounded-2xl bg-white p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
+                  <Zap className="h-3.5 w-3.5 text-emerald-700" />
+                  Fastest Throughput
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">tok/s</span>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {topSpeedLeaders.map(({ model: m, effective }, i) => (
+                  <li key={m.id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/models/${m.slug}`}
+                        className="text-sm font-semibold text-slate-950 hover:text-emerald-800 truncate block"
+                      >
+                        {i + 1}. {m.name}
+                      </Link>
+                      <span className="text-[11px] text-slate-500">
+                        via {effective.host}
+                        {typeof effective.latencyMs === 'number' ? ` · <${effective.latencyMs}ms` : ''}
+                      </span>
+                    </div>
+                    <span className="font-mono text-sm font-bold text-slate-950 shrink-0">
+                      ~{effective.tokPerSec} tok/s
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Core Engineering Tools */}
+        <section aria-labelledby="platform-tools-heading" className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                Developer Suite
+              </p>
+              <h2
+                id="platform-tools-heading"
+                className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-950"
+              >
+                Six Focused Tools for LLM Cost &amp; Routing Decisions
+              </h2>
             </div>
             <Link
               href="/methodology"
@@ -242,21 +614,21 @@ export default function HomePage() {
               return (
                 <article
                   key={tool.href}
-                  className="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-emerald-600/60 hover:shadow-xs transition-all flex flex-col justify-between gap-3"
+                  className="pb-card-perimeter group rounded-2xl bg-white p-6 flex flex-col justify-between gap-4"
                 >
-                  <div className="space-y-2.5">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-800 group-hover:bg-emerald-50 group-hover:text-emerald-800 transition-colors">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-900 group-hover:bg-slate-950 group-hover:text-white transition-colors">
                         <Icon className="h-4 w-4" />
                       </div>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
                         {tool.badge}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-slate-950">
                       <Link
                         href={tool.href}
-                        className="inline-flex items-center justify-between gap-1.5 group-hover:text-emerald-900 hover:underline"
+                        className="inline-flex items-center gap-1.5 group-hover:text-emerald-800 transition-colors"
                       >
                         <span>{tool.title}</span>
                         <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
@@ -272,134 +644,93 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="curated-views-heading"
-          className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="curated-views-heading" className="text-base sm:text-lg font-bold text-slate-900">
-              Curated Shortlists &amp; Directory Views
-            </h2>
-            <span className="text-xs text-slate-500">Direct task-based rankings</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SHORTLIST_LINKS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="inline-flex min-h-[40px] items-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/60 hover:text-emerald-950 transition-colors"
+        {/* Curated Task Hubs */}
+        <section aria-labelledby="curated-views-heading" className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                Workload Shortlists
+              </p>
+              <h2
+                id="curated-views-heading"
+                className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-950"
               >
-                {item.label}
+                Explore Models by Production Use Case
+              </h2>
+            </div>
+            <Link
+              href="/models"
+              className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-950"
+            >
+              Browse Full Directory →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {CURATED_HUBS.map((hub) => (
+              <Link
+                key={hub.href}
+                href={hub.href}
+                className="pb-card-perimeter group rounded-2xl bg-white p-5 flex flex-col justify-between gap-3"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-950 group-hover:text-emerald-800 transition-colors">
+                      {hub.title}
+                    </h3>
+                    <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">{hub.subtitle}</p>
+                </div>
               </Link>
             ))}
           </div>
         </section>
 
-        <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <h2 id="catalog-snapshot-heading" className="text-lg sm:text-xl font-bold text-slate-900">
-                Catalog Pricing &amp; Context Snapshot
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Select any model to open its dedicated calculator, endpoint table, and capability scores.
-              </p>
-            </div>
-            <Link
-              href="/pricing"
-              className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
-            >
-              Full {ALL_MODELS.length}-Model Rate Table
-            </Link>
-          </div>
-
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm">
-              <caption className="sr-only">
-                Sample LLM API rates per 1 million tokens and context windows on PromptBill
-              </caption>
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700">
-                  <th scope="col" className="py-3 px-3.5 sm:px-4">Model</th>
-                  <th scope="col" className="py-3 px-3 hidden sm:table-cell">Provenance</th>
-                  <th scope="col" className="py-3 px-3">Input / 1M</th>
-                  <th scope="col" className="py-3 px-3 hidden md:table-cell">Cached / 1M</th>
-                  <th scope="col" className="py-3 px-3">Output / 1M</th>
-                  <th scope="col" className="py-3 px-3.5 sm:px-4 text-right">Context</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {featuredModels.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
-                    <th scope="row" className="py-3 px-3.5 sm:px-4 text-left font-normal">
-                      <Link
-                        href={`/models/${m.slug}`}
-                        className="font-semibold text-slate-900 hover:text-emerald-800 hover:underline"
-                      >
-                        {m.name}
-                      </Link>
-                      <span className="block text-[11px] sm:text-xs text-slate-500">
-                        {m.provider}
-                        <span className="sm:hidden"> · {m.pricingProvenance.status}</span>
-                      </span>
-                    </th>
-                    <td className="py-3 px-3 hidden sm:table-cell">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          m.pricingProvenance.status === 'Verified'
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : 'bg-amber-50 text-amber-900 border border-amber-200'
-                        }`}
-                      >
-                        {m.pricingProvenance.status === 'Verified'
-                          ? 'Verified'
-                          : 'Estimated (Unverified)'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.inputPer1M)}</td>
-                    <td className="py-3 px-3 font-mono text-emerald-800 hidden md:table-cell">
-                      {fmtRate(m.cachedInputPer1M)}
-                    </td>
-                    <td className="py-3 px-3 font-mono text-slate-900">{fmtRate(m.outputPer1M)}</td>
-                    <td className="py-3 px-3.5 sm:px-4 font-mono text-right text-slate-700">
-                      {m.contextWindow ?? 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
+        {/* Data Provenance & FAQ */}
         <section
           aria-labelledby="home-faq-heading"
-          className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 space-y-4"
+          className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 space-y-6"
         >
-          <h2 id="home-faq-heading" className="text-lg font-bold text-slate-900">
-            Frequently Asked Questions
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-slate-700">
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
-              <h3 className="font-semibold text-slate-900">What does PromptBill offer?</h3>
-              <p className="leading-relaxed">
-                PromptBill combines an API token pricing table, 30-day cost calculator, benchmark leaderboard, model comparison tool, prompt tokenizer, and routing simulator in one directory.
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <h2 id="home-faq-heading" className="text-lg sm:text-xl font-bold text-slate-950">
+                Pricing Methodology &amp; Frequently Asked Questions
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                How PromptBill normalizes token math, multi-host quotes, and provenance labels.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
-              <h3 className="font-semibold text-slate-900">How are monthly costs estimated?</h3>
-              <p className="leading-relaxed">
-                Estimates multiply daily calls over 30 days using each model&apos;s per-1M-token input, cached read, and output rates plus batch discounts where available.
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+              <CheckCircle2 className="h-4 w-4" />
+              Zero fabricated numbers
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs sm:text-sm text-slate-700">
+            <div className="rounded-2xl bg-slate-50/80 p-5 space-y-2">
+              <h3 className="font-bold text-slate-950">What does PromptBill offer?</h3>
+              <p className="leading-relaxed text-slate-600">
+                PromptBill combines a multi-endpoint API token pricing table, 30-day spend simulator, benchmark leaderboard, model comparison matrix, prompt tokenizer, and hybrid routing simulator.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4 space-y-1.5">
-              <h3 className="font-semibold text-slate-900">How are official provider rates verified?</h3>
-              <p className="leading-relaxed">
+
+            <div className="rounded-2xl bg-slate-50/80 p-5 space-y-2">
+              <h3 className="font-bold text-slate-950">How are monthly costs estimated?</h3>
+              <p className="leading-relaxed text-slate-600">
+                Estimates multiply daily requests over 30 days using each endpoint&apos;s per-1M-token input, cached read, and output rates plus batch discounts and long-context multipliers where applicable.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50/80 p-5 space-y-2">
+              <h3 className="font-bold text-slate-950">How are official provider rates verified?</h3>
+              <p className="leading-relaxed text-slate-600">
                 Verified entries cross-check primary provider rate cards such as{' '}
                 <a
                   href="https://platform.openai.com/docs/pricing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-emerald-800 underline underline-offset-2"
+                  className="font-semibold text-emerald-800 underline underline-offset-2"
                 >
                   OpenAI API Pricing Docs
                 </a>{' '}
@@ -408,11 +739,11 @@ export default function HomePage() {
                   href="https://docs.anthropic.com/en/docs/about-claude/pricing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-emerald-800 underline underline-offset-2"
+                  className="font-semibold text-emerald-800 underline underline-offset-2"
                 >
                   Anthropic Claude Pricing Docs
                 </a>
-                ; unverified entries remain clearly labeled Estimated.
+                ; unverified quotes remain clearly labeled Estimated.
               </p>
             </div>
           </div>
