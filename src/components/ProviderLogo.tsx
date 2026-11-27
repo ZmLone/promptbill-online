@@ -2,30 +2,76 @@ import React from 'react';
 
 interface ProviderLogoProps {
   provider: string;
+  modelName?: string;
+  modelSlug?: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
-function getDimensions(size: 'sm' | 'md' | 'lg') {
-  if (size === 'lg') return { box: 'h-9 w-9 rounded-xl', svg: 'h-5 w-5' };
-  if (size === 'md') return { box: 'h-7 w-7 rounded-lg', svg: 'h-4 w-4' };
-  return { box: 'h-6 w-6 rounded-lg', svg: 'h-3.5 w-3.5' };
+function getBoxClass(size: 'sm' | 'md' | 'lg') {
+  if (size === 'lg') return 'h-9 w-9 rounded-xl';
+  if (size === 'md') return 'h-7 w-7 rounded-lg';
+  return 'h-6 w-6 rounded-md';
 }
 
-export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
-  const key = provider.trim().toLowerCase();
-  const { box, svg } = getDimensions(size);
+function getSvgClass(size: 'sm' | 'md' | 'lg') {
+  if (size === 'lg') return 'h-5 w-5';
+  if (size === 'md') return 'h-4 w-4';
+  return 'h-3.5 w-3.5';
+}
 
-  // OpenAI — Authentic 6-petal interwoven knot mark
-  if (key.includes('openai')) {
+export function ProviderLogo({
+  provider,
+  modelName = '',
+  modelSlug = '',
+  size = 'sm',
+}: ProviderLogoProps) {
+  const family = `${provider} ${modelName} ${modelSlug}`.toLowerCase();
+  const box = getBoxClass(size);
+  const svg = getSvgClass(size);
+
+  // OpenAI / GPT / o-series — Crisp 6-spoke radial asterisk/knot
+  if (
+    family.includes('openai') ||
+    /gpt-?\d/.test(family) ||
+    /o[1345]-?(mini|pro|high)?/.test(family)
+  ) {
     return (
       <span
         aria-hidden="true"
-        title="OpenAI"
-        className={`inline-flex shrink-0 items-center justify-center bg-slate-950 text-white shadow-2xs ${box}`}
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-slate-950 text-white ${box}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className={svg}>
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+          <path
+            d="M12 3v5.5M12 15.5V21M4.2 7.5l4.8 2.8M15 13.7l4.8 2.8M19.8 7.5 15 10.3M9 13.7 4.2 16.5"
+            stroke="currentColor"
+            strokeWidth="2.1"
+            strokeLinecap="round"
+          />
+        </svg>
+      </span>
+    );
+  }
+
+  // Anthropic / Claude / Fable / Sonnet / Haiku / Opus
+  if (
+    family.includes('anthropic') ||
+    family.includes('claude') ||
+    family.includes('fable') ||
+    family.includes('sonnet') ||
+    family.includes('haiku') ||
+    family.includes('opus')
+  ) {
+    return (
+      <span
+        aria-hidden="true"
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-[#da7756]/15 text-[#c45a38] ring-1 ring-inset ring-[#da7756]/30 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
           <path
-            d="M22.28 9.82a5.98 5.98 0 0 0-.51-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07ZM13.26 22.43a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.78-2.76a.8.8 0 0 0 .39-.68v-6.74l2.02 1.17a.07.07 0 0 1 .04.05v5.58a4.5 4.5 0 0 1-4.49 4.5Zm-9.66-4.13a4.47 4.47 0 0 1-.53-3.01l.14.08 4.78 2.76a.77.77 0 0 0 .78 0l5.84-3.37v2.33a.08.08 0 0 1-.03.06L9.74 19.95a4.5 4.5 0 0 1-6.14-1.65ZM2.34 7.9a4.49 4.49 0 0 1 2.37-1.97V11.6a.77.77 0 0 0 .39.68l5.81 3.35-2.02 1.17a.08.08 0 0 1-.07 0l-4.83-2.79A4.5 4.5 0 0 1 2.34 7.9Zm16.6 3.85L13.1 8.36l2.02-1.16a.08.08 0 0 1 .07 0l4.83 2.79a4.49 4.49 0 0 1-.68 8.1v-5.68a.79.79 0 0 0-.4-.66Zm2.01-3.02-.14-.09-4.77-2.78a.78.78 0 0 0-.79 0L9.41 9.23V6.9a.07.07 0 0 1 .03-.06l4.83-2.79a4.5 4.5 0 0 1 6.68 4.66ZM8.3 12.86l-2.02-1.16a.08.08 0 0 1-.04-.06V6.07a4.5 4.5 0 0 1 7.38-3.45l-.14.08-4.78 2.76a.8.8 0 0 0-.39.68l-.01 6.72Zm1.1-2.37 2.6-1.5 2.6 1.5v3l-2.6 1.5-2.6-1.5v-3Z"
+            d="M12 4.5 19.5 19.5h-3.1l-1.5-3.2H9.1l-1.5 3.2H4.5L12 4.5Zm0 5.6-1.8 3.8h3.6L12 10.1Z"
             fill="currentColor"
           />
         </svg>
@@ -33,17 +79,83 @@ export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
     );
   }
 
-  // Anthropic / Claude — Warm terracotta with authentic 'A' monogram
-  if (key.includes('anthropic') || key.includes('claude')) {
+  // Google / Gemini / Neon / Argon / Carbon / Hydrogen
+  if (
+    family.includes('google') ||
+    family.includes('gemini') ||
+    family.includes('neon') ||
+    family.includes('argon') ||
+    family.includes('carbon') ||
+    family.includes('hydrogen')
+  ) {
     return (
       <span
         aria-hidden="true"
-        title="Anthropic"
-        className={`inline-flex shrink-0 items-center justify-center bg-[#d97757]/15 text-[#c25937] ring-1 ring-inset ring-[#d97757]/30 ${box}`}
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-blue-500/12 ring-1 ring-inset ring-blue-500/25 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
           <path
-            d="M14.1 4h2.55L21 20h-2.55l-.95-3.65H13.1L12.15 20H9.6L14.1 4Zm.9 4.2-1.45 5.8h2.9L15 8.2ZM7.4 4h2.6l4.5 16h-2.55L8.7 8.15 5.45 20H2.9L7.4 4Z"
+            d="M12 2.5C12.3 7.8 16.2 11.7 21.5 12C16.2 12.3 12.3 16.2 12 21.5C11.7 16.2 7.8 12.3 2.5 12C7.8 11.7 11.7 7.8 12 2.5Z"
+            fill="#2563EB"
+          />
+        </svg>
+      </span>
+    );
+  }
+
+  // DeepSeek
+  if (family.includes('deepseek')) {
+    return (
+      <span
+        aria-hidden="true"
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-[#4d6bfe]/14 text-[#2d4be0] ring-1 ring-inset ring-[#4d6bfe]/30 ${box}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className={svg}>
+          <path
+            d="M4 13.5c0-4.2 3.4-7.5 7.7-7.5 3.2 0 5.9 1.8 7.1 4.5.8-.3 1.7-.2 2.2.3-.5 1.3-1.6 2.3-2.9 2.7-.8 2.9-3.5 5-6.8 5-4 0-7.3-2.4-7.3-5.3Z"
+            fill="currentColor"
+          />
+          <circle cx="10.2" cy="11.5" r="1.3" fill="#ffffff" />
+        </svg>
+      </span>
+    );
+  }
+
+  // Mistral
+  if (family.includes('mistral') || family.includes('codestral') || family.includes('ministral')) {
+    return (
+      <span
+        aria-hidden="true"
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-orange-500/14 ring-1 ring-inset ring-orange-500/30 ${box}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className={svg}>
+          <rect x="3.5" y="4.5" width="3.5" height="3.5" fill="#F59E0B" />
+          <rect x="17" y="4.5" width="3.5" height="3.5" fill="#F59E0B" />
+          <rect x="3.5" y="8" width="7" height="3.5" fill="#F97316" />
+          <rect x="13.5" y="8" width="7" height="3.5" fill="#F97316" />
+          <rect x="3.5" y="11.5" width="17" height="3.5" fill="#EA580C" />
+          <rect x="3.5" y="15" width="3.5" height="4.5" fill="#DC2626" />
+          <rect x="10.25" y="15" width="3.5" height="4.5" fill="#DC2626" />
+          <rect x="17" y="15" width="3.5" height="4.5" fill="#DC2626" />
+        </svg>
+      </span>
+    );
+  }
+
+  // xAI / Grok
+  if (family.includes('xai') || family.includes('grok')) {
+    return (
+      <span
+        aria-hidden="true"
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-zinc-950 text-white ${box}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className={svg}>
+          <path
+            d="M4.5 5h3.1l4.9 6.8L17.4 5h2.5l-6.1 8.3L19.9 19h-3.1l-5.2-7.2L6.4 19H3.9l6.3-8.6L4.5 5Z"
             fill="currentColor"
           />
         </svg>
@@ -51,106 +163,19 @@ export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
     );
   }
 
-  // Google / Gemini — Authentic 4-point Gemini sparkle
-  if (key.includes('google') || key.includes('gemini')) {
+  // Meta / Llama
+  if (family.includes('meta') || family.includes('llama')) {
     return (
       <span
         aria-hidden="true"
-        title="Google Gemini"
-        className={`inline-flex shrink-0 items-center justify-center bg-blue-500/12 text-blue-600 ring-1 ring-inset ring-blue-500/25 ${box}`}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <path
-            d="M12 2C12.3 7.6 16.4 11.7 22 12C16.4 12.3 12.3 16.4 12 22C11.7 16.4 7.6 12.3 2 12C7.6 11.7 11.7 7.6 12 2Z"
-            fill="url(#geminiGrad)"
-          />
-          <defs>
-            <linearGradient id="geminiGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#2563EB" />
-              <stop offset="0.55" stopColor="#7C3AED" />
-              <stop offset="1" stopColor="#DB2777" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </span>
-    );
-  }
-
-  // DeepSeek — Deep blue whale/fin crest
-  if (key.includes('deepseek')) {
-    return (
-      <span
-        aria-hidden="true"
-        title="DeepSeek"
-        className={`inline-flex shrink-0 items-center justify-center bg-[#4D6BFE]/14 text-[#3451E5] ring-1 ring-inset ring-[#4D6BFE]/30 ${box}`}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <path
-            d="M3.5 13.5C3.5 9.1 7.2 5.5 11.8 5.5c3.5 0 6.5 2 7.8 5 .8-.4 1.8-.3 2.4.3-.6 1.5-1.8 2.6-3.3 3.1-.9 3.2-3.9 5.6-7.5 5.6-4.3 0-7.7-2.7-7.7-6Zm6.8-2.4a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6Z"
-            fill="currentColor"
-          />
-        </svg>
-      </span>
-    );
-  }
-
-  // Mistral — Authentic 5-bar stepped pixel 'M'
-  if (key.includes('mistral')) {
-    return (
-      <span
-        aria-hidden="true"
-        title="Mistral AI"
-        className={`inline-flex shrink-0 items-center justify-center bg-orange-500/14 text-orange-600 ring-1 ring-inset ring-orange-500/30 ${box}`}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <rect x="3" y="4" width="3.6" height="3.2" fill="#F59E0B" />
-          <rect x="17.4" y="4" width="3.6" height="3.2" fill="#F59E0B" />
-          <rect x="3" y="7.2" width="7.2" height="3.2" fill="#F97316" />
-          <rect x="13.8" y="7.2" width="7.2" height="3.2" fill="#F97316" />
-          <rect x="3" y="10.4" width="18" height="3.2" fill="#EA580C" />
-          <rect x="3" y="13.6" width="3.6" height="3.2" fill="#DC2626" />
-          <rect x="10.2" y="13.6" width="3.6" height="3.2" fill="#DC2626" />
-          <rect x="17.4" y="13.6" width="3.6" height="3.2" fill="#DC2626" />
-          <rect x="2" y="16.8" width="5.6" height="3.2" fill="#B91C1C" />
-          <rect x="16.4" y="16.8" width="5.6" height="3.2" fill="#B91C1C" />
-        </svg>
-      </span>
-    );
-  }
-
-  // xAI / Grok — Authentic slashed black hole / X mark
-  if (key.includes('xai') || key.includes('grok')) {
-    return (
-      <span
-        aria-hidden="true"
-        title="xAI"
-        className={`inline-flex shrink-0 items-center justify-center bg-zinc-950 text-white shadow-2xs ${box}`}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <path
-            d="M4 4.5h3.2l5.1 7.1L17.4 4.5H20l-6.3 8.6L20.3 20h-3.2l-5.4-7.5L6.3 20H3.7l6.6-9L4 4.5Z"
-            fill="currentColor"
-          />
-          <path d="M18.5 3.5 5.5 20.5" stroke="currentColor" strokeWidth="1.6" />
-        </svg>
-      </span>
-    );
-  }
-
-  // Meta / Llama — Authentic continuous infinity loop
-  if (key.includes('meta') || key.includes('llama')) {
-    return (
-      <span
-        aria-hidden="true"
-        title="Meta"
+        title={provider}
         className={`inline-flex shrink-0 items-center justify-center bg-sky-500/14 text-sky-600 ring-1 ring-inset ring-sky-500/25 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
           <path
-            d="M6.8 7.5C4.1 7.5 2.5 9.8 2.5 12.4c0 2.5 1.5 4.1 3.7 4.1 1.8 0 3.2-1.2 4.8-3.8l1-1.6 1 1.6c1.6 2.6 3 3.8 4.8 3.8 2.2 0 3.7-1.6 3.7-4.1 0-2.6-1.6-4.9-4.3-4.9-1.9 0-3.3 1.2-4.8 3.5l-.4.6-.4-.6C10.1 8.7 8.7 7.5 6.8 7.5Z"
+            d="M6.8 8C4.3 8 2.8 10 2.8 12.3c0 2.1 1.3 3.7 3.2 3.7 1.6 0 2.9-1.1 4.4-3.4l1.6-2.5 1.6 2.5c1.5 2.3 2.8 3.4 4.4 3.4 1.9 0 3.2-1.6 3.2-3.7C21.2 10 19.7 8 17.2 8c-1.7 0-3 1.1-4.3 3.1L12 12.6l-.9-1.5C9.8 9.1 8.5 8 6.8 8Z"
             stroke="currentColor"
-            strokeWidth="2.3"
-            strokeLinecap="round"
+            strokeWidth="2.1"
             strokeLinejoin="round"
           />
         </svg>
@@ -158,24 +183,24 @@ export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
     );
   }
 
-  // Qwen / Alibaba — Authentic violet geometric prism Q
-  if (key.includes('qwen') || key.includes('alibaba')) {
+  // Qwen / Alibaba
+  if (family.includes('qwen') || family.includes('alibaba')) {
     return (
       <span
         aria-hidden="true"
-        title="Qwen (Alibaba)"
+        title={provider}
         className={`inline-flex shrink-0 items-center justify-center bg-violet-600/14 text-violet-700 ring-1 ring-inset ring-violet-600/25 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <path
-            d="M12 3.2 19.6 7.6v8.8L12 20.8l-7.6-4.4V7.6L12 3.2Z"
+          <polygon
+            points="12,3.5 19.5,7.8 19.5,16.2 12,20.5 4.5,16.2 4.5,7.8"
             stroke="currentColor"
             strokeWidth="2.1"
           />
           <path
-            d="M13.5 13.5 19.5 19.5"
+            d="M14 14 19 19"
             stroke="currentColor"
-            strokeWidth="2.2"
+            strokeWidth="2.1"
             strokeLinecap="round"
           />
         </svg>
@@ -183,55 +208,38 @@ export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
     );
   }
 
-  // Moonshot / Kimi — Authentic crescent & orbit dot
-  if (key.includes('moonshot') || key.includes('kimi')) {
+  // Moonshot / Kimi
+  if (family.includes('moonshot') || family.includes('kimi')) {
     return (
       <span
         aria-hidden="true"
-        title="Moonshot AI (Kimi)"
-        className={`inline-flex shrink-0 items-center justify-center bg-slate-900 text-cyan-300 shadow-2xs ${box}`}
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-slate-900 text-cyan-300 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
           <path
-            d="M14.8 4.2a8 8 0 1 0 5 13.8A7 7 0 0 1 14.8 4.2Z"
+            d="M15 4.5a7.5 7.5 0 1 0 4.6 13A6.6 6.6 0 0 1 15 4.5Z"
             fill="currentColor"
           />
-          <circle cx="17.8" cy="7.2" r="1.6" fill="#38BDF8" />
-        </svg>
-      </span>
-    );
-  }
-
-  // Cohere / Command — Authentic coral/emerald capsule kernel
-  if (key.includes('cohere') || key.includes('command')) {
-    return (
-      <span
-        aria-hidden="true"
-        title="Cohere"
-        className={`inline-flex shrink-0 items-center justify-center bg-emerald-600/14 text-emerald-700 ring-1 ring-inset ring-emerald-600/25 ${box}`}
-      >
-        <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <rect x="4" y="6" width="10" height="5.2" rx="2.6" fill="currentColor" />
-          <rect x="4" y="12.8" width="6.2" height="5.2" rx="2.6" fill="#059669" />
-          <circle cx="16.5" cy="15.4" r="2.7" fill="#D97757" />
+          <circle cx="17.8" cy="7.2" r="1.5" fill="#38BDF8" />
         </svg>
       </span>
     );
   }
 
   // Zhipu / GLM
-  if (key.includes('zhipu') || key.includes('glm') || key.includes('z.ai')) {
+  if (family.includes('zhipu') || family.includes('glm') || family.includes('z.ai')) {
     return (
       <span
         aria-hidden="true"
-        title="Zhipu AI"
+        title={provider}
         className={`inline-flex shrink-0 items-center justify-center bg-teal-600/14 text-teal-700 ring-1 ring-inset ring-teal-600/25 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
           <path
-            d="M5 6h14L5 18h14"
+            d="M5.5 6.5h13L5.5 17.5h13"
             stroke="currentColor"
-            strokeWidth="2.4"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -240,43 +248,32 @@ export function ProviderLogo({ provider, size = 'sm' }: ProviderLogoProps) {
     );
   }
 
-  // Amazon / Nova
-  if (key.includes('amazon') || key.includes('nova') || key.includes('aws')) {
+  // Cohere / Command
+  if (family.includes('cohere') || family.includes('command')) {
     return (
       <span
         aria-hidden="true"
-        title="Amazon"
-        className={`inline-flex shrink-0 items-center justify-center bg-amber-500/15 text-amber-700 ring-1 ring-inset ring-amber-500/30 ${box}`}
+        title={provider}
+        className={`inline-flex shrink-0 items-center justify-center bg-emerald-600/14 text-emerald-700 ring-1 ring-inset ring-emerald-600/25 ${box}`}
       >
         <svg viewBox="0 0 24 24" fill="none" className={svg}>
-          <path
-            d="M4.5 14.5c4.5 3.2 10.5 3.2 15 0M17.5 12.8l2.2 1.6-1.4 2.4"
-            stroke="currentColor"
-            strokeWidth="2.1"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <rect x="4" y="6" width="11" height="4.8" rx="2.4" fill="currentColor" />
+          <rect x="4" y="13.2" width="7" height="4.8" rx="2.4" fill="#059669" />
+          <circle cx="17" cy="15.6" r="2.5" fill="#D97757" />
         </svg>
       </span>
     );
   }
 
-  // Fallback geometric node
-  const initials = provider
-    .replace(/[^a-zA-Z0-9 ]/g, '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('');
-
+  // Clean crisp geometric badge fallback
+  const letter = (modelName || provider || 'M').trim().charAt(0).toUpperCase() || 'M';
   return (
     <span
       aria-hidden="true"
       title={provider}
-      className={`inline-flex shrink-0 items-center justify-center bg-slate-100 font-mono text-[10px] font-bold text-slate-700 ring-1 ring-inset ring-slate-300/70 ${box}`}
+      className={`inline-flex shrink-0 items-center justify-center bg-slate-900 font-mono text-[10px] font-bold text-white ${box}`}
     >
-      {initials || 'AI'}
+      {letter}
     </span>
   );
 }

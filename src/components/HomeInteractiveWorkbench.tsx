@@ -210,47 +210,45 @@ export function HomeInteractiveWorkbench({
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative overflow-hidden rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-      {/* Diagonal Corner-to-Corner Colorful Wave (Top-Left Emerald/Cyan -> Bottom-Right Indigo/Amber) */}
+      {/* Vivid Diagonal Corner-to-Corner Colorful Wave (Top-Left Emerald/Cyan/Sky -> Bottom-Right Violet/Rose/Amber) */}
       <div
         aria-hidden="true"
         className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden"
       >
-        {/* Top-Left Wave Crest */}
-        <div className="absolute -top-28 -left-24 h-80 w-80 rounded-full bg-gradient-to-br from-emerald-400/24 via-teal-300/16 to-cyan-400/10 blur-3xl" />
-        {/* Diagonal Sweeping SVG Wave Ribbon from Top-Left to Bottom-Right */}
+        <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-400/40 via-cyan-400/30 to-transparent blur-2xl" />
         <svg
           viewBox="0 0 1200 600"
           preserveAspectRatio="none"
-          className="absolute inset-0 h-full w-full opacity-65"
+          className="absolute inset-0 h-full w-full"
         >
           <defs>
-            <linearGradient id="pbCornerWave1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.20" />
-              <stop offset="35%" stopColor="#06B6D4" stopOpacity="0.14" />
-              <stop offset="70%" stopColor="#6366F1" stopOpacity="0.14" />
-              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.18" />
+            <linearGradient id="pbVividDiag1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.34" />
+              <stop offset="32%" stopColor="#06B6D4" stopOpacity="0.28" />
+              <stop offset="66%" stopColor="#8B5CF6" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.34" />
             </linearGradient>
-            <linearGradient id="pbCornerWave2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#34D399" stopOpacity="0.16" />
-              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.10" />
-              <stop offset="100%" stopColor="#EC4899" stopOpacity="0.14" />
+            <linearGradient id="pbVividDiag2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#34D399" stopOpacity="0.28" />
+              <stop offset="45%" stopColor="#3B82F6" stopOpacity="0.22" />
+              <stop offset="78%" stopColor="#EC4899" stopOpacity="0.24" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.32" />
             </linearGradient>
           </defs>
           <path
-            d="M-80,-40 C240,40 320,310 640,340 C930,365 1030,520 1280,640 L1280,450 C1020,350 880,210 600,190 C310,170 210,-10 -80,-120 Z"
-            fill="url(#pbCornerWave1)"
+            d="M-60,-30 C230,50 310,330 640,355 C940,375 1040,520 1260,630 L1260,420 C1020,330 890,190 610,170 C310,150 200,-20 -60,-130 Z"
+            fill="url(#pbVividDiag1)"
           />
           <path
-            d="M-100,60 C210,150 380,410 710,440 C970,465 1090,560 1280,670 L1280,540 C1060,440 920,310 650,285 C350,260 190,60 -100,-20 Z"
-            fill="url(#pbCornerWave2)"
+            d="M-80,90 C220,180 390,430 720,455 C980,475 1090,565 1260,660 L1260,515 C1060,420 920,295 660,270 C350,245 180,45 -80,-35 Z"
+            fill="url(#pbVividDiag2)"
           />
         </svg>
-        {/* Bottom-Right Opposite Corner Wave Crest */}
-        <div className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-gradient-to-tl from-indigo-500/22 via-fuchsia-400/14 to-amber-300/16 blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-gradient-to-tl from-rose-500/32 via-violet-500/28 to-amber-400/28 blur-2xl" />
       </div>
 
       {/* Calculator Header */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/75 pb-5">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
             <Calculator className="h-5 w-5" />
@@ -294,7 +292,7 @@ export function HomeInteractiveWorkbench({
                 className={`min-h-[36px] rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
                   active
                     ? 'bg-slate-950 text-white shadow-sm'
-                    : 'bg-white/85 ring-1 ring-slate-200/80 text-slate-700 hover:bg-white'
+                    : 'bg-white/90 ring-1 ring-slate-200/80 text-slate-700 hover:bg-white'
                 }`}
               >
                 <span>{p.label}</span>
@@ -362,7 +360,12 @@ export function HomeInteractiveWorkbench({
             >
               <span>Select Model ({models.length} tracked)</span>
               <span className="inline-flex items-center gap-1.5 text-slate-600">
-                <ProviderLogo provider={selectedModel.provider} size="sm" />
+                <ProviderLogo
+                  provider={selectedModel.provider}
+                  modelName={selectedModel.name}
+                  modelSlug={selectedModel.slug}
+                  size="sm"
+                />
                 <span>{selectedModel.provider}</span>
               </span>
             </label>
@@ -468,7 +471,7 @@ export function HomeInteractiveWorkbench({
             />
           </div>
 
-          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs text-slate-600">
+          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/75 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
@@ -517,7 +520,12 @@ export function HomeInteractiveWorkbench({
 
             <div>
               <div className="flex items-center gap-2 text-xs text-slate-400">
-                <ProviderLogo provider={selectedModel.provider} size="sm" />
+                <ProviderLogo
+                  provider={selectedModel.provider}
+                  modelName={selectedModel.name}
+                  modelSlug={selectedModel.slug}
+                  size="sm"
+                />
                 <span>30-Day Spend · {selectedModel.name}</span>
               </div>
               <div className="mt-1.5 font-mono text-3xl sm:text-4xl font-bold tracking-tight text-white tabular-nums">

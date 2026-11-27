@@ -332,10 +332,10 @@ export default function HomePage() {
           </dl>
         </section>
 
-        {/* Interactive New Model Timeline (First) -> Diagonal-Wave Calculator (Second) */}
+        {/* New Model Timeline -> Diagonal Colorful Wave Calculator */}
         <HomeInteractiveHub models={ALL_MODELS} />
 
-        {/* Live Catalog Snapshot — Clean Hairline Table */}
+        {/* Live Catalog Snapshot */}
         <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
@@ -392,7 +392,12 @@ export default function HomePage() {
                     <tr key={m.id} className="pb-clean-row">
                       <th scope="row" className="py-3.5 px-3 sm:px-4 text-left font-normal">
                         <div className="flex items-center gap-2.5">
-                          <ProviderLogo provider={m.provider} size="sm" />
+                          <ProviderLogo
+                            provider={m.provider}
+                            modelName={m.name}
+                            modelSlug={m.slug}
+                            size="sm"
+                          />
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <Link
@@ -468,7 +473,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Live Leaderboard Pulse — Open 3-Column Editorial Grid */}
+        {/* Live Leaderboard Pulse */}
         <section aria-labelledby="leaderboard-pulse-heading" className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
@@ -503,7 +508,12 @@ export default function HomePage() {
                 {topBenchmarkLeaders.map((m, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <ProviderLogo provider={m.provider} size="sm" />
+                      <ProviderLogo
+                        provider={m.provider}
+                        modelName={m.name}
+                        modelSlug={m.slug}
+                        size="sm"
+                      />
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
@@ -536,7 +546,12 @@ export default function HomePage() {
                 {topValueLeaders.map((m, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <ProviderLogo provider={m.provider} size="sm" />
+                      <ProviderLogo
+                        provider={m.provider}
+                        modelName={m.name}
+                        modelSlug={m.slug}
+                        size="sm"
+                      />
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
@@ -569,7 +584,12 @@ export default function HomePage() {
                 {topSpeedLeaders.map(({ model: m, effective }, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <ProviderLogo provider={m.provider} size="sm" />
+                      <ProviderLogo
+                        provider={m.provider}
+                        modelName={m.name}
+                        modelSlug={m.slug}
+                        size="sm"
+                      />
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
@@ -593,7 +613,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Core Engineering Tools — Clean Open Grid */}
+        {/* Core Engineering Tools */}
         <section aria-labelledby="platform-tools-heading" className="space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
