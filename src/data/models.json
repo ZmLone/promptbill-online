@@ -11,8 +11,8 @@
     "evidence": "Verified",
     "lifecycleStatus": "Active",
     "archived": false,
-    "score": null,
-    "qualityScore": null,
+    "score": 96.2,
+    "qualityScore": 96.2,
     "interval": null,
     "elo": null,
     "inputPer1M": 8,
@@ -26,39 +26,39 @@
     "maxOutputTokens": 16384,
     "tokPerSec": 66,
     "speedTokensPerSec": 66,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 97,
+    "co": 97,
+    "re": 98,
+    "mm": 95,
+    "kn": 96,
+    "ml": 94,
+    "if": 97,
+    "ma": 98,
+    "rpmLimit": "500",
     "tpmLimit": null,
     "tpdLimit": null,
-    "batchDiscount": null,
+    "batchDiscount": 0.5,
     "tier": null,
     "bestFor": "Real-world engineering, scientific research, visual reasoning, and complex agentic workflows.",
     "notes": "Added manually via PromptBill Admin.",
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -79,7 +79,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -96,7 +96,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -113,7 +113,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -130,7 +130,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -147,7 +147,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ]
@@ -164,8 +164,8 @@
     "evidence": "Verified",
     "lifecycleStatus": "Active",
     "archived": false,
-    "score": null,
-    "qualityScore": null,
+    "score": 91.5,
+    "qualityScore": 91.5,
     "interval": null,
     "elo": null,
     "inputPer1M": 2,
@@ -179,39 +179,39 @@
     "maxOutputTokens": 16384,
     "tokPerSec": 88,
     "speedTokensPerSec": 88,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 91,
+    "co": 93,
+    "re": 92,
+    "mm": 90,
+    "kn": 91,
+    "ml": 90,
+    "if": 92,
+    "ma": 93,
+    "rpmLimit": "1000",
     "tpmLimit": null,
     "tpdLimit": null,
-    "batchDiscount": null,
+    "batchDiscount": 0.5,
     "tier": null,
     "bestFor": "Everyday coding, multistep agentic workflows, and natural technical/non-technical writing.",
     "notes": "Added manually via PromptBill Admin.",
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -232,7 +232,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -249,7 +249,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -266,7 +266,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -283,7 +283,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -300,7 +300,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ]
@@ -348,7 +348,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -356,13 +356,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -383,7 +383,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -400,7 +400,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-terra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -451,7 +451,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -459,13 +459,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "OpenAI Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -486,7 +486,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -503,7 +503,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-nano",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -554,7 +554,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -562,13 +562,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -589,7 +589,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -606,7 +606,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -623,7 +623,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-fable-5.2",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -674,7 +674,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -682,13 +682,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -709,7 +709,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -726,7 +726,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -743,7 +743,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-5.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -794,7 +794,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -802,13 +802,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -829,7 +829,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -846,7 +846,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -863,7 +863,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-sonnet-5.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -914,7 +914,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -922,13 +922,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Anthropic Direct API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -949,7 +949,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -966,7 +966,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -983,7 +983,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-haiku-5.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1034,7 +1034,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1042,13 +1042,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1069,7 +1069,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1086,7 +1086,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-4-neon",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1137,7 +1137,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1145,13 +1145,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1172,7 +1172,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1189,7 +1189,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-4-carbon",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1240,7 +1240,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1248,13 +1248,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Google AI Studio / Vertex AI",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1275,7 +1275,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1292,7 +1292,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-4-hydrogen",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1343,7 +1343,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1351,13 +1351,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "xAI Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1378,7 +1378,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1395,7 +1395,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.6",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1444,7 +1444,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1452,13 +1452,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "xAI Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1479,7 +1479,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1496,7 +1496,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.3",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1547,7 +1547,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1555,13 +1555,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Moonshot Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1582,7 +1582,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1599,7 +1599,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1616,7 +1616,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1633,7 +1633,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k3",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1684,7 +1684,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1692,13 +1692,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Moonshot Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1719,7 +1719,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1736,7 +1736,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1753,7 +1753,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1770,7 +1770,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1787,7 +1787,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k2.7-code",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -1838,7 +1838,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -1846,13 +1846,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "DeepSeek Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -1873,7 +1873,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -1890,7 +1890,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1907,7 +1907,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1924,7 +1924,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1941,7 +1941,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -1958,7 +1958,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4.1-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2009,7 +2009,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2017,13 +2017,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Qwen / Alibaba Cloud",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2044,7 +2044,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2061,7 +2061,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2078,7 +2078,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2095,7 +2095,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2112,7 +2112,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2129,7 +2129,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       }
     ],
@@ -2180,7 +2180,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2188,13 +2188,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": "Cohere Official API",
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2215,7 +2215,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2232,7 +2232,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2249,7 +2249,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       }
     ],
@@ -2300,7 +2300,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2308,13 +2308,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2335,7 +2335,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/pixtral-large-2502",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2352,7 +2352,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2369,7 +2369,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/pixtral-large-2502",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2420,7 +2420,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2428,13 +2428,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2449,13 +2449,13 @@
         "cachedInputPer1M": 0.4,
         "cacheWritePer1M": 10,
         "batchDiscount": 0.5,
-        "latencyMs": null,
+        "latencyMs": 9440,
         "tokPerSec": 73,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2466,13 +2466,13 @@
         "cachedInputPer1M": 0.4,
         "cacheWritePer1M": 10,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 9440,
         "tokPerSec": 73,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-astra-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2522,7 +2522,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2530,13 +2530,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2551,13 +2551,13 @@
         "cachedInputPer1M": 0.1,
         "cacheWritePer1M": 2.5,
         "batchDiscount": 0.5,
-        "latencyMs": null,
+        "latencyMs": 7270,
         "tokPerSec": 89,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2568,13 +2568,13 @@
         "cachedInputPer1M": 0.1,
         "cacheWritePer1M": 2.5,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 7270,
         "tokPerSec": 89,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.2-sol-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2604,8 +2604,8 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
+    "tokPerSec": 68,
+    "speedTokensPerSec": 68,
     "ag": 91,
     "co": 92,
     "re": 92,
@@ -2624,7 +2624,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2632,16 +2632,16 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -2654,12 +2654,12 @@
         "cacheWritePer1M": 1.875,
         "batchDiscount": 0.5,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 68,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen4-max",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2676,7 +2676,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2693,7 +2693,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -2705,12 +2705,12 @@
         "cacheWritePer1M": 1.875,
         "batchDiscount": null,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 68,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen4-max",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2760,7 +2760,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2768,7 +2768,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -2795,7 +2795,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-omni-1.2-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2812,7 +2812,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-omni-1.2-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2862,7 +2862,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2870,7 +2870,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -2897,7 +2897,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-omni-1.1-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -2914,7 +2914,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-omni-1.1-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -2964,7 +2964,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -2972,13 +2972,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -2999,7 +2999,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-terra-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3016,7 +3016,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-terra-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3046,8 +3046,8 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1.05M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
+    "tokPerSec": 70,
+    "speedTokensPerSec": 70,
     "ag": 91,
     "co": 93,
     "re": 92,
@@ -3066,7 +3066,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3074,16 +3074,16 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -3096,12 +3096,12 @@
         "cacheWritePer1M": 2,
         "batchDiscount": 0.4,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 70,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k3.1-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3118,7 +3118,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3135,7 +3135,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3147,12 +3147,12 @@
         "cacheWritePer1M": 2,
         "batchDiscount": null,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 70,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k3.1-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3202,7 +3202,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3210,13 +3210,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -3237,7 +3237,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3254,7 +3254,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3271,7 +3271,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3288,7 +3288,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3305,7 +3305,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3355,7 +3355,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3363,13 +3363,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -3390,7 +3390,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-4-argon",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3407,7 +3407,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-4-argon",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3457,7 +3457,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3465,7 +3465,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3492,7 +3492,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-nano-banana-2.1",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3509,7 +3509,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-nano-banana-2.1",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3559,7 +3559,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3567,13 +3567,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -3594,7 +3594,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-large-4-0",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3611,7 +3611,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3628,7 +3628,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -3645,7 +3645,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-large-4-0",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3696,7 +3696,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3704,7 +3704,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3731,7 +3731,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-sol-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3748,7 +3748,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-sol-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3798,7 +3798,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3806,7 +3806,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3833,7 +3833,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-sol",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3850,7 +3850,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6.1-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -3900,7 +3900,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -3908,7 +3908,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -3935,7 +3935,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-max-prime",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -3952,7 +3952,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-max-prime",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4002,7 +4002,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4010,13 +4010,13 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -4037,7 +4037,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/cohere/command-a-plus",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4054,7 +4054,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -4071,7 +4071,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/cohere/command-a-plus",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4121,7 +4121,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4129,7 +4129,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -4156,7 +4156,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-luna-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4173,7 +4173,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-luna-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4203,8 +4203,8 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1.05M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
+    "tokPerSec": 80,
+    "speedTokensPerSec": 80,
     "ag": 74,
     "co": 76,
     "re": 75,
@@ -4223,7 +4223,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4231,16 +4231,16 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -4252,13 +4252,13 @@
         "cachedInputPer1M": 0.01,
         "cacheWritePer1M": 0.125,
         "batchDiscount": 0.5,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 2090,
+        "tokPerSec": 80,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-luna",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4269,13 +4269,13 @@
         "cachedInputPer1M": 0.01,
         "cacheWritePer1M": 0.125,
         "batchDiscount": null,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 1100,
+        "tokPerSec": 140,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-luna",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4325,7 +4325,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4333,7 +4333,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -4360,7 +4360,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-sol-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4377,7 +4377,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-sol-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4428,7 +4428,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4436,7 +4436,7 @@
     "benchmarkProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
@@ -4463,7 +4463,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-sol",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4480,7 +4480,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4497,8 +4497,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 85.4,
+    "qualityScore": 85.4,
     "interval": null,
     "elo": null,
     "inputPer1M": 2,
@@ -4510,17 +4510,17 @@
     "longContextThresholdTokens": null,
     "contextWindow": "500K",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "tokPerSec": 80,
+    "speedTokensPerSec": 80,
+    "ag": 86,
+    "co": 87,
+    "re": 86,
+    "mm": 83,
+    "kn": 84,
+    "ml": 83,
+    "if": 86,
+    "ma": 88,
+    "rpmLimit": "1000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0,
@@ -4530,24 +4530,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -4559,13 +4559,13 @@
         "cachedInputPer1M": 0.5,
         "cacheWritePer1M": 2,
         "batchDiscount": 0,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 1590,
+        "tokPerSec": 78,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.7",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4576,13 +4576,13 @@
         "cachedInputPer1M": 0.5,
         "cacheWritePer1M": 2,
         "batchDiscount": null,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 1590,
+        "tokPerSec": 78,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.7",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4632,7 +4632,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4667,7 +4667,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-omni-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4684,7 +4684,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-omni-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4734,7 +4734,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4748,7 +4748,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -4769,7 +4769,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-astra",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4786,7 +4786,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-astra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4836,7 +4836,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4850,7 +4850,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -4871,7 +4871,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-astra-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4888,7 +4888,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-6-astra-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -4938,7 +4938,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -4973,7 +4973,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-max-0902",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -4990,7 +4990,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-max-0902",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5007,8 +5007,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 82.6,
+    "qualityScore": 82.6,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.75,
@@ -5022,15 +5022,15 @@
     "maxOutputTokens": null,
     "tokPerSec": 85,
     "speedTokensPerSec": 85,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 82,
+    "co": 84,
+    "re": 83,
+    "mm": 85,
+    "kn": 81,
+    "ml": 83,
+    "if": 83,
+    "ma": 80,
+    "rpmLimit": "2000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -5040,21 +5040,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -5075,7 +5075,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.8-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5092,7 +5092,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.8-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5109,8 +5109,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 93.4,
+    "qualityScore": 93.4,
     "interval": null,
     "elo": null,
     "inputPer1M": 10,
@@ -5124,15 +5124,15 @@
     "maxOutputTokens": null,
     "tokPerSec": 69,
     "speedTokensPerSec": 69,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 94,
+    "co": 94,
+    "re": 94,
+    "mm": 90,
+    "kn": 93,
+    "ml": 92,
+    "if": 95,
+    "ma": 95,
+    "rpmLimit": "500",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -5142,21 +5142,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -5171,13 +5171,13 @@
         "cachedInputPer1M": 0.25,
         "cacheWritePer1M": 12.5,
         "batchDiscount": 0.5,
-        "latencyMs": null,
+        "latencyMs": 3400,
         "tokPerSec": 69,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-fable-5.1",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5188,13 +5188,13 @@
         "cachedInputPer1M": 0.25,
         "cacheWritePer1M": 12.5,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 3400,
         "tokPerSec": 69,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-fable-5.1",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5244,7 +5244,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -5279,7 +5279,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5296,7 +5296,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5346,7 +5346,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -5360,7 +5360,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -5381,7 +5381,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash-vision-exp",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5398,7 +5398,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash-vision-exp",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5415,8 +5415,8 @@
     "family": null,
     "license": "Open Weights (Apache 2.0)",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 76.8,
+    "qualityScore": 76.8,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.035,
@@ -5430,14 +5430,14 @@
     "maxOutputTokens": null,
     "tokPerSec": 127,
     "speedTokensPerSec": 127,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
+    "ag": 75,
+    "co": 78,
+    "re": 78,
+    "mm": 75,
+    "kn": 74,
+    "ml": 79,
+    "if": 78,
+    "ma": 77,
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
@@ -5448,21 +5448,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -5477,13 +5477,13 @@
         "cachedInputPer1M": 0.0175,
         "cacheWritePer1M": null,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 1010,
         "tokPerSec": 127,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-27b",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5494,13 +5494,13 @@
         "cachedInputPer1M": 0.0175,
         "cacheWritePer1M": null,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 320,
         "tokPerSec": 127,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-27b",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5517,8 +5517,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 81.4,
+    "qualityScore": 81.4,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.75,
@@ -5530,17 +5530,17 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1.0M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "tokPerSec": 288,
+    "speedTokensPerSec": 288,
+    "ag": 80,
+    "co": 82,
+    "re": 82,
+    "mm": 84,
+    "kn": 80,
+    "ml": 82,
+    "if": 82,
+    "ma": 79,
+    "rpmLimit": "2000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -5550,24 +5550,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -5580,12 +5580,12 @@
         "cacheWritePer1M": 0.1875,
         "batchDiscount": 0.5,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 288,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.7-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5597,12 +5597,12 @@
         "cacheWritePer1M": 0.1875,
         "batchDiscount": null,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 288,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.7-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5652,7 +5652,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -5687,7 +5687,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-2.4t-a95b",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5704,7 +5704,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.8-2.4t-a95b",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5754,7 +5754,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -5789,7 +5789,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-pro-0813",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5806,7 +5806,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-pro-0813",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5856,7 +5856,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -5870,7 +5870,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -5891,7 +5891,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -5908,7 +5908,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -5925,8 +5925,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 90.2,
+    "qualityScore": 90.2,
     "interval": null,
     "elo": null,
     "inputPer1M": 5,
@@ -5938,17 +5938,17 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "tokPerSec": 72,
+    "speedTokensPerSec": 72,
+    "ag": 90,
+    "co": 92,
+    "re": 90,
+    "mm": 88,
+    "kn": 90,
+    "ml": 89,
+    "if": 91,
+    "ma": 92,
+    "rpmLimit": "1000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -5958,24 +5958,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -5988,12 +5988,12 @@
         "cacheWritePer1M": 6.25,
         "batchDiscount": 0.5,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 72,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6005,12 +6005,12 @@
         "cacheWritePer1M": 6.25,
         "batchDiscount": null,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 72,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6027,8 +6027,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 78.2,
+    "qualityScore": 78.2,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.75,
@@ -6040,17 +6040,17 @@
     "longContextThresholdTokens": null,
     "contextWindow": "1.0M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "tokPerSec": 217,
+    "speedTokensPerSec": 217,
+    "ag": 76,
+    "co": 79,
+    "re": 78,
+    "mm": 81,
+    "kn": 77,
+    "ml": 80,
+    "if": 79,
+    "ma": 76,
+    "rpmLimit": "2000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -6060,24 +6060,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -6090,12 +6090,12 @@
         "cacheWritePer1M": 0.1875,
         "batchDiscount": 0.5,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 217,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.6-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6107,12 +6107,12 @@
         "cacheWritePer1M": 0.1875,
         "batchDiscount": null,
         "latencyMs": null,
-        "tokPerSec": null,
+        "tokPerSec": 217,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.6-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6162,7 +6162,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6197,7 +6197,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.5-flash-lite",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6214,7 +6214,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.5-flash-lite",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6264,7 +6264,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6299,7 +6299,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-luna-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6316,7 +6316,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-luna-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6366,7 +6366,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6401,7 +6401,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-luna",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6418,7 +6418,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-luna",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6468,10 +6468,10 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T12:30:00.953Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
-      "notes": "Approved via PromptBill Admin"
+      "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
       "status": "Unavailable",
@@ -6493,32 +6493,34 @@
         "host": "Qwen Official API",
         "providerType": "Official API",
         "inputPer1M": 0.03,
+        "outputPer1M": 0.13,
         "cachedInputPer1M": null,
         "cacheWritePer1M": null,
-        "outputPer1M": 0.13,
         "batchDiscount": null,
         "latencyMs": null,
+        "tokPerSec": null,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-27T12:30:00.953Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
         "host": "OpenRouter",
         "providerType": "Router",
         "inputPer1M": 0.03,
+        "outputPer1M": 0.13,
         "cachedInputPer1M": null,
         "cacheWritePer1M": null,
-        "outputPer1M": 0.13,
         "batchDiscount": null,
         "latencyMs": null,
+        "tokPerSec": null,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-27T12:30:00.953Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6568,7 +6570,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6603,7 +6605,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-terra-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6620,7 +6622,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-terra-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6670,7 +6672,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6684,7 +6686,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -6705,7 +6707,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-terra",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6722,7 +6724,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-terra",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6772,7 +6774,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6807,7 +6809,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-sol-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6824,7 +6826,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-sol-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6874,7 +6876,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -6909,7 +6911,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-sol",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -6926,7 +6928,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.6-sol",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -6976,7 +6978,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7011,7 +7013,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7028,7 +7030,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7078,7 +7080,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7092,7 +7094,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -7113,7 +7115,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-sonnet-5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7130,7 +7132,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-sonnet-5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7180,7 +7182,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7215,7 +7217,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-lite-image",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7232,7 +7234,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-lite-image",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7282,7 +7284,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7296,7 +7298,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -7317,7 +7319,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-image",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7334,7 +7336,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-image",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7384,7 +7386,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7419,7 +7421,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3-pro-image",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7436,7 +7438,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3-pro-image",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7486,7 +7488,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7500,7 +7502,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -7521,7 +7523,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-fable-5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7538,7 +7540,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-fable-5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7588,7 +7590,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7623,7 +7625,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.7-plus",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7640,7 +7642,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.7-plus",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7690,7 +7692,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7725,7 +7727,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-4.8",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7742,7 +7744,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-4.8",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7792,7 +7794,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7827,7 +7829,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.7-max",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7844,7 +7846,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.7-max",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7894,7 +7896,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -7929,7 +7931,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.5-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -7946,7 +7948,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.5-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -7996,7 +7998,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8010,7 +8012,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8031,7 +8033,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-lite",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8048,7 +8050,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemini-3.1-flash-lite",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8098,7 +8100,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8133,7 +8135,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-chat-latest",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8150,7 +8152,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-chat-latest",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8180,8 +8182,8 @@
     "longContextThresholdTokens": null,
     "contextWindow": "262K",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
+    "tokPerSec": 22,
+    "speedTokensPerSec": 22,
     "ag": null,
     "co": null,
     "re": null,
@@ -8190,7 +8192,7 @@
     "ml": null,
     "if": null,
     "ma": null,
-    "rpmLimit": null,
+    "rpmLimit": "1000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -8200,7 +8202,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8212,12 +8214,12 @@
       "notes": "No benchmark score recorded."
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -8235,7 +8237,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-medium-3.5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8252,7 +8254,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-medium-3.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8302,7 +8304,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8337,7 +8339,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.5-plus-20260420",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8354,7 +8356,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.5-plus-20260420",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8404,7 +8406,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8439,7 +8441,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8456,7 +8458,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8506,7 +8508,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8520,7 +8522,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8541,7 +8543,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-35b-a3b",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8558,7 +8560,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-35b-a3b",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8608,7 +8610,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8622,7 +8624,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8643,7 +8645,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-27b",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8660,7 +8662,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-27b",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8710,7 +8712,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8724,7 +8726,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8745,7 +8747,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.5-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8762,7 +8764,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.5-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8812,7 +8814,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8826,7 +8828,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8847,7 +8849,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.5",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8864,7 +8866,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.5",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -8914,7 +8916,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -8928,7 +8930,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -8949,7 +8951,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -8966,7 +8968,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9016,7 +9018,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9030,7 +9032,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -9051,7 +9053,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9068,7 +9070,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/deepseek/deepseek-v4-flash",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9118,7 +9120,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9153,7 +9155,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-image-2",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9170,7 +9172,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-image-2",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9220,7 +9222,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9255,7 +9257,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k2.6",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9272,7 +9274,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/moonshotai/kimi-k2.6",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9289,8 +9291,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 87.6,
+    "qualityScore": 87.6,
     "interval": null,
     "elo": null,
     "inputPer1M": 5,
@@ -9304,15 +9306,15 @@
     "maxOutputTokens": null,
     "tokPerSec": 60,
     "speedTokensPerSec": 60,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 88,
+    "co": 89,
+    "re": 89,
+    "mm": 84,
+    "kn": 87,
+    "ml": 86,
+    "if": 88,
+    "ma": 89,
+    "rpmLimit": "1000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -9322,21 +9324,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -9351,13 +9353,13 @@
         "cachedInputPer1M": 0.5,
         "cacheWritePer1M": 6.25,
         "batchDiscount": 0.5,
-        "latencyMs": null,
+        "latencyMs": 740,
         "tokPerSec": 60,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-4.7",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9368,13 +9370,13 @@
         "cachedInputPer1M": 0.5,
         "cacheWritePer1M": 6.25,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 780,
         "tokPerSec": 60,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/anthropic/claude-opus-4.7",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9391,8 +9393,8 @@
     "family": null,
     "license": "Open Weights (Apache 2.0)",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 65.2,
+    "qualityScore": 65.2,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.05,
@@ -9406,14 +9408,14 @@
     "maxOutputTokens": null,
     "tokPerSec": 128,
     "speedTokensPerSec": 128,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
+    "ag": 63,
+    "co": 66,
+    "re": 66,
+    "mm": 67,
+    "kn": 65,
+    "ml": 67,
+    "if": 65,
+    "ma": 63,
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
@@ -9424,21 +9426,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -9459,7 +9461,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemma-4-26b-a4b-it",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9476,7 +9478,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemma-4-26b-a4b-it",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9493,8 +9495,8 @@
     "family": null,
     "license": "Open Weights (Apache 2.0)",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 66.5,
+    "qualityScore": 66.5,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.2,
@@ -9506,16 +9508,16 @@
     "longContextThresholdTokens": null,
     "contextWindow": "262K",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
+    "tokPerSec": 36,
+    "speedTokensPerSec": 36,
+    "ag": 64,
+    "co": 67,
+    "re": 68,
+    "mm": 69,
+    "kn": 66,
+    "ml": 68,
+    "if": 66,
+    "ma": 64,
     "rpmLimit": null,
     "tpmLimit": null,
     "tpdLimit": null,
@@ -9526,24 +9528,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -9561,7 +9563,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemma-4-31b-it",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9578,7 +9580,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/gemma-4-31b-it",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9628,7 +9630,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9663,7 +9665,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-plus",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9680,7 +9682,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.6-plus",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9730,7 +9732,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9765,7 +9767,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.20-multi-agent",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9782,7 +9784,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.20-multi-agent",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9799,8 +9801,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 82.4,
+    "qualityScore": 82.4,
     "interval": null,
     "elo": null,
     "inputPer1M": 1.25,
@@ -9812,17 +9814,17 @@
     "longContextThresholdTokens": null,
     "contextWindow": "2M",
     "maxOutputTokens": null,
-    "tokPerSec": null,
-    "speedTokensPerSec": null,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "tokPerSec": 105,
+    "speedTokensPerSec": 105,
+    "ag": 82,
+    "co": 84,
+    "re": 84,
+    "mm": 78,
+    "kn": 81,
+    "ml": 83,
+    "if": 85,
+    "ma": 82,
+    "rpmLimit": "1500",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.2,
@@ -9832,24 +9834,24 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
-      "notes": "No speed measurement recorded."
+      "notes": "Speed imported via PromptBill Admin Bulk Importer"
     },
     "priceHistory": [],
     "hostingEndpoints": [
@@ -9861,13 +9863,13 @@
         "cachedInputPer1M": 0.2,
         "cacheWritePer1M": null,
         "batchDiscount": 0.2,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 660,
+        "tokPerSec": 105,
         "notes": "Approved via PromptBill Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.20",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9878,13 +9880,13 @@
         "cachedInputPer1M": 0.2,
         "cacheWritePer1M": null,
         "batchDiscount": null,
-        "latencyMs": null,
-        "tokPerSec": null,
+        "latencyMs": 620,
+        "tokPerSec": 102,
         "notes": "Synced from OpenRouter & approved via Admin",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/x-ai/grok-4.20",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -9934,7 +9936,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -9969,7 +9971,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/lyria-3-pro-preview",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -9986,7 +9988,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/lyria-3-pro-preview",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -10036,7 +10038,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -10050,7 +10052,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -10071,7 +10073,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/lyria-3-clip-preview",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -10088,7 +10090,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/google/lyria-3-clip-preview",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -10105,8 +10107,8 @@
     "family": null,
     "license": "Proprietary",
     "evidence": "Verified",
-    "score": null,
-    "qualityScore": null,
+    "score": 77.6,
+    "qualityScore": 77.6,
     "interval": null,
     "elo": null,
     "inputPer1M": 0.75,
@@ -10120,15 +10122,15 @@
     "maxOutputTokens": null,
     "tokPerSec": 92,
     "speedTokensPerSec": 92,
-    "ag": null,
-    "co": null,
-    "re": null,
-    "mm": null,
-    "kn": null,
-    "ml": null,
-    "if": null,
-    "ma": null,
-    "rpmLimit": null,
+    "ag": 76,
+    "co": 79,
+    "re": 79,
+    "mm": 75,
+    "kn": 77,
+    "ml": 77,
+    "if": 79,
+    "ma": 79,
+    "rpmLimit": "5000",
     "tpmLimit": null,
     "tpdLimit": null,
     "batchDiscount": 0.5,
@@ -10138,21 +10140,21 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
     },
     "benchmarkProvenance": {
-      "status": "Unavailable",
+      "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": null,
-      "notes": "No benchmark score recorded."
+      "lastVerified": "2026-11-27T18:38:04.620Z",
+      "notes": "Capability scores imported via PromptBill Admin Bulk Importer"
     },
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -10173,7 +10175,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-mini",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -10190,7 +10192,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-mini",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -10240,7 +10242,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -10275,7 +10277,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-small-2603",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -10292,7 +10294,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/mistralai/mistral-small-2603",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -10342,7 +10344,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -10356,7 +10358,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -10377,7 +10379,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.5-9b",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -10394,7 +10396,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/qwen/qwen3.5-9b",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
@@ -10444,7 +10446,7 @@
     "pricingProvenance": {
       "status": "Verified",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Pricing imported via PromptBill Admin Bulk Importer"
@@ -10458,7 +10460,7 @@
     "speedProvenance": {
       "status": "Verified",
       "sourceUrl": null,
-      "lastVerified": "2026-11-27T18:26:53.462Z",
+      "lastVerified": "2026-11-27T18:38:04.620Z",
       "hardwareOrProvider": null,
       "conditions": null,
       "notes": "Speed imported via PromptBill Admin Bulk Importer"
@@ -10479,7 +10481,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-pro",
-        "lastVerified": "2026-11-27T18:26:53.462Z",
+        "lastVerified": "2026-11-27T18:38:04.620Z",
         "evidenceStatus": "Verified"
       },
       {
@@ -10496,7 +10498,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/openai/gpt-5.4-pro",
-        "lastVerified": "2026-11-27T18:26:46.232Z",
+        "lastVerified": "2026-11-27T18:37:48.441Z",
         "evidenceStatus": "Verified"
       }
     ],
