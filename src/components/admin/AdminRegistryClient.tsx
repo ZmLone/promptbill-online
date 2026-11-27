@@ -1115,7 +1115,7 @@ export function AdminRegistryClient({
     ]);
   }
 
-  function approveItem(item: PendingQueueItem, skipConfirm = false): boolean {
+  function approveItem(item: PendingQueueItem, skipConfirm = false): void {
     const dupInfo = pendingDuplicateMap.get(item.queueId);
     if (item.type === 'new_model' && dupInfo && !skipConfirm) {
       const lines: string[] = [];
@@ -1148,7 +1148,7 @@ Click OK to merge this approval into the existing catalog model (without creatin
           title: `Approval paused — duplicate detected for ${item.modelName}`,
           details: dupInfo.reasons,
         });
-        return false;
+        return;
       }
     }
 
@@ -1373,7 +1373,6 @@ Click OK to merge this approval into the existing catalog model (without creatin
       `Approved${item.type === 'new_model' && dupInfo?.catalogMatches?.length ? ' & merged into existing' : ''}: ${item.modelName} (${item.type.replace('_', ' ')})`,
       ...prev,
     ]);
-    return true;
   }
 
   function rejectItem(item: PendingQueueItem) {
@@ -1398,8 +1397,7 @@ Click OK to merge this approval into the existing catalog model (without creatin
       const ok = window.confirm(
         `${duplicateItems.length} duplicate model(s) detected in this batch:
 
-${summary}
-
+${summary}\n
 Click OK to approve and merge them into existing catalog models without creating duplicates, or Cancel to review them one by one.`
       );
       if (!ok) {
