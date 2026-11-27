@@ -1,82 +1,15 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { CatalogHostingEndpoint, ModelEntry } from '@/lib/catalog';
+import type { ModelEntry } from '@/lib/catalog';
+import { formatCurrency } from '@/lib/pricingEngine';
 import {
-  calculateModelCost,
-  formatCurrency,
-  type CostBreakdown,
-  type LLMModel,
-} from '@/lib/pricingEngine';
+  evaluateModelEndpoints,
+  getEndpointKey,
+  type EndpointQuote,
+} from '@/lib/endpointPricing';
 
 type EndpointMode = 'first-party' | 'cheapest' | 'custom';
-
-interface EndpointQuote {
-  index: number;
-  endpoint: CatalogHostingEndpoint;
-  modelView: LLMModel;
-  breakdown: CostBreakdown;
-}
-
-function endpointKey(ep: CatalogHostingEndpoint, index: number): string {
-  return `${index}::${ep.host}`;
-}
-
-function buildModelForEndpoint(
-  model: ModelEntry,
-  ep?: CatalogHostingEndpoint
-): LLMModel {
-  if (!ep) {
-    return {
-      id: model.id,
-      slug: model.slug,
-      name: model.name,
-      provider: model.provider,
-      family: model.family,
-      inputPer1M: model.inputPer1M,
-      cachedInputPer1M: model.cachedInputPer1M,
-      cacheWritePer1M: model.cacheWritePer1M,
-      outputPer1M: model.outputPer1M,
-      batchDiscount: model.batchDiscount,
-      longContextMultiplierInput: model.longContextMultiplierInput,
-      longContextMultiplierOutput: model.longContextMultiplierOutput,
-      longContextThresholdTokens: model.longContextThresholdTokens,
-      contextWindow: model.contextWindow,
-      qualityScore: model.qualityScore,
-      score: model.score,
-      speedTokensPerSec: model.speedTokensPerSec,
-      tokPerSec: model.tokPerSec,
-      notes: model.notes,
-      hostingEndpoints: model.hostingEndpoints,
-    };
-  }
-
-  return {
-    id: model.id,
-    slug: model.slug,
-    name: model.name,
-    provider: model.provider,
-    family: model.family,
-    inputPer1M: ep.inputPer1M ?? model.inputPer1M,
-    cachedInputPer1M:
-      ep.cachedInputPer1M !== undefined ? ep.cachedInputPer1M : model.cachedInputPer1M,
-    cacheWritePer1M:
-      ep.cacheWritePer1M !== undefined ? ep.cacheWritePer1M : model.cacheWritePer1M,
-    outputPer1M: ep.outputPer1M ?? model.outputPer1M,
-    batchDiscount:
-      ep.batchDiscount !== undefined ? ep.batchDiscount : model.batchDiscount,
-    longContextMultiplierInput: model.longContextMultiplierInput,
-    longContextMultiplierOutput: model.longContextMultiplierOutput,
-    longContextThresholdTokens: model.longContextThresholdTokens,
-    contextWindow: model.contextWindow,
-    qualityScore: model.qualityScore,
-    score: model.score,
-    speedTokensPerSec: model.speedTokensPerSec,
-    tokPerSec: model.tokPerSec,
-    notes: ep.notes ?? model.notes,
-    hostingEndpoints: model.hostingEndpoints,
-  };
-}
 
 export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
   const [inputTokens, setInputTokens] = useState<number>(6500);
@@ -91,16 +24,11 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
     [model.hostingEndpoints]
   );
 
-  const firstPartyIndex = useMemo(() => {
-    const idx = endpoints.findIndex((ep) => ep.providerType === 'Official API');
-    return idx >= 0 ? idx : 0;
-  }, [endpoints]);
-
   const [endpointMode, setEndpointMode] = useState<EndpointMode>(
     endpoints.length > 1 ? 'cheapest' : 'first-party'
   );
   const [selectedEndpointKey, setSelectedEndpointKey] = useState<string>(() =>
-    endpoints[0] ? endpointKey(endpoints[0], 0) : ''
+    endpoints[0] ? getEndpointKey(endpoints[0], 0) : ''
   );
 
   useEffect(() => {
@@ -109,9 +37,9 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
     }
     if (endpoints[0]) {
       setSelectedEndpointKey((prev) =>
-        endpoints.some((ep, i) => endpointKey(ep, i) === prev)
+        endpoints.some((ep, i) => getEndpointKey(ep, i) === prev)
           ? prev
-          : endpointKey(endpoints[0], 0)
+          : getEndpointKey(endpoints[0], 0)
       );
     }
   }, [endpoints]);
@@ -137,57 +65,16 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
     ]
   );
 
-  const quotes: EndpointQuote[] = useMemo(() => {
-    if (endpoints.length === 0) {
-      const fallbackModel = buildModelForEndpoint(model);
-      return [
-        {
-          index: 0,
-          endpoint: {
-            host: `${model.provider} (Default)`,
-            providerType: 'Official API',
-            inputPer1M: model.inputPer1M,
-            cachedInputPer1M: model.cachedInputPer1M,
-            cacheWritePer1M: model.cacheWritePer1M,
-            outputPer1M: model.outputPer1M,
-            batchDiscount: model.batchDiscount,
-            evidenceStatus: model.pricingProvenance.status,
-          },
-          modelView: fallbackModel,
-          breakdown: calculateModelCost(fallbackModel, calcInput),
-        },
-      ];
-    }
-
-    return endpoints.map((ep, index) => {
-      const modelView = buildModelForEndpoint(model, ep);
-      return {
-        index,
-        endpoint: ep,
-        modelView,
-        breakdown: calculateModelCost(modelView, calcInput),
-      };
-    });
-  }, [endpoints, model, calcInput]);
-
-  const firstPartyQuote = useMemo(
-    () => quotes.find((q) => q.index === firstPartyIndex) ?? quotes[0],
-    [quotes, firstPartyIndex]
+  const { quotes, firstPartyQuote, cheapestQuote } = useMemo(
+    () => evaluateModelEndpoints(model, calcInput),
+    [model, calcInput]
   );
 
-  const cheapestQuote = useMemo(() => {
-    const priced = quotes.filter((q) => q.breakdown.hasPricingData);
-    if (priced.length === 0) return firstPartyQuote;
-    return priced.reduce((best, curr) =>
-      curr.breakdown.monthlyTotalCost < best.breakdown.monthlyTotalCost ? curr : best
-    );
-  }, [quotes, firstPartyQuote]);
-
-  const activeQuote = useMemo(() => {
+  const activeQuote: EndpointQuote = useMemo(() => {
     if (endpointMode === 'first-party') return firstPartyQuote;
     if (endpointMode === 'cheapest') return cheapestQuote;
     return (
-      quotes.find((q) => endpointKey(q.endpoint, q.index) === selectedEndpointKey) ??
+      quotes.find((q) => getEndpointKey(q.endpoint, q.index) === selectedEndpointKey) ??
       cheapestQuote
     );
   }, [endpointMode, firstPartyQuote, cheapestQuote, quotes, selectedEndpointKey]);
@@ -201,20 +88,22 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
   }, [activeCachedInputRate, activeQuote.breakdown.cacheWriteSupported]);
 
   const savingsVsFirstParty = useMemo(() => {
+    const firstCost = firstPartyQuote?.breakdown.monthlyTotalCost;
+    const activeCost = activeQuote.breakdown.monthlyTotalCost;
     if (
       !firstPartyQuote?.breakdown.hasPricingData ||
       !activeQuote.breakdown.hasPricingData ||
+      typeof firstCost !== 'number' ||
+      typeof activeCost !== 'number' ||
+      !Number.isFinite(firstCost) ||
+      !Number.isFinite(activeCost) ||
       activeQuote.index === firstPartyQuote.index
     ) {
       return null;
     }
-    const diff =
-      firstPartyQuote.breakdown.monthlyTotalCost - activeQuote.breakdown.monthlyTotalCost;
-    const pct =
-      firstPartyQuote.breakdown.monthlyTotalCost > 0
-        ? (diff / firstPartyQuote.breakdown.monthlyTotalCost) * 100
-        : 0;
-    return { diff, pct };
+    const diff = firstCost - activeCost;
+    const pct = firstCost > 0 ? (diff / firstCost) * 100 : 0;
+    return { diff, pct, firstCost, activeCost };
   }, [firstPartyQuote, activeQuote]);
 
   const batchPctLabel = activeQuote.breakdown.batchSupported
@@ -254,7 +143,11 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
 
       {endpoints.length > 1 && (
         <div className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Endpoint pricing mode">
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            role="group"
+            aria-label="Endpoint pricing mode"
+          >
             <button
               type="button"
               onClick={() => setEndpointMode('cheapest')}
@@ -282,7 +175,7 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
               onClick={() => {
                 setEndpointMode('custom');
                 if (!selectedEndpointKey && endpoints[0]) {
-                  setSelectedEndpointKey(endpointKey(endpoints[0], 0));
+                  setSelectedEndpointKey(getEndpointKey(endpoints[0], 0));
                 }
               }}
               className={`min-h-[34px] rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
@@ -301,7 +194,7 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
             </label>
             <select
               id="endpoint-host-select"
-              value={endpointKey(activeQuote.endpoint, activeQuote.index)}
+              value={getEndpointKey(activeQuote.endpoint, activeQuote.index)}
               onChange={(e) => {
                 setSelectedEndpointKey(e.target.value);
                 setEndpointMode('custom');
@@ -309,14 +202,17 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
               className="min-h-[36px] rounded-md border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-900"
             >
               {quotes.map((q) => {
-                const costLabel = q.breakdown.hasPricingData
-                  ? `${formatCurrency(q.breakdown.monthlyTotalCost)}/mo`
-                  : 'N/A';
-                const isCheapest = q.index === cheapestQuote.index && q.breakdown.hasPricingData;
+                const costLabel =
+                  q.breakdown.hasPricingData &&
+                  typeof q.breakdown.monthlyTotalCost === 'number'
+                    ? `${formatCurrency(q.breakdown.monthlyTotalCost)}/mo`
+                    : 'N/A';
+                const isCheapest =
+                  q.index === cheapestQuote.index && q.breakdown.hasPricingData;
                 return (
                   <option
-                    key={endpointKey(q.endpoint, q.index)}
-                    value={endpointKey(q.endpoint, q.index)}
+                    key={getEndpointKey(q.endpoint, q.index)}
+                    value={getEndpointKey(q.endpoint, q.index)}
                   >
                     {q.endpoint.host} ({q.endpoint.providerType}) — {costLabel}
                     {isCheapest ? ' • Cheapest' : ''}
@@ -443,12 +339,13 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
             <div className="text-xs font-medium text-emerald-700">
               Saves {formatCurrency(savingsVsFirstParty.diff)}/mo (
               {savingsVsFirstParty.pct.toFixed(1)}%) vs. {firstPartyQuote.endpoint.host} (
-              {formatCurrency(firstPartyQuote.breakdown.monthlyTotalCost)}/mo)
+              {formatCurrency(savingsVsFirstParty.firstCost)}/mo)
             </div>
           )}
         </div>
         <span className="font-mono text-2xl font-bold text-emerald-800">
-          {activeQuote.breakdown.hasPricingData
+          {activeQuote.breakdown.hasPricingData &&
+          typeof activeQuote.breakdown.monthlyTotalCost === 'number'
             ? `${formatCurrency(activeQuote.breakdown.monthlyTotalCost)}/mo`
             : 'N/A'}
         </span>
