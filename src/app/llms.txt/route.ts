@@ -42,6 +42,11 @@ export async function GET() {
     '- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts and input costs.',
     '- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate cost differences from routing requests across models.',
     '',
+    '## Pricing & Benchmark Methodology',
+    '- Normalization: All token prices are normalized to USD per 1,000,000 (1M) input, cached-read, and output tokens.',
+    '- Provenance Labels: Official prices reflect first-party provider rate cards; Router prices reflect third-party aggregators (e.g., OpenRouter); Estimated values are marked explicitly.',
+    '- Full Machine Index: https://promptbill.online/llms.txt',
+    '',
     '## Tracked Models',
   ];
 
