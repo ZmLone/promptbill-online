@@ -33,6 +33,7 @@ export interface EndpointModelView {
   score?: number | null;
   speedTokensPerSec?: number | null;
   tokPerSec?: number | null;
+  latencyMs?: number | null;
   notes?: string | null;
   hostingEndpoints?: CatalogHostingEndpoint[];
 }
@@ -44,6 +45,21 @@ export interface EndpointQuote {
   endpoint: CatalogHostingEndpoint;
   modelView: EndpointModelView;
   breakdown: EndpointCostBreakdown;
+  latencyMs: number | null;
+  tokPerSec: number | null;
+  latencyTier: 'Ultra-Low (<120ms)' | 'Fast (<175ms)' | 'Standard' | null;
+  estimatedGenerationSec: number | null;
+}
+
+export function getLatencyTier(
+  latencyMs: number | null | undefined
+): 'Ultra-Low (<120ms)' | 'Fast (<175ms)' | 'Standard' | null {
+  if (typeof latencyMs !== 'number' || !Number.isFinite(latencyMs) || latencyMs <= 0) {
+    return null;
+  }
+  if (latencyMs < 120) return 'Ultra-Low (<120ms)';
+  if (latencyMs <= 175) return 'Fast (<175ms)';
+  return 'Standard';
 }
 
 export function getEndpointKey(ep: CatalogHostingEndpoint, index: number): string {
@@ -74,6 +90,7 @@ export function buildModelForEndpoint(
       score: model.score,
       speedTokensPerSec: model.speedTokensPerSec,
       tokPerSec: model.tokPerSec,
+      latencyMs: null,
       notes: model.notes,
       hostingEndpoints: model.hostingEndpoints,
     };
@@ -83,6 +100,11 @@ export function buildModelForEndpoint(
     ep.tokPerSec !== null && ep.tokPerSec !== undefined
       ? ep.tokPerSec
       : model.tokPerSec;
+
+  const epLatency =
+    ep.latencyMs !== null && ep.latencyMs !== undefined
+      ? ep.latencyMs
+      : null;
 
   return {
     id: model.id,
@@ -112,6 +134,7 @@ export function buildModelForEndpoint(
     score: model.score,
     speedTokensPerSec: epSpeed,
     tokPerSec: epSpeed,
+    latencyMs: epLatency,
     notes: ep.notes ?? model.notes,
     hostingEndpoints: model.hostingEndpoints,
   };
@@ -136,6 +159,18 @@ function runModelCost(
   );
 }
 
+function computeEstimatedGenSec(
+  outputTokens: number,
+  tokPerSec: number | null,
+  latencyMs: number | null
+): number | null {
+  if (typeof tokPerSec !== 'number' || !Number.isFinite(tokPerSec) || tokPerSec <= 0) {
+    return null;
+  }
+  const ttftSec = typeof latencyMs === 'number' && Number.isFinite(latencyMs) ? latencyMs / 1000 : 0;
+  return Number((ttftSec + Math.max(0, outputTokens) / tokPerSec).toFixed(2));
+}
+
 export function evaluateModelEndpoints(
   model: ModelEntry,
   calcInput: EndpointCalculationInput
@@ -144,6 +179,7 @@ export function evaluateModelEndpoints(
   firstPartyIndex: number;
   firstPartyQuote: EndpointQuote;
   cheapestQuote: EndpointQuote;
+  fastestQuote: EndpointQuote;
 } {
   const endpoints = Array.isArray(model.hostingEndpoints) ? model.hostingEndpoints : [];
   const firstPartyIdx = (() => {
@@ -156,6 +192,7 @@ export function evaluateModelEndpoints(
       ? [
           (() => {
             const fallbackModel = buildModelForEndpoint(model);
+            const tps = fallbackModel.tokPerSec ?? null;
             return {
               index: 0,
               endpoint: {
@@ -166,21 +203,32 @@ export function evaluateModelEndpoints(
                 cacheWritePer1M: model.cacheWritePer1M,
                 outputPer1M: model.outputPer1M,
                 batchDiscount: model.batchDiscount,
-                tokPerSec: model.tokPerSec,
+                tokPerSec: tps,
+                latencyMs: null,
                 evidenceStatus: model.pricingProvenance.status,
               },
               modelView: fallbackModel,
               breakdown: runModelCost(fallbackModel, calcInput),
+              latencyMs: null,
+              tokPerSec: tps,
+              latencyTier: null,
+              estimatedGenerationSec: computeEstimatedGenSec(calcInput.outputTokensPerCall, tps, null),
             };
           })(),
         ]
       : endpoints.map((ep, index) => {
           const modelView = buildModelForEndpoint(model, ep);
+          const tps = modelView.tokPerSec ?? null;
+          const lat = modelView.latencyMs ?? null;
           return {
             index,
             endpoint: ep,
             modelView,
             breakdown: runModelCost(modelView, calcInput),
+            latencyMs: lat,
+            tokPerSec: tps,
+            latencyTier: getLatencyTier(lat),
+            estimatedGenerationSec: computeEstimatedGenSec(calcInput.outputTokensPerCall, tps, lat),
           };
         });
 
@@ -202,11 +250,24 @@ export function evaluateModelEndpoints(
           return currCost < bestCost ? curr : best;
         });
 
+  const withSpeed = quotes.filter(
+    (q) => typeof q.tokPerSec === 'number' && Number.isFinite(q.tokPerSec) && q.tokPerSec > 0
+  );
+  const fastestQuote =
+    withSpeed.length === 0
+      ? firstPartyQuote
+      : withSpeed.reduce((best, curr) => {
+          const currTps = curr.tokPerSec ?? 0;
+          const bestTps = best.tokPerSec ?? 0;
+          return currTps > bestTps ? curr : best;
+        });
+
   return {
     quotes,
     firstPartyIndex: firstPartyIdx,
     firstPartyQuote,
     cheapestQuote,
+    fastestQuote,
   };
 }
 
@@ -223,11 +284,14 @@ export function getEffectiveModelRates(
   cacheWritePer1M: number | null;
   batchDiscount: number | null;
   tokPerSec: number | null;
+  latencyMs: number | null;
+  latencyTier: 'Ultra-Low (<120ms)' | 'Fast (<175ms)' | 'Standard' | null;
   monthlyTotalCost: number | null;
   firstPartyMonthlyCost: number | null;
   savingsPercent: number;
   hasThirdPartyEndpoints: boolean;
   isCheapestThirdParty: boolean;
+  endpointCount: number;
 } {
   const { quotes, firstPartyQuote, cheapestQuote } = evaluateModelEndpoints(model, {
     inputTokensPerCall: calcOverrides?.inputTokensPerCall ?? 6500,
@@ -268,11 +332,14 @@ export function getEffectiveModelRates(
     cachedInputPer1M: chosen.modelView.cachedInputPer1M ?? null,
     cacheWritePer1M: chosen.modelView.cacheWritePer1M ?? null,
     batchDiscount: chosen.modelView.batchDiscount ?? null,
-    tokPerSec: chosen.modelView.tokPerSec ?? null,
+    tokPerSec: chosen.tokPerSec ?? null,
+    latencyMs: chosen.latencyMs ?? null,
+    latencyTier: chosen.latencyTier,
     monthlyTotalCost: chosenCost,
     firstPartyMonthlyCost: officialCost,
     savingsPercent,
     hasThirdPartyEndpoints: quotes.some((q) => q.endpoint.providerType !== 'Official API'),
     isCheapestThirdParty: chosen.index !== firstPartyQuote.index,
+    endpointCount: quotes.length,
   };
 }

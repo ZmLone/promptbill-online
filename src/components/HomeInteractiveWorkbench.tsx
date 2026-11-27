@@ -406,8 +406,9 @@ export function HomeInteractiveWorkbench({ models }: { models: CatalogModel[] })
                 {formatCurrency(breakdown.monthlyTotalCost)}
               </div>
               <div className="mt-1 font-mono text-xs text-emerald-300 tabular-nums">
-                {formatCurrency(breakdown.costPer1KCalls)} per 1,000 requests ·{' '}
-                {breakdown.monthlyCalls.toLocaleString()} calls/mo
+                {formatCurrency(breakdown.costPer1KCalls)} / 1K reqs ·{' '}
+                {typeof activeQuote.latencyMs === 'number' ? `<${activeQuote.latencyMs}ms · ` : ''}
+                {typeof activeQuote.tokPerSec === 'number' ? `~${activeQuote.tokPerSec} tok/s` : `${breakdown.monthlyCalls.toLocaleString()} calls/mo`}
               </div>
               {monthlySavings > 0 && (
                 <div className="mt-1.5 inline-flex items-center rounded-md bg-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-200">

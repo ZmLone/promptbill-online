@@ -38,6 +38,7 @@ export interface CatalogModel {
   providerSlug: string;
   family: string | null;
   license: 'Open' | 'Closed' | null;
+  licenseLabel: string | null;
   evidence: 'Verified' | 'Estimated' | 'Unavailable';
   score: number | null;
   qualityScore: number | null;
@@ -210,7 +211,13 @@ function normalizeRecord(rec: LiveModelRecord, index: number): CatalogModel {
     provider,
     providerSlug,
     family: nonEmptyStringOrNull(rec.family),
-    license: rec.license === 'Open' || rec.license === 'Closed' ? rec.license : null,
+    license:
+      typeof rec.license === 'string' && rec.license.trim().length > 0
+        ? /^open/i.test(rec.license.trim())
+          ? 'Open'
+          : 'Closed'
+        : null,
+    licenseLabel: nonEmptyStringOrNull(rec.license),
     evidence: evidenceStatus,
     score,
     qualityScore: score,

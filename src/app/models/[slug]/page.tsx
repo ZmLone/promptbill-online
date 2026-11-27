@@ -7,6 +7,7 @@ import { SiteShell } from '../../../components/SiteShell';
 import { ModelDetailCalculator } from '../../../components/ModelDetailCalculator';
 import { REGISTRY_SNAPSHOT, computeDerivedMetrics } from '../../../lib/modelRegistry';
 import { formatCurrency } from '../../../lib/pricingEngine';
+import { getLatencyTier } from '../../../lib/endpointPricing';
 
 export const revalidate = 60;
 
@@ -39,8 +40,10 @@ export async function generateMetadata({
     model.score !== null
       ? `score ${model.score.toFixed(1)} (${model.benchmarkProvenance.status})`
       : 'benchmark metrics tracked on PromptBill';
-  const title = `${model.name} (${model.provider}) Pricing & Benchmarks (${period})`;
-  const description = `${model.name} by ${model.provider}: ${priceSummary}, context window ${model.contextWindow ?? 'N/A'}, ${scoreSummary}, and interactive token cost calculator.`;
+  const speedSummary =
+    model.tokPerSec !== null ? `, ~${model.tokPerSec} tok/s throughput` : '';
+  const title = `${model.name} (${model.provider}) Pricing, Speed & Benchmarks (${period})`;
+  const description = `${model.name} by ${model.provider}: ${priceSummary}, context window ${model.contextWindow ?? 'N/A'}${speedSummary}, ${scoreSummary}, and multi-provider latency/cost calculator.`;
 
   return {
     title,
@@ -82,6 +85,22 @@ export default async function ModelDetailPage({
   const pricingHeadingLabel = isVerifiedPricing
     ? 'Verified Provider Rate Snapshot'
     : 'Estimated Rate Snapshot (Unverified)';
+
+  const officialEndpoint =
+    model.hostingEndpoints.find((ep) => ep.providerType === 'Official API') ??
+    model.hostingEndpoints[0];
+
+  const fastestEndpoint = [...model.hostingEndpoints]
+    .filter((ep) => typeof ep.tokPerSec === 'number' && ep.tokPerSec > 0)
+    .sort((a, b) => (b.tokPerSec ?? 0) - (a.tokPerSec ?? 0))[0];
+
+  const lowestLatencyEndpoint = [...model.hostingEndpoints]
+    .filter((ep) => typeof ep.latencyMs === 'number' && ep.latencyMs > 0)
+    .sort((a, b) => (a.latencyMs ?? Infinity) - (b.latencyMs ?? Infinity))[0];
+
+  const cheapestEndpoint = [...model.hostingEndpoints]
+    .filter((ep) => typeof ep.outputPer1M === 'number' && ep.outputPer1M >= 0)
+    .sort((a, b) => (a.outputPer1M ?? Infinity) - (b.outputPer1M ?? Infinity))[0];
 
   const pageUrl = `${BASE_URL}/models/${model.slug}`;
   const dateModified =
@@ -145,20 +164,27 @@ export default async function ModelDetailPage({
           : {}),
         ...(model.inputPer1M !== null || model.outputPer1M !== null
           ? {
-              offers: {
-                '@type': 'Offer',
-                priceCurrency: 'USD',
-                price:
-                  model.inputPer1M !== null && model.outputPer1M !== null
-                    ? Number(
-                        (
-                          ((model.inputPer1M + model.outputPer1M) / 2) *
-                          1
-                        ).toFixed(4)
-                      )
-                    : Number((model.inputPer1M ?? model.outputPer1M ?? 0).toFixed(4)),
-                description: `Input ${formatCurrency(model.inputPer1M)} / Output ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status})`,
-              },
+              offers:
+                model.hostingEndpoints.length > 0
+                  ? model.hostingEndpoints.map((ep) => ({
+                      '@type': 'Offer',
+                      seller: { '@type': 'Organization', name: ep.host },
+                      priceCurrency: 'USD',
+                      price:
+                        ep.inputPer1M !== null && ep.outputPer1M !== null
+                          ? Number(((ep.inputPer1M + ep.outputPer1M) / 2).toFixed(4))
+                          : Number((ep.inputPer1M ?? ep.outputPer1M ?? 0).toFixed(4)),
+                      description: `${ep.host} (${ep.providerType}): Input ${formatCurrency(ep.inputPer1M)} / Output ${formatCurrency(ep.outputPer1M)} per 1M tokens${ep.latencyMs ? `, ~${ep.latencyMs}ms TTFT` : ''}${ep.tokPerSec ? `, ~${ep.tokPerSec} tok/s` : ''}`,
+                    }))
+                  : {
+                      '@type': 'Offer',
+                      priceCurrency: 'USD',
+                      price:
+                        model.inputPer1M !== null && model.outputPer1M !== null
+                          ? Number(((model.inputPer1M + model.outputPer1M) / 2).toFixed(4))
+                          : Number((model.inputPer1M ?? model.outputPer1M ?? 0).toFixed(4)),
+                      description: `Input ${formatCurrency(model.inputPer1M)} / Output ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status})`,
+                    },
             }
           : {}),
       },
@@ -170,15 +196,15 @@ export default async function ModelDetailPage({
             name: `How much does ${model.name} cost per 1M tokens?`,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: `${model.name} (${model.provider}) lists input at ${formatCurrency(model.inputPer1M)} per 1M tokens and output at ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status} pricing status; cached read ${formatCurrency(model.cachedInputPer1M)}/1M).`,
+              text: `${model.name} (${model.provider}) lists official input at ${formatCurrency(model.inputPer1M)} per 1M tokens and output at ${formatCurrency(model.outputPer1M)} per 1M tokens (${model.pricingProvenance.status} pricing status; cached read ${formatCurrency(model.cachedInputPer1M)}/1M).${cheapestEndpoint && cheapestEndpoint.outputPer1M !== null ? ` Lowest tracked endpoint is ${cheapestEndpoint.host} at ${formatCurrency(cheapestEndpoint.inputPer1M)}/${formatCurrency(cheapestEndpoint.outputPer1M)} per 1M tokens.` : ''}`,
             },
           },
           {
             '@type': 'Question',
-            name: `What is the context window and benchmark score for ${model.name}?`,
+            name: `What is the latency, throughput, and benchmark score for ${model.name}?`,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: `${model.name} has a context window of ${model.contextWindow ?? 'N/A'}, a benchmark score of ${model.score !== null ? model.score.toFixed(1) : 'N/A'} (${model.benchmarkProvenance.status}), and throughput of ${model.tokPerSec !== null ? `${model.tokPerSec} tok/s` : 'N/A'} (${model.speedProvenance.status}).`,
+              text: `${model.name} has a context window of ${model.contextWindow ?? 'N/A'}, a benchmark score of ${model.score !== null ? model.score.toFixed(1) : 'N/A'} (${model.benchmarkProvenance.status}), official throughput of ${model.tokPerSec !== null ? `~${model.tokPerSec} tok/s` : 'N/A'}, and official TTFT latency of ${typeof officialEndpoint?.latencyMs === 'number' ? `~${officialEndpoint.latencyMs}ms` : 'N/A'}.`,
             },
           },
         ],
@@ -188,8 +214,8 @@ export default async function ModelDetailPage({
 
   return (
     <SiteShell
-      title={`${model.name} Pricing & Benchmarks (${period})`}
-      subtitle={`promptbill.online/models/${model.slug} · ${model.provider}`}
+      title={`${model.name} Pricing, Speed & Benchmarks (${period})`}
+      subtitle={`promptbill.online/models/${model.slug} · ${model.provider}${model.licenseLabel ? ` · ${model.licenseLabel}` : ''}`}
     >
       <script
         type="application/ld+json"
@@ -231,8 +257,14 @@ export default async function ModelDetailPage({
             </strong>{' '}
             · Context: <strong>{model.contextWindow ?? 'N/A'}</strong> · Speed:{' '}
             <strong>
-              {model.tokPerSec !== null ? `${model.tokPerSec} tok/s` : 'N/A'}
-            </strong>{' '}
+              {model.tokPerSec !== null ? `~${model.tokPerSec} tok/s` : 'N/A'}
+            </strong>
+            {typeof officialEndpoint?.latencyMs === 'number' ? (
+              <>
+                {' '}
+                · Official TTFT: <strong>~{officialEndpoint.latencyMs}ms</strong>
+              </>
+            ) : null}{' '}
             ({model.speedProvenance.status}).
           </p>
           <p className="text-xs text-slate-700">
@@ -281,13 +313,19 @@ export default async function ModelDetailPage({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-            <div className="text-xs text-slate-700">Context &amp; Speed</div>
+            <div className="text-xs text-slate-700">Latency &amp; Throughput</div>
             <div className="mt-1 font-mono text-xl font-bold text-slate-900">
-              {model.contextWindow ?? 'N/A'}
+              {typeof officialEndpoint?.latencyMs === 'number'
+                ? `<${officialEndpoint.latencyMs}ms`
+                : model.tokPerSec !== null
+                ? `~${model.tokPerSec} tok/s`
+                : 'N/A'}
+              {typeof officialEndpoint?.latencyMs === 'number' && model.tokPerSec !== null
+                ? ` · ~${model.tokPerSec} tok/s`
+                : ''}
             </div>
             <div className="text-xs text-slate-800 font-mono">
-              Max Out: {model.maxOutputTokens ?? 'N/A'} ·{' '}
-              {model.tokPerSec !== null ? `${model.tokPerSec} tok/s` : 'N/A'}
+              Context: {model.contextWindow ?? 'N/A'} · Max Out: {model.maxOutputTokens ?? 'N/A'}
             </div>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
@@ -325,37 +363,151 @@ export default async function ModelDetailPage({
         </div>
 
         {model.hostingEndpoints.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-slate-200">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm">
-              <caption className="sr-only">
-                Endpoints and pricing entries for {model.name}
-              </caption>
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-800">
-                  <th scope="col" className="py-2.5 px-3">Endpoint</th>
-                  <th scope="col" className="py-2.5 px-3">Type</th>
-                  <th scope="col" className="py-2.5 px-3">In / Out ($/1M)</th>
-                  <th scope="col" className="py-2.5 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/80">
-                {model.hostingEndpoints.map((ep, i) => (
-                  <tr key={`${ep.host}-${i}`} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
-                    <th scope="row" className="py-2.5 px-3 font-semibold text-slate-900 text-left">
-                      {ep.host}
-                    </th>
-                    <td className="py-2.5 px-3 text-slate-700">{ep.providerType ?? 'N/A'}</td>
-                    <td className="py-2.5 px-3 font-mono text-slate-800">
-                      {ep.inputPer1M !== null && ep.outputPer1M !== null
-                        ? `$${ep.inputPer1M.toFixed(2)} / $${ep.outputPer1M.toFixed(2)}`
-                        : 'N/A'}
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-700">{ep.evidenceStatus ?? 'N/A'}</td>
+          <section aria-labelledby="endpoints-table-heading" className="space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 id="endpoints-table-heading" className="text-base font-bold text-slate-900">
+                  Provider Endpoints: Latency, Throughput &amp; Token Cost
+                </h2>
+                <p className="text-xs text-slate-600">
+                  Side-by-side comparison of official API, inference clouds, and routers for {model.name}.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                {lowestLatencyEndpoint && typeof lowestLatencyEndpoint.latencyMs === 'number' && (
+                  <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-900 ring-1 ring-sky-200">
+                    Lowest TTFT: {lowestLatencyEndpoint.host} (&lt;{lowestLatencyEndpoint.latencyMs}ms)
+                  </span>
+                )}
+                {fastestEndpoint && typeof fastestEndpoint.tokPerSec === 'number' && (
+                  <span className="rounded-full bg-teal-50 px-2.5 py-1 text-teal-900 ring-1 ring-teal-200">
+                    Fastest: {fastestEndpoint.host} (~{fastestEndpoint.tokPerSec} tok/s)
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
+              <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                <caption className="sr-only">
+                  Endpoints, latency, throughput, and pricing entries for {model.name}
+                </caption>
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-100/90 text-xs font-semibold text-slate-800">
+                    <th scope="col" className="py-2.5 px-3">Endpoint</th>
+                    <th scope="col" className="py-2.5 px-3">Type</th>
+                    <th scope="col" className="py-2.5 px-3">Latency (TTFT)</th>
+                    <th scope="col" className="py-2.5 px-3">Throughput</th>
+                    <th scope="col" className="py-2.5 px-3">In / Out ($/1M)</th>
+                    <th scope="col" className="py-2.5 px-3">Cached / Batch</th>
+                    <th scope="col" className="py-2.5 px-3">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-200/80">
+                  {model.hostingEndpoints.map((ep, i) => {
+                    const effectiveTps = ep.tokPerSec ?? model.tokPerSec;
+                    const latTier = getLatencyTier(ep.latencyMs);
+                    const isFastest =
+                      fastestEndpoint &&
+                      fastestEndpoint.host === ep.host &&
+                      typeof ep.tokPerSec === 'number';
+                    const isCheapest =
+                      cheapestEndpoint &&
+                      cheapestEndpoint.host === ep.host &&
+                      typeof ep.outputPer1M === 'number';
+
+                    return (
+                      <tr
+                        key={`${ep.host}-${i}`}
+                        className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}
+                      >
+                        <th scope="row" className="py-2.5 px-3 font-semibold text-slate-900 text-left">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span>{ep.host}</span>
+                            {isCheapest && (
+                              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-900">
+                                Lowest Cost
+                              </span>
+                            )}
+                            {isFastest && (
+                              <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-900">
+                                Fastest
+                              </span>
+                            )}
+                          </div>
+                          {ep.notes && (
+                            <div className="text-[11px] font-normal text-slate-500 mt-0.5">
+                              {ep.notes}
+                            </div>
+                          )}
+                        </th>
+                        <td className="py-2.5 px-3 text-slate-700 whitespace-nowrap">
+                          {ep.providerType ?? 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono whitespace-nowrap">
+                          {typeof ep.latencyMs === 'number' ? (
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-900">
+                                &lt;{ep.latencyMs}ms
+                              </span>
+                              {latTier && (
+                                <span
+                                  className={`text-[10px] font-sans font-semibold ${
+                                    latTier === 'Ultra-Low (<120ms)'
+                                      ? 'text-emerald-700'
+                                      : latTier === 'Fast (<175ms)'
+                                      ? 'text-sky-700'
+                                      : 'text-slate-500'
+                                  }`}
+                                >
+                                  {latTier}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">N/A</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono font-semibold text-teal-800 whitespace-nowrap">
+                          {typeof effectiveTps === 'number' ? `~${effectiveTps} tok/s` : 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono font-semibold text-slate-900 whitespace-nowrap">
+                          {ep.inputPer1M !== null && ep.outputPer1M !== null
+                            ? `$${ep.inputPer1M.toFixed(2)} / $${ep.outputPer1M.toFixed(2)}`
+                            : 'N/A'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono text-xs text-slate-700 whitespace-nowrap">
+                          <div>
+                            Cache:{' '}
+                            {ep.cachedInputPer1M !== null
+                              ? formatCurrency(ep.cachedInputPer1M)
+                              : '—'}
+                          </div>
+                          <div>
+                            Batch:{' '}
+                            {typeof ep.batchDiscount === 'number' && ep.batchDiscount > 0
+                              ? `${Math.round(ep.batchDiscount * 100)}% off`
+                              : '—'}
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          <span
+                            className={`inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${
+                              ep.evidenceStatus === 'Verified'
+                                ? 'bg-emerald-50 text-emerald-800'
+                                : 'bg-amber-50 text-amber-800'
+                            }`}
+                          >
+                            {ep.evidenceStatus ?? 'N/A'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
         )}
 
         <ModelDetailCalculator model={model} />

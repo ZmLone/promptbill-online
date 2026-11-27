@@ -94,6 +94,7 @@ export function DynamicCompareClient({
           inputPer1M: eff.inputPer1M ?? m.inputPer1M,
           outputPer1M: eff.outputPer1M ?? m.outputPer1M,
           tokPerSec: eff.tokPerSec ?? m.tokPerSec,
+          _activeLatencyMs: eff.latencyMs,
           _activeHost: eff.host,
           _activeProviderType: eff.providerType,
           _isCheapestThirdParty: eff.isCheapestThirdParty,
@@ -441,7 +442,7 @@ export function DynamicCompareClient({
               </tr>
 
               <tr>
-                <td className="py-5 px-6 font-bold text-slate-700">Throughput Speed</td>
+                <td className="py-5 px-6 font-bold text-slate-700">Latency &amp; Throughput</td>
                 {comparedModels.map((m) => {
                   const isFastest =
                     bestSpeedVal !== null &&
@@ -454,12 +455,18 @@ export function DynamicCompareClient({
                         isFastest ? 'bg-sky-50/70 text-sky-900' : 'text-teal-700'
                       }`}
                     >
-                      {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}{' '}
-                      {isFastest ? (
-                        <span className="ml-2 rounded-full bg-sky-700 px-2 py-0.5 font-sans text-[10px] font-bold text-white">
-                          Fastest
-                        </span>
-                      ) : null}
+                      <div>
+                        {typeof m._activeLatencyMs === 'number' ? `<${m._activeLatencyMs}ms · ` : ''}
+                        {typeof m.tokPerSec === 'number' ? `~${m.tokPerSec} tok/s` : '—'}{' '}
+                        {isFastest ? (
+                          <span className="ml-2 rounded-full bg-sky-700 px-2 py-0.5 font-sans text-[10px] font-bold text-white">
+                            Fastest
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="mt-0.5 font-sans text-[11px] font-medium text-slate-500">
+                        via {m._activeHost}
+                      </div>
                     </td>
                   );
                 })}

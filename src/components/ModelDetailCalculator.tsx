@@ -209,12 +209,19 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
                     : 'N/A';
                 const isCheapest =
                   q.index === cheapestQuote.index && q.breakdown.hasPricingData;
+                const speedBits = [
+                  typeof q.latencyMs === 'number' ? `<${q.latencyMs}ms` : null,
+                  typeof q.tokPerSec === 'number' ? `~${q.tokPerSec} tok/s` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ');
                 return (
                   <option
                     key={getEndpointKey(q.endpoint, q.index)}
                     value={getEndpointKey(q.endpoint, q.index)}
                   >
                     {q.endpoint.host} ({q.endpoint.providerType}) — {costLabel}
+                    {speedBits ? ` [${speedBits}]` : ''}
                     {isCheapest ? ' • Cheapest' : ''}
                   </option>
                 );
@@ -318,8 +325,14 @@ export function ModelDetailCalculator({ model }: { model: ModelEntry }) {
           {formatCurrency(activeQuote.modelView.outputPer1M)} per 1M ·{' '}
           <strong>Cache Read:</strong> {formatCurrency(activeCachedInputRate)}/1M ·{' '}
           <strong>Cache Write:</strong> {formatCurrency(activeCacheWriteRate)}/1M
-          {typeof activeQuote.endpoint.latencyMs === 'number'
-            ? ` · ~${activeQuote.endpoint.latencyMs}ms`
+          {typeof activeQuote.latencyMs === 'number'
+            ? ` · TTFT: <${activeQuote.latencyMs}ms`
+            : ''}
+          {typeof activeQuote.tokPerSec === 'number'
+            ? ` · Speed: ~${activeQuote.tokPerSec} tok/s`
+            : ''}
+          {typeof activeQuote.estimatedGenerationSec === 'number'
+            ? ` (~${activeQuote.estimatedGenerationSec}s/resp)`
             : ''}
         </span>
         <span className="font-mono font-medium text-slate-900">

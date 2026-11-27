@@ -77,7 +77,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 53
       },
       {
         "host": "OpenRouter",
@@ -93,7 +94,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 49
       }
     ],
     "lifecycleStatus": "Active",
@@ -178,7 +180,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 128
       },
       {
         "host": "OpenRouter",
@@ -194,7 +197,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 118
       }
     ],
     "lifecycleStatus": "Active",
@@ -279,7 +283,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 168
       },
       {
         "host": "OpenRouter",
@@ -295,7 +300,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 155
       }
     ],
     "lifecycleStatus": "Active",
@@ -380,7 +386,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:49:15.220Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 215
       },
       {
         "host": "OpenRouter",
@@ -396,7 +403,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 198
       }
     ],
     "lifecycleStatus": "Deprecated",
@@ -481,7 +489,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 66
       },
       {
         "host": "AWS Bedrock",
@@ -497,7 +506,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 63
       },
       {
         "host": "OpenRouter",
@@ -513,7 +523,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 61
       }
     ],
     "lifecycleStatus": "Active",
@@ -598,7 +609,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 84
       },
       {
         "host": "AWS Bedrock",
@@ -614,7 +626,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 80
       },
       {
         "host": "OpenRouter",
@@ -630,7 +643,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 77
       }
     ],
     "lifecycleStatus": "Active",
@@ -715,7 +729,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 132
       },
       {
         "host": "AWS Bedrock",
@@ -731,7 +746,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 125
       },
       {
         "host": "OpenRouter",
@@ -747,7 +763,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 121
       }
     ],
     "lifecycleStatus": "Active",
@@ -832,7 +849,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 195
       },
       {
         "host": "AWS Bedrock",
@@ -848,7 +866,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 185
       },
       {
         "host": "OpenRouter",
@@ -864,7 +883,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 179
       }
     ],
     "lifecycleStatus": "Active",
@@ -949,7 +969,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 115
       },
       {
         "host": "OpenRouter",
@@ -965,7 +986,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 106
       }
     ],
     "lifecycleStatus": "Active",
@@ -1050,7 +1072,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 155
       },
       {
         "host": "OpenRouter",
@@ -1066,7 +1089,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 143
       }
     ],
     "lifecycleStatus": "Active",
@@ -1151,7 +1175,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 210
       },
       {
         "host": "OpenRouter",
@@ -1167,7 +1192,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 193
       }
     ],
     "lifecycleStatus": "Active",
@@ -1252,7 +1278,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 135
       },
       {
         "host": "OpenRouter",
@@ -1268,7 +1295,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 124
       }
     ]
   },
@@ -1350,7 +1378,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 160
       },
       {
         "host": "OpenRouter",
@@ -1366,7 +1395,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 147
       }
     ],
     "lifecycleStatus": "Active",
@@ -1451,7 +1481,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 110
       },
       {
         "host": "Fireworks AI",
@@ -1467,7 +1498,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 160
       },
       {
         "host": "Together AI",
@@ -1483,7 +1515,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 143
       },
       {
         "host": "OpenRouter",
@@ -1499,7 +1532,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 101
       }
     ],
     "lifecycleStatus": "Active",
@@ -1584,7 +1618,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 145
       },
       {
         "host": "Together AI",
@@ -1600,7 +1635,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 188
       },
       {
         "host": "Fireworks AI",
@@ -1616,7 +1652,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 210
       },
       {
         "host": "DeepInfra",
@@ -1632,7 +1669,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 181
       },
       {
         "host": "OpenRouter",
@@ -1648,7 +1686,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-24T14:43:18.397Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 133
       }
     ],
     "lifecycleStatus": "Active",
@@ -1733,7 +1772,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 190
       },
       {
         "host": "Fireworks AI",
@@ -1749,7 +1789,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 276
       },
       {
         "host": "Together AI",
@@ -1765,7 +1806,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 247
       },
       {
         "host": "Groq",
@@ -1781,7 +1823,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 446
       },
       {
         "host": "AWS Bedrock",
@@ -1797,7 +1840,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 180
       },
       {
         "host": "OpenRouter",
@@ -1807,13 +1851,14 @@
         "cacheWritePer1M": null,
         "outputPer1M": 0.42,
         "batchDiscount": null,
-        "latencyMs": null,
+        "latencyMs": 253,
         "notes": "Synced from OpenRouter (deepseek/deepseek-v4.1-flash)",
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:08:07.097Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 175
       }
     ],
     "lifecycleStatus": "Active",
@@ -1898,7 +1943,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 210
       },
       {
         "host": "Together AI",
@@ -1914,7 +1960,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 273
       },
       {
         "host": "Fireworks AI",
@@ -1930,7 +1977,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 304
       },
       {
         "host": "Groq",
@@ -1946,7 +1994,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 494
       },
       {
         "host": "DeepInfra",
@@ -1962,7 +2011,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 262
       },
       {
         "host": "OpenRouter",
@@ -1978,7 +2028,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 193
       }
     ],
     "lifecycleStatus": "Active",
@@ -2063,7 +2114,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": 240
       },
       {
         "host": "Together AI",
@@ -2079,7 +2131,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 312
       },
       {
         "host": "OpenRouter",
@@ -2095,7 +2148,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": 221
       }
     ],
     "lifecycleStatus": "Active",
@@ -2180,7 +2234,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T17:26:22.113Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "Together AI",
@@ -2196,7 +2251,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2212,7 +2268,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T16:09:49.235Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2297,7 +2354,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2313,7 +2371,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2397,7 +2456,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2413,7 +2473,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2497,7 +2558,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "Together AI",
@@ -2513,7 +2575,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "Fireworks AI",
@@ -2529,7 +2592,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2545,7 +2609,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2629,7 +2694,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2645,7 +2711,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2729,7 +2796,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2745,7 +2813,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Deprecated",
@@ -2829,7 +2898,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2845,7 +2915,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -2929,7 +3000,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "Together AI",
@@ -2945,7 +3017,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "Fireworks AI",
@@ -2961,7 +3034,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -2977,7 +3051,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3061,7 +3136,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "Fireworks AI",
@@ -3077,7 +3153,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "Together AI",
@@ -3093,7 +3170,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "Groq",
@@ -3109,7 +3187,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3125,7 +3204,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:08:11.104Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3209,7 +3289,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3225,7 +3306,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3309,7 +3391,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3325,7 +3408,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3409,7 +3493,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T21:58:52.676Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "AWS Bedrock",
@@ -3425,7 +3510,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "Together AI",
@@ -3441,7 +3527,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3457,7 +3544,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3542,7 +3630,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3558,7 +3647,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3642,7 +3732,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3658,7 +3749,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3742,7 +3834,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3758,7 +3851,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3842,7 +3936,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "AWS Bedrock",
@@ -3858,7 +3953,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": null,
         "lastVerified": null,
-        "evidenceStatus": "Estimated"
+        "evidenceStatus": "Estimated",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3874,7 +3970,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -3958,7 +4055,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -3974,7 +4072,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4058,7 +4157,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4074,7 +4174,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4158,7 +4259,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:40:51.345Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4174,7 +4276,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Legacy",
@@ -4259,7 +4362,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:30:42.399Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4275,7 +4379,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-26T19:15:35.106Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Legacy",
@@ -4359,7 +4464,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4375,7 +4481,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4459,7 +4566,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4475,7 +4583,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4559,7 +4668,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4575,7 +4685,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4659,7 +4770,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4675,7 +4787,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4759,7 +4872,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4775,7 +4889,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4859,7 +4974,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4875,7 +4991,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -4959,7 +5076,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -4975,7 +5093,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5059,7 +5178,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5075,7 +5195,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5159,7 +5280,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5175,7 +5297,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5259,7 +5382,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5275,7 +5399,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5359,7 +5484,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5375,7 +5501,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5459,7 +5586,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5475,7 +5603,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5559,7 +5688,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5575,7 +5705,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5659,7 +5790,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5675,7 +5807,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5759,7 +5892,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5775,7 +5909,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5859,7 +5994,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5875,7 +6011,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -5959,7 +6096,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -5975,7 +6113,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -6059,7 +6198,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -6075,7 +6215,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",
@@ -6159,7 +6300,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       },
       {
         "host": "OpenRouter",
@@ -6175,7 +6317,8 @@
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
         "lastVerified": "2026-11-27T01:09:30.022Z",
-        "evidenceStatus": "Verified"
+        "evidenceStatus": "Verified",
+        "tokPerSec": null
       }
     ],
     "lifecycleStatus": "Active",

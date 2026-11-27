@@ -19,6 +19,50 @@ function fmtScore(val: unknown): string {
   return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : '—';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveEndpointSummary(m: any): {
+  officialLatencyMs: number | null;
+  fastestTokPerSec: number | null;
+  fastestHost: string | null;
+  cheapestOutPer1M: number | null;
+  cheapestInPer1M: number | null;
+  cheapestHost: string | null;
+  hostCount: number;
+} {
+  const eps = Array.isArray(m.hostingEndpoints) ? m.hostingEndpoints : [];
+  let officialLatencyMs: number | null = null;
+  let fastestTokPerSec: number | null = typeof m.tokPerSec === 'number' ? m.tokPerSec : null;
+  let fastestHost: string | null = null;
+  let cheapestOutPer1M: number | null = typeof m.outputPer1M === 'number' ? m.outputPer1M : null;
+  let cheapestInPer1M: number | null = typeof m.inputPer1M === 'number' ? m.inputPer1M : null;
+  let cheapestHost: string | null = null;
+
+  for (const ep of eps) {
+    if (!ep) continue;
+    if (ep.providerType === 'Official API' && typeof ep.latencyMs === 'number') {
+      officialLatencyMs = ep.latencyMs;
+    }
+    if (typeof ep.tokPerSec === 'number' && (fastestTokPerSec === null || ep.tokPerSec > fastestTokPerSec)) {
+      fastestTokPerSec = ep.tokPerSec;
+      fastestHost = ep.host || null;
+    }
+    if (typeof ep.outputPer1M === 'number' && (cheapestOutPer1M === null || ep.outputPer1M < cheapestOutPer1M)) {
+      cheapestOutPer1M = ep.outputPer1M;
+      cheapestInPer1M = typeof ep.inputPer1M === 'number' ? ep.inputPer1M : cheapestInPer1M;
+      cheapestHost = ep.host || null;
+    }
+  }
+  return {
+    officialLatencyMs,
+    fastestTokPerSec,
+    fastestHost,
+    cheapestOutPer1M,
+    cheapestInPer1M,
+    cheapestHost,
+    hostCount: eps.length,
+  };
+}
+
 function computeScorePerDollar(score: unknown, outputPer1M: unknown): number | null {
   if (typeof score !== 'number' || !Number.isFinite(score)) return null;
   if (typeof outputPer1M !== 'number' || !Number.isFinite(outputPer1M) || outputPer1M <= 0) return null;
@@ -72,11 +116,13 @@ export function ModelsDirectoryClient({ models }: { models: any[] }) {
       const lic = normalizeLicense(m.license);
       const ev = normalizeEvidence(m);
       const valPerDollar = computeScorePerDollar(m.score, m.outputPer1M);
+      const epSummary = resolveEndpointSummary(m);
       return {
         ...m,
         _lic: lic,
         _ev: ev,
         _valPerDollar: valPerDollar,
+        _epSummary: epSummary,
       };
     });
   }, [models]);
@@ -431,7 +477,8 @@ export function ModelsDirectoryClient({ models }: { models: any[] }) {
                       In {fmtPrice(m.inputPer1M)} · Out {fmtPrice(m.outputPer1M)}
                     </span>
                     <span className="text-teal-700 font-semibold">
-                      {m.contextWindow || '—'} · {m.tokPerSec ? `${m.tokPerSec} tok/s` : '—'}
+                      {m._epSummary?.officialLatencyMs ? `<${m._epSummary.officialLatencyMs}ms · ` : ''}
+                      {m.tokPerSec ? `~${m.tokPerSec} tok/s` : '—'}
                     </span>
                   </div>
                 </Link>
@@ -448,7 +495,7 @@ export function ModelsDirectoryClient({ models }: { models: any[] }) {
                     <th className="py-3.5 px-4">Score/$</th>
                     <th className="py-3.5 px-4">API In / Out (1M)</th>
                     <th className="py-3.5 px-4">Context</th>
-                    <th className="py-3.5 px-4">Speed</th>
+                    <th className="py-3.5 px-4">Latency &amp; Speed</th>
                     <th className="py-3.5 px-5 text-right">Details</th>
                   </tr>
                 </thead>
@@ -488,13 +535,40 @@ export function ModelsDirectoryClient({ models }: { models: any[] }) {
                         {m._valPerDollar !== null ? `${m._valPerDollar.toFixed(1)}` : '—'}
                       </td>
                       <td className="py-3.5 px-4 font-mono font-semibold text-slate-900 whitespace-nowrap">
-                        {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)}
+                        <div>
+                          {fmtPrice(m.inputPer1M)} / {fmtPrice(m.outputPer1M)}
+                        </div>
+                        {m._epSummary?.cheapestHost &&
+                        m._epSummary?.cheapestOutPer1M !== null &&
+                        typeof m.outputPer1M === 'number' &&
+                        m._epSummary.cheapestOutPer1M < m.outputPer1M ? (
+                          <div className="font-sans text-[10px] font-semibold text-emerald-700">
+                            {m._epSummary.cheapestHost}: {fmtPrice(m._epSummary.cheapestInPer1M)}/{fmtPrice(m._epSummary.cheapestOutPer1M)}
+                          </div>
+                        ) : m._epSummary?.hostCount > 1 ? (
+                          <div className="font-sans text-[10px] font-medium text-slate-500">
+                            {m._epSummary.hostCount} endpoints
+                          </div>
+                        ) : null}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-slate-700 whitespace-nowrap">
                         {m.contextWindow || '—'}
                       </td>
                       <td className="py-3.5 px-4 font-mono font-semibold text-teal-700 whitespace-nowrap">
-                        {typeof m.tokPerSec === 'number' ? `${m.tokPerSec} tok/s` : '—'}
+                        <div>
+                          {typeof m._epSummary?.officialLatencyMs === 'number'
+                            ? `<${m._epSummary.officialLatencyMs}ms · `
+                            : ''}
+                          {typeof m.tokPerSec === 'number' ? `~${m.tokPerSec} tok/s` : '—'}
+                        </div>
+                        {m._epSummary?.fastestHost &&
+                        typeof m._epSummary?.fastestTokPerSec === 'number' &&
+                        typeof m.tokPerSec === 'number' &&
+                        m._epSummary.fastestTokPerSec > m.tokPerSec ? (
+                          <div className="font-sans text-[10px] font-medium text-sky-700">
+                            Up to ~{m._epSummary.fastestTokPerSec} tok/s ({m._epSummary.fastestHost})
+                          </div>
+                        ) : null}
                       </td>
                       <td className="py-3.5 px-5 text-right whitespace-nowrap">
                         <Link
@@ -550,10 +624,11 @@ export function ModelsDirectoryClient({ models }: { models: any[] }) {
                   </div>
                   <div className="text-right">
                     <div className="text-[10px] uppercase text-slate-400 font-sans font-bold">
-                      Context · Speed
+                      Latency · Speed
                     </div>
                     <div className="font-bold text-teal-700">
-                      {m.contextWindow || '—'} · {m.tokPerSec ? `${m.tokPerSec} t/s` : '—'}
+                      {m._epSummary?.officialLatencyMs ? `<${m._epSummary.officialLatencyMs}ms · ` : ''}
+                      {m.tokPerSec ? `~${m.tokPerSec} tok/s` : '—'}
                     </div>
                   </div>
                 </div>

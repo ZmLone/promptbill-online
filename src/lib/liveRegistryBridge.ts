@@ -29,6 +29,8 @@ export interface LiveHostingEndpoint {
   cacheWritePer1M?: number | null;
   outputPer1M: number;
   batchDiscount?: number | null;
+  tokPerSec?: number | null;
+  speedTokensPerSec?: number | null;
   latencyMs?: number | null;
   notes?: string | null;
   currency?: string;
@@ -201,6 +203,7 @@ export function applyLiveRegistryPricing<T extends PriceableModelShape>(model: T
     model.score ??
     null;
   const resolvedSpeed =
+    validNumberOrUndefined(officialEp?.tokPerSec) ??
     validNumberOrUndefined(live.tokPerSec) ??
     validNumberOrUndefined(live.speedTokensPerSec) ??
     model.tokPerSec ??
