@@ -148,11 +148,11 @@ export default function HomePage() {
     0
   );
 
-  // Newest models timeline ordered by releaseDate or lastVerified timestamp
+  // Newest models timeline ordered by pricingProvenance.lastVerified timestamp
   const newModelsTimeline = [...ALL_MODELS]
     .sort((a, b) => {
-      const dateA = a.releaseDate ?? a.pricingProvenance?.lastVerified ?? '';
-      const dateB = b.releaseDate ?? b.pricingProvenance?.lastVerified ?? '';
+      const dateA = a.pricingProvenance?.lastVerified ?? '';
+      const dateB = b.pricingProvenance?.lastVerified ?? '';
       return dateB.localeCompare(dateA);
     })
     .slice(0, 6);
@@ -394,9 +394,7 @@ export default function HomePage() {
             <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-4">
               {newModelsTimeline.map((m, idx) => {
                 const eff = getEffectiveModelRates(m, 'cheapest');
-                const dateLabel = formatReleaseDate(
-                  m.releaseDate ?? m.pricingProvenance?.lastVerified
-                );
+                const dateLabel = formatReleaseDate(m.pricingProvenance?.lastVerified);
                 const isLatest = idx === 0;
                 return (
                   <li
