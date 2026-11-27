@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import type {
+  EditableEndpointFormRow,
+  EndpointProviderType,
+  HostingEndpoint,
+} from '@/lib/catalogEndpoints';
+import { normalizeEndpointForSave } from '@/lib/catalogEndpoints';
 
 export interface PendingQueueItem {
   queueId: string;
@@ -62,6 +68,7 @@ interface LiveEditState {
   ifScore: string;
   ma: string;
   verified: boolean;
+  hostingEndpoints: EditableEndpointFormRow[];
 }
 
 interface NewManualModelState {
@@ -82,6 +89,7 @@ interface NewManualModelState {
   bestFor: string;
   notes: string;
   verified: boolean;
+  hostingEndpoints: EditableEndpointFormRow[];
 }
 
 interface BulkImportPatch {
@@ -90,6 +98,7 @@ interface BulkImportPatch {
   matchedSlug: string | null;
   matchedName: string | null;
   fields: Record<string, string | number>;
+  endpoints: HostingEndpoint[];
 }
 
 function slugify(raw: string): string {
@@ -101,6 +110,72 @@ function slugify(raw: string): string {
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function emptyEndpointRow(
+  providerType: EndpointProviderType = 'Inference Cloud',
+  host = '',
+  defaultVerified = true
+): EditableEndpointFormRow {
+  return {
+    host,
+    providerType,
+    inputPer1M: '',
+    outputPer1M: '',
+    cachedInputPer1M: '',
+    cacheWritePer1M: '',
+    batchDiscount: '',
+    latencyMs: '',
+    tokPerSec: '',
+    notes: '',
+    sourceUrl: '',
+    evidenceStatus: defaultVerified ? 'Verified' : 'Estimated',
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapRecordEndpointsToRows(endpoints: any[], defaultVerified = true): EditableEndpointFormRow[] {
+  if (!Array.isArray(endpoints) || endpoints.length === 0) return [];
+  return endpoints.map((ep) => ({
+    host: String(ep?.host ?? ''),
+    providerType:
+      ep?.providerType === 'Official API' ||
+      ep?.providerType === 'Router' ||
+      ep?.providerType === 'Inference Cloud'
+        ? ep.providerType
+        : 'Inference Cloud',
+    inputPer1M: ep?.inputPer1M !== null && ep?.inputPer1M !== undefined ? String(ep.inputPer1M) : '',
+    outputPer1M: ep?.outputPer1M !== null && ep?.outputPer1M !== undefined ? String(ep.outputPer1M) : '',
+    cachedInputPer1M:
+      ep?.cachedInputPer1M !== null && ep?.cachedInputPer1M !== undefined ? String(ep.cachedInputPer1M) : '',
+    cacheWritePer1M:
+      ep?.cacheWritePer1M !== null && ep?.cacheWritePer1M !== undefined ? String(ep.cacheWritePer1M) : '',
+    batchDiscount:
+      ep?.batchDiscount !== null && ep?.batchDiscount !== undefined
+        ? String(
+            Number(ep.batchDiscount) <= 1
+              ? Math.round(Number(ep.batchDiscount) * 10000) / 100
+              : Number(ep.batchDiscount)
+          )
+        : '',
+    latencyMs: ep?.latencyMs !== null && ep?.latencyMs !== undefined ? String(ep.latencyMs) : '',
+    tokPerSec:
+      ep?.tokPerSec !== null && ep?.tokPerSec !== undefined
+        ? String(ep.tokPerSec)
+        : ep?.speedTokensPerSec !== null && ep?.speedTokensPerSec !== undefined
+        ? String(ep.speedTokensPerSec)
+        : '',
+    notes: ep?.notes ? String(ep.notes) : '',
+    sourceUrl: ep?.sourceUrl ? String(ep.sourceUrl) : '',
+    evidenceStatus:
+      ep?.evidenceStatus === 'Verified' ||
+      ep?.evidenceStatus === 'Estimated' ||
+      ep?.evidenceStatus === 'Unavailable'
+        ? ep.evidenceStatus
+        : defaultVerified
+        ? 'Verified'
+        : 'Estimated',
+  }));
 }
 
 const COLUMN_ALIASES: Record<string, string> = {
@@ -243,7 +318,10 @@ function parseCellValue(field: string, rawVal: string): string | number | null {
   return v;
 }
 
-function extractModelKeyAndSlug(rawModelCell: string, explicitSlugCell?: string): {
+function extractModelKeyAndSlug(
+  rawModelCell: string,
+  explicitSlugCell?: string
+): {
   keyRaw: string;
   slugGuess: string;
 } {
@@ -259,6 +337,213 @@ function extractModelKeyAndSlug(rawModelCell: string, explicitSlugCell?: string)
     };
   }
   return { keyRaw: trimmed, slugGuess: slugify(trimmed) };
+}
+
+function EndpointEditorList({
+  rows,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: {
+  rows: EditableEndpointFormRow[];
+  onAdd: (presetType?: EndpointProviderType, presetHost?: string) => void;
+  onUpdate: (index: number, patch: Partial<EditableEndpointFormRow>) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3.5 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="font-bold text-slate-900 text-xs">
+            Provider Endpoints ({rows.length})
+          </div>
+          <p className="text-[11px] text-slate-600">
+            Configure Official API, Inference Cloud (DeepInfra, Together AI, Fireworks, Groq, Bedrock), and Router endpoints with TTFT latency, throughput, token rates, and cache/batch terms.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={() => onAdd('Official API')}
+            className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-800 hover:bg-slate-100"
+          >
+            + Official API
+          </button>
+          <button
+            type="button"
+            onClick={() => onAdd('Inference Cloud')}
+            className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-800 hover:bg-slate-100"
+          >
+            + Inference Cloud
+          </button>
+          <button
+            type="button"
+            onClick={() => onAdd('Router', 'OpenRouter')}
+            className="rounded border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-800 hover:bg-slate-100"
+          >
+            + Router
+          </button>
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="rounded border border-dashed border-slate-200 p-3 text-[11px] text-slate-500">
+          No explicit endpoint rows added yet. Saving top-level Official In / Out pricing will still sync the primary Official API endpoint.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((ep, idx) => (
+            <div
+              key={idx}
+              className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 space-y-2.5 text-xs"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                <label className="space-y-1 sm:col-span-2">
+                  <span className="text-[11px] font-semibold text-slate-700 block">
+                    Endpoint / Host Name
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="e.g. DeepSeek Official API, Fireworks AI, Together AI"
+                    value={ep.host}
+                    onChange={(e) => onUpdate(idx, { host: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                  />
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Endpoint Type</span>
+                  <select
+                    value={ep.providerType}
+                    onChange={(e) =>
+                      onUpdate(idx, { providerType: e.target.value as EndpointProviderType })
+                    }
+                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                  >
+                    <option value="Official API">Official API</option>
+                    <option value="Inference Cloud">Inference Cloud</option>
+                    <option value="Router">Router</option>
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Status</span>
+                  <select
+                    value={ep.evidenceStatus}
+                    onChange={(e) =>
+                      onUpdate(idx, {
+                        evidenceStatus: e.target.value as 'Verified' | 'Estimated' | 'Unavailable',
+                      })
+                    }
+                    className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
+                  >
+                    <option value="Verified">Verified</option>
+                    <option value="Estimated">Estimated</option>
+                    <option value="Unavailable">Unavailable</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">In / 1M ($)</span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.30"
+                    value={ep.inputPer1M}
+                    onChange={(e) => onUpdate(idx, { inputPer1M: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Out / 1M ($)</span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="1.20"
+                    value={ep.outputPer1M}
+                    onChange={(e) => onUpdate(idx, { outputPer1M: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Cached / 1M ($)</span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.0068"
+                    value={ep.cachedInputPer1M}
+                    onChange={(e) => onUpdate(idx, { cachedInputPer1M: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Batch Disc (%)</span>
+                  <input
+                    type="number"
+                    step="1"
+                    placeholder="50"
+                    value={ep.batchDiscount}
+                    onChange={(e) => onUpdate(idx, { batchDiscount: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">TTFT (ms)</span>
+                  <input
+                    type="number"
+                    step="1"
+                    placeholder="175"
+                    value={ep.latencyMs}
+                    onChange={(e) => onUpdate(idx, { latencyMs: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Speed (tok/s)</span>
+                  <input
+                    type="number"
+                    step="1"
+                    placeholder="140"
+                    value={ep.tokPerSec}
+                    onChange={(e) => onUpdate(idx, { tokPerSec: e.target.value })}
+                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 font-mono"
+                  />
+                </label>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => onRemove(idx)}
+                    className="w-full rounded border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-800 hover:bg-rose-100"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Endpoint notes (e.g. 90% cache hit discount, serverless FP8)"
+                  value={ep.notes}
+                  onChange={(e) => onUpdate(idx, { notes: e.target.value })}
+                  className="w-full rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px]"
+                />
+                <input
+                  type="url"
+                  placeholder="Verification source URL (https://...)"
+                  value={ep.sourceUrl}
+                  onChange={(e) => onUpdate(idx, { sourceUrl: e.target.value })}
+                  className="w-full rounded border border-slate-300 bg-white px-2.5 py-1 text-[11px]"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function AdminRegistryClient({
@@ -288,7 +573,10 @@ export function AdminRegistryClient({
   const [dismissedCount, setDismissedCount] = useState<number>(0);
   const [statusLog, setStatusLog] = useState<string[]>([]);
   const [publishing, setPublishing] = useState<boolean>(false);
-  const [publishBanner, setPublishBanner] = useState<{ type: 'success' | 'error' | 'warn'; text: string } | null>(null);
+  const [publishBanner, setPublishBanner] = useState<{
+    type: 'success' | 'error' | 'warn';
+    text: string;
+  } | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
   const [bulkRawInput, setBulkRawInput] = useState<string>('');
@@ -323,6 +611,7 @@ export function AdminRegistryClient({
     ifScore: '',
     ma: '',
     verified: true,
+    hostingEndpoints: [],
   });
 
   const [manualForm, setManualForm] = useState<NewManualModelState>({
@@ -343,6 +632,7 @@ export function AdminRegistryClient({
     bestFor: '',
     notes: '',
     verified: true,
+    hostingEndpoints: [],
   });
 
   const allProviders = useMemo(() => {
@@ -379,11 +669,16 @@ export function AdminRegistryClient({
     }
 
     const patches: BulkImportPatch[] = [];
+    const nowIso = new Date().toISOString();
 
     if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
       try {
         const parsed = JSON.parse(trimmed);
-        const rows = Array.isArray(parsed) ? parsed : Array.isArray(parsed.models) ? parsed.models : [parsed];
+        const rows = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed.models)
+          ? parsed.models
+          : [parsed];
         for (const row of rows) {
           if (!row || typeof row !== 'object') continue;
           const rawIdentifier = String(row.slug || row.id || row.model || row.name || '');
@@ -394,12 +689,70 @@ export function AdminRegistryClient({
           );
           const fields: Record<string, string | number> = {};
           for (const [k, v] of Object.entries(row)) {
+            if (k === 'hostingEndpoints' || k === 'endpoints') continue;
             const mapped = canonicalColKey(k);
             if (!mapped || mapped === 'model' || mapped === 'slug' || mapped === 'name') continue;
             if (v === null || v === undefined || v === '') continue;
             const parsedVal = parseCellValue(mapped, String(v));
             if (parsedVal !== null) fields[mapped] = parsedVal;
           }
+
+          const rawEps = Array.isArray(row.hostingEndpoints)
+            ? row.hostingEndpoints
+            : Array.isArray(row.endpoints)
+            ? row.endpoints
+            : [];
+          const endpoints: HostingEndpoint[] = [];
+          for (const ep of rawEps) {
+            if (!ep || typeof ep !== 'object') continue;
+            const normalized = normalizeEndpointForSave(
+              {
+                host: String(ep.host || ''),
+                providerType:
+                  ep.providerType === 'Official API' ||
+                  ep.providerType === 'Router' ||
+                  ep.providerType === 'Inference Cloud'
+                    ? ep.providerType
+                    : 'Inference Cloud',
+                inputPer1M:
+                  ep.inputPer1M !== null && ep.inputPer1M !== undefined ? String(ep.inputPer1M) : '',
+                outputPer1M:
+                  ep.outputPer1M !== null && ep.outputPer1M !== undefined
+                    ? String(ep.outputPer1M)
+                    : '',
+                cachedInputPer1M:
+                  ep.cachedInputPer1M !== null && ep.cachedInputPer1M !== undefined
+                    ? String(ep.cachedInputPer1M)
+                    : '',
+                cacheWritePer1M:
+                  ep.cacheWritePer1M !== null && ep.cacheWritePer1M !== undefined
+                    ? String(ep.cacheWritePer1M)
+                    : '',
+                batchDiscount:
+                  ep.batchDiscount !== null && ep.batchDiscount !== undefined
+                    ? String(ep.batchDiscount)
+                    : '',
+                latencyMs:
+                  ep.latencyMs !== null && ep.latencyMs !== undefined ? String(ep.latencyMs) : '',
+                tokPerSec:
+                  ep.tokPerSec !== null && ep.tokPerSec !== undefined ? String(ep.tokPerSec) : '',
+                notes: ep.notes ? String(ep.notes) : '',
+                sourceUrl: ep.sourceUrl ? String(ep.sourceUrl) : bulkSourceUrl.trim(),
+                evidenceStatus:
+                  ep.evidenceStatus === 'Verified' ||
+                  ep.evidenceStatus === 'Estimated' ||
+                  ep.evidenceStatus === 'Unavailable'
+                    ? ep.evidenceStatus
+                    : bulkMarkVerified
+                    ? 'Verified'
+                    : 'Estimated',
+              },
+              nowIso,
+              bulkMarkVerified ? 'Verified' : 'Estimated'
+            );
+            if (normalized) endpoints.push(normalized);
+          }
+
           const matched = findModelMatch(keyRaw, slugGuess);
           patches.push({
             keyRaw,
@@ -407,6 +760,7 @@ export function AdminRegistryClient({
             matchedSlug: matched ? matched.slug : null,
             matchedName: matched ? matched.name : null,
             fields,
+            endpoints,
           });
         }
         setBulkPreview(patches);
@@ -424,17 +778,15 @@ export function AdminRegistryClient({
       .filter((l) => l.length > 0 && !/^\|?[\s:-]+\|[\s|:-]*$/.test(l));
 
     if (lines.length < 2) {
-      setBulkParseError('Paste at least a header row and one model row (CSV, TSV, Markdown table, or JSON).');
+      setBulkParseError(
+        'Paste at least a header row and one model row (CSV, TSV, Markdown table, or JSON).'
+      );
       setBulkPreview([]);
       return;
     }
 
     const headerLine = lines[0];
-    const delimiter = headerLine.includes('|')
-      ? '|'
-      : headerLine.includes('\t')
-      ? '\t'
-      : ',';
+    const delimiter = headerLine.includes('|') ? '|' : headerLine.includes('\t') ? '\t' : ',';
 
     const rawHeaders = splitDelimitedLine(headerLine, delimiter).filter(
       (h, idx, arr) => !(delimiter === '|' && h === '' && (idx === 0 || idx === arr.length - 1))
@@ -452,7 +804,8 @@ export function AdminRegistryClient({
       if (rawCells.length === 0) continue;
 
       const primaryRaw = rawCells[primaryKeyIdx] || '';
-      const explicitSlug = slugColIdx >= 0 && slugColIdx !== primaryKeyIdx ? rawCells[slugColIdx] : undefined;
+      const explicitSlug =
+        slugColIdx >= 0 && slugColIdx !== primaryKeyIdx ? rawCells[slugColIdx] : undefined;
       const { keyRaw, slugGuess } = extractModelKeyAndSlug(primaryRaw, explicitSlug);
       if (!slugGuess) continue;
 
@@ -472,11 +825,14 @@ export function AdminRegistryClient({
         matchedSlug: matched ? matched.slug : null,
         matchedName: matched ? matched.name : null,
         fields,
+        endpoints: [],
       });
     }
 
     if (patches.length === 0) {
-      setBulkParseError('Could not detect any model rows. Make sure the first row has column headers like Model, AG, CO, RE or Benchmark Score.');
+      setBulkParseError(
+        'Could not detect any model rows. Make sure the first row has column headers like Model, AG, CO, RE or Benchmark Score.'
+      );
     }
     setBulkPreview(patches);
   }
@@ -495,24 +851,32 @@ export function AdminRegistryClient({
   }
 
   function applyBulkPatches() {
-    const matchedPatches = bulkPreview.filter((p) => p.matchedSlug && Object.keys(p.fields).length > 0);
+    const matchedPatches = bulkPreview.filter(
+      (p) => p.matchedSlug && (Object.keys(p.fields).length > 0 || p.endpoints.length > 0)
+    );
     if (matchedPatches.length === 0) return;
 
     const nowIso = new Date().toISOString();
     const status = bulkMarkVerified ? 'Verified' : 'Estimated';
-    const patchBySlug = new Map<string, Record<string, string | number>>();
+    const patchBySlug = new Map<
+      string,
+      { fields: Record<string, string | number>; endpoints: HostingEndpoint[] }
+    >();
+
     for (const p of matchedPatches) {
       if (!p.matchedSlug) continue;
+      const existing = patchBySlug.get(p.matchedSlug) || { fields: {}, endpoints: [] };
       patchBySlug.set(p.matchedSlug, {
-        ...(patchBySlug.get(p.matchedSlug) || {}),
-        ...p.fields,
+        fields: { ...existing.fields, ...p.fields },
+        endpoints: p.endpoints.length > 0 ? p.endpoints : existing.endpoints,
       });
     }
 
     setModels((prev) =>
       prev.map((m) => {
-        const patch = patchBySlug.get(m.slug);
-        if (!patch) return m;
+        const entry = patchBySlug.get(m.slug);
+        if (!entry) return m;
+        const { fields: patch, endpoints: incomingEndpoints } = entry;
 
         const next = { ...m, ...patch };
         if (patch.score !== undefined) {
@@ -555,6 +919,14 @@ export function AdminRegistryClient({
             notes: 'Speed imported via PromptBill Admin Bulk Importer',
           };
         }
+
+        const endpoints =
+          incomingEndpoints.length > 0
+            ? incomingEndpoints
+            : Array.isArray(m.hostingEndpoints)
+            ? [...m.hostingEndpoints]
+            : [];
+
         if (
           patch.inputPer1M !== undefined ||
           patch.outputPer1M !== undefined ||
@@ -569,22 +941,28 @@ export function AdminRegistryClient({
             lastVerified: nowIso,
             notes: 'Pricing imported via PromptBill Admin Bulk Importer',
           };
-          const endpoints = Array.isArray(m.hostingEndpoints) ? [...m.hostingEndpoints] : [];
           const offIdx = endpoints.findIndex((ep) => ep && ep.providerType === 'Official API');
           if (offIdx >= 0) {
             endpoints[offIdx] = {
               ...endpoints[offIdx],
               ...(patch.inputPer1M !== undefined ? { inputPer1M: Number(patch.inputPer1M) } : {}),
               ...(patch.outputPer1M !== undefined ? { outputPer1M: Number(patch.outputPer1M) } : {}),
-              ...(patch.cachedInputPer1M !== undefined ? { cachedInputPer1M: Number(patch.cachedInputPer1M) } : {}),
-              ...(patch.cacheWritePer1M !== undefined ? { cacheWritePer1M: Number(patch.cacheWritePer1M) } : {}),
-              ...(patch.batchDiscount !== undefined ? { batchDiscount: Number(patch.batchDiscount) } : {}),
+              ...(patch.cachedInputPer1M !== undefined
+                ? { cachedInputPer1M: Number(patch.cachedInputPer1M) }
+                : {}),
+              ...(patch.cacheWritePer1M !== undefined
+                ? { cacheWritePer1M: Number(patch.cacheWritePer1M) }
+                : {}),
+              ...(patch.batchDiscount !== undefined
+                ? { batchDiscount: Number(patch.batchDiscount) }
+                : {}),
               lastVerified: nowIso,
               evidenceStatus: status,
             };
-            next.hostingEndpoints = endpoints;
           }
         }
+
+        next.hostingEndpoints = endpoints;
         if (bulkMarkVerified) next.evidence = 'Verified';
         return next;
       })
@@ -605,7 +983,11 @@ export function AdminRegistryClient({
       'Model,Slug,Benchmark Score,Speed (tok/s),RPM Limit,License,AG,CO,RE,MM,KN,ML,IF,MA,Best For',
       ...models.slice(0, 5).map(
         (m) =>
-          `"${m.name}",${m.slug},${m.score ?? ''},${m.tokPerSec ?? ''},"${m.rpmLimit ?? ''}",${m.license ?? 'Proprietary'},${m.ag ?? ''},${m.co ?? ''},${m.re ?? ''},${m.mm ?? ''},${m.kn ?? ''},${m.ml ?? ''},${m.if ?? ''},${m.ma ?? ''},"${m.bestFor ?? ''}"`
+          `"${m.name}",${m.slug},${m.score ?? ''},${m.tokPerSec ?? ''},"${m.rpmLimit ?? ''}",${
+            m.license ?? 'Proprietary'
+          },${m.ag ?? ''},${m.co ?? ''},${m.re ?? ''},${m.mm ?? ''},${m.kn ?? ''},${m.ml ?? ''},${
+            m.if ?? ''
+          },${m.ma ?? ''},"${m.bestFor ?? ''}"`
       ),
     ].join('\n');
     const blob = new Blob([sample + '\n'], { type: 'text/csv;charset=utf-8' });
@@ -713,8 +1095,7 @@ export function AdminRegistryClient({
         const batchDisc = parseOptionalDiscount(edits.batchDiscount);
         const ctxVal = edits.contextWindow.trim() || item.draftModel.contextWindow || null;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const endpoints: any[] = [];
+        const endpoints: HostingEndpoint[] = [];
         if (offIn !== null && offOut !== null) {
           endpoints.push({
             host: `${item.provider} Official API`,
@@ -915,9 +1296,13 @@ export function AdminRegistryClient({
       inputPer1M: m.inputPer1M !== null && m.inputPer1M !== undefined ? String(m.inputPer1M) : '',
       outputPer1M: m.outputPer1M !== null && m.outputPer1M !== undefined ? String(m.outputPer1M) : '',
       cachedInputPer1M:
-        m.cachedInputPer1M !== null && m.cachedInputPer1M !== undefined ? String(m.cachedInputPer1M) : '',
+        m.cachedInputPer1M !== null && m.cachedInputPer1M !== undefined
+          ? String(m.cachedInputPer1M)
+          : '',
       cacheWritePer1M:
-        m.cacheWritePer1M !== null && m.cacheWritePer1M !== undefined ? String(m.cacheWritePer1M) : '',
+        m.cacheWritePer1M !== null && m.cacheWritePer1M !== undefined
+          ? String(m.cacheWritePer1M)
+          : '',
       batchDiscount:
         m.batchDiscount !== null && m.batchDiscount !== undefined
           ? String(Math.round(Number(m.batchDiscount) * 100))
@@ -925,7 +1310,7 @@ export function AdminRegistryClient({
       rpmLimit: m.rpmLimit ? String(m.rpmLimit) : '',
       tpmLimit: m.tpmLimit ? String(m.tpmLimit) : '',
       contextWindow: m.contextWindow ? String(m.contextWindow) : '',
-      license: m.license ? String(m.license) : '',
+      license: m.licenseLabel ? String(m.licenseLabel) : m.license ? String(m.license) : '',
       bestFor: m.bestFor ? String(m.bestFor) : '',
       lifecycleStatus: m.lifecycleStatus ? String(m.lifecycleStatus) : 'Active',
       successorSlug: m.successorSlug ? String(m.successorSlug) : '',
@@ -939,7 +1324,40 @@ export function AdminRegistryClient({
       ifScore: m.if !== null && m.if !== undefined ? String(m.if) : '',
       ma: m.ma !== null && m.ma !== undefined ? String(m.ma) : '',
       verified: m.evidence === 'Verified',
+      hostingEndpoints: mapRecordEndpointsToRows(
+        m.hostingEndpoints,
+        m.evidence === 'Verified'
+      ),
     });
+  }
+
+  function updateLiveEndpointRow(index: number, patch: Partial<EditableEndpointFormRow>) {
+    setLiveEditForm((prev) => ({
+      ...prev,
+      hostingEndpoints: prev.hostingEndpoints.map((row, i) =>
+        i === index ? { ...row, ...patch } : row
+      ),
+    }));
+  }
+
+  function addLiveEndpointRow(
+    presetType: EndpointProviderType = 'Inference Cloud',
+    presetHost = ''
+  ) {
+    setLiveEditForm((prev) => ({
+      ...prev,
+      hostingEndpoints: [
+        ...prev.hostingEndpoints,
+        emptyEndpointRow(presetType, presetHost, prev.verified),
+      ],
+    }));
+  }
+
+  function removeLiveEndpointRow(index: number) {
+    setLiveEditForm((prev) => ({
+      ...prev,
+      hostingEndpoints: prev.hostingEndpoints.filter((_, i) => i !== index),
+    }));
   }
 
   function saveLiveModelEdit(slug: string) {
@@ -956,20 +1374,44 @@ export function AdminRegistryClient({
     setModels((prev) =>
       prev.map((m) => {
         if (m.slug !== slug) return m;
-        const endpoints = Array.isArray(m.hostingEndpoints) ? [...m.hostingEndpoints] : [];
-        const offIdx = endpoints.findIndex((ep) => ep && ep.providerType === 'Official API');
-        if (offIdx >= 0 && inVal !== null && outVal !== null) {
-          endpoints[offIdx] = {
-            ...endpoints[offIdx],
+
+        const normalizedEndpoints: HostingEndpoint[] = [];
+        for (const row of liveEditForm.hostingEndpoints) {
+          const ep = normalizeEndpointForSave(row, nowIso, status);
+          if (ep) normalizedEndpoints.push(ep);
+        }
+
+        const offIdx = normalizedEndpoints.findIndex((ep) => ep.providerType === 'Official API');
+        if (offIdx >= 0 && (inVal !== null || outVal !== null)) {
+          normalizedEndpoints[offIdx] = {
+            ...normalizedEndpoints[offIdx],
+            ...(inVal !== null ? { inputPer1M: inVal } : {}),
+            ...(outVal !== null ? { outputPer1M: outVal } : {}),
+            ...(cachedInVal !== null ? { cachedInputPer1M: cachedInVal } : {}),
+            ...(cacheWrVal !== null ? { cacheWritePer1M: cacheWrVal } : {}),
+            ...(batchVal !== null ? { batchDiscount: batchVal } : {}),
+            lastVerified: nowIso,
+            evidenceStatus: status,
+          };
+        } else if (offIdx === -1 && inVal !== null && outVal !== null && normalizedEndpoints.length === 0) {
+          normalizedEndpoints.push({
+            host: `${m.provider} Official API`,
+            providerType: 'Official API',
             inputPer1M: inVal,
             outputPer1M: outVal,
             cachedInputPer1M: cachedInVal,
             cacheWritePer1M: cacheWrVal,
             batchDiscount: batchVal,
+            latencyMs: null,
+            notes: 'Updated via PromptBill Admin',
+            currency: 'USD',
+            pricingUnit: 'per 1M tokens',
+            sourceUrl: m.pricingProvenance?.sourceUrl || null,
             lastVerified: nowIso,
             evidenceStatus: status,
-          };
+          });
         }
+
         return {
           ...m,
           evidence: status,
@@ -1013,7 +1455,7 @@ export function AdminRegistryClient({
             status: speedVal !== null ? status : 'Unavailable',
             lastVerified: speedVal !== null ? nowIso : null,
           },
-          hostingEndpoints: endpoints,
+          hostingEndpoints: normalizedEndpoints,
         };
       })
     );
@@ -1041,6 +1483,37 @@ export function AdminRegistryClient({
     const speedVal = parseOptionalNum(manualForm.tokPerSec);
     const maxOutVal = parseOptionalNum(manualForm.maxOutputTokens);
     const providerClean = manualForm.provider.trim() || 'Unknown';
+
+    const customEndpoints: HostingEndpoint[] = [];
+    for (const row of manualForm.hostingEndpoints) {
+      const ep = normalizeEndpointForSave(row, nowIso, status);
+      if (ep) customEndpoints.push(ep);
+    }
+
+    const hasOfficialEp = customEndpoints.some((ep) => ep.providerType === 'Official API');
+    const finalEndpoints: HostingEndpoint[] = hasOfficialEp
+      ? customEndpoints
+      : inVal !== null && outVal !== null
+      ? [
+          {
+            host: `${providerClean} Official API`,
+            providerType: 'Official API',
+            inputPer1M: inVal,
+            cachedInputPer1M: cachedInVal,
+            cacheWritePer1M: cacheWrVal,
+            outputPer1M: outVal,
+            batchDiscount: batchVal,
+            latencyMs: null,
+            notes: 'Added via PromptBill Admin',
+            currency: 'USD',
+            pricingUnit: 'per 1M tokens',
+            sourceUrl: null,
+            lastVerified: nowIso,
+            evidenceStatus: status,
+          },
+          ...customEndpoints,
+        ]
+      : customEndpoints;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newRecord: Record<string, any> = {
@@ -1108,27 +1581,7 @@ export function AdminRegistryClient({
         notes: speedVal !== null ? 'Added via PromptBill Admin' : 'No speed measurement recorded.',
       },
       priceHistory: [],
-      hostingEndpoints:
-        inVal !== null && outVal !== null
-          ? [
-              {
-                host: `${providerClean} Official API`,
-                providerType: 'Official API',
-                inputPer1M: inVal,
-                cachedInputPer1M: cachedInVal,
-                cacheWritePer1M: cacheWrVal,
-                outputPer1M: outVal,
-                batchDiscount: batchVal,
-                latencyMs: null,
-                notes: 'Added via PromptBill Admin',
-                currency: 'USD',
-                pricingUnit: 'per 1M tokens',
-                sourceUrl: null,
-                lastVerified: nowIso,
-                evidenceStatus: status,
-              },
-            ]
-          : [],
+      hostingEndpoints: finalEndpoints,
     };
 
     setModels((prev) => {
@@ -1161,6 +1614,7 @@ export function AdminRegistryClient({
       bestFor: '',
       notes: '',
       verified: true,
+      hostingEndpoints: [],
     });
     setActiveTab('catalog');
   }
@@ -1266,7 +1720,10 @@ export function AdminRegistryClient({
   );
 
   const matchedBulkCount = useMemo(
-    () => bulkPreview.filter((p) => p.matchedSlug && Object.keys(p.fields).length > 0).length,
+    () =>
+      bulkPreview.filter(
+        (p) => p.matchedSlug && (Object.keys(p.fields).length > 0 || p.endpoints.length > 0)
+      ).length,
     [bulkPreview]
   );
 
@@ -1316,7 +1773,11 @@ export function AdminRegistryClient({
       <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="text-xs font-semibold text-slate-600">
-            Last GitHub Sync: {initialPending.updatedAt ? new Date(initialPending.updatedAt).toLocaleString() : 'Not run yet'} · Live Models: {models.length}
+            Last GitHub Sync:{' '}
+            {initialPending.updatedAt
+              ? new Date(initialPending.updatedAt).toLocaleString()
+              : 'Not run yet'}{' '}
+            · Live Models: {models.length}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-900">
             <span>{pendingItems.length} item(s) waiting for your approval</span>
@@ -1457,7 +1918,7 @@ export function AdminRegistryClient({
               <span>Show Archived</span>
             </label>
           ) : null}
-          {(searchQuery || providerFilter !== 'ALL') ? (
+          {searchQuery || providerFilter !== 'ALL' ? (
             <button
               type="button"
               onClick={() => {
@@ -1477,10 +1938,10 @@ export function AdminRegistryClient({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-base font-bold text-slate-900">
-                Bulk Import Benchmarks, Capability Scores &amp; Metadata
+                Bulk Import Benchmarks, Capability Scores, Endpoints &amp; Metadata
               </h3>
               <p className="text-slate-600 mt-0.5 leading-relaxed">
-                Upload a <strong>.csv</strong> / <strong>.tsv</strong> / <strong>.json</strong> file or paste a copied Markdown/spreadsheet table (such as Capability Scores <code className="font-mono">AG–MA</code>, <code className="font-mono">Benchmark Score</code>, <code className="font-mono">Speed (tok/s)</code>, <code className="font-mono">RPM Limit</code>, <code className="font-mono">License</code>, and <code className="font-mono">Best For</code>). Models are automatically matched by name or slug.
+                Upload a <strong>.csv</strong> / <strong>.tsv</strong> / <strong>.json</strong> file or paste a copied Markdown/spreadsheet table (such as Capability Scores <code className="font-mono">AG–MA</code>, <code className="font-mono">Benchmark Score</code>, <code className="font-mono">Speed (tok/s)</code>, <code className="font-mono">RPM Limit</code>, <code className="font-mono">License</code>, <code className="font-mono">Best For</code>, or JSON <code className="font-mono">hostingEndpoints</code>). Models are automatically matched by name or slug.
               </p>
             </div>
             <button
@@ -1522,7 +1983,9 @@ export function AdminRegistryClient({
 
           <textarea
             rows={7}
-            placeholder={`Paste Markdown table, CSV, TSV, or JSON here, e.g.:\n| Model (slug) | AG (Agentic) | CO (Coding) | RE (Reasoning) | MM (Multimodal) | KN (Knowledge) | ML (Multilingual) |\n| GPT-6.2 Astra (gpt-6-2-astra) | 96 | 95 | 96 | 93 | 94 | 93 |`}
+            placeholder={`Paste Markdown table, CSV, TSV, or JSON here, e.g.:
+| Model (slug) | AG (Agentic) | CO (Coding) | RE (Reasoning) | MM (Multimodal) | KN (Knowledge) | ML (Multilingual) |
+| GPT-6.2 Astra (gpt-6-2-astra) | 96 | 95 | 96 | 93 | 94 | 93 |`}
             value={bulkRawInput}
             onChange={(e) => {
               setBulkRawInput(e.target.value);
@@ -1559,33 +2022,39 @@ export function AdminRegistryClient({
                     <tr className="border-b border-slate-200 bg-slate-100 font-semibold text-slate-800">
                       <th className="py-2 px-3">Row Input</th>
                       <th className="py-2 px-3">Matched Live Model</th>
-                      <th className="py-2 px-3">Fields to Fill</th>
+                      <th className="py-2 px-3">Fields &amp; Endpoints to Fill</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {bulkPreview.map((p, idx) => (
-                      <tr key={idx} className={p.matchedSlug ? 'bg-white' : 'bg-amber-50/70'}>
-                        <td className="py-2 px-3 font-semibold text-slate-900">
-                          {p.keyRaw} <span className="font-mono text-slate-500">({p.slugGuess})</span>
-                        </td>
-                        <td className="py-2 px-3">
-                          {p.matchedSlug ? (
-                            <span className="rounded bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-900">
-                              ✓ {p.matchedName} ({p.matchedSlug})
-                            </span>
-                          ) : (
-                            <span className="rounded bg-amber-100 px-2 py-0.5 font-semibold text-amber-900">
-                              Not found in live catalog (approve or add model first)
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-2 px-3 font-mono text-slate-700">
-                          {Object.entries(p.fields)
-                            .map(([k, v]) => `${k}: ${v}`)
-                            .join(' · ') || 'No recognized columns'}
-                        </td>
-                      </tr>
-                    ))}
+                    {bulkPreview.map((p, idx) => {
+                      const summaryParts = [
+                        ...Object.entries(p.fields).map(([k, v]) => `${k}: ${v}`),
+                        ...(p.endpoints.length > 0
+                          ? [`endpoints (${p.endpoints.length}): ${p.endpoints.map((e) => e.host).join(', ')}`]
+                          : []),
+                      ];
+                      return (
+                        <tr key={idx} className={p.matchedSlug ? 'bg-white' : 'bg-amber-50/70'}>
+                          <td className="py-2 px-3 font-semibold text-slate-900">
+                            {p.keyRaw} <span className="font-mono text-slate-500">({p.slugGuess})</span>
+                          </td>
+                          <td className="py-2 px-3">
+                            {p.matchedSlug ? (
+                              <span className="rounded bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-900">
+                                ✓ {p.matchedName} ({p.matchedSlug})
+                              </span>
+                            ) : (
+                              <span className="rounded bg-amber-100 px-2 py-0.5 font-semibold text-amber-900">
+                                Not found in live catalog (approve or add model first)
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2 px-3 font-mono text-slate-700">
+                            {summaryParts.join(' · ') || 'No recognized columns'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1783,6 +2252,33 @@ export function AdminRegistryClient({
             </label>
           </div>
 
+          <EndpointEditorList
+            rows={manualForm.hostingEndpoints}
+            onAdd={(presetType, presetHost) =>
+              setManualForm((prev) => ({
+                ...prev,
+                hostingEndpoints: [
+                  ...prev.hostingEndpoints,
+                  emptyEndpointRow(presetType, presetHost, prev.verified),
+                ],
+              }))
+            }
+            onUpdate={(idx, patch) =>
+              setManualForm((prev) => ({
+                ...prev,
+                hostingEndpoints: prev.hostingEndpoints.map((r, i) =>
+                  i === idx ? { ...r, ...patch } : r
+                ),
+              }))
+            }
+            onRemove={(idx) =>
+              setManualForm((prev) => ({
+                ...prev,
+                hostingEndpoints: prev.hostingEndpoints.filter((_, i) => i !== idx),
+              }))
+            }
+          />
+
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
               <input
@@ -1845,7 +2341,7 @@ export function AdminRegistryClient({
                         ) : null}
                       </div>
                       <p className="text-xs text-slate-700">{item.summary}</p>
-                      {(Object.keys(cur).length > 0 || Object.keys(prop).length > 0) ? (
+                      {Object.keys(cur).length > 0 || Object.keys(prop).length > 0 ? (
                         <div className="flex flex-wrap gap-3 pt-1 text-[11px] font-mono text-slate-600">
                           {item.type === 'price_update' ? (
                             <>
@@ -1862,10 +2358,12 @@ export function AdminRegistryClient({
                           {item.type === 'benchmark_update' ? (
                             <>
                               <span>
-                                Current: Score {String(cur.score ?? 'N/A')}, Speed {String(cur.tokPerSec ?? 'N/A')} tok/s
+                                Current: Score {String(cur.score ?? 'N/A')}, Speed{' '}
+                                {String(cur.tokPerSec ?? 'N/A')} tok/s
                               </span>
                               <span className="text-emerald-900 font-semibold">
-                                Proposed: Score {String(prop.score ?? 'N/A')}, Speed {String(prop.tokPerSec ?? 'N/A')} tok/s
+                                Proposed: Score {String(prop.score ?? 'N/A')}, Speed{' '}
+                                {String(prop.tokPerSec ?? 'N/A')} tok/s
                               </span>
                             </>
                           ) : null}
@@ -1901,7 +2399,9 @@ export function AdminRegistryClient({
                             step="any"
                             placeholder="Optional"
                             value={edits.officialInput}
-                            onChange={(e) => updateItemEdit(item.queueId, { officialInput: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { officialInput: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1912,7 +2412,9 @@ export function AdminRegistryClient({
                             step="any"
                             placeholder="Optional"
                             value={edits.officialOutput}
-                            onChange={(e) => updateItemEdit(item.queueId, { officialOutput: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { officialOutput: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1927,7 +2429,9 @@ export function AdminRegistryClient({
                             type="number"
                             step="any"
                             value={edits.routerInput}
-                            onChange={(e) => updateItemEdit(item.queueId, { routerInput: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { routerInput: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1937,7 +2441,9 @@ export function AdminRegistryClient({
                             type="number"
                             step="any"
                             value={edits.routerOutput}
-                            onChange={(e) => updateItemEdit(item.queueId, { routerOutput: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { routerOutput: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1948,7 +2454,9 @@ export function AdminRegistryClient({
                             step="any"
                             placeholder="Optional"
                             value={edits.cachedInput}
-                            onChange={(e) => updateItemEdit(item.queueId, { cachedInput: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { cachedInput: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1959,7 +2467,9 @@ export function AdminRegistryClient({
                             step="any"
                             placeholder="Optional"
                             value={edits.cacheWrite}
-                            onChange={(e) => updateItemEdit(item.queueId, { cacheWrite: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { cacheWrite: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1970,7 +2480,9 @@ export function AdminRegistryClient({
                             step="1"
                             placeholder="e.g. 50"
                             value={edits.batchDiscount}
-                            onChange={(e) => updateItemEdit(item.queueId, { batchDiscount: e.target.value }, item)}
+                            onChange={(e) =>
+                              updateItemEdit(item.queueId, { batchDiscount: e.target.value }, item)
+                            }
                             className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                           />
                         </label>
@@ -1984,7 +2496,9 @@ export function AdminRegistryClient({
                           type="text"
                           placeholder="e.g. 128K"
                           value={edits.contextWindow}
-                          onChange={(e) => updateItemEdit(item.queueId, { contextWindow: e.target.value }, item)}
+                          onChange={(e) =>
+                            updateItemEdit(item.queueId, { contextWindow: e.target.value }, item)
+                          }
                           className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                         />
                       </label>
@@ -2009,7 +2523,9 @@ export function AdminRegistryClient({
                         step="1"
                         placeholder="e.g. 140"
                         value={edits.tokPerSec}
-                        onChange={(e) => updateItemEdit(item.queueId, { tokPerSec: e.target.value }, item)}
+                        onChange={(e) =>
+                          updateItemEdit(item.queueId, { tokPerSec: e.target.value }, item)
+                        }
                         className="min-h-[36px] w-full rounded-lg border border-slate-300 px-2.5 py-1 font-mono"
                       />
                     </label>
@@ -2018,7 +2534,9 @@ export function AdminRegistryClient({
                       <input
                         type="checkbox"
                         checked={edits.markVerified}
-                        onChange={(e) => updateItemEdit(item.queueId, { markVerified: e.target.checked }, item)}
+                        onChange={(e) =>
+                          updateItemEdit(item.queueId, { markVerified: e.target.checked }, item)
+                        }
                         className="h-4 w-4 rounded border-slate-300"
                       />
                       <span>Mark Verified</span>
@@ -2048,11 +2566,17 @@ export function AdminRegistryClient({
               <tbody className="divide-y divide-slate-200">
                 {filteredCatalog.map((m) => {
                   const isEditing = editingLiveSlug === m.slug;
+                  const epCount = Array.isArray(m.hostingEndpoints) ? m.hostingEndpoints.length : 0;
                   return (
                     <React.Fragment key={m.slug}>
                       <tr className={m.archived ? 'bg-slate-50 text-slate-500' : 'bg-white'}>
                         <td className="py-2.5 px-3 font-semibold text-slate-900">
                           {m.name} <span className="font-normal text-slate-500">({m.provider})</span>
+                          {epCount > 0 ? (
+                            <span className="ml-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700">
+                              {epCount} ep
+                            </span>
+                          ) : null}
                           {m.archived ? (
                             <span className="ml-1.5 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">
                               ARCHIVED
@@ -2074,7 +2598,9 @@ export function AdminRegistryClient({
                         </td>
                         <td className="py-2.5 px-3 font-mono">{m.score ?? 'N/A'}</td>
                         <td className="py-2.5 px-3 font-mono">
-                          {m.tokPerSec !== null && m.tokPerSec !== undefined ? `${m.tokPerSec} tok/s` : 'N/A'}
+                          {m.tokPerSec !== null && m.tokPerSec !== undefined
+                            ? `${m.tokPerSec} tok/s`
+                            : 'N/A'}
                         </td>
                         <td className="py-2.5 px-3 font-mono">
                           ${m.inputPer1M ?? 'N/A'} / ${m.outputPer1M ?? 'N/A'}
@@ -2126,57 +2652,83 @@ export function AdminRegistryClient({
 
                               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Official In / 1M</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Official In / 1M
+                                  </span>
                                   <input
                                     type="number"
                                     step="any"
                                     value={liveEditForm.inputPer1M}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, inputPer1M: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, inputPer1M: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Official Out / 1M</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Official Out / 1M
+                                  </span>
                                   <input
                                     type="number"
                                     step="any"
                                     value={liveEditForm.outputPer1M}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, outputPer1M: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        outputPer1M: e.target.value,
+                                      })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Cached Read / 1M</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Cached Read / 1M
+                                  </span>
                                   <input
                                     type="number"
                                     step="any"
                                     value={liveEditForm.cachedInputPer1M}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, cachedInputPer1M: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        cachedInputPer1M: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Cache Write / 1M</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Cache Write / 1M
+                                  </span>
                                   <input
                                     type="number"
                                     step="any"
                                     value={liveEditForm.cacheWritePer1M}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, cacheWritePer1M: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        cacheWritePer1M: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Batch Discount (%)</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Batch Discount (%)
+                                  </span>
                                   <input
                                     type="number"
                                     step="1"
                                     value={liveEditForm.batchDiscount}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, batchDiscount: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        batchDiscount: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
@@ -2185,32 +2737,45 @@ export function AdminRegistryClient({
 
                               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Benchmark Score</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Benchmark Score
+                                  </span>
                                   <input
                                     type="number"
                                     step="0.1"
                                     value={liveEditForm.score}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, score: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, score: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Speed (tok/s)</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Speed (tok/s)
+                                  </span>
                                   <input
                                     type="number"
                                     step="1"
                                     value={liveEditForm.tokPerSec}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, tokPerSec: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, tokPerSec: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Context Window</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Context Window
+                                  </span>
                                   <input
                                     type="text"
                                     value={liveEditForm.contextWindow}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, contextWindow: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        contextWindow: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
@@ -2220,7 +2785,9 @@ export function AdminRegistryClient({
                                   <input
                                     type="text"
                                     value={liveEditForm.rpmLimit}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, rpmLimit: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, rpmLimit: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
@@ -2229,7 +2796,9 @@ export function AdminRegistryClient({
                                   <input
                                     type="text"
                                     value={liveEditForm.license}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, license: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, license: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
                                   />
                                 </label>
@@ -2237,11 +2806,16 @@ export function AdminRegistryClient({
 
                               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Lifecycle Status</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Lifecycle Status
+                                  </span>
                                   <select
                                     value={liveEditForm.lifecycleStatus}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, lifecycleStatus: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        lifecycleStatus: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
                                   >
@@ -2252,23 +2826,32 @@ export function AdminRegistryClient({
                                   </select>
                                 </label>
                                 <label className="space-y-1">
-                                  <span className="text-slate-600 font-medium block">Successor Model Slug</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Successor Model Slug
+                                  </span>
                                   <input
                                     type="text"
                                     placeholder="e.g. gpt-5-4"
                                     value={liveEditForm.successorSlug}
                                     onChange={(e) =>
-                                      setLiveEditForm({ ...liveEditForm, successorSlug: e.target.value })
+                                      setLiveEditForm({
+                                        ...liveEditForm,
+                                        successorSlug: e.target.value,
+                                      })
                                     }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 font-mono"
                                   />
                                 </label>
                                 <label className="space-y-1 sm:col-span-2">
-                                  <span className="text-slate-600 font-medium block">Best For / Workload Tags</span>
+                                  <span className="text-slate-600 font-medium block">
+                                    Best For / Workload Tags
+                                  </span>
                                   <input
                                     type="text"
                                     value={liveEditForm.bestFor}
-                                    onChange={(e) => setLiveEditForm({ ...liveEditForm, bestFor: e.target.value })}
+                                    onChange={(e) =>
+                                      setLiveEditForm({ ...liveEditForm, bestFor: e.target.value })
+                                    }
                                     className="w-full rounded border border-slate-300 bg-white px-2.5 py-1.5"
                                   />
                                 </label>
@@ -2286,7 +2869,9 @@ export function AdminRegistryClient({
                                   ['MA', 'ma'],
                                 ].map(([label, key]) => (
                                   <label key={key} className="space-y-1">
-                                    <span className="text-[11px] text-slate-600 font-semibold block">{label}</span>
+                                    <span className="text-[11px] text-slate-600 font-semibold block">
+                                      {label}
+                                    </span>
                                     <input
                                       type="number"
                                       step="0.1"
@@ -2302,6 +2887,13 @@ export function AdminRegistryClient({
                                   </label>
                                 ))}
                               </div>
+
+                              <EndpointEditorList
+                                rows={liveEditForm.hostingEndpoints}
+                                onAdd={addLiveEndpointRow}
+                                onUpdate={updateLiveEndpointRow}
+                                onRemove={removeLiveEndpointRow}
+                              />
 
                               <div className="flex flex-wrap items-center gap-5 pt-1">
                                 <label className="inline-flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
