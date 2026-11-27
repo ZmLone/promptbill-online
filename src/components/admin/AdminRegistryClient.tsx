@@ -1136,10 +1136,7 @@ export function AdminRegistryClient({
       const proceed = window.confirm(
         `Duplicate model detected for "${item.modelName}":
 
-• ${lines.join(
-          '
-• '
-        )}
+• ${lines.join('\n• ')}
 
 Click OK to merge this approval into the existing catalog model (without creating a duplicate entry), or Cancel to inspect/dismiss it.`
       );
