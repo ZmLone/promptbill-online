@@ -1,18 +1,49 @@
 import type { CatalogHostingEndpoint, ModelEntry } from './catalog';
-import {
-  calculateModelCost,
-  type CalculationInput,
-  type CostBreakdown,
-  type LLMModel,
-} from './pricingEngine';
+import { calculateModelCost } from './pricingEngine';
 
 export type EndpointSelectionMode = 'cheapest' | 'first-party' | 'official';
+
+export interface EndpointCalculationInput {
+  inputTokensPerCall: number;
+  outputTokensPerCall: number;
+  reasoningTokensPerCall?: number;
+  callsPerDay: number;
+  cacheHitPercent: number;
+  cacheWriteSharePercent?: number;
+  batchPercent: number;
+  retriesPercent?: number;
+}
+
+export interface EndpointModelView {
+  id: string;
+  slug: string;
+  name: string;
+  provider: string;
+  family?: string | null;
+  inputPer1M: number | null;
+  cachedInputPer1M: number | null;
+  cacheWritePer1M?: number | null;
+  outputPer1M: number | null;
+  batchDiscount: number | null;
+  longContextMultiplierInput?: number | null;
+  longContextMultiplierOutput?: number | null;
+  longContextThresholdTokens?: number | null;
+  contextWindow?: string | null;
+  qualityScore?: number | null;
+  score?: number | null;
+  speedTokensPerSec?: number | null;
+  tokPerSec?: number | null;
+  notes?: string | null;
+  hostingEndpoints?: CatalogHostingEndpoint[];
+}
+
+export type EndpointCostBreakdown = ReturnType<typeof calculateModelCost>;
 
 export interface EndpointQuote {
   index: number;
   endpoint: CatalogHostingEndpoint;
-  modelView: LLMModel;
-  breakdown: CostBreakdown;
+  modelView: EndpointModelView;
+  breakdown: EndpointCostBreakdown;
 }
 
 export function getEndpointKey(ep: CatalogHostingEndpoint, index: number): string {
@@ -22,7 +53,7 @@ export function getEndpointKey(ep: CatalogHostingEndpoint, index: number): strin
 export function buildModelForEndpoint(
   model: ModelEntry,
   ep?: CatalogHostingEndpoint
-): LLMModel {
+): EndpointModelView {
   if (!ep) {
     return {
       id: model.id,
@@ -54,13 +85,18 @@ export function buildModelForEndpoint(
     name: model.name,
     provider: model.provider,
     family: model.family,
-    inputPer1M: ep.inputPer1M !== null && ep.inputPer1M !== undefined ? ep.inputPer1M : model.inputPer1M,
+    inputPer1M:
+      ep.inputPer1M !== null && ep.inputPer1M !== undefined
+        ? ep.inputPer1M
+        : model.inputPer1M,
     cachedInputPer1M:
       ep.cachedInputPer1M !== undefined ? ep.cachedInputPer1M : model.cachedInputPer1M,
     cacheWritePer1M:
       ep.cacheWritePer1M !== undefined ? ep.cacheWritePer1M : model.cacheWritePer1M,
     outputPer1M:
-      ep.outputPer1M !== null && ep.outputPer1M !== undefined ? ep.outputPer1M : model.outputPer1M,
+      ep.outputPer1M !== null && ep.outputPer1M !== undefined
+        ? ep.outputPer1M
+        : model.outputPer1M,
     batchDiscount:
       ep.batchDiscount !== undefined ? ep.batchDiscount : model.batchDiscount,
     longContextMultiplierInput: model.longContextMultiplierInput,
@@ -76,9 +112,28 @@ export function buildModelForEndpoint(
   };
 }
 
+function runModelCost(
+  modelView: EndpointModelView,
+  calcInput: EndpointCalculationInput
+): EndpointCostBreakdown {
+  return calculateModelCost(
+    modelView as Parameters<typeof calculateModelCost>[0],
+    {
+      inputTokensPerCall: calcInput.inputTokensPerCall,
+      outputTokensPerCall: calcInput.outputTokensPerCall,
+      reasoningTokensPerCall: calcInput.reasoningTokensPerCall ?? 0,
+      callsPerDay: calcInput.callsPerDay,
+      cacheHitPercent: calcInput.cacheHitPercent,
+      cacheWriteSharePercent: calcInput.cacheWriteSharePercent ?? 0,
+      batchPercent: calcInput.batchPercent,
+      retriesPercent: calcInput.retriesPercent ?? 0,
+    } as Parameters<typeof calculateModelCost>[1]
+  );
+}
+
 export function evaluateModelEndpoints(
   model: ModelEntry,
-  calcInput: CalculationInput
+  calcInput: EndpointCalculationInput
 ): {
   quotes: EndpointQuote[];
   firstPartyIndex: number;
@@ -109,7 +164,7 @@ export function evaluateModelEndpoints(
                 evidenceStatus: model.pricingProvenance.status,
               },
               modelView: fallbackModel,
-              breakdown: calculateModelCost(fallbackModel, calcInput),
+              breakdown: runModelCost(fallbackModel, calcInput),
             };
           })(),
         ]
@@ -119,7 +174,7 @@ export function evaluateModelEndpoints(
             index,
             endpoint: ep,
             modelView,
-            breakdown: calculateModelCost(modelView, calcInput),
+            breakdown: runModelCost(modelView, calcInput),
           };
         });
 
