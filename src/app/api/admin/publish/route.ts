@@ -177,7 +177,6 @@ export async function POST(req: NextRequest) {
     const commitMsg =
       body.commitMessage || 'chore(admin): publish approved LLM models, prices & benchmarks';
 
-    // Read both SHAs up front before writing so any branch conflict or auth failure surfaces early
     const [modelsFile, pendingFile] = await Promise.all([
       getGitHubFileSha(owner, repo, branch, 'src/data/models.json', githubToken, false),
       getGitHubFileSha(owner, repo, branch, 'src/data/pending-registry.json', githubToken, true),
