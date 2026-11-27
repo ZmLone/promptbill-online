@@ -54,7 +54,7 @@ function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
-function formatReleaseDate(raw?: string): string {
+function formatReleaseDate(raw?: string | null): string {
   if (!raw) return '2026';
   const parsed = new Date(raw);
   if (Number.isNaN(parsed.getTime())) return raw.slice(0, 10);
