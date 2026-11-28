@@ -460,7 +460,7 @@ export function HomeInteractiveWorkbench({
       </div>
 
       {/* Top Row: Title + Endpoint Switcher + Export Dropdown */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+      <div className="relative z-40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
             <Calculator className="h-5 w-5" />
@@ -507,7 +507,7 @@ export function HomeInteractiveWorkbench({
             {exportMenuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-300 bg-white p-2 shadow-2xl z-50 space-y-1"
+                className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-300 bg-white p-2 shadow-2xl z-[100] space-y-1"
               >
                 <button
                   type="button"
@@ -861,21 +861,57 @@ export function HomeInteractiveWorkbench({
           </div>
         </div>
 
-        {/* Right Summary Card */}
-        <div className="lg:col-span-5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white p-6 flex flex-col justify-between gap-5 shadow-xl">
-          <div className="space-y-4">
+        {/* Right Summary Card — Crisp Light Surface with Prism Wave Graphic */}
+        <div className="lg:col-span-5 relative overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-emerald-50/55 to-indigo-50/60 text-slate-950 p-6 flex flex-col justify-between gap-5 shadow-md">
+          {/* Subtle Prism Wave & Telemetry Lattice Graphic */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 420 320"
+            preserveAspectRatio="none"
+            className="pointer-events-none absolute inset-0 h-full w-full opacity-75"
+          >
+            <defs>
+              <linearGradient id="pbSummaryWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
+                <stop offset="50%" stopColor="#06B6D4" stopOpacity="0.12" />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.16" />
+              </linearGradient>
+              <pattern
+                id="pbSummaryDots"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle cx="2" cy="2" r="1.15" fill="#0F172A" fillOpacity="0.08" />
+              </pattern>
+            </defs>
+            <rect width="420" height="320" fill="url(#pbSummaryDots)" />
+            <path
+              d="M0,220 C110,165 220,275 420,185 L420,320 L0,320 Z"
+              fill="url(#pbSummaryWaveGrad)"
+            />
+            <path
+              d="M0,255 C135,205 250,300 420,225"
+              fill="none"
+              stroke="#10B981"
+              strokeOpacity="0.28"
+              strokeWidth="2"
+            />
+          </svg>
+
+          <div className="relative z-10 space-y-4">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-medium text-emerald-300">
-                <Server className="h-3 w-3" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-700/20 bg-emerald-500/12 px-2.5 py-1 font-bold text-emerald-900">
+                <Server className="h-3 w-3 text-emerald-700" />
                 {activeQuote.endpoint.host}
               </span>
-              <span className="font-mono text-slate-400">
+              <span className="font-mono font-semibold text-slate-700">
                 {selectedModel.contextWindow ?? 'N/A'} ctx
               </span>
             </div>
 
             <div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
                 <ProviderLogo
                   provider={selectedModel.provider}
                   modelName={selectedModel.name}
@@ -884,73 +920,73 @@ export function HomeInteractiveWorkbench({
                 />
                 <span>30-Day Spend · {selectedModel.name}</span>
               </div>
-              <div className="mt-1.5 font-mono text-3xl sm:text-4xl font-bold tracking-tight text-white tabular-nums">
+              <div className="mt-1.5 font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 tabular-nums">
                 {formatCurrency(breakdown.monthlyTotalCost)}
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-slate-300 tabular-nums">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs font-semibold text-slate-700 tabular-nums">
                 <span>{formatCurrency(breakdown.costPer1KCalls)} / 1K calls</span>
                 {typeof activeQuote.latencyMs === 'number' && (
-                  <span className="inline-flex items-center gap-1 text-emerald-300">
+                  <span className="inline-flex items-center gap-1 text-emerald-800 font-bold">
                     <Gauge className="h-3 w-3" />
                     &lt;{activeQuote.latencyMs}ms
                   </span>
                 )}
                 {typeof activeQuote.tokPerSec === 'number' && (
-                  <span className="inline-flex items-center gap-1 text-emerald-300">
+                  <span className="inline-flex items-center gap-1 text-indigo-800 font-bold">
                     <Zap className="h-3 w-3" />~{activeQuote.tokPerSec} tok/s
                   </span>
                 )}
               </div>
 
               {monthlySavings > 0 && (
-                <div className="mt-2.5 inline-flex items-center rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
+                <div className="mt-2.5 inline-flex items-center rounded-lg bg-emerald-600/12 border border-emerald-700/25 px-2.5 py-1 text-[11px] font-bold text-emerald-900">
                   Saves {formatCurrency(monthlySavings)}/mo ({savingsPct}%) vs.{' '}
                   {endpointEval.firstPartyQuote.endpoint.host}
                 </div>
               )}
 
               {breakdown.triggersLongContextMultiplier && (
-                <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-[11px] font-medium text-amber-200">
+                <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 border border-amber-600/25 px-2.5 py-1 text-[11px] font-semibold text-amber-950">
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                   <span>{breakdown.activeContextTierLabel}</span>
                 </div>
               )}
             </div>
 
-            <dl className="grid grid-cols-3 gap-3 border-t border-slate-800 pt-4 text-xs">
+            <dl className="grid grid-cols-3 gap-3 border-t border-slate-200/90 pt-4 text-xs">
               <div>
-                <dt className="text-slate-400">Input / 1M</dt>
-                <dd className="mt-0.5 font-mono font-semibold text-white">
+                <dt className="font-medium text-slate-600">Input / 1M</dt>
+                <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.inputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="text-slate-400">Cached / 1M</dt>
-                <dd className="mt-0.5 font-mono font-semibold text-emerald-300">
+                <dt className="font-medium text-slate-600">Cached / 1M</dt>
+                <dd className="mt-0.5 font-mono font-bold text-emerald-800">
                   {fmtRate(activeRates.cachedInputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="text-slate-400">Output / 1M</dt>
-                <dd className="mt-0.5 font-mono font-semibold text-white">
+                <dt className="font-medium text-slate-600">Output / 1M</dt>
+                <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.outputPer1M)}
                 </dd>
               </div>
             </dl>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+          <div className="relative z-10 flex flex-col sm:flex-row gap-2.5 pt-1">
             <Link
               href={`/models/${selectedModel.slug}`}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-400 px-4 text-xs sm:text-sm font-bold text-slate-950 hover:bg-emerald-300 transition-colors"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-4 text-xs sm:text-sm font-bold text-white hover:bg-slate-800 transition-colors"
             >
               <span>Inspect Endpoints</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 text-emerald-400" />
             </Link>
             <Link
               href="/compare"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-4 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white/90 px-4 text-xs sm:text-sm font-bold text-slate-900 hover:bg-white transition-colors"
             >
               Compare
             </Link>
