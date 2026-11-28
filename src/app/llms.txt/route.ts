@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { ALL_MODELS } from '../../lib/catalog';
-import { REGISTRY_SNAPSHOT } from '../../lib/modelRegistry';
 import { getLatestNewsArticles, formatNewsDate } from '../../lib/news';
 
 export const dynamic = 'force-static';
@@ -23,6 +22,7 @@ export async function GET() {
     `- [Head-to-Head Model Comparison](${SITE_URL}/compare): Compare model pricing, context windows, and benchmark scores.`,
     `- [LLM Selector Tool](${SITE_URL}/tools/llm-selector): Match workloads and budgets to recommended models.`,
     `- [Pricing & Endpoint News](${SITE_URL}/news): Latest verified LLM API price shifts, launches, and endpoint updates.`,
+    `- [Pricing & Endpoint RSS Feed](${SITE_URL}/news/rss.xml): RSS 2.0 feed of verified rate shifts and model launches.`,
     '',
     '## Latest Pricing & Endpoint News',
   ];
@@ -52,11 +52,6 @@ export async function GET() {
       const label = model.name ? `${model.name}${model.provider ? ` (${model.provider})` : ''}` : model.slug;
       lines.push(`- [${label}](${SITE_URL}/models/${model.slug})`);
     }
-  }
-
-  if (REGISTRY_SNAPSHOT?.generatedAt) {
-    lines.push('');
-    lines.push(`Registry snapshot updated: ${REGISTRY_SNAPSHOT.generatedAt}`);
   }
 
   return new NextResponse(lines.join('\n'), {
