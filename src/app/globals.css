@@ -20,30 +20,6 @@
   }
 }
 
-@keyframes colorStreamDriftA {
-  0% {
-    transform: translateX(0px) translateY(0px);
-  }
-  50% {
-    transform: translateX(18px) translateY(-6px);
-  }
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-}
-
-@keyframes colorStreamDriftB {
-  0% {
-    transform: translateX(0px) translateY(0px);
-  }
-  50% {
-    transform: translateX(-16px) translateY(7px);
-  }
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-}
-
 @keyframes streamPulse {
   0% {
     transform: scaleX(0);
@@ -53,14 +29,6 @@
   }
 }
 
-.pb-stream-band-a {
-  animation: colorStreamDriftA 9s ease-in-out infinite;
-}
-
-.pb-stream-band-b {
-  animation: colorStreamDriftB 11s ease-in-out infinite;
-}
-
 .pb-live-progress {
   transform-origin: left center;
   animation: streamPulse 5.2s linear infinite;
@@ -68,8 +36,8 @@
 
 .pb-calculator-shell {
   box-shadow:
-    0 24px 64px -20px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(15, 23, 42, 0.09);
+    0 20px 48px -18px rgba(15, 23, 42, 0.10),
+    0 0 0 1px rgba(15, 23, 42, 0.10);
 }
 
 .pb-clean-row {

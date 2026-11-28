@@ -240,6 +240,16 @@ export function HomeInteractiveWorkbench({
   const effectiveCachePct = activeRates.cachedInputPer1M === null ? 0 : cachePct;
   const effectiveBatchPct = useBatch ? 100 : 0;
 
+  const monthlyVal =
+    typeof breakdown.monthlyTotalCost === 'number' && Number.isFinite(breakdown.monthlyTotalCost)
+      ? breakdown.monthlyTotalCost
+      : null;
+  const dailyVal = monthlyVal !== null ? monthlyVal / 30 : null;
+  const annualVal = monthlyVal !== null ? monthlyVal * 12 : null;
+  const monthlyTokensM =
+    ((Math.max(0, callsPerDay) * (Math.max(0, inputTokens) + Math.max(0, outputTokens)) * 30) /
+      1_000_000);
+
   const applyPreset = (p: WorkloadPreset) => {
     setPresetId(p.id);
     setInputTokens(p.inputTokens);
@@ -289,12 +299,12 @@ export function HomeInteractiveWorkbench({
 
   const buildSummaryText = () =>
     [
-      `PromptBill 30-Day Estimate — ${selectedModel.name} (${selectedModel.provider})`,
+      `PromptBill 30-Day API Cost Estimate — ${selectedModel.name} (${selectedModel.provider})`,
       `Endpoint: ${activeQuote.endpoint.host} (${activeQuote.endpoint.providerType}) · ${activeEvidence}`,
       `Workload: ${callsPerDay.toLocaleString()} req/day · ${inputTokens.toLocaleString()} in · ${outputTokens.toLocaleString()} out · ${effectiveCachePct}% cached · ${effectiveBatchPct}% batch`,
       `Rates (/1M): Input ${fmtRate(activeRates.inputPer1M)} | Cached ${fmtRate(activeRates.cachedInputPer1M)} | Output ${fmtRate(activeRates.outputPer1M)}`,
       `Cost per 1K Calls: ${formatCurrency(breakdown.costPer1KCalls)}`,
-      `Estimated 30-Day Spend: ${formatCurrency(breakdown.monthlyTotalCost)}`,
+      `Daily / 30-Day / Annual Spend: ${dailyVal !== null ? formatCurrency(dailyVal) : 'N/A'}/d · ${formatCurrency(breakdown.monthlyTotalCost)}/30d · ${annualVal !== null ? formatCurrency(annualVal) : 'N/A'}/yr`,
     ].join('\n');
 
   const handleExportCsv = () => {
@@ -313,7 +323,9 @@ export function HomeInteractiveWorkbench({
       'Cached Input / 1M (USD)',
       'Output / 1M (USD)',
       'Cost per 1K Calls (USD)',
+      'Daily Spend (USD)',
       'Estimated 30-Day Spend (USD)',
+      'Estimated Annual Spend (USD)',
       'Latency (ms)',
       'Throughput (tok/s)',
     ];
@@ -332,7 +344,9 @@ export function HomeInteractiveWorkbench({
       activeRates.cachedInputPer1M ?? 'N/A',
       activeRates.outputPer1M ?? 'N/A',
       typeof breakdown.costPer1KCalls === 'number' ? breakdown.costPer1KCalls.toFixed(4) : 'N/A',
+      dailyVal !== null ? dailyVal.toFixed(2) : 'N/A',
       typeof breakdown.monthlyTotalCost === 'number' ? breakdown.monthlyTotalCost.toFixed(2) : 'N/A',
+      annualVal !== null ? annualVal.toFixed(2) : 'N/A',
       typeof activeQuote.latencyMs === 'number' ? activeQuote.latencyMs : 'N/A',
       typeof activeQuote.tokPerSec === 'number' ? activeQuote.tokPerSec : 'N/A',
     ];
@@ -367,15 +381,18 @@ export function HomeInteractiveWorkbench({
         outputTokensPerCall: outputTokens,
         cacheHitPercent: effectiveCachePct,
         batchPercent: effectiveBatchPct,
+        monthlyTokensMillions: Number(monthlyTokensM.toFixed(2)),
       },
       ratesPer1M: {
         input: activeRates.inputPer1M ?? null,
         cachedInput: activeRates.cachedInputPer1M ?? null,
         output: activeRates.outputPer1M ?? null,
       },
-      estimate30Day: {
+      spendEstimate: {
         costPer1KCalls: breakdown.costPer1KCalls ?? null,
-        monthlyTotalCost: breakdown.monthlyTotalCost ?? null,
+        dailyCost: dailyVal !== null ? Number(dailyVal.toFixed(2)) : null,
+        monthlyTotalCost30Day: breakdown.monthlyTotalCost ?? null,
+        annualizedCost: annualVal !== null ? Number(annualVal.toFixed(2)) : null,
         currency: 'USD',
       },
     };
@@ -416,100 +433,38 @@ export function HomeInteractiveWorkbench({
         m.slug.toLowerCase().includes(modelQuery.trim().toLowerCase())
     );
 
+  const calculatorJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'PromptBill 30-Day LLM API Spend Calculator',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web',
+    url: 'https://promptbill.online/#estimator',
+    description:
+      'Interactive LLM token cost estimator calculating daily, 30-day, and annualized API spend across official endpoints and third-party inference hosts with prompt caching and batch discounts.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  };
+
   return (
     <section
       id="estimator"
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-            {/* Flowing Multi-Color Spectrum Stream (Strictly Clipped Inside Calculator Frame) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
-      >
-        <svg
-          viewBox="0 0 1200 640"
-          preserveAspectRatio="none"
-          className="h-full w-full block"
-        >
-          <defs>
-            <clipPath id="pbColorStreamClip">
-              <rect x="0" y="0" width="1200" height="640" rx="28" ry="28" />
-            </clipPath>
-
-            {/* Vibrant Flowing Spectrum Stream 1: Emerald -> Cyan -> Sky -> Indigo */}
-            <linearGradient id="pbColorStreamOne" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.34" />
-              <stop offset="25%" stopColor="#06B6D4" stopOpacity="0.32" />
-              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.28" />
-              <stop offset="75%" stopColor="#8B5CF6" stopOpacity="0.30" />
-              <stop offset="100%" stopColor="#EC4899" stopOpacity="0.32" />
-            </linearGradient>
-
-            {/* Vibrant Flowing Spectrum Stream 2: Amber -> Coral -> Rose -> Violet -> Teal */}
-            <linearGradient id="pbColorStreamTwo" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.28" />
-              <stop offset="28%" stopColor="#F43F5E" stopOpacity="0.24" />
-              <stop offset="56%" stopColor="#A855F7" stopOpacity="0.24" />
-              <stop offset="82%" stopColor="#0EA5E9" stopOpacity="0.26" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.30" />
-            </linearGradient>
-
-            {/* Crisp Color Current Filament */}
-            <linearGradient id="pbColorFilament" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#059669" stopOpacity="0.55" />
-              <stop offset="30%" stopColor="#0891B2" stopOpacity="0.50" />
-              <stop offset="65%" stopColor="#7C3AED" stopOpacity="0.50" />
-              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.55" />
-            </linearGradient>
-          </defs>
-
-          <g clipPath="url(#pbColorStreamClip)">
-            {/* Soft full-frame tinted wash so foreground text stays super legible */}
-            <rect x="0" y="0" width="1200" height="640" fill="#FFFFFF" fillOpacity="0.68" />
-
-            {/* Streaming Color Band A */}
-            <g className="pb-stream-band-a">
-              <path
-                d="M -40,40 C 170,135 285,10 490,105 C 695,200 810,70 1020,165 C 1110,206 1165,195 1240,175 L 1240,265 C 1150,285 1090,295 995,252 C 790,160 675,290 470,195 C 265,100 155,225 -40,130 Z"
-                fill="url(#pbColorStreamOne)"
-              />
-              <path
-                d="M -40,86 C 170,181 285,56 490,151 C 695,246 810,116 1020,211 C 1110,252 1165,241 1240,221"
-                fill="none"
-                stroke="url(#pbColorFilament)"
-                strokeWidth="2.5"
-              />
-            </g>
-
-            {/* Streaming Color Band B */}
-            <g className="pb-stream-band-b">
-              <path
-                d="M -40,390 C 180,305 315,475 535,385 C 755,295 895,465 1115,375 C 1170,352 1205,345 1240,352 L 1240,468 C 1190,460 1150,468 1090,492 C 870,582 730,412 510,502 C 290,592 155,422 -40,507 Z"
-                fill="url(#pbColorStreamTwo)"
-              />
-              <path
-                d="M -40,432 C 180,347 315,517 535,427 C 755,337 895,507 1115,417 C 1170,394 1205,387 1240,394"
-                fill="none"
-                stroke="url(#pbColorFilament)"
-                strokeWidth="2"
-              />
-            </g>
-
-            {/* Subtle Lower Color Current */}
-            <path
-              d="M -40,555 C 210,505 360,605 610,545 C 860,485 1015,585 1240,525 L 1240,590 C 1015,640 860,545 610,605 C 360,655 210,565 -40,615 Z"
-              fill="url(#pbColorStreamOne)"
-              opacity="0.72"
-            />
-          </g>
-        </svg>
-      </div>
+      {/* Structured Data for Search Engines & AI/GEO Answer Systems */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}
+      />
 
       {/* Top Row: Title + Endpoint Switcher + Export Dropdown */}
-      <div className="relative z-40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+      <header className="relative z-40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600/15 text-emerald-800 ring-1 ring-inset ring-emerald-600/30">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-700/10 text-emerald-900 ring-1 ring-inset ring-emerald-700/25">
             <Calculator className="h-5 w-5" />
           </div>
           <div>
@@ -520,12 +475,12 @@ export function HomeInteractiveWorkbench({
               >
                 30-Day API Spend Calculator
               </h2>
-              <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
-                Live Math
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-950">
+                30-Day &amp; Annual Math
               </span>
             </div>
             <p className="text-xs sm:text-sm font-medium text-slate-700 mt-0.5">
-              Estimate monthly API spend with prompt caching, batch discounts, and endpoint routing.
+              Calculate LLM API token costs from daily requests, input/output tokens, prompt cache hit share, and batch discounts.
             </p>
           </div>
         </div>
@@ -540,7 +495,7 @@ export function HomeInteractiveWorkbench({
               aria-expanded={exportMenuOpen}
               aria-haspopup="menu"
               onClick={() => setExportMenuOpen((prev) => !prev)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-700/30 bg-emerald-700 px-4 text-xs font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-emerald-700 px-4 text-xs font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-2xs"
             >
               <Download className="h-3.5 w-3.5 text-white" />
               <span>Export</span>
@@ -560,13 +515,13 @@ export function HomeInteractiveWorkbench({
                   type="button"
                   role="menuitem"
                   onClick={handleExportCsv}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  <FileSpreadsheet className="h-4 w-4 text-emerald-700 shrink-0" />
+                  <FileSpreadsheet className="h-4 w-4 text-emerald-800 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-slate-950">Spreadsheet (.CSV)</div>
-                    <div className="text-[11px] font-medium text-slate-800">
-                      All inputs, rates &amp; 30-day total
+                    <div className="font-bold text-slate-950">Spreadsheet (.CSV)</div>
+                    <div className="text-[11px] font-medium text-slate-700">
+                      Inputs, per-1M rates &amp; spend
                     </div>
                   </div>
                 </button>
@@ -575,12 +530,12 @@ export function HomeInteractiveWorkbench({
                   type="button"
                   role="menuitem"
                   onClick={handleExportJson}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  <FileJson className="h-4 w-4 text-indigo-600 shrink-0" />
+                  <FileJson className="h-4 w-4 text-indigo-800 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-slate-950">Structured Data (.JSON)</div>
-                    <div className="text-[11px] font-medium text-slate-800">
+                    <div className="font-bold text-slate-950">Structured Data (.JSON)</div>
+                    <div className="text-[11px] font-medium text-slate-700">
                       Machine-readable quote object
                     </div>
                   </div>
@@ -590,36 +545,36 @@ export function HomeInteractiveWorkbench({
                   type="button"
                   role="menuitem"
                   onClick={handleExportTxt}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  <FileText className="h-4 w-4 text-sky-600 shrink-0" />
+                  <FileText className="h-4 w-4 text-sky-800 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-slate-950">Report Note (.TXT)</div>
-                    <div className="text-[11px] font-medium text-slate-800">
-                      Clean text summary download
+                    <div className="font-bold text-slate-950">Report Note (.TXT)</div>
+                    <div className="text-[11px] font-medium text-slate-700">
+                      Plain-text cost breakdown
                     </div>
                   </div>
                 </button>
 
-                <div className="my-1 border-t border-slate-100" />
+                <div className="my-1 border-t border-slate-200" />
 
                 <button
                   type="button"
                   role="menuitem"
                   onClick={handleCopySummary}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   {copiedSummary ? (
-                    <Check className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <Check className="h-4 w-4 text-emerald-800 shrink-0" />
                   ) : (
                     <Copy className="h-4 w-4 text-slate-700 shrink-0" />
                   )}
                   <div className="min-w-0">
-                    <div className="text-slate-950">
+                    <div className="font-bold text-slate-950">
                       {copiedSummary ? 'Copied to Clipboard' : 'Copy Summary'}
                     </div>
-                    <div className="text-[11px] font-medium text-slate-800">
-                      Paste into Slack, Notion, or docs
+                    <div className="text-[11px] font-medium text-slate-700">
+                      Paste into docs, tickets, or notes
                     </div>
                   </div>
                 </button>
@@ -627,9 +582,9 @@ export function HomeInteractiveWorkbench({
             )}
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Refined 4-Card Preset Strip + Aligned Endpoint Selector */}
+      {/* Workload Presets + Active Endpoint Selector */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {WORKLOAD_PRESETS.map((p) => {
@@ -642,14 +597,14 @@ export function HomeInteractiveWorkbench({
                 aria-pressed={active}
                 className={`rounded-2xl px-3.5 py-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
                   active
-                    ? 'bg-emerald-50/95 text-slate-950 shadow-xs ring-2 ring-emerald-600'
-                    : 'bg-white/90 text-slate-900 ring-1 ring-slate-300 hover:bg-white hover:ring-slate-300'
+                    ? 'bg-emerald-50 text-slate-950 shadow-xs ring-2 ring-emerald-700'
+                    : 'bg-slate-50/80 text-slate-900 ring-1 ring-slate-300 hover:bg-white'
                 }`}
               >
                 <span className="text-xs font-bold tracking-tight truncate">{p.label}</span>
                 <span
-                  className={`mt-1 font-mono text-[10px] truncate ${
-                    active ? 'text-emerald-800 font-bold' : 'text-slate-700 font-semibold'
+                  className={`mt-1 font-mono text-[11px] truncate ${
+                    active ? 'text-emerald-900 font-bold' : 'text-slate-700 font-semibold'
                   }`}
                 >
                   {p.spec}
@@ -661,13 +616,13 @@ export function HomeInteractiveWorkbench({
 
         <div className="lg:col-span-4 flex items-center">
           {hasMultipleHosts ? (
-            <div className="w-full rounded-2xl bg-white/90 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-between">
+            <div className="w-full rounded-2xl bg-slate-50/80 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-between">
               <label
                 htmlFor="home-host-select"
                 className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 mb-1"
               >
-                <Server className="h-3 w-3 text-emerald-700" />
-                <span>Active Endpoint</span>
+                <Server className="h-3.5 w-3.5 text-emerald-800" />
+                <span>Hosting Endpoint</span>
               </label>
               <select
                 id="home-host-select"
@@ -700,12 +655,12 @@ export function HomeInteractiveWorkbench({
               </select>
             </div>
           ) : (
-            <div className="w-full rounded-2xl bg-white/80 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-center">
+            <div className="w-full rounded-2xl bg-slate-50/80 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-center">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
-                <Server className="h-3 w-3 text-emerald-700" />
-                <span>Single Host</span>
+                <Server className="h-3.5 w-3.5 text-emerald-800" />
+                <span>Single Endpoint</span>
               </span>
-              <span className="mt-1 text-xs font-bold text-slate-900 truncate">
+              <span className="mt-1 text-xs font-bold text-slate-950 truncate">
                 {activeQuote.endpoint.host}
               </span>
             </div>
@@ -713,11 +668,11 @@ export function HomeInteractiveWorkbench({
         </div>
       </div>
 
-      {/* Main Grid: Symmetrical Inputs (7 cols) + Dark Summary Card (5 cols) */}
+      {/* Main Grid: Workload Inputs (7 cols) + Cost Breakdown Card (5 cols) */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 flex flex-col justify-between gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Search Model + Select Model */}
+            {/* Search & Select Model */}
             <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1.5">
                 <label
@@ -726,7 +681,7 @@ export function HomeInteractiveWorkbench({
                 >
                   Search &amp; Select Model
                 </label>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-800">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-800">
                   <ProviderLogo
                     provider={selectedModel.provider}
                     modelName={selectedModel.name}
@@ -738,21 +693,21 @@ export function HomeInteractiveWorkbench({
               </div>
 
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-800" />
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                 <input
                   id="home-model-search"
                   type="text"
                   value={modelQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Type model name or provider (e.g. GPT-6.2, Claude, DeepSeek, Gemini)..."
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-800 focus:border-slate-900 focus:outline-none"
+                  placeholder="Filter by model or provider (e.g. Claude, GPT-6.2, DeepSeek, Gemini)..."
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-9 text-sm font-medium text-slate-950 placeholder:text-slate-600 focus:border-emerald-700 focus:outline-none"
                 />
                 {modelQuery && (
                   <button
                     type="button"
                     aria-label="Clear model search"
                     onClick={() => setModelQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-800 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -767,7 +722,7 @@ export function HomeInteractiveWorkbench({
                   id="home-model-select"
                   value={selectedModel.slug}
                   onChange={(e) => setSelectedSlug(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-bold text-slate-950 shadow-2xs focus:border-emerald-700 focus:outline-none"
                 >
                   {dropdownOptions.map(({ model: m, chosen }) => (
                     <option key={m.id} value={m.slug}>
@@ -779,7 +734,7 @@ export function HomeInteractiveWorkbench({
               </div>
 
               {noMatchInSearch && (
-                <p className="mt-1.5 text-xs text-amber-800">
+                <p className="mt-1.5 text-xs font-semibold text-amber-950">
                   No exact match for &ldquo;{modelQuery}&rdquo; — showing {selectedModel.name}.
                 </p>
               )}
@@ -802,7 +757,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setCallsPerDay(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm font-semibold text-slate-950 focus:border-emerald-700 focus:outline-none"
               />
             </div>
 
@@ -821,7 +776,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setCachePct(Number(e.target.value));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-800 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm font-semibold text-slate-950 disabled:bg-slate-100 disabled:text-slate-600 focus:border-emerald-700 focus:outline-none"
               >
                 <option value={0}>0% (No cache hits)</option>
                 <option value={20}>20% Cached reads</option>
@@ -847,7 +802,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setInputTokens(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm font-semibold text-slate-950 focus:border-emerald-700 focus:outline-none"
               />
             </div>
 
@@ -868,21 +823,21 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setOutputTokens(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm font-semibold text-slate-950 focus:border-emerald-700 focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/75 text-xs text-slate-800">
+          <footer className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 text-xs font-medium text-slate-800">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-800 shrink-0" />
               ) : (
-                <Info className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+                <Info className="h-3.5 w-3.5 text-amber-800 shrink-0" />
               )}
               <span>
-                Source:{' '}
-                <strong className="text-slate-900">
+                Rate Provenance:{' '}
+                <strong className="font-bold text-slate-950">
                   {activeQuote.endpoint.host} · {activeEvidence}
                 </strong>
               </span>
@@ -892,130 +847,108 @@ export function HomeInteractiveWorkbench({
               <button
                 type="button"
                 onClick={() => setUseBatch((v) => !v)}
-                className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-colors cursor-pointer ${
+                className={`inline-flex h-8 items-center rounded-full border px-3.5 text-xs font-bold transition-colors cursor-pointer ${
                   useBatch
-                    ? 'border-emerald-700 bg-emerald-50 text-emerald-900'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'border-emerald-700 bg-emerald-100 text-emerald-950'
+                    : 'border-slate-300 bg-white text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 {useBatch
-                  ? `Batch API On (${Math.round(breakdown.batchDiscountRate * 100)}% off)`
-                  : `Enable Batch (${Math.round(breakdown.batchDiscountRate * 100)}% off)`}
+                  ? `Batch Discount Active (${Math.round(breakdown.batchDiscountRate * 100)}% off)`
+                  : `Apply Batch (${Math.round(breakdown.batchDiscountRate * 100)}% off)`}
               </button>
             ) : (
-              <span className="text-slate-700">Batch discount: N/A</span>
+              <span className="font-semibold text-slate-700">Batch discount: N/A</span>
             )}
-          </div>
+          </footer>
         </div>
 
-        {/* Right Summary Card — Crisp Light Surface with Prism Wave Graphic */}
-        <div className="lg:col-span-5 relative overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-emerald-50/55 to-indigo-50/60 text-slate-950 p-6 flex flex-col justify-between gap-5 shadow-md">
-          {/* Subtle Prism Wave & Telemetry Lattice Graphic */}
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 420 320"
-            preserveAspectRatio="none"
-            className="pointer-events-none absolute inset-0 h-full w-full opacity-75"
-          >
-            <defs>
-              <linearGradient id="pbSummaryWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
-                <stop offset="50%" stopColor="#06B6D4" stopOpacity="0.12" />
-                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.16" />
-              </linearGradient>
-              <pattern
-                id="pbSummaryDots"
-                width="20"
-                height="20"
-                patternUnits="userSpaceOnUse"
-              >
-                <circle cx="2" cy="2" r="1.15" fill="#0F172A" fillOpacity="0.08" />
-              </pattern>
-            </defs>
-            <rect width="420" height="320" fill="url(#pbSummaryDots)" />
-            <path
-              d="M0,220 C110,165 220,275 420,185 L420,320 L0,320 Z"
-              fill="url(#pbSummaryWaveGrad)"
-            />
-            <path
-              d="M0,255 C135,205 250,300 420,225"
-              fill="none"
-              stroke="#10B981"
-              strokeOpacity="0.28"
-              strokeWidth="2"
-            />
-          </svg>
-
-          <div className="relative z-10 space-y-4">
+        {/* Right Cost Summary Card — Clean, High-Contrast Architectural Surface */}
+        <aside
+          aria-label="Estimated API Cost Breakdown"
+          className="lg:col-span-5 rounded-2xl border border-slate-300 bg-slate-50/75 text-slate-950 p-6 flex flex-col justify-between gap-5"
+        >
+          <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-700/20 bg-emerald-500/12 px-2.5 py-1 font-bold text-emerald-900">
-                <Server className="h-3 w-3 text-emerald-700" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-700/25 bg-emerald-100/80 px-2.5 py-1 font-bold text-emerald-950">
+                <Server className="h-3 w-3 text-emerald-800" />
                 {activeQuote.endpoint.host}
               </span>
-              <span className="font-mono font-semibold text-slate-700">
-                {selectedModel.contextWindow ?? 'N/A'} ctx
+              <span className="font-mono font-bold text-slate-800">
+                {selectedModel.contextWindow ?? 'N/A'} ctx · ~{monthlyTokensM.toFixed(1)}M tok/mo
               </span>
             </div>
 
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
                 <ProviderLogo
                   provider={selectedModel.provider}
                   modelName={selectedModel.name}
                   modelSlug={selectedModel.slug}
                   size="sm"
                 />
-                <span>30-Day Spend · {selectedModel.name}</span>
+                <span>Estimated 30-Day Spend · {selectedModel.name}</span>
               </div>
               <div className="mt-1.5 font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 tabular-nums">
                 {formatCurrency(breakdown.monthlyTotalCost)}
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs font-semibold text-slate-700 tabular-nums">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs font-bold text-slate-800 tabular-nums">
+                <span>
+                  {dailyVal !== null ? `${formatCurrency(dailyVal)}/day` : 'N/A/day'}
+                </span>
+                <span>·</span>
+                <span>
+                  {annualVal !== null ? `${formatCurrency(annualVal)}/yr` : 'N/A/yr'}
+                </span>
+                <span>·</span>
                 <span>{formatCurrency(breakdown.costPer1KCalls)} / 1K calls</span>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs font-bold tabular-nums">
                 {typeof activeQuote.latencyMs === 'number' && (
-                  <span className="inline-flex items-center gap-1 text-emerald-800 font-bold">
-                    <Gauge className="h-3 w-3" />
-                    &lt;{activeQuote.latencyMs}ms
+                  <span className="inline-flex items-center gap-1 text-emerald-900">
+                    <Gauge className="h-3.5 w-3.5" />
+                    &lt;{activeQuote.latencyMs}ms latency
                   </span>
                 )}
                 {typeof activeQuote.tokPerSec === 'number' && (
-                  <span className="inline-flex items-center gap-1 text-indigo-800 font-bold">
-                    <Zap className="h-3 w-3" />~{activeQuote.tokPerSec} tok/s
+                  <span className="inline-flex items-center gap-1 text-indigo-900">
+                    <Zap className="h-3.5 w-3.5" />~{activeQuote.tokPerSec} tok/s
                   </span>
                 )}
               </div>
 
               {monthlySavings > 0 && (
-                <div className="mt-2.5 inline-flex items-center rounded-lg bg-emerald-600/12 border border-emerald-700/25 px-2.5 py-1 text-[11px] font-bold text-emerald-900">
+                <div className="mt-2.5 inline-flex items-center rounded-lg bg-emerald-100 border border-emerald-700/25 px-2.5 py-1 text-xs font-bold text-emerald-950">
                   Saves {formatCurrency(monthlySavings)}/mo ({savingsPct}%) vs.{' '}
                   {endpointEval.firstPartyQuote.endpoint.host}
                 </div>
               )}
 
               {breakdown.triggersLongContextMultiplier && (
-                <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 border border-amber-600/25 px-2.5 py-1 text-[11px] font-semibold text-amber-950">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-700/25 px-2.5 py-1 text-xs font-bold text-amber-950">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-800" />
                   <span>{breakdown.activeContextTierLabel}</span>
                 </div>
               )}
             </div>
 
-            <dl className="grid grid-cols-3 gap-3 border-t border-slate-200/90 pt-4 text-xs">
+            <dl className="grid grid-cols-3 gap-3 border-t border-slate-200 pt-4 text-xs">
               <div>
-                <dt className="font-medium text-slate-800">Input / 1M</dt>
+                <dt className="font-semibold text-slate-700">Input / 1M</dt>
                 <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.inputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-slate-800">Cached / 1M</dt>
-                <dd className="mt-0.5 font-mono font-bold text-emerald-800">
+                <dt className="font-semibold text-slate-700">Cached / 1M</dt>
+                <dd className="mt-0.5 font-mono font-bold text-emerald-900">
                   {fmtRate(activeRates.cachedInputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-slate-800">Output / 1M</dt>
+                <dt className="font-semibold text-slate-700">Output / 1M</dt>
                 <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.outputPer1M)}
                 </dd>
@@ -1023,7 +956,7 @@ export function HomeInteractiveWorkbench({
             </dl>
           </div>
 
-          <div className="relative z-10 flex flex-col sm:flex-row gap-2.5 pt-1">
+          <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
             <Link
               href={`/models/${selectedModel.slug}`}
               className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-xs sm:text-sm font-bold text-white hover:bg-emerald-800 transition-colors shadow-2xs"
@@ -1033,12 +966,12 @@ export function HomeInteractiveWorkbench({
             </Link>
             <Link
               href="/compare"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white/90 px-4 text-xs sm:text-sm font-bold text-slate-900 hover:bg-white transition-colors"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-xs sm:text-sm font-bold text-slate-950 hover:bg-slate-100 transition-colors"
             >
               Compare
             </Link>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
   );
