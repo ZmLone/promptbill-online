@@ -692,29 +692,13 @@ export function AdminRegistryClient({
       const raw = window.localStorage.getItem(ADMIN_DRAFT_STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw);
-        if (Array.isArray(saved.models) && saved.models.length > 0) {
-          setModels(saved.models);
-        }
-        if (Array.isArray(saved.pendingItems)) {
-          setPendingItems(saved.pendingItems);
-        }
-        if (saved.overrides && typeof saved.overrides === 'object') {
-          setOverrides(saved.overrides);
-        }
-        if (typeof saved.dismissedCount === 'number') {
-          setDismissedCount(saved.dismissedCount);
-        }
-        if (Array.isArray(saved.newsItems)) {
-          setNewsItems(saved.newsItems);
-        }
+        if (Array.isArray(saved.models) && saved.models.length > 0) setModels(saved.models);
+        if (Array.isArray(saved.pendingItems)) setPendingItems(saved.pendingItems);
+        if (saved.overrides && typeof saved.overrides === 'object') setOverrides(saved.overrides);
+        if (typeof saved.dismissedCount === 'number') setDismissedCount(saved.dismissedCount);
+        if (Array.isArray(saved.newsItems)) setNewsItems(saved.newsItems);
         if (typeof saved.hasUnpublishedChanges === 'boolean') {
           setHasUnpublishedChanges(saved.hasUnpublishedChanges);
-        }
-        if (saved.hasUnpublishedChanges) {
-          setStatusLog((prev) => [
-            'Restored unpublished staged changes from browser storage',
-            ...prev,
-          ]);
         }
       }
     } catch {
@@ -1206,7 +1190,6 @@ export function AdminRegistryClient({
     const resolvedSlug = String(
       item.draftModel?.slug || item.modelSlug || slugify(item.modelName || item.modelId)
     );
-
     const oldIn = parseOptionalNum(String(cur.routerInputPer1M ?? cur.inputPer1M ?? ''));
     const newIn =
       parseOptionalNum(edits.routerInput) ??
@@ -1217,11 +1200,9 @@ export function AdminRegistryClient({
       parseOptionalNum(edits.routerOutput) ??
       parseOptionalNum(edits.officialOutput) ??
       parseOptionalNum(String(prop.routerOutputPer1M ?? prop.outputPer1M ?? ''));
-
     const isPriceDrop =
       (oldIn !== null && newIn !== null && newIn < oldIn) ||
       (oldOut !== null && newOut !== null && newOut < oldOut);
-
     const category: AdminNewsArticleInput['category'] =
       item.type === 'new_model'
         ? 'New Model'
@@ -1230,73 +1211,17 @@ export function AdminRegistryClient({
         : item.type === 'benchmark_update'
         ? 'Benchmark Shift'
         : 'Endpoint Update';
-
-    const inRateLabel = newIn !== null ? `$${newIn}` : 'N/A';
-    const outRateLabel = newOut !== null ? `$${newOut}` : 'N/A';
-    const oldInLabel = oldIn !== null ? `$${oldIn}` : 'N/A';
-    const oldOutLabel = oldOut !== null ? `$${oldOut}` : 'N/A';
-
+    const inLabel = newIn !== null ? `$${newIn}` : 'N/A';
+    const outLabel = newOut !== null ? `$${newOut}` : 'N/A';
     const title =
       item.type === 'new_model'
-        ? `${item.modelName} API Pricing (${inRateLabel} In / ${outRateLabel} Out per 1M) & Launch Guide`
+        ? `${item.modelName} API Pricing (${inLabel} In / ${outLabel} Out per 1M) & Launch Guide`
         : isPriceDrop
-        ? `${item.modelName} API Price Drop: New Rates at ${inRateLabel} In / ${outRateLabel} Out per 1M`
-        : `${item.modelName} (${item.provider}) ${
-            item.type === 'benchmark_update' ? 'Benchmark & Throughput Update' : 'API Rate & Endpoint Update'
-          }`;
-
-    // Estimate 10M input + 2M output monthly workload cost when rates are known
-    const sample10MInputCost = newIn !== null ? Number((newIn * 10).toFixed(2)) : null;
-    const sample2MOutputCost = newOut !== null ? Number((newOut * 2).toFixed(2)) : null;
-    const sampleBundleCost =
-      sample10MInputCost !== null && sample2MOutputCost !== null
-        ? Number((sample10MInputCost + sample2MOutputCost).toFixed(2))
-        : null;
-
-    const oldBundleCost =
-      oldIn !== null && oldOut !== null
-        ? Number((oldIn * 10 + oldOut * 2).toFixed(2))
-        : null;
-
-    const summary =
-      item.type === 'new_model'
-        ? `${item.modelName} by ${item.provider} is now indexed on PromptBill at ${inRateLabel} per 1M input tokens and ${outRateLabel} per 1M output tokens. Compare endpoints, estimate monthly token spend, and benchmark performance.`
-        : `${item.modelName} (${item.provider}) updated API rates from ${oldInLabel} / ${oldOutLabel} to ${inRateLabel} / ${outRateLabel} per 1M tokens (input / output). See monthly workload cost impact and routing guidance.`;
-
-    const keyTakeaways = [
-      `${item.modelName} (${item.provider}) current tracked rates: ${inRateLabel} per 1M input tokens and ${outRateLabel} per 1M output tokens.`,
-      oldIn !== null || oldOut !== null
-        ? `Rate transition: input changed ${oldInLabel} → ${inRateLabel} per 1M; output changed ${oldOutLabel} → ${outRateLabel} per 1M.`
-        : `Context window: ${edits.contextWindow.trim() || item.draftModel?.contextWindow || 'Check model spec sheet'}.`,
-      sampleBundleCost !== null
-        ? `A typical production workload of 10M input + 2M output tokens per month costs ~$${sampleBundleCost}${
-            oldBundleCost !== null ? ` (vs. ~$${oldBundleCost} previously)` : ''
-          }.`
-        : `Use PromptBill's Token Cost Calculator to model custom input-to-output token ratios and caching savings.`,
-      `Inspect live endpoint routing, latency, and throughput details on /models/${resolvedSlug}.`,
-    ];
-
-    const sections = [
-      {
-        heading: `${item.modelName} Pricing & Token Economics`,
-        body:
-          `${summary} For engineering teams building chat assistants, RAG pipelines, code agents, or batch classification jobs, token pricing splits directly between prompt (input) tokens and generated completion (output) tokens. Because output tokens often carry a higher per-million-token multiplier than input tokens, prompt length and response verbosity strongly shape total billable cost.`,
-      },
-      {
-        heading: 'Estimated Monthly Spend Across Common Workloads',
-        body:
-          sampleBundleCost !== null
-            ? `At 10 million input tokens and 2 million output tokens per month, ${item.modelName} costs approximately $${sampleBundleCost} before cache or batch discounts (input: $${sample10MInputCost}, output: $${sample2MOutputCost}). Scaling to 100 million input tokens and 20 million output tokens per month equates to roughly $${(
-                sampleBundleCost * 10
-              ).toFixed(2)} at base rates. If your application sends repeated system prompts or long context prefixes, prompt caching and batch APIs can lower effective spend further.`
-            : `Actual monthly spend for ${item.modelName} depends on your ratio of cached vs. uncached input tokens, average output token length, and whether you route through official provider APIs, inference clouds, or multi-model routers. Open the PromptBill Token Cost Calculator to test custom monthly token volumes.`,
-      },
-      {
-        heading: 'How to Route & Optimize Costs in Production',
-        body:
-          `Compare ${item.modelName} on /models/${resolvedSlug} and side-by-side against alternatives on /compare before locking in a default endpoint. Enable prompt caching where system prompts or retrieval contexts repeat across requests, keep system instructions concise, cap max output tokens to match task requirements, and re-check throughput and latency under peak traffic.`,
-      },
-    ];
+        ? `${item.modelName} API Price Drop: New Rates at ${inLabel} In / ${outLabel} Out per 1M`
+        : `${item.modelName} (${item.provider}) API Rate & Endpoint Update`;
+    const summary = `${item.modelName} (${item.provider}) update on PromptBill: input ${
+      oldIn !== null ? `$${oldIn} → ` : ''
+    }${inLabel}/1M, output ${oldOut !== null ? `$${oldOut} → ` : ''}${outLabel}/1M.`;
 
     return {
       slug: `${resolvedSlug}-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${dateStamp}`,
@@ -1324,8 +1249,16 @@ export function AdminRegistryClient({
               },
             ]
           : [],
-      keyTakeaways,
-      sections,
+      keyTakeaways: [
+        summary,
+        `Compare live endpoints and estimate monthly token spend on /models/${resolvedSlug}.`,
+      ],
+      sections: [
+        {
+          heading: `${item.modelName} Pricing & Token Economics`,
+          body: `${summary} Compare token costs, caching discounts, and throughput on PromptBill.`,
+        },
+      ],
       sourceUrls: item.sourceUrl
         ? [{ label: 'Source Reference', url: item.sourceUrl }]
         : [{ label: 'OpenRouter Models API', url: 'https://openrouter.ai/api/v1/models' }],
@@ -1518,17 +1451,13 @@ export function AdminRegistryClient({
 
     const autoDraft = buildAutoNewsDraftForApprovedItem(item, edits);
     setNewsItems((prev) => {
-      const existingIdx = prev.findIndex((a) => a.slug === autoDraft.slug);
-      if (existingIdx >= 0) {
-        return prev.map((a, i) => (i === existingIdx ? autoDraft : a));
-      }
-      return [autoDraft, ...prev];
+      const idx = prev.findIndex((a) => a.slug === autoDraft.slug);
+      return idx >= 0 ? prev.map((a, i) => (i === idx ? autoDraft : a)) : [autoDraft, ...prev];
     });
-
     setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
     setHasUnpublishedChanges(true);
     setStatusLog((prev) => [
-      `Approved: ${item.modelName} (${item.type.replace('_', ' ')}) + staged SEO news draft "${autoDraft.title}"`,
+      `Approved: ${item.modelName} (${item.type.replace('_', ' ')}) + staged news draft "${autoDraft.title}"`,
       ...prev,
     ]);
   }
@@ -1920,11 +1849,6 @@ export function AdminRegistryClient({
       if (res.ok && data.ok) {
         setHasUnpublishedChanges(false);
         setDismissedCount(0);
-        try {
-          window.localStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY);
-        } catch {
-          // Ignore storage errors
-        }
         setPublishBanner({ type: 'success', text: data.message });
       } else {
         setPublishBanner({
@@ -2175,7 +2099,6 @@ export function AdminRegistryClient({
         : [article, ...prev];
     });
     setHasUnpublishedChanges(true);
-    setStatusLog((prev) => [`Staged news post: "${cleanTitle}" (/news/${resolvedSlug})`, ...prev]);
   }
 
   return (
@@ -2222,19 +2145,82 @@ export function AdminRegistryClient({
           </button>
           <button
             type="button"
-            onClick={() =>
+            onClick={() => {
+              const nowIso = new Date().toISOString();
+              const normalizedPendingArray = pendingItems.map((item, index) => {
+                const draft = item.draftModel || {};
+                const cur = item.currentValues || {};
+                const prop = item.proposedValues || {};
+                const resolvedSlug = String(
+                  draft.slug || item.modelSlug || slugify(item.modelName || item.modelId)
+                );
+                const resolvedId = String(draft.id || item.modelId || resolvedSlug);
+                const inputRate =
+                  draft.inputPer1M ??
+                  prop.routerInputPer1M ??
+                  prop.inputPer1M ??
+                  cur.routerInputPer1M ??
+                  cur.inputPer1M ??
+                  null;
+                const outputRate =
+                  draft.outputPer1M ??
+                  prop.routerOutputPer1M ??
+                  prop.outputPer1M ??
+                  cur.routerOutputPer1M ??
+                  cur.outputPer1M ??
+                  null;
+                const scoreVal =
+                  draft.score ?? prop.score ?? cur.score ?? null;
+                const speedVal =
+                  draft.tokPerSec ?? prop.tokPerSec ?? cur.tokPerSec ?? null;
+
+                return {
+                  ...draft,
+                  id: resolvedId,
+                  slug: resolvedSlug,
+                  rank: typeof draft.rank === 'number' ? draft.rank : index + 1,
+                  name: String(draft.name || item.modelName || resolvedSlug),
+                  provider: String(draft.provider || item.provider || 'Unknown'),
+                  providerSlug: String(
+                    draft.providerSlug || slugify(String(draft.provider || item.provider || 'unknown'))
+                  ),
+                  license: draft.license ?? null,
+                  evidence: draft.evidence || 'Estimated',
+                  lifecycleStatus:
+                    item.type === 'new_model'
+                      ? 'Pending Approval'
+                      : draft.lifecycleStatus || 'Active',
+                  archived: Boolean(draft.archived),
+                  score: scoreVal,
+                  qualityScore: scoreVal,
+                  tokPerSec: speedVal,
+                  speedTokensPerSec: speedVal,
+                  inputPer1M: inputRate,
+                  outputPer1M: outputRate,
+                  cachedInputPer1M: draft.cachedInputPer1M ?? null,
+                  cacheWritePer1M: draft.cacheWritePer1M ?? null,
+                  batchDiscount: draft.batchDiscount ?? null,
+                  contextWindow: draft.contextWindow ?? null,
+                  hostingEndpoints: Array.isArray(draft.hostingEndpoints)
+                    ? draft.hostingEndpoints
+                    : [],
+                  pendingMeta: {
+                    queueId: item.queueId,
+                    type: item.type,
+                    detectedAt: item.detectedAt || nowIso,
+                    summary: item.summary,
+                    sourceUrl: item.sourceUrl || null,
+                    currentValues: cur,
+                    proposedValues: prop,
+                  },
+                };
+              });
+
               downloadJsonFile(
                 'pending.json',
-                JSON.stringify(
-                  {
-                    updatedAt: new Date().toISOString(),
-                    items: pendingItems,
-                  },
-                  null,
-                  2
-                ) + '\n'
-              )
-            }
+                JSON.stringify(normalizedPendingArray, null, 2) + '\n'
+              );
+            }}
             className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             Download pending.json
@@ -2825,13 +2811,6 @@ export function AdminRegistryClient({
                         className="min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                       >
                         Dismiss
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => draftNewsFromPendingItem(item)}
-                        className="min-h-[38px] rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100"
-                      >
-                        Draft News
                       </button>
                     </div>
                   </div>
