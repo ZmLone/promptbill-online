@@ -288,48 +288,52 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Open Architectural Telemetry Strip */}
-          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 border-y border-slate-200 py-6">
-            <div>
-              <dt className="text-xs font-medium text-slate-700">Tracked Models</dt>
-              <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
+          {/* Open Architectural Telemetry Strip (Valid Semantic List for Screen Readers & PageSpeed) */}
+          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 border-y border-slate-200 py-6 list-none m-0 p-0">
+            <li>
+              <div className="text-xs font-semibold text-slate-700">Tracked Models</div>
+              <div className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
                 {freshness.totalModels}
-              </dd>
-              <p className="mt-0.5 text-xs text-slate-700">Across {providers.length} providers</p>
-            </div>
+              </div>
+              <div className="mt-0.5 text-xs font-medium text-slate-700">
+                Across {providers.length} providers
+              </div>
+            </li>
 
-            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-700">Verified Rate Cards</dt>
-              <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-emerald-900">
+            <li className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <div className="text-xs font-semibold text-slate-700">Verified Rate Cards</div>
+              <div className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-emerald-900">
                 {freshness.verifiedPricingCount}
-              </dd>
-              <p className="mt-0.5 text-xs text-slate-700">
+              </div>
+              <div className="mt-0.5 text-xs font-medium text-slate-700">
                 {freshness.estimatedPricingCount} estimated · {freshness.unavailablePricingCount} N/A
-              </p>
-            </div>
+              </div>
+            </li>
 
-            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-700">Hosting Endpoints</dt>
-              <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
+            <li className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <div className="text-xs font-semibold text-slate-700">Hosting Endpoints</div>
+              <div className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
                 {totalEndpoints}
-              </dd>
-              <p className="mt-0.5 text-xs text-slate-700">Official APIs, Clouds &amp; Routers</p>
-            </div>
+              </div>
+              <div className="mt-0.5 text-xs font-medium text-slate-700">
+                Official APIs, Clouds &amp; Routers
+              </div>
+            </li>
 
-            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-700">Last Catalog Sync</dt>
-              <dd className="mt-1 font-mono text-xl sm:text-2xl font-bold text-slate-950">
+            <li className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <div className="text-xs font-semibold text-slate-700">Last Catalog Sync</div>
+              <div className="mt-1 font-mono text-xl sm:text-2xl font-bold text-slate-950">
                 {freshness.latestVerifiedDate
                   ? freshness.latestVerifiedDate.slice(0, 10)
-                  : '2026-11-27'}
-              </dd>
-              <p className="mt-0.5 text-xs text-slate-700">
-                <Link href="/methodology" className="text-emerald-900 font-semibold hover:underline">
+                  : '2026-11-28'}
+              </div>
+              <div className="mt-0.5 text-xs font-medium text-slate-700">
+                <Link href="/methodology" className="text-emerald-900 font-bold hover:underline">
                   Provenance rules →
                 </Link>
-              </p>
-            </div>
-          </dl>
+              </div>
+            </li>
+          </ul>
         </section>
 
         {/* New Model Timeline -> Diagonal Colorful Wave Calculator */}

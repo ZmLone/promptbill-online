@@ -20,16 +20,31 @@
   }
 }
 
-@keyframes prismRibbonShift {
-  0%, 100% {
-    opacity: 0.92;
+@keyframes colorStreamDriftA {
+  0% {
+    transform: translateX(0px) translateY(0px);
   }
   50% {
-    opacity: 1;
+    transform: translateX(18px) translateY(-6px);
+  }
+  100% {
+    transform: translateX(0px) translateY(0px);
   }
 }
 
-@keyframes telemetryProgress {
+@keyframes colorStreamDriftB {
+  0% {
+    transform: translateX(0px) translateY(0px);
+  }
+  50% {
+    transform: translateX(-16px) translateY(7px);
+  }
+  100% {
+    transform: translateX(0px) translateY(0px);
+  }
+}
+
+@keyframes streamPulse {
   0% {
     transform: scaleX(0);
   }
@@ -38,13 +53,17 @@
   }
 }
 
-.pb-prism-art {
-  animation: prismRibbonShift 10s ease-in-out infinite;
+.pb-stream-band-a {
+  animation: colorStreamDriftA 9s ease-in-out infinite;
+}
+
+.pb-stream-band-b {
+  animation: colorStreamDriftB 11s ease-in-out infinite;
 }
 
 .pb-live-progress {
   transform-origin: left center;
-  animation: telemetryProgress 6.5s linear infinite;
+  animation: streamPulse 5.2s linear infinite;
 }
 
 .pb-calculator-shell {
@@ -58,5 +77,5 @@
 }
 
 .pb-clean-row:hover {
-  background-color: rgba(241, 245, 249, 0.9);
+  background-color: rgba(241, 245, 249, 0.92);
 }

@@ -422,10 +422,10 @@ export function HomeInteractiveWorkbench({
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-      {/* World-Class Editorial Aurora Silk & Precision Topographic Contour Artwork (Frame-Contained) */}
+            {/* Flowing Multi-Color Spectrum Stream (Strictly Clipped Inside Calculator Frame) */}
       <div
         aria-hidden="true"
-        className="pb-prism-art pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
       >
         <svg
           viewBox="0 0 1200 640"
@@ -433,78 +433,74 @@ export function HomeInteractiveWorkbench({
           className="h-full w-full block"
         >
           <defs>
-            <clipPath id="pbCalcFrameClip">
+            <clipPath id="pbColorStreamClip">
               <rect x="0" y="0" width="1200" height="640" rx="28" ry="28" />
             </clipPath>
 
-            {/* Primary Iridescent Silk Fold Gradient */}
-            <linearGradient id="pbSilkFoldPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
-              <stop offset="34%" stopColor="#06B6D4" stopOpacity="0.13" />
-              <stop offset="68%" stopColor="#6366F1" stopOpacity="0.13" />
-              <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.14" />
+            {/* Vibrant Flowing Spectrum Stream 1: Emerald -> Cyan -> Sky -> Indigo */}
+            <linearGradient id="pbColorStreamOne" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.34" />
+              <stop offset="25%" stopColor="#06B6D4" stopOpacity="0.32" />
+              <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.28" />
+              <stop offset="75%" stopColor="#8B5CF6" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#EC4899" stopOpacity="0.32" />
             </linearGradient>
 
-            {/* Secondary Luminous Counter-Fold */}
-            <linearGradient id="pbSilkFoldSecondary" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.11" />
-              <stop offset="50%" stopColor="#A855F7" stopOpacity="0.10" />
-              <stop offset="100%" stopColor="#34D399" stopOpacity="0.14" />
+            {/* Vibrant Flowing Spectrum Stream 2: Amber -> Coral -> Rose -> Violet -> Teal */}
+            <linearGradient id="pbColorStreamTwo" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.28" />
+              <stop offset="28%" stopColor="#F43F5E" stopOpacity="0.24" />
+              <stop offset="56%" stopColor="#A855F7" stopOpacity="0.24" />
+              <stop offset="82%" stopColor="#0EA5E9" stopOpacity="0.26" />
+              <stop offset="100%" stopColor="#10B981" stopOpacity="0.30" />
             </linearGradient>
 
-            {/* Fine Topographic Hairline Gradient */}
-            <linearGradient id="pbContourHairline" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#059669" stopOpacity="0.28" />
-              <stop offset="50%" stopColor="#0284C7" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.26" />
+            {/* Crisp Color Current Filament */}
+            <linearGradient id="pbColorFilament" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#059669" stopOpacity="0.55" />
+              <stop offset="30%" stopColor="#0891B2" stopOpacity="0.50" />
+              <stop offset="65%" stopColor="#7C3AED" stopOpacity="0.50" />
+              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.55" />
             </linearGradient>
-
-            {/* Radial Corner Aura */}
-            <radialGradient id="pbCornerAuraTL" cx="0%" cy="0%" r="55%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="pbCornerAuraBR" cx="100%" cy="100%" r="55%">
-              <stop offset="0%" stopColor="#6366F1" stopOpacity="0.14" />
-              <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
-            </radialGradient>
           </defs>
 
-          <g clipPath="url(#pbCalcFrameClip)">
-            <rect x="0" y="0" width="1200" height="640" fill="url(#pbCornerAuraTL)" />
-            <rect x="0" y="0" width="1200" height="640" fill="url(#pbCornerAuraBR)" />
+          <g clipPath="url(#pbColorStreamClip)">
+            {/* Soft full-frame tinted wash so foreground text stays super legible */}
+            <rect x="0" y="0" width="1200" height="640" fill="#FFFFFF" fillOpacity="0.68" />
 
-            {/* Sculpted Diagonal Silk Ribbon 1 */}
-            <path
-              d="M 0,0 L 240,0 C 445,140 545,270 795,305 C 995,332 1105,425 1200,505 L 1200,640 L 945,640 C 745,505 625,388 385,352 C 195,322 90,205 0,105 Z"
-              fill="url(#pbSilkFoldPrimary)"
-            />
+            {/* Streaming Color Band A */}
+            <g className="pb-stream-band-a">
+              <path
+                d="M -40,40 C 170,135 285,10 490,105 C 695,200 810,70 1020,165 C 1110,206 1165,195 1240,175 L 1240,265 C 1150,285 1090,295 995,252 C 790,160 675,290 470,195 C 265,100 155,225 -40,130 Z"
+                fill="url(#pbColorStreamOne)"
+              />
+              <path
+                d="M -40,86 C 170,181 285,56 490,151 C 695,246 810,116 1020,211 C 1110,252 1165,241 1240,221"
+                fill="none"
+                stroke="url(#pbColorFilament)"
+                strokeWidth="2.5"
+              />
+            </g>
 
-            {/* Sculpted Diagonal Silk Ribbon 2 */}
-            <path
-              d="M 0,45 C 215,155 370,320 640,355 C 885,388 1030,490 1200,605 L 1200,640 L 1060,640 C 890,525 745,435 505,405 C 265,375 135,250 0,155 Z"
-              fill="url(#pbSilkFoldSecondary)"
-            />
+            {/* Streaming Color Band B */}
+            <g className="pb-stream-band-b">
+              <path
+                d="M -40,390 C 180,305 315,475 535,385 C 755,295 895,465 1115,375 C 1170,352 1205,345 1240,352 L 1240,468 C 1190,460 1150,468 1090,492 C 870,582 730,412 510,502 C 290,592 155,422 -40,507 Z"
+                fill="url(#pbColorStreamTwo)"
+              />
+              <path
+                d="M -40,432 C 180,347 315,517 535,427 C 755,337 895,507 1115,417 C 1170,394 1205,387 1240,394"
+                fill="none"
+                stroke="url(#pbColorFilament)"
+                strokeWidth="2"
+              />
+            </g>
 
-            {/* Precision Architectural Contour Hairlines */}
+            {/* Subtle Lower Color Current */}
             <path
-              d="M 0,15 C 265,120 420,285 710,320 C 930,348 1065,445 1200,545"
-              fill="none"
-              stroke="url(#pbContourHairline)"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M 0,68 C 250,175 405,335 695,372 C 915,400 1050,495 1200,592"
-              fill="none"
-              stroke="url(#pbContourHairline)"
-              strokeWidth="1"
-              strokeDasharray="6 6"
-            />
-            <path
-              d="M 110,0 C 350,115 495,255 775,288 C 975,312 1095,395 1200,475"
-              fill="none"
-              stroke="url(#pbContourHairline)"
-              strokeWidth="1"
+              d="M -40,555 C 210,505 360,605 610,545 C 860,485 1015,585 1240,525 L 1240,590 C 1015,640 860,545 610,605 C 360,655 210,565 -40,615 Z"
+              fill="url(#pbColorStreamOne)"
+              opacity="0.72"
             />
           </g>
         </svg>
