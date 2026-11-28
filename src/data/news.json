@@ -1,92 +1,30 @@
 [
   {
-    "slug": "deepseek-v4-1-flash-openrouter-rate-update-nov-2026",
-    "title": "DeepSeek V4.1 Flash OpenRouter Rate Update: $0.051 / $0.567 per 1M",
-    "summary": "OpenRouter pricing for DeepSeek V4.1 Flash shifted from $0.0507/$0.2028 to $0.051/$0.567 per 1M tokens. See direct model and calculator impact on PromptBill.",
+    "slug": "promptbill-live-api-pricing-news-feed-launch",
+    "title": "PromptBill Launches Live LLM API Pricing & Endpoint News Feed",
+    "summary": "Track verified per-1M token rate shifts, new model launches, and endpoint updates across OpenRouter, Together AI, DeepInfra, Fireworks, and Bedrock.",
     "category": "Endpoint Update",
-    "publishedAt": "2026-11-28T09:00:00Z",
-    "updatedAt": "2026-11-28T09:00:00Z",
+    "publishedAt": "2026-11-28T14:30:00.000Z",
+    "updatedAt": "2026-11-28T14:30:00.000Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": true,
-    "relatedModelSlugs": [
-      "deepseek-v4-1-flash"
-    ],
-    "priceDeltas": [
-      {
-        "modelSlug": "deepseek-v4-1-flash",
-        "modelName": "DeepSeek V4.1 Flash",
-        "provider": "DeepSeek",
-        "endpointHost": "OpenRouter",
-        "oldInputPer1M": 0.0507,
-        "newInputPer1M": 0.051,
-        "oldOutputPer1M": 0.2028,
-        "newOutputPer1M": 0.567
-      }
-    ],
-    "keyTakeaways": [
-      "OpenRouter input pricing for DeepSeek V4.1 Flash moved from $0.0507 to $0.051 per 1M tokens (+0.59%).",
-      "OpenRouter output pricing increased from $0.2028 to $0.567 per 1M tokens (+179.6%), raising cost on output-heavy agentic and completion workloads.",
-      "Compare OpenRouter router rates against DeepSeek Official API and other hosting endpoints on PromptBill before locking production spend."
-    ],
-    "sections": [
-      {
-        "heading": "What Changed on OpenRouter",
-        "body": "Upstream routing telemetry on OpenRouter recorded a rate adjustment for DeepSeek V4.1 Flash from $0.0507 input / $0.2028 output per 1M tokens to $0.051 input / $0.567 output per 1M tokens. While input tokens remain essentially flat, output token costs carry a much larger share when generating long responses or multi-step tool outputs."
-      },
-      {
-        "heading": "Impact on Real API Workloads",
-        "body": "For short classification or extraction prompts with compact outputs, the change has minimal impact. However, for workloads generating 10M output tokens per month through OpenRouter, output spend rises from $2.03 to $5.67\u2014making it important to check endpoint-level pricing and model detail breakdowns on PromptBill."
-      }
-    ],
-    "sourceUrls": [
-      {
-        "label": "OpenRouter Models API",
-        "url": "https://openrouter.ai/api/v1/models"
-      },
-      {
-        "label": "PromptBill Pricing Methodology",
-        "url": "https://promptbill.online/methodology"
-      }
-    ]
-  },
-  {
-    "slug": "promptbill-multi-endpoint-pricing-and-benchmark-index",
-    "title": "PromptBill Expands Multi-Endpoint API Cost & Benchmark Tracking",
-    "summary": "Track official API rates, OpenRouter and inference cloud endpoints, cached reads, batch discounts, and benchmark scores in one place on PromptBill.",
-    "category": "Endpoint Update",
-    "publishedAt": "2026-11-27T12:00:00Z",
-    "updatedAt": "2026-11-27T12:00:00Z",
-    "authorName": "Zeeshan Mushtaq Lone",
-    "authorUrl": "https://promptbill.online/about",
-    "featured": false,
-    "relatedModelSlugs": [
-      "deepseek-v4-1-flash"
-    ],
+    "relatedModelSlugs": [],
     "priceDeltas": [],
     "keyTakeaways": [
-      "Separates first-party Official API rates from Router and Inference Cloud endpoints so cost comparisons stay transparent.",
-      "Tracks normalized USD per 1M token pricing alongside cached reads, batch discounts, context windows, and tokens-per-second throughput.",
-      "Connects individual model pages directly to side-by-side comparisons, token counters, and routing simulators."
+      "Every rate shift, new model launch, and inference endpoint change approved in PromptBill Admin publishes directly to /news.",
+      "Articles include structured NewsArticle JSON-LD metadata and links to per-1M token calculators and multi-provider comparisons."
     ],
     "sections": [
       {
-        "heading": "Why Endpoint Provenance Matters",
-        "body": "Two teams calling the same LLM can pay noticeably different amounts depending on whether they hit a provider's official API, an inference cloud, or a unified API router. PromptBill separates endpoint types and provenance labels so you can spot actual cost differences rather than blended averages."
-      },
-      {
-        "heading": "How to Use PromptBill for Cost Decisions",
-        "body": "Start on the All Models directory or Leaderboard to shortlist candidates by benchmark score, speed, or price, open a model's detail page to inspect endpoints, and run head-to-head comparisons before deploying."
+        "heading": "Why Live Rate Tracking Matters",
+        "body": "Inference providers frequently adjust input, output, and cached-read token rates across hosted endpoints. PromptBill logs verified pricing deltas alongside direct links to model detail pages and token cost calculators so engineering teams can audit spend before updating production routing."
       }
     ],
     "sourceUrls": [
       {
-        "label": "PromptBill All Models",
+        "label": "PromptBill Live Model Catalog",
         "url": "https://promptbill.online/models"
-      },
-      {
-        "label": "PromptBill Methodology",
-        "url": "https://promptbill.online/methodology"
       }
     ]
   }
