@@ -1,11 +1,767 @@
 [
   {
+    "slug": "gpt-5-image-new-model-2026-11-28",
+    "title": "GPT-5 Image API Pricing ($10 In / $10 Out per 1M) & Launch Guide",
+    "summary": "GPT-5 Image (OpenAI) update on PromptBill: input $10/1M, output $10/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-image"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-image",
+        "modelName": "GPT-5 Image",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 10,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 10
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5 Image (OpenAI) update on PromptBill: input $10/1M, output $10/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-image."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5 Image Pricing & Token Economics",
+        "body": "GPT-5 Image (OpenAI) update on PromptBill: input $10/1M, output $10/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "qwen3-vl-8b-instruct-new-model-2026-11-28",
+    "title": "Qwen3 VL 8B Instruct API Pricing ($0.25 In / $0.75 Out per 1M) & Launch Guide",
+    "summary": "Qwen3 VL 8B Instruct (Qwen) update on PromptBill: input $0.25/1M, output $0.75/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "qwen3-vl-8b-instruct"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "qwen3-vl-8b-instruct",
+        "modelName": "Qwen3 VL 8B Instruct",
+        "provider": "Qwen",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.25,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.75
+      }
+    ],
+    "keyTakeaways": [
+      "Qwen3 VL 8B Instruct (Qwen) update on PromptBill: input $0.25/1M, output $0.75/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/qwen3-vl-8b-instruct."
+    ],
+    "sections": [
+      {
+        "heading": "Qwen3 VL 8B Instruct Pricing & Token Economics",
+        "body": "Qwen3 VL 8B Instruct (Qwen) update on PromptBill: input $0.25/1M, output $0.75/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "claude-haiku-4-5-new-model-2026-11-28",
+    "title": "Claude Haiku 4.5 API Pricing ($1 In / $5 Out per 1M) & Launch Guide",
+    "summary": "Claude Haiku 4.5 (Anthropic) update on PromptBill: input $1/1M, output $5/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "claude-haiku-4-5"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "claude-haiku-4-5",
+        "modelName": "Claude Haiku 4.5",
+        "provider": "Anthropic",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 1,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 5
+      }
+    ],
+    "keyTakeaways": [
+      "Claude Haiku 4.5 (Anthropic) update on PromptBill: input $1/1M, output $5/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/claude-haiku-4-5."
+    ],
+    "sections": [
+      {
+        "heading": "Claude Haiku 4.5 Pricing & Token Economics",
+        "body": "Claude Haiku 4.5 (Anthropic) update on PromptBill: input $1/1M, output $5/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-5-image-mini-new-model-2026-11-28",
+    "title": "GPT-5 Image Mini API Pricing ($2.5 In / $2 Out per 1M) & Launch Guide",
+    "summary": "GPT-5 Image Mini (OpenAI) update on PromptBill: input $2.5/1M, output $2/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-image-mini"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-image-mini",
+        "modelName": "GPT-5 Image Mini",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 2.5,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 2
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5 Image Mini (OpenAI) update on PromptBill: input $2.5/1M, output $2/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-image-mini."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5 Image Mini Pricing & Token Economics",
+        "body": "GPT-5 Image Mini (OpenAI) update on PromptBill: input $2.5/1M, output $2/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-oss-safeguard-20b-new-model-2026-11-28",
+    "title": "gpt-oss-safeguard-20b API Pricing ($0.075 In / $0.3 Out per 1M) & Launch Guide",
+    "summary": "gpt-oss-safeguard-20b (OpenAI) update on PromptBill: input $0.075/1M, output $0.3/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-oss-safeguard-20b"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-oss-safeguard-20b",
+        "modelName": "gpt-oss-safeguard-20b",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.075,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.3
+      }
+    ],
+    "keyTakeaways": [
+      "gpt-oss-safeguard-20b (OpenAI) update on PromptBill: input $0.075/1M, output $0.3/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-oss-safeguard-20b."
+    ],
+    "sections": [
+      {
+        "heading": "gpt-oss-safeguard-20b Pricing & Token Economics",
+        "body": "gpt-oss-safeguard-20b (OpenAI) update on PromptBill: input $0.075/1M, output $0.3/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "voxtral-small-24b-2507-new-model-2026-11-28",
+    "title": "Voxtral Small 24B 2507 API Pricing ($0.1 In / $0.3 Out per 1M) & Launch Guide",
+    "summary": "Voxtral Small 24B 2507 (Mistral) update on PromptBill: input $0.1/1M, output $0.3/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "voxtral-small-24b-2507"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "voxtral-small-24b-2507",
+        "modelName": "Voxtral Small 24B 2507",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.1,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.3
+      }
+    ],
+    "keyTakeaways": [
+      "Voxtral Small 24B 2507 (Mistral) update on PromptBill: input $0.1/1M, output $0.3/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/voxtral-small-24b-2507."
+    ],
+    "sections": [
+      {
+        "heading": "Voxtral Small 24B 2507 Pricing & Token Economics",
+        "body": "Voxtral Small 24B 2507 (Mistral) update on PromptBill: input $0.1/1M, output $0.3/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-5-1-codex-mini-new-model-2026-11-28",
+    "title": "GPT-5.1-Codex-Mini API Pricing ($0.25 In / $2 Out per 1M) & Launch Guide",
+    "summary": "GPT-5.1-Codex-Mini (OpenAI) update on PromptBill: input $0.25/1M, output $2/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-1-codex-mini"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-1-codex-mini",
+        "modelName": "GPT-5.1-Codex-Mini",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.25,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 2
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5.1-Codex-Mini (OpenAI) update on PromptBill: input $0.25/1M, output $2/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-1-codex-mini."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5.1-Codex-Mini Pricing & Token Economics",
+        "body": "GPT-5.1-Codex-Mini (OpenAI) update on PromptBill: input $0.25/1M, output $2/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-5-1-codex-new-model-2026-11-28",
+    "title": "GPT-5.1-Codex API Pricing ($1.25 In / $10 Out per 1M) & Launch Guide",
+    "summary": "GPT-5.1-Codex (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.695Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-1-codex"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-1-codex",
+        "modelName": "GPT-5.1-Codex",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 1.25,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 10
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5.1-Codex (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-1-codex."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5.1-Codex Pricing & Token Economics",
+        "body": "GPT-5.1-Codex (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-5-1-new-model-2026-11-28",
+    "title": "GPT-5.1 API Pricing ($1.25 In / $10 Out per 1M) & Launch Guide",
+    "summary": "GPT-5.1 (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-1"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-1",
+        "modelName": "GPT-5.1",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 1.25,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 10
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5.1 (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-1."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5.1 Pricing & Token Economics",
+        "body": "GPT-5.1 (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gemini-3-pro-image-preview-new-model-2026-11-28",
+    "title": "Nano Banana Pro (Gemini 3 Pro Image Preview) API Pricing ($2 In / $12 Out per 1M) & Launch Guide",
+    "summary": "Nano Banana Pro (Gemini 3 Pro Image Preview) (Google Gemini) update on PromptBill: input $2/1M, output $12/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gemini-3-pro-image-preview"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gemini-3-pro-image-preview",
+        "modelName": "Nano Banana Pro (Gemini 3 Pro Image Preview)",
+        "provider": "Google Gemini",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 2,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 12
+      }
+    ],
+    "keyTakeaways": [
+      "Nano Banana Pro (Gemini 3 Pro Image Preview) (Google Gemini) update on PromptBill: input $2/1M, output $12/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gemini-3-pro-image-preview."
+    ],
+    "sections": [
+      {
+        "heading": "Nano Banana Pro (Gemini 3 Pro Image Preview) Pricing & Token Economics",
+        "body": "Nano Banana Pro (Gemini 3 Pro Image Preview) (Google Gemini) update on PromptBill: input $2/1M, output $12/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "claude-opus-4-5-new-model-2026-11-28",
+    "title": "Claude Opus 4.5 API Pricing ($5 In / $25 Out per 1M) & Launch Guide",
+    "summary": "Claude Opus 4.5 (Anthropic) update on PromptBill: input $5/1M, output $25/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "claude-opus-4-5"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "claude-opus-4-5",
+        "modelName": "Claude Opus 4.5",
+        "provider": "Anthropic",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 5,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 25
+      }
+    ],
+    "keyTakeaways": [
+      "Claude Opus 4.5 (Anthropic) update on PromptBill: input $5/1M, output $25/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/claude-opus-4-5."
+    ],
+    "sections": [
+      {
+        "heading": "Claude Opus 4.5 Pricing & Token Economics",
+        "body": "Claude Opus 4.5 (Anthropic) update on PromptBill: input $5/1M, output $25/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "deepseek-v3-2-new-model-2026-11-28",
+    "title": "DeepSeek V3.2 API Pricing ($0.26 In / $0.38 Out per 1M) & Launch Guide",
+    "summary": "DeepSeek V3.2 (DeepSeek) update on PromptBill: input $0.26/1M, output $0.38/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "deepseek-v3-2"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "deepseek-v3-2",
+        "modelName": "DeepSeek V3.2",
+        "provider": "DeepSeek",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.26,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.38
+      }
+    ],
+    "keyTakeaways": [
+      "DeepSeek V3.2 (DeepSeek) update on PromptBill: input $0.26/1M, output $0.38/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/deepseek-v3-2."
+    ],
+    "sections": [
+      {
+        "heading": "DeepSeek V3.2 Pricing & Token Economics",
+        "body": "DeepSeek V3.2 (DeepSeek) update on PromptBill: input $0.26/1M, output $0.38/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "mistral-large-2512-new-model-2026-11-28",
+    "title": "Mistral Large 3 2512 API Pricing ($0.5 In / $1.5 Out per 1M) & Launch Guide",
+    "summary": "Mistral Large 3 2512 (Mistral) update on PromptBill: input $0.5/1M, output $1.5/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "mistral-large-2512"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "mistral-large-2512",
+        "modelName": "Mistral Large 3 2512",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.5,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 1.5
+      }
+    ],
+    "keyTakeaways": [
+      "Mistral Large 3 2512 (Mistral) update on PromptBill: input $0.5/1M, output $1.5/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/mistral-large-2512."
+    ],
+    "sections": [
+      {
+        "heading": "Mistral Large 3 2512 Pricing & Token Economics",
+        "body": "Mistral Large 3 2512 (Mistral) update on PromptBill: input $0.5/1M, output $1.5/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "ministral-3b-2512-new-model-2026-11-28",
+    "title": "Ministral 3 3B 2512 API Pricing ($0.1 In / $0.1 Out per 1M) & Launch Guide",
+    "summary": "Ministral 3 3B 2512 (Mistral) update on PromptBill: input $0.1/1M, output $0.1/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "ministral-3b-2512"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "ministral-3b-2512",
+        "modelName": "Ministral 3 3B 2512",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.1,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.1
+      }
+    ],
+    "keyTakeaways": [
+      "Ministral 3 3B 2512 (Mistral) update on PromptBill: input $0.1/1M, output $0.1/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/ministral-3b-2512."
+    ],
+    "sections": [
+      {
+        "heading": "Ministral 3 3B 2512 Pricing & Token Economics",
+        "body": "Ministral 3 3B 2512 (Mistral) update on PromptBill: input $0.1/1M, output $0.1/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "ministral-8b-2512-new-model-2026-11-28",
+    "title": "Ministral 3 8B 2512 API Pricing ($0.15 In / $0.15 Out per 1M) & Launch Guide",
+    "summary": "Ministral 3 8B 2512 (Mistral) update on PromptBill: input $0.15/1M, output $0.15/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "ministral-8b-2512"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "ministral-8b-2512",
+        "modelName": "Ministral 3 8B 2512",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.15,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.15
+      }
+    ],
+    "keyTakeaways": [
+      "Ministral 3 8B 2512 (Mistral) update on PromptBill: input $0.15/1M, output $0.15/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/ministral-8b-2512."
+    ],
+    "sections": [
+      {
+        "heading": "Ministral 3 8B 2512 Pricing & Token Economics",
+        "body": "Ministral 3 8B 2512 (Mistral) update on PromptBill: input $0.15/1M, output $0.15/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "ministral-14b-2512-new-model-2026-11-28",
+    "title": "Ministral 3 14B 2512 API Pricing ($0.2 In / $0.2 Out per 1M) & Launch Guide",
+    "summary": "Ministral 3 14B 2512 (Mistral) update on PromptBill: input $0.2/1M, output $0.2/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "ministral-14b-2512"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "ministral-14b-2512",
+        "modelName": "Ministral 3 14B 2512",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.2,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 0.2
+      }
+    ],
+    "keyTakeaways": [
+      "Ministral 3 14B 2512 (Mistral) update on PromptBill: input $0.2/1M, output $0.2/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/ministral-14b-2512."
+    ],
+    "sections": [
+      {
+        "heading": "Ministral 3 14B 2512 Pricing & Token Economics",
+        "body": "Ministral 3 14B 2512 (Mistral) update on PromptBill: input $0.2/1M, output $0.2/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "gpt-5-1-codex-max-new-model-2026-11-28",
+    "title": "GPT-5.1-Codex-Max API Pricing ($1.25 In / $10 Out per 1M) & Launch Guide",
+    "summary": "GPT-5.1-Codex-Max (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.418Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-1-codex-max"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-1-codex-max",
+        "modelName": "GPT-5.1-Codex-Max",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 1.25,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 10
+      }
+    ],
+    "keyTakeaways": [
+      "GPT-5.1-Codex-Max (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/gpt-5-1-codex-max."
+    ],
+    "sections": [
+      {
+        "heading": "GPT-5.1-Codex-Max Pricing & Token Economics",
+        "body": "GPT-5.1-Codex-Max (OpenAI) update on PromptBill: input $1.25/1M, output $10/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
+    "slug": "devstral-2512-new-model-2026-11-28",
+    "title": "Devstral 2 2512 API Pricing ($0.4 In / $2 Out per 1M) & Launch Guide",
+    "summary": "Devstral 2 2512 (Mistral) update on PromptBill: input $0.4/1M, output $2/1M.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T18:38:50.417Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
+    "authorName": "PromptBill Research",
+    "authorUrl": "https://promptbill.online/methodology",
+    "featured": true,
+    "relatedModelSlugs": [
+      "devstral-2512"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "devstral-2512",
+        "modelName": "Devstral 2 2512",
+        "provider": "Mistral",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 0.4,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 2
+      }
+    ],
+    "keyTakeaways": [
+      "Devstral 2 2512 (Mistral) update on PromptBill: input $0.4/1M, output $2/1M.",
+      "Compare live endpoints and estimate monthly token spend on /models/devstral-2512."
+    ],
+    "sections": [
+      {
+        "heading": "Devstral 2 2512 Pricing & Token Economics",
+        "body": "Devstral 2 2512 (Mistral) update on PromptBill: input $0.4/1M, output $2/1M. Compare token costs, caching discounts, and throughput on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
     "slug": "gpt-5-2-update-2026-11-28",
     "title": "GPT-5.2 API Launch",
     "summary": "New model (openai/gpt-5.2) · Router $1.75/$14 per 1M · Context 400K",
     "category": "New Model",
     "publishedAt": "2026-11-28T17:22:55.523Z",
-    "updatedAt": "2026-11-28T17:24:44.029Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": true,
@@ -36,7 +792,7 @@
     "summary": "Qwen3.5-9B (Qwen) rate updated: input $0.066 -> $0.085/1M, output $0.097 -> $0.125/1M.",
     "category": "Endpoint Update",
     "publishedAt": "2026-11-28T17:11:44.654Z",
-    "updatedAt": "2026-11-28T17:24:44.029Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": false,
@@ -78,7 +834,7 @@
     "summary": "New model GPT-5.2 Pro (OpenAI) approved and added to the PromptBill catalog at $21 / $168 per 1M tokens.",
     "category": "New Model",
     "publishedAt": "2026-11-28T17:09:20.270Z",
-    "updatedAt": "2026-11-28T17:24:44.029Z",
+    "updatedAt": "2026-11-28T18:39:21.696Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": true,
