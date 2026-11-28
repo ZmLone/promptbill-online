@@ -1,126 +1,10 @@
 {
-  "updatedAt": "2026-11-28T12:50:54.041Z",
+  "updatedAt": "2026-11-28T16:41:58.912Z",
   "items": [
-    {
-      "queueId": "price:qwen3-5-9b",
-      "type": "price_update",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
-      "modelId": "qwen3-5-9b",
-      "modelSlug": "qwen3-5-9b",
-      "modelName": "Qwen3.5-9B",
-      "provider": "Qwen",
-      "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "summary": "OpenRouter price: $0.066/$0.097 -> $0.085/$0.125 per 1M",
-      "currentValues": {
-        "routerInputPer1M": 0.066,
-        "routerOutputPer1M": 0.097,
-        "officialInputPer1M": 0.08,
-        "officialOutputPer1M": 0.13
-      },
-      "proposedValues": {
-        "routerInputPer1M": 0.085,
-        "routerOutputPer1M": 0.125,
-        "remoteModelId": "qwen/qwen3.5-9b",
-        "lastVerified": "2026-11-28T12:50:54.041Z"
-      }
-    },
-    {
-      "queueId": "new:gpt-5-2-chat",
-      "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
-      "modelId": "gpt-5-2-chat",
-      "modelSlug": "gpt-5-2-chat",
-      "modelName": "GPT-5.2 Chat",
-      "provider": "OpenAI",
-      "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "summary": "New model (openai/gpt-5.2-chat) · Router $1.75/$14 per 1M · Context 128K",
-      "draftModel": {
-        "id": "gpt-5-2-chat",
-        "slug": "gpt-5-2-chat",
-        "rank": null,
-        "name": "GPT-5.2 Chat",
-        "provider": "OpenAI",
-        "providerSlug": "openai",
-        "family": null,
-        "license": null,
-        "evidence": "Estimated",
-        "score": null,
-        "qualityScore": null,
-        "interval": null,
-        "elo": null,
-        "inputPer1M": 1.75,
-        "cachedInputPer1M": null,
-        "cacheWritePer1M": null,
-        "outputPer1M": 14,
-        "longContextMultiplierInput": null,
-        "longContextMultiplierOutput": null,
-        "longContextThresholdTokens": null,
-        "contextWindow": "128K",
-        "maxOutputTokens": null,
-        "tokPerSec": null,
-        "speedTokensPerSec": null,
-        "ag": null,
-        "co": null,
-        "re": null,
-        "mm": null,
-        "kn": null,
-        "ml": null,
-        "if": null,
-        "ma": null,
-        "rpmLimit": null,
-        "tpmLimit": null,
-        "tpdLimit": null,
-        "batchDiscount": null,
-        "tier": null,
-        "bestFor": null,
-        "notes": "Discovered via OpenRouter (openai/gpt-5.2-chat); review official API pricing and benchmarks before publishing.",
-        "pricingProvenance": {
-          "status": "Estimated",
-          "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
-          "currency": "USD",
-          "pricingUnit": "per 1M tokens",
-          "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
-        },
-        "benchmarkProvenance": {
-          "status": "Unavailable",
-          "sourceUrl": null,
-          "lastVerified": null,
-          "notes": "No benchmark score measured or recorded."
-        },
-        "speedProvenance": {
-          "status": "Unavailable",
-          "sourceUrl": null,
-          "lastVerified": null,
-          "hardwareOrProvider": null,
-          "conditions": null,
-          "notes": "No speed measurement recorded."
-        },
-        "priceHistory": [],
-        "hostingEndpoints": [
-          {
-            "host": "OpenRouter",
-            "providerType": "Router",
-            "inputPer1M": 1.75,
-            "cachedInputPer1M": null,
-            "cacheWritePer1M": null,
-            "outputPer1M": 14,
-            "batchDiscount": null,
-            "latencyMs": null,
-            "notes": "Router listing from OpenRouter (openai/gpt-5.2-chat)",
-            "currency": "USD",
-            "pricingUnit": "per 1M tokens",
-            "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
-            "evidenceStatus": "Verified"
-          }
-        ]
-      }
-    },
     {
       "queueId": "new:gpt-5-2-pro",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-2-pro",
       "modelSlug": "gpt-5-2-pro",
       "modelName": "GPT-5.2 Pro",
@@ -170,7 +54,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -204,7 +88,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -213,7 +97,7 @@
     {
       "queueId": "new:gpt-5-2",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-2",
       "modelSlug": "gpt-5-2",
       "modelName": "GPT-5.2",
@@ -263,7 +147,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -297,7 +181,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -306,7 +190,7 @@
     {
       "queueId": "new:devstral-2512",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "devstral-2512",
       "modelSlug": "devstral-2512",
       "modelName": "Devstral 2 2512",
@@ -356,7 +240,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -390,7 +274,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -399,7 +283,7 @@
     {
       "queueId": "new:gpt-5-1-codex-max",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-1-codex-max",
       "modelSlug": "gpt-5-1-codex-max",
       "modelName": "GPT-5.1-Codex-Max",
@@ -449,7 +333,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -483,7 +367,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -492,7 +376,7 @@
     {
       "queueId": "new:ministral-14b-2512",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "ministral-14b-2512",
       "modelSlug": "ministral-14b-2512",
       "modelName": "Ministral 3 14B 2512",
@@ -542,7 +426,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -576,7 +460,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -585,7 +469,7 @@
     {
       "queueId": "new:ministral-8b-2512",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "ministral-8b-2512",
       "modelSlug": "ministral-8b-2512",
       "modelName": "Ministral 3 8B 2512",
@@ -635,7 +519,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -669,7 +553,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -678,7 +562,7 @@
     {
       "queueId": "new:ministral-3b-2512",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "ministral-3b-2512",
       "modelSlug": "ministral-3b-2512",
       "modelName": "Ministral 3 3B 2512",
@@ -728,7 +612,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -762,7 +646,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -771,7 +655,7 @@
     {
       "queueId": "new:mistral-large-2512",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "mistral-large-2512",
       "modelSlug": "mistral-large-2512",
       "modelName": "Mistral Large 3 2512",
@@ -821,7 +705,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -855,7 +739,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -864,7 +748,7 @@
     {
       "queueId": "new:deepseek-v3-2",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "deepseek-v3-2",
       "modelSlug": "deepseek-v3-2",
       "modelName": "DeepSeek V3.2",
@@ -914,7 +798,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -948,7 +832,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -957,7 +841,7 @@
     {
       "queueId": "new:claude-opus-4-5",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "claude-opus-4-5",
       "modelSlug": "claude-opus-4-5",
       "modelName": "Claude Opus 4.5",
@@ -1007,7 +891,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1041,7 +925,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1050,7 +934,7 @@
     {
       "queueId": "new:gemini-3-pro-image-preview",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gemini-3-pro-image-preview",
       "modelSlug": "gemini-3-pro-image-preview",
       "modelName": "Nano Banana Pro (Gemini 3 Pro Image Preview)",
@@ -1100,7 +984,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1134,7 +1018,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1143,7 +1027,7 @@
     {
       "queueId": "new:gpt-5-1",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-1",
       "modelSlug": "gpt-5-1",
       "modelName": "GPT-5.1",
@@ -1193,7 +1077,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1227,7 +1111,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1236,7 +1120,7 @@
     {
       "queueId": "new:gpt-5-1-codex",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-1-codex",
       "modelSlug": "gpt-5-1-codex",
       "modelName": "GPT-5.1-Codex",
@@ -1286,7 +1170,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1320,7 +1204,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1329,7 +1213,7 @@
     {
       "queueId": "new:gpt-5-1-codex-mini",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-1-codex-mini",
       "modelSlug": "gpt-5-1-codex-mini",
       "modelName": "GPT-5.1-Codex-Mini",
@@ -1379,7 +1263,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1413,7 +1297,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1422,7 +1306,7 @@
     {
       "queueId": "new:voxtral-small-24b-2507",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "voxtral-small-24b-2507",
       "modelSlug": "voxtral-small-24b-2507",
       "modelName": "Voxtral Small 24B 2507",
@@ -1472,7 +1356,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1506,7 +1390,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1515,7 +1399,7 @@
     {
       "queueId": "new:gpt-oss-safeguard-20b",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-oss-safeguard-20b",
       "modelSlug": "gpt-oss-safeguard-20b",
       "modelName": "gpt-oss-safeguard-20b",
@@ -1565,7 +1449,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1599,7 +1483,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1608,7 +1492,7 @@
     {
       "queueId": "new:gpt-5-image-mini",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "gpt-5-image-mini",
       "modelSlug": "gpt-5-image-mini",
       "modelName": "GPT-5 Image Mini",
@@ -1658,7 +1542,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1692,7 +1576,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1701,7 +1585,7 @@
     {
       "queueId": "new:claude-haiku-4-5",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "claude-haiku-4-5",
       "modelSlug": "claude-haiku-4-5",
       "modelName": "Claude Haiku 4.5",
@@ -1751,7 +1635,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1785,7 +1669,7 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
@@ -1794,7 +1678,7 @@
     {
       "queueId": "new:qwen3-vl-8b-instruct",
       "type": "new_model",
-      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
       "modelId": "qwen3-vl-8b-instruct",
       "modelSlug": "qwen3-vl-8b-instruct",
       "modelName": "Qwen3 VL 8B Instruct",
@@ -1844,7 +1728,7 @@
         "pricingProvenance": {
           "status": "Estimated",
           "sourceUrl": "https://openrouter.ai/api/v1/models",
-          "lastVerified": "2026-11-28T12:50:54.041Z",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
           "currency": "USD",
           "pricingUnit": "per 1M tokens",
           "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
@@ -1878,10 +1762,126 @@
             "currency": "USD",
             "pricingUnit": "per 1M tokens",
             "sourceUrl": "https://openrouter.ai/api/v1/models",
-            "lastVerified": "2026-11-28T12:50:54.041Z",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
             "evidenceStatus": "Verified"
           }
         ]
+      }
+    },
+    {
+      "queueId": "new:gpt-5-image",
+      "type": "new_model",
+      "detectedAt": "2026-11-28T16:41:58.912Z",
+      "modelId": "gpt-5-image",
+      "modelSlug": "gpt-5-image",
+      "modelName": "GPT-5 Image",
+      "provider": "OpenAI",
+      "sourceUrl": "https://openrouter.ai/api/v1/models",
+      "summary": "New model (openai/gpt-5-image) · Router $10/$10 per 1M · Context 400K",
+      "draftModel": {
+        "id": "gpt-5-image",
+        "slug": "gpt-5-image",
+        "rank": null,
+        "name": "GPT-5 Image",
+        "provider": "OpenAI",
+        "providerSlug": "openai",
+        "family": null,
+        "license": null,
+        "evidence": "Estimated",
+        "score": null,
+        "qualityScore": null,
+        "interval": null,
+        "elo": null,
+        "inputPer1M": 10,
+        "cachedInputPer1M": null,
+        "cacheWritePer1M": null,
+        "outputPer1M": 10,
+        "longContextMultiplierInput": null,
+        "longContextMultiplierOutput": null,
+        "longContextThresholdTokens": null,
+        "contextWindow": "400K",
+        "maxOutputTokens": null,
+        "tokPerSec": null,
+        "speedTokensPerSec": null,
+        "ag": null,
+        "co": null,
+        "re": null,
+        "mm": null,
+        "kn": null,
+        "ml": null,
+        "if": null,
+        "ma": null,
+        "rpmLimit": null,
+        "tpmLimit": null,
+        "tpdLimit": null,
+        "batchDiscount": null,
+        "tier": null,
+        "bestFor": null,
+        "notes": "Discovered via OpenRouter (openai/gpt-5-image); review official API pricing and benchmarks before publishing.",
+        "pricingProvenance": {
+          "status": "Estimated",
+          "sourceUrl": "https://openrouter.ai/api/v1/models",
+          "lastVerified": "2026-11-28T16:41:58.912Z",
+          "currency": "USD",
+          "pricingUnit": "per 1M tokens",
+          "notes": "Initial rate imported from OpenRouter; verify direct provider API pricing."
+        },
+        "benchmarkProvenance": {
+          "status": "Unavailable",
+          "sourceUrl": null,
+          "lastVerified": null,
+          "notes": "No benchmark score measured or recorded."
+        },
+        "speedProvenance": {
+          "status": "Unavailable",
+          "sourceUrl": null,
+          "lastVerified": null,
+          "hardwareOrProvider": null,
+          "conditions": null,
+          "notes": "No speed measurement recorded."
+        },
+        "priceHistory": [],
+        "hostingEndpoints": [
+          {
+            "host": "OpenRouter",
+            "providerType": "Router",
+            "inputPer1M": 10,
+            "cachedInputPer1M": null,
+            "cacheWritePer1M": null,
+            "outputPer1M": 10,
+            "batchDiscount": null,
+            "latencyMs": null,
+            "notes": "Router listing from OpenRouter (openai/gpt-5-image)",
+            "currency": "USD",
+            "pricingUnit": "per 1M tokens",
+            "sourceUrl": "https://openrouter.ai/api/v1/models",
+            "lastVerified": "2026-11-28T16:41:58.912Z",
+            "evidenceStatus": "Verified"
+          }
+        ]
+      }
+    },
+    {
+      "queueId": "price:qwen3-5-9b",
+      "type": "price_update",
+      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "modelId": "qwen3-5-9b",
+      "modelSlug": "qwen3-5-9b",
+      "modelName": "Qwen3.5-9B",
+      "provider": "Qwen",
+      "sourceUrl": "https://openrouter.ai/api/v1/models",
+      "summary": "OpenRouter price: $0.066/$0.097 -> $0.085/$0.125 per 1M",
+      "currentValues": {
+        "routerInputPer1M": 0.066,
+        "routerOutputPer1M": 0.097,
+        "officialInputPer1M": 0.08,
+        "officialOutputPer1M": 0.13
+      },
+      "proposedValues": {
+        "routerInputPer1M": 0.085,
+        "routerOutputPer1M": 0.125,
+        "remoteModelId": "qwen/qwen3.5-9b",
+        "lastVerified": "2026-11-28T12:50:54.041Z"
       }
     }
   ]
