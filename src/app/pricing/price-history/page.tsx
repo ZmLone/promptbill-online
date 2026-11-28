@@ -6,9 +6,9 @@ import { PricingSectionNav } from '../../../components/PricingSectionNav';
 import { PriceHistoryClient } from '../../../components/PriceHistoryClient';
 
 const BASE_URL = 'https://promptbill.online';
-const TITLE = 'LLM API Price History & Verification Ledger — Rate Changes & Audits | PromptBill';
+const TITLE = 'LLM API Pricing History — Historical Rate Changes Across All Providers | PromptBill';
 const DESCRIPTION =
-  'Track LLM API price history, launch rate snapshots, provider verification dates, and per-1M input, cached, and output token audits across 97 models on PromptBill.';
+  'Track LLM API pricing history, input and output price drops, and multi-provider token rate changes over time across OpenAI, Anthropic, Google, DeepSeek, Mistral, and more.';
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -33,24 +33,10 @@ function fmtRate(val: number | null): string {
 }
 
 export default function Page() {
-  const verifiedCount = ALL_MODELS.filter(
-    (m) => m.pricingProvenance?.status === 'Verified'
-  ).length;
-
-  const providerCount = new Set(
-    ALL_MODELS.map((m) => m.provider).filter((p): p is string => Boolean(p))
-  ).size;
-
   const latestVerificationDate =
     ALL_MODELS.map((m) => m.pricingProvenance?.lastVerified?.slice(0, 10) ?? '')
       .filter(Boolean)
-      .sort((a, b) => b.localeCompare(a))[0] ?? '2026-11-27';
-
-  const sortedForSchema = [...ALL_MODELS].sort((a, b) => {
-    const dA = a.pricingProvenance?.lastVerified ?? '';
-    const dB = b.pricingProvenance?.lastVerified ?? '';
-    return dB.localeCompare(dA);
-  });
+      .sort((a, b) => b.localeCompare(a))[0] ?? '2026-11-28';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -77,9 +63,9 @@ export default function Page() {
       },
       {
         '@type': 'Dataset',
-        name: 'PromptBill LLM API Price History & Verification Dataset',
+        name: 'PromptBill Multi-Provider LLM API Pricing History Dataset',
         description:
-          'Historical launch snapshots and verification audit log of LLM API token pricing normalized per 1 million tokens.',
+          'Historical input and output token rate changes per 1 million tokens across major LLM API providers.',
         url: `${BASE_URL}/pricing/price-history`,
         dateModified: latestVerificationDate,
         creator: {
@@ -89,22 +75,19 @@ export default function Page() {
         },
         variableMeasured: [
           'Input token price per 1M tokens (USD)',
-          'Cached input token price per 1M tokens (USD)',
           'Output token price per 1M tokens (USD)',
-          'Last verification date',
+          'Historical percentage price change (%)',
         ],
       },
       {
         '@type': 'ItemList',
-        name: 'Verified LLM API Rate Snapshots',
-        numberOfItems: sortedForSchema.length,
-        itemListElement: sortedForSchema.map((m, idx) => ({
+        name: 'LLM API Pricing History Models',
+        numberOfItems: ALL_MODELS.length,
+        itemListElement: ALL_MODELS.map((m, idx) => ({
           '@type': 'ListItem',
           position: idx + 1,
           url: `${BASE_URL}/models/${m.slug}`,
-          name: `${m.name} (${m.provider}) — Verified ${
-            m.pricingProvenance?.lastVerified?.slice(0, 10) ?? latestVerificationDate
-          }: In ${fmtRate(m.inputPer1M)} / Out ${fmtRate(m.outputPer1M)} per 1M`,
+          name: `${m.name} (${m.provider}) — In ${fmtRate(m.inputPer1M)} / Out ${fmtRate(m.outputPer1M)} per 1M`,
         })),
       },
       {
@@ -112,26 +95,18 @@ export default function Page() {
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'How does PromptBill track LLM API price history and rate changes?',
+            name: 'How have LLM API token prices changed across major providers?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'PromptBill logs dated launch rate snapshots, verified price reductions, and full catalog verification audits normalized to USD per 1 million input, cached input, and output tokens.',
+              text: 'Across major providers including OpenAI, Anthropic, Google, DeepSeek, and Mistral, per-1M input and output token rates have declined significantly over successive model generations and tier revisions, which PromptBill plots as percentage changes over time.',
             },
           },
           {
             '@type': 'Question',
-            name: 'Why do initial launch entries show Baseline instead of a percentage price change?',
+            name: 'How does PromptBill record new daily price snapshots?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'When a newly released model is recorded at its initial official API pricing without a prior rate schedule, PromptBill marks the delta as Baseline rather than inventing a synthetic prior price.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'How often are LLM API prices verified on PromptBill?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: `All ${ALL_MODELS.length} tracked models across ${providerCount} providers are audited against official provider pricing pages, with the latest catalog verification completed on ${latestVerificationDate}.`,
+              text: 'PromptBill combines archived multi-month provider pricing timelines with automated daily catalog snapshots stored via its pricing history API endpoint.',
             },
           },
         ],
@@ -141,7 +116,7 @@ export default function Page() {
 
   return (
     <SiteShell hidePageHeader>
-      <div className="max-w-6xl mx-auto space-y-8 pb-12">
+      <div className="max-w-6xl mx-auto space-y-6 pb-12">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -149,63 +124,34 @@ export default function Page() {
 
         <PricingSectionNav active="price-history" />
 
-        {/* Centered Editorial Header */}
-        <header className="text-center max-w-2xl mx-auto space-y-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
-            PromptBill · Rate Change &amp; Verification Ledger
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            LLM API Price History
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Chronological launch rate snapshots, provider price audits, and verified per-1M token schedules across {ALL_MODELS.length} tracked models.
-          </p>
-          <div className="pt-1 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-800 tabular-nums">
-            <span>{ALL_MODELS.length} Tracked Models</span>
-            <span>{verifiedCount} Verified</span>
-            <span>{providerCount} Providers</span>
-            <span>Latest Audit: {latestVerificationDate}</span>
+        <header className="text-center space-y-2 pt-2">
+          <h1 className="sr-only">LLM API Pricing History Across All Providers</h1>
+          <div>
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline underline-offset-4"
+            >
+              Click here to see the current prices for the major LLM APIs
+            </Link>
           </div>
+          <p className="text-xs sm:text-sm text-slate-500">
+            Last updated: {latestVerificationDate}
+          </p>
         </header>
 
-        {/* Interactive Timeline & Full Rate Audit Ledger */}
         <PriceHistoryClient models={ALL_MODELS} />
 
-        {/* GEO Q&A & Provenance Footer */}
-        <footer className="border-t border-slate-200 pt-8 max-w-3xl mx-auto space-y-6">
-          <div className="text-center space-y-1">
-            <h2 className="text-base font-semibold text-slate-950">
-              How Price History &amp; Verification Audits Work
-            </h2>
-            <p className="text-xs text-slate-600">
-              All rates are normalized to USD per 1,000,000 tokens. Initial releases are labeled Baseline until a subsequent price revision occurs.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left text-xs leading-relaxed">
-            <div className="space-y-1.5">
-              <h3 className="font-semibold text-slate-950">Launch Snapshots</h3>
-              <p className="text-slate-600">
-                Captures the initial verified API rate schedule when a flagship, workhorse, or nano model enters the catalog.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="font-semibold text-slate-950">Price Revisions</h3>
-              <p className="text-slate-600">
-                Records before-and-after input and output rates alongside percentage deltas whenever a provider cuts or updates pricing.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="font-semibold text-slate-950">Verification Audits</h3>
-              <p className="text-slate-600">
-                Confirms active token rates, prompt cache discounts, and endpoint counts against official documentation. See{' '}
-                <Link href="/methodology" className="underline underline-offset-2 text-slate-900 font-medium">
-                  Methodology
-                </Link>
-                .
-              </p>
-            </div>
-          </div>
+        <footer className="border-t border-slate-200 pt-6 text-center max-w-2xl mx-auto space-y-2 text-xs text-slate-600">
+          <h2 className="text-sm font-semibold text-slate-950">
+            Multi-Provider LLM Price History Methodology
+          </h2>
+          <p className="leading-relaxed">
+            Charts display cumulative percentage price changes per 1M input or output tokens across tracked providers, combining archived provider rate revisions with daily catalog snapshots. See{' '}
+            <Link href="/methodology" className="underline underline-offset-2 text-slate-900 font-medium">
+              Methodology
+            </Link>
+            .
+          </p>
         </footer>
       </div>
     </SiteShell>
