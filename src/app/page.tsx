@@ -250,7 +250,7 @@ export default function HomePage() {
         {/* Hero — Open Editorial Layout */}
         <section className="pt-2 sm:pt-6 space-y-10">
           <div className="max-w-4xl space-y-5">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-800">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-900">
               <ShieldCheck className="h-4 w-4 shrink-0" />
               <span>
                 {freshness.totalModels} Models · {totalEndpoints} Endpoints · Verified vs. Estimated Provenance
@@ -261,7 +261,7 @@ export default function HomePage() {
               LLM API pricing, multi-endpoint rates &amp; token cost math.
             </h1>
 
-            <p className="max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+            <p className="max-w-2xl text-base sm:text-lg text-slate-700 leading-relaxed">
               Compare per-1M-token rates across official provider APIs, inference clouds, and routers. Simulate prompt caching, batch discounts, and latency before deploying to production.
             </p>
 
@@ -289,42 +289,42 @@ export default function HomePage() {
           </div>
 
           {/* Open Architectural Telemetry Strip */}
-          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 border-y border-slate-200/80 py-6">
+          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 border-y border-slate-200 py-6">
             <div>
-              <dt className="text-xs font-medium text-slate-500">Tracked Models</dt>
+              <dt className="text-xs font-medium text-slate-700">Tracked Models</dt>
               <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
                 {freshness.totalModels}
               </dd>
-              <p className="mt-0.5 text-xs text-slate-500">Across {providers.length} providers</p>
+              <p className="mt-0.5 text-xs text-slate-700">Across {providers.length} providers</p>
             </div>
 
-            <div className="lg:border-l lg:border-slate-200/80 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-500">Verified Rate Cards</dt>
-              <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-emerald-800">
+            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <dt className="text-xs font-medium text-slate-700">Verified Rate Cards</dt>
+              <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-emerald-900">
                 {freshness.verifiedPricingCount}
               </dd>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-slate-700">
                 {freshness.estimatedPricingCount} estimated · {freshness.unavailablePricingCount} N/A
               </p>
             </div>
 
-            <div className="lg:border-l lg:border-slate-200/80 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-500">Hosting Endpoints</dt>
+            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <dt className="text-xs font-medium text-slate-700">Hosting Endpoints</dt>
               <dd className="mt-1 font-mono text-2xl sm:text-3xl font-bold text-slate-950">
                 {totalEndpoints}
               </dd>
-              <p className="mt-0.5 text-xs text-slate-500">Official APIs, Clouds &amp; Routers</p>
+              <p className="mt-0.5 text-xs text-slate-700">Official APIs, Clouds &amp; Routers</p>
             </div>
 
-            <div className="lg:border-l lg:border-slate-200/80 lg:pl-8">
-              <dt className="text-xs font-medium text-slate-500">Last Catalog Sync</dt>
+            <div className="lg:border-l lg:border-slate-200 lg:pl-8">
+              <dt className="text-xs font-medium text-slate-700">Last Catalog Sync</dt>
               <dd className="mt-1 font-mono text-xl sm:text-2xl font-bold text-slate-950">
                 {freshness.latestVerifiedDate
                   ? freshness.latestVerifiedDate.slice(0, 10)
                   : '2026-11-27'}
               </dd>
-              <p className="mt-0.5 text-xs text-slate-500">
-                <Link href="/methodology" className="text-emerald-800 font-semibold hover:underline">
+              <p className="mt-0.5 text-xs text-slate-700">
+                <Link href="/methodology" className="text-emerald-900 font-semibold hover:underline">
                   Provenance rules →
                 </Link>
               </p>
@@ -339,7 +339,7 @@ export default function HomePage() {
         <section aria-labelledby="catalog-snapshot-heading" className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">
                 Multi-Endpoint Rate Snapshot
               </p>
               <h2
@@ -348,7 +348,7 @@ export default function HomePage() {
               >
                 Frontier, Balanced &amp; Economy API Rates
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-700 mt-0.5">
                 Lowest available endpoint rate alongside official host coverage and output speed.
               </p>
             </div>
@@ -361,19 +361,19 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/pricing"
-                className="text-emerald-800 hover:text-emerald-950 underline underline-offset-4"
+                className="text-emerald-900 hover:text-emerald-950 underline underline-offset-4"
               >
                 All {ALL_MODELS.length} Models →
               </Link>
             </div>
           </div>
 
-          <div className="overflow-x-auto border-y border-slate-200/90 bg-white/60">
+          <div className="overflow-x-auto border-y border-slate-300 bg-white">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <caption className="sr-only">
                 Representative LLM API rates per 1 million tokens, endpoint hosts, and throughput on PromptBill
               </caption>
-              <thead className="sticky top-0 z-10 bg-[#fbfbfd]/95 backdrop-blur border-b border-slate-200 text-xs font-semibold text-slate-600">
+              <thead className="sticky top-0 z-10 bg-[#fbfbfd]/95 backdrop-blur border-b border-slate-200 text-xs font-semibold text-slate-700">
                 <tr>
                   <th scope="col" className="py-3.5 px-3 sm:px-4">Model</th>
                   <th scope="col" className="py-3.5 px-3 hidden lg:table-cell">Best Endpoint</th>
@@ -384,7 +384,7 @@ export default function HomePage() {
                   <th scope="col" className="py-3.5 px-3 sm:px-4 text-right">Context</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200/70">
+              <tbody className="divide-y divide-slate-200">
                 {snapshotModels.map((m) => {
                   const eff = getEffectiveModelRates(m, 'cheapest');
                   const extraHosts = Math.max(0, eff.endpointCount - 1);
@@ -402,7 +402,7 @@ export default function HomePage() {
                             <div className="flex items-center gap-2">
                               <Link
                                 href={`/models/${m.slug}`}
-                                className="font-bold text-slate-950 hover:text-emerald-800 hover:underline truncate"
+                                className="font-bold text-slate-950 hover:text-emerald-900 hover:underline truncate"
                               >
                                 {m.name}
                               </Link>
@@ -412,20 +412,20 @@ export default function HomePage() {
                                 </span>
                               )}
                             </div>
-                            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+                            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-700">
                               <span>{m.provider}</span>
                               <span>·</span>
                               <span
                                 className={
                                   m.pricingProvenance.status === 'Verified'
-                                    ? 'text-emerald-800 font-semibold'
+                                    ? 'text-emerald-900 font-semibold'
                                     : 'text-amber-800 font-semibold'
                                 }
                               >
                                 {m.pricingProvenance.status}
                               </span>
                               {extraHosts > 0 && (
-                                <span className="lg:hidden text-slate-500">
+                                <span className="lg:hidden text-slate-700">
                                   · +{extraHosts} {extraHosts === 1 ? 'host' : 'hosts'}
                                 </span>
                               )}
@@ -436,10 +436,10 @@ export default function HomePage() {
 
                       <td className="py-3.5 px-3 hidden lg:table-cell">
                         <div className="text-xs font-semibold text-slate-900">{eff.host}</div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-slate-700">
                           {eff.endpointCount} {eff.endpointCount === 1 ? 'endpoint' : 'endpoints'}
                           {eff.savingsPercent > 0 ? (
-                            <span className="ml-1.5 text-emerald-700 font-semibold">
+                            <span className="ml-1.5 text-emerald-800 font-semibold">
                               (-{eff.savingsPercent}% vs official)
                             </span>
                           ) : null}
@@ -450,7 +450,7 @@ export default function HomePage() {
                         {fmtRate(eff.inputPer1M)}
                       </td>
 
-                      <td className="py-3.5 px-3 font-mono font-medium text-emerald-800 hidden md:table-cell">
+                      <td className="py-3.5 px-3 font-mono font-medium text-emerald-900 hidden md:table-cell">
                         {fmtRate(eff.cachedInputPer1M)}
                       </td>
 
@@ -477,7 +477,7 @@ export default function HomePage() {
         <section aria-labelledby="leaderboard-pulse-heading" className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">
                 Catalog Intelligence
               </p>
               <h2
@@ -489,22 +489,22 @@ export default function HomePage() {
             </div>
             <Link
               href="/leaderboard"
-              className="text-xs sm:text-sm font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-4"
+              className="text-xs sm:text-sm font-semibold text-emerald-900 hover:text-emerald-950 underline underline-offset-4"
             >
               Open Full Leaderboard →
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x md:divide-slate-200/80 border-y border-slate-200/80 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x md:divide-slate-200 border-y border-slate-200 py-6">
             <div className="md:pr-8 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-800" />
                   Top Benchmark Score
                 </span>
-                <span className="text-[11px] font-mono text-slate-400">Overall</span>
+                <span className="text-[11px] font-mono text-slate-600">Overall</span>
               </div>
-              <ul className="divide-y divide-slate-200/60">
+              <ul className="divide-y divide-slate-200">
                 {topBenchmarkLeaders.map((m, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -517,11 +517,11 @@ export default function HomePage() {
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
-                          className="text-sm font-bold text-slate-950 hover:text-emerald-800 truncate block"
+                          className="text-sm font-bold text-slate-950 hover:text-emerald-900 truncate block"
                         >
                           {i + 1}. {m.name}
                         </Link>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[11px] text-slate-700">
                           {m.provider} · {fmtRate(m.inputPer1M)}/{fmtRate(m.outputPer1M)}
                         </span>
                       </div>
@@ -536,13 +536,13 @@ export default function HomePage() {
 
             <div className="md:px-8 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
-                  <Layers className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <Layers className="h-3.5 w-3.5 text-emerald-800" />
                   Best Score / Output $
                 </span>
-                <span className="text-[11px] font-mono text-slate-400">Efficiency</span>
+                <span className="text-[11px] font-mono text-slate-600">Efficiency</span>
               </div>
-              <ul className="divide-y divide-slate-200/60">
+              <ul className="divide-y divide-slate-200">
                 {topValueLeaders.map((m, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -555,16 +555,16 @@ export default function HomePage() {
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
-                          className="text-sm font-bold text-slate-950 hover:text-emerald-800 truncate block"
+                          className="text-sm font-bold text-slate-950 hover:text-emerald-900 truncate block"
                         >
                           {i + 1}. {m.name}
                         </Link>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[11px] text-slate-700">
                           Score {m.score?.toFixed(1)} · Out {fmtRate(m.outputPer1M)}/1M
                         </span>
                       </div>
                     </div>
-                    <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-500/12 rounded-md px-2 py-0.5 shrink-0">
+                    <span className="font-mono text-xs font-bold text-emerald-900 bg-emerald-500/12 rounded-md px-2 py-0.5 shrink-0">
                       {Math.round((m.score ?? 0) / (m.outputPer1M ?? 1))} pts/$
                     </span>
                   </li>
@@ -574,13 +574,13 @@ export default function HomePage() {
 
             <div className="md:pl-8 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
-                  <Zap className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <Zap className="h-3.5 w-3.5 text-emerald-800" />
                   Fastest Throughput
                 </span>
-                <span className="text-[11px] font-mono text-slate-400">tok/s</span>
+                <span className="text-[11px] font-mono text-slate-600">tok/s</span>
               </div>
-              <ul className="divide-y divide-slate-200/60">
+              <ul className="divide-y divide-slate-200">
                 {topSpeedLeaders.map(({ model: m, effective }, i) => (
                   <li key={m.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -593,11 +593,11 @@ export default function HomePage() {
                       <div className="min-w-0">
                         <Link
                           href={`/models/${m.slug}`}
-                          className="text-sm font-bold text-slate-950 hover:text-emerald-800 truncate block"
+                          className="text-sm font-bold text-slate-950 hover:text-emerald-900 truncate block"
                         >
                           {i + 1}. {m.name}
                         </Link>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[11px] text-slate-700">
                           via {effective.host}
                           {typeof effective.latencyMs === 'number' ? ` · <${effective.latencyMs}ms` : ''}
                         </span>
@@ -617,7 +617,7 @@ export default function HomePage() {
         <section aria-labelledby="platform-tools-heading" className="space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">
                 Developer Suite
               </p>
               <h2
@@ -629,7 +629,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/methodology"
-              className="text-xs sm:text-sm font-semibold text-emerald-800 underline underline-offset-4"
+              className="text-xs sm:text-sm font-semibold text-emerald-900 underline underline-offset-4"
             >
               Provenance Rules
             </Link>
@@ -641,7 +641,7 @@ export default function HomePage() {
               return (
                 <article
                   key={tool.href}
-                  className="group flex flex-col justify-between gap-3 border-t border-slate-200/80 pt-5"
+                  className="group flex flex-col justify-between gap-3 border-t border-slate-200 pt-5"
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
@@ -649,21 +649,21 @@ export default function HomePage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950/5 text-slate-900 group-hover:bg-slate-950 group-hover:text-white transition-colors">
                           <Icon className="h-4 w-4" />
                         </div>
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                           {tool.badge}
                         </span>
                       </div>
-                      <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 transition-colors" />
+                      <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover:text-emerald-800 transition-colors" />
                     </div>
                     <h3 className="text-base font-bold text-slate-950">
                       <Link
                         href={tool.href}
-                        className="group-hover:text-emerald-800 transition-colors"
+                        className="group-hover:text-emerald-900 transition-colors"
                       >
                         {tool.title}
                       </Link>
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                       {tool.description}
                     </p>
                   </div>
@@ -677,7 +677,7 @@ export default function HomePage() {
         <section aria-labelledby="curated-views-heading" className="space-y-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-900">
                 Workload Shortlists
               </p>
               <h2
@@ -695,7 +695,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border-y border-slate-200/80 py-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border-y border-slate-200 py-6">
             {CURATED_HUBS.map((hub) => (
               <Link
                 key={hub.href}
@@ -703,12 +703,12 @@ export default function HomePage() {
                 className="group space-y-1.5"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-sm sm:text-base font-bold text-slate-950 group-hover:text-emerald-800 transition-colors">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-950 group-hover:text-emerald-900 transition-colors">
                     {hub.title}
                   </h3>
-                  <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-700 shrink-0" />
+                  <ArrowUpRight className="h-4 w-4 text-slate-600 group-hover:text-emerald-800 shrink-0" />
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">{hub.subtitle}</p>
+                <p className="text-xs text-slate-700 leading-relaxed">{hub.subtitle}</p>
               </Link>
             ))}
           </div>
@@ -721,11 +721,11 @@ export default function HomePage() {
               <h2 id="home-faq-heading" className="text-lg sm:text-xl font-extrabold text-slate-950">
                 Pricing Methodology &amp; FAQ
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-700 mt-0.5">
                 How PromptBill normalizes token math, multi-host quotes, and provenance labels.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-900">
               <CheckCircle2 className="h-4 w-4" />
               Zero fabricated numbers
             </span>
@@ -734,27 +734,27 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs sm:text-sm text-slate-700">
             <div className="space-y-2">
               <h3 className="font-bold text-slate-950">What does PromptBill offer?</h3>
-              <p className="leading-relaxed text-slate-600">
+              <p className="leading-relaxed text-slate-700">
                 PromptBill combines a multi-endpoint API token pricing table, 30-day spend calculator, benchmark leaderboard, model comparison matrix, prompt tokenizer, and hybrid routing simulator.
               </p>
             </div>
 
             <div className="space-y-2">
               <h3 className="font-bold text-slate-950">How are monthly costs estimated?</h3>
-              <p className="leading-relaxed text-slate-600">
+              <p className="leading-relaxed text-slate-700">
                 Estimates multiply daily requests over 30 days using each endpoint&apos;s per-1M-token input, cached read, and output rates plus batch discounts and long-context multipliers where applicable.
               </p>
             </div>
 
             <div className="space-y-2">
               <h3 className="font-bold text-slate-950">How are official provider rates verified?</h3>
-              <p className="leading-relaxed text-slate-600">
+              <p className="leading-relaxed text-slate-700">
                 Verified entries cross-check primary provider rate cards such as{' '}
                 <a
                   href="https://platform.openai.com/docs/pricing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-emerald-800 underline underline-offset-2"
+                  className="font-semibold text-emerald-900 underline underline-offset-2"
                 >
                   OpenAI API Pricing Docs
                 </a>{' '}
@@ -763,7 +763,7 @@ export default function HomePage() {
                   href="https://docs.anthropic.com/en/docs/about-claude/pricing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-emerald-800 underline underline-offset-2"
+                  className="font-semibold text-emerald-900 underline underline-offset-2"
                 >
                   Anthropic Claude Pricing Docs
                 </a>

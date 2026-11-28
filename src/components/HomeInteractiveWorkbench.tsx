@@ -422,10 +422,10 @@ export function HomeInteractiveWorkbench({
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-      {/* Strictly Frame-Contained Colored Diagonal Binary (0 1 0 1) Wave */}
+      {/* World-Class Editorial Aurora Silk & Precision Topographic Contour Artwork (Frame-Contained) */}
       <div
         aria-hidden="true"
-        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
+        className="pb-prism-art pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
       >
         <svg
           viewBox="0 0 1200 640"
@@ -436,77 +436,76 @@ export function HomeInteractiveWorkbench({
             <clipPath id="pbCalcFrameClip">
               <rect x="0" y="0" width="1200" height="640" rx="28" ry="28" />
             </clipPath>
-            <linearGradient id="pbBinaryWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
-              <stop offset="32%" stopColor="#06B6D4" stopOpacity="0.18" />
-              <stop offset="68%" stopColor="#8B5CF6" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.22" />
+
+            {/* Primary Iridescent Silk Fold Gradient */}
+            <linearGradient id="pbSilkFoldPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
+              <stop offset="34%" stopColor="#06B6D4" stopOpacity="0.13" />
+              <stop offset="68%" stopColor="#6366F1" stopOpacity="0.13" />
+              <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.14" />
             </linearGradient>
-            <linearGradient id="pbBinaryTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#059669" stopOpacity="0.42" />
-              <stop offset="35%" stopColor="#0284C7" stopOpacity="0.38" />
-              <stop offset="70%" stopColor="#7C3AED" stopOpacity="0.38" />
-              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.42" />
+
+            {/* Secondary Luminous Counter-Fold */}
+            <linearGradient id="pbSilkFoldSecondary" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.11" />
+              <stop offset="50%" stopColor="#A855F7" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#34D399" stopOpacity="0.14" />
             </linearGradient>
-            <path
-              id="pbBinaryArc1"
-              d="M -20,25 C 280,85 370,335 670,365 C 935,390 1045,515 1220,615"
-            />
-            <path
-              id="pbBinaryArc2"
-              d="M -20,95 C 265,165 365,410 665,440 C 925,465 1035,565 1220,655"
-            />
-            <path
-              id="pbBinaryArc3"
-              d="M 40,-15 C 330,45 425,275 715,305 C 965,330 1070,450 1230,545"
-            />
+
+            {/* Fine Topographic Hairline Gradient */}
+            <linearGradient id="pbContourHairline" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#059669" stopOpacity="0.28" />
+              <stop offset="50%" stopColor="#0284C7" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.26" />
+            </linearGradient>
+
+            {/* Radial Corner Aura */}
+            <radialGradient id="pbCornerAuraTL" cx="0%" cy="0%" r="55%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="pbCornerAuraBR" cx="100%" cy="100%" r="55%">
+              <stop offset="0%" stopColor="#6366F1" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
           <g clipPath="url(#pbCalcFrameClip)">
-            {/* Soft Diagonal Color Wave Ribbon */}
+            <rect x="0" y="0" width="1200" height="640" fill="url(#pbCornerAuraTL)" />
+            <rect x="0" y="0" width="1200" height="640" fill="url(#pbCornerAuraBR)" />
+
+            {/* Sculpted Diagonal Silk Ribbon 1 */}
             <path
-              d="M 0,0 L 210,0 C 420,145 530,275 780,310 C 985,338 1100,435 1200,520 L 1200,640 L 970,640 C 770,510 645,395 405,360 C 205,330 95,215 0,115 Z"
-              fill="url(#pbBinaryWaveGrad)"
+              d="M 0,0 L 240,0 C 445,140 545,270 795,305 C 995,332 1105,425 1200,505 L 1200,640 L 945,640 C 745,505 625,388 385,352 C 195,322 90,205 0,105 Z"
+              fill="url(#pbSilkFoldPrimary)"
             />
 
-            {/* Colored 0 1 0 1 Binary Stream Flowing Along the Diagonal Wave */}
-            <text
-              fill="url(#pbBinaryTextGrad)"
-              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-              fontSize="14"
-              fontWeight="700"
-              letterSpacing="5"
-            >
-              <textPath href="#pbBinaryArc1" startOffset="2%">
-                0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1
-              </textPath>
-            </text>
+            {/* Sculpted Diagonal Silk Ribbon 2 */}
+            <path
+              d="M 0,45 C 215,155 370,320 640,355 C 885,388 1030,490 1200,605 L 1200,640 L 1060,640 C 890,525 745,435 505,405 C 265,375 135,250 0,155 Z"
+              fill="url(#pbSilkFoldSecondary)"
+            />
 
-            <text
-              fill="url(#pbBinaryTextGrad)"
-              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-              fontSize="13"
-              fontWeight="700"
-              letterSpacing="6"
-              opacity="0.82"
-            >
-              <textPath href="#pbBinaryArc2" startOffset="4%">
-                1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0
-              </textPath>
-            </text>
-
-            <text
-              fill="url(#pbBinaryTextGrad)"
-              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-              fontSize="12"
-              fontWeight="600"
-              letterSpacing="6"
-              opacity="0.72"
-            >
-              <textPath href="#pbBinaryArc3" startOffset="1%">
-                0 1 1 0 1 0 0 1 0 1 0 1 1 0 1 0 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 1 0 0 1 0 1 0 1 1 0 1 0 0 1
-              </textPath>
-            </text>
+            {/* Precision Architectural Contour Hairlines */}
+            <path
+              d="M 0,15 C 265,120 420,285 710,320 C 930,348 1065,445 1200,545"
+              fill="none"
+              stroke="url(#pbContourHairline)"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M 0,68 C 250,175 405,335 695,372 C 915,400 1050,495 1200,592"
+              fill="none"
+              stroke="url(#pbContourHairline)"
+              strokeWidth="1"
+              strokeDasharray="6 6"
+            />
+            <path
+              d="M 110,0 C 350,115 495,255 775,288 C 975,312 1095,395 1200,475"
+              fill="none"
+              stroke="url(#pbContourHairline)"
+              strokeWidth="1"
+            />
           </g>
         </svg>
       </div>
@@ -545,7 +544,7 @@ export function HomeInteractiveWorkbench({
               aria-expanded={exportMenuOpen}
               aria-haspopup="menu"
               onClick={() => setExportMenuOpen((prev) => !prev)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-700/30 bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-700/30 bg-emerald-700 px-4 text-xs font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-2xs"
             >
               <Download className="h-3.5 w-3.5 text-white" />
               <span>Export</span>
@@ -570,7 +569,7 @@ export function HomeInteractiveWorkbench({
                   <FileSpreadsheet className="h-4 w-4 text-emerald-700 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Spreadsheet (.CSV)</div>
-                    <div className="text-[11px] font-medium text-slate-600">
+                    <div className="text-[11px] font-medium text-slate-800">
                       All inputs, rates &amp; 30-day total
                     </div>
                   </div>
@@ -585,7 +584,7 @@ export function HomeInteractiveWorkbench({
                   <FileJson className="h-4 w-4 text-indigo-600 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Structured Data (.JSON)</div>
-                    <div className="text-[11px] font-medium text-slate-600">
+                    <div className="text-[11px] font-medium text-slate-800">
                       Machine-readable quote object
                     </div>
                   </div>
@@ -600,7 +599,7 @@ export function HomeInteractiveWorkbench({
                   <FileText className="h-4 w-4 text-sky-600 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Report Note (.TXT)</div>
-                    <div className="text-[11px] font-medium text-slate-600">
+                    <div className="text-[11px] font-medium text-slate-800">
                       Clean text summary download
                     </div>
                   </div>
@@ -617,13 +616,13 @@ export function HomeInteractiveWorkbench({
                   {copiedSummary ? (
                     <Check className="h-4 w-4 text-emerald-700 shrink-0" />
                   ) : (
-                    <Copy className="h-4 w-4 text-slate-500 shrink-0" />
+                    <Copy className="h-4 w-4 text-slate-700 shrink-0" />
                   )}
                   <div className="min-w-0">
                     <div className="text-slate-950">
                       {copiedSummary ? 'Copied to Clipboard' : 'Copy Summary'}
                     </div>
-                    <div className="text-[11px] font-medium text-slate-600">
+                    <div className="text-[11px] font-medium text-slate-800">
                       Paste into Slack, Notion, or docs
                     </div>
                   </div>
@@ -648,7 +647,7 @@ export function HomeInteractiveWorkbench({
                 className={`rounded-2xl px-3.5 py-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
                   active
                     ? 'bg-emerald-50/95 text-slate-950 shadow-xs ring-2 ring-emerald-600'
-                    : 'bg-white/90 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white hover:ring-slate-300'
+                    : 'bg-white/90 text-slate-900 ring-1 ring-slate-300 hover:bg-white hover:ring-slate-300'
                 }`}
               >
                 <span className="text-xs font-bold tracking-tight truncate">{p.label}</span>
@@ -666,7 +665,7 @@ export function HomeInteractiveWorkbench({
 
         <div className="lg:col-span-4 flex items-center">
           {hasMultipleHosts ? (
-            <div className="w-full rounded-2xl bg-white/90 ring-1 ring-slate-200/90 px-3.5 py-2.5 flex flex-col justify-between">
+            <div className="w-full rounded-2xl bg-white/90 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-between">
               <label
                 htmlFor="home-host-select"
                 className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 mb-1"
@@ -705,7 +704,7 @@ export function HomeInteractiveWorkbench({
               </select>
             </div>
           ) : (
-            <div className="w-full rounded-2xl bg-white/80 ring-1 ring-slate-200/80 px-3.5 py-2.5 flex flex-col justify-center">
+            <div className="w-full rounded-2xl bg-white/80 ring-1 ring-slate-300 px-3.5 py-2.5 flex flex-col justify-center">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
                 <Server className="h-3 w-3 text-emerald-700" />
                 <span>Single Host</span>
@@ -731,7 +730,7 @@ export function HomeInteractiveWorkbench({
                 >
                   Search &amp; Select Model
                 </label>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-800">
                   <ProviderLogo
                     provider={selectedModel.provider}
                     modelName={selectedModel.name}
@@ -743,21 +742,21 @@ export function HomeInteractiveWorkbench({
               </div>
 
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-800" />
                 <input
                   id="home-model-search"
                   type="text"
                   value={modelQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Type model name or provider (e.g. GPT-6.2, Claude, DeepSeek, Gemini)..."
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-600 focus:border-slate-900 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-800 focus:border-slate-900 focus:outline-none"
                 />
                 {modelQuery && (
                   <button
                     type="button"
                     aria-label="Clear model search"
                     onClick={() => setModelQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-800 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -772,7 +771,7 @@ export function HomeInteractiveWorkbench({
                   id="home-model-select"
                   value={selectedModel.slug}
                   onChange={(e) => setSelectedSlug(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none"
                 >
                   {dropdownOptions.map(({ model: m, chosen }) => (
                     <option key={m.id} value={m.slug}>
@@ -807,7 +806,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setCallsPerDay(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
               />
             </div>
 
@@ -826,7 +825,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setCachePct(Number(e.target.value));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-400 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-800 focus:border-slate-900 focus:outline-none"
               >
                 <option value={0}>0% (No cache hits)</option>
                 <option value={20}>20% Cached reads</option>
@@ -852,7 +851,7 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setInputTokens(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
               />
             </div>
 
@@ -873,12 +872,12 @@ export function HomeInteractiveWorkbench({
                   setPresetId('custom');
                   setOutputTokens(Math.max(0, Number(e.target.value) || 0));
                 }}
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/75 text-xs text-slate-600">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/75 text-xs text-slate-800">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
@@ -908,7 +907,7 @@ export function HomeInteractiveWorkbench({
                   : `Enable Batch (${Math.round(breakdown.batchDiscountRate * 100)}% off)`}
               </button>
             ) : (
-              <span className="text-slate-500">Batch discount: N/A</span>
+              <span className="text-slate-700">Batch discount: N/A</span>
             )}
           </div>
         </div>
@@ -1008,19 +1007,19 @@ export function HomeInteractiveWorkbench({
 
             <dl className="grid grid-cols-3 gap-3 border-t border-slate-200/90 pt-4 text-xs">
               <div>
-                <dt className="font-medium text-slate-600">Input / 1M</dt>
+                <dt className="font-medium text-slate-800">Input / 1M</dt>
                 <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.inputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-slate-600">Cached / 1M</dt>
+                <dt className="font-medium text-slate-800">Cached / 1M</dt>
                 <dd className="mt-0.5 font-mono font-bold text-emerald-800">
                   {fmtRate(activeRates.cachedInputPer1M)}
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-slate-600">Output / 1M</dt>
+                <dt className="font-medium text-slate-800">Output / 1M</dt>
                 <dd className="mt-0.5 font-mono font-bold text-slate-950">
                   {fmtRate(activeRates.outputPer1M)}
                 </dd>
@@ -1031,7 +1030,7 @@ export function HomeInteractiveWorkbench({
           <div className="relative z-10 flex flex-col sm:flex-row gap-2.5 pt-1">
             <Link
               href={`/models/${selectedModel.slug}`}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-xs sm:text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-2xs"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-xs sm:text-sm font-bold text-white hover:bg-emerald-800 transition-colors shadow-2xs"
             >
               <span>Inspect Endpoints</span>
               <ArrowRight className="h-4 w-4 text-white" />
