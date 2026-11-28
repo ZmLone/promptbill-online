@@ -572,6 +572,8 @@ export interface AdminNewsArticleInput {
   sourceUrls: { label: string; url: string }[];
 }
 
+const ADMIN_DRAFT_STORAGE_KEY = 'promptbill_admin_staged_draft_v1';
+
 export function AdminRegistryClient({
   initialModels,
   initialPending,
@@ -1205,10 +1207,7 @@ export function AdminRegistryClient({
       item.draftModel?.slug || item.modelSlug || slugify(item.modelName || item.modelId)
     );
 
-    const oldIn =
-      edits.routerInput.trim() !== ''
-        ? parseOptionalNum(String(cur.routerInputPer1M ?? cur.inputPer1M ?? ''))
-        : parseOptionalNum(String(cur.routerInputPer1M ?? cur.inputPer1M ?? ''));
+    const oldIn = parseOptionalNum(String(cur.routerInputPer1M ?? cur.inputPer1M ?? ''));
     const newIn =
       parseOptionalNum(edits.routerInput) ??
       parseOptionalNum(edits.officialInput) ??
