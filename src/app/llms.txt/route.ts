@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ALL_MODELS } from '../../lib/catalog';
-import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../../lib/modelRegistry';
+import { REGISTRY_SNAPSHOT } from '../../lib/modelRegistry';
 import { getLatestNewsArticles, formatNewsDate } from '../../lib/news';
 
 export const dynamic = 'force-static';
@@ -8,14 +8,13 @@ export const dynamic = 'force-static';
 const SITE_URL = 'https://promptbill.online';
 
 export async function GET() {
-  const seoCopy = buildDynamicSeoCopy();
   const latestNews = getLatestNewsArticles(10);
   const modelCount = Array.isArray(ALL_MODELS) ? ALL_MODELS.length : 0;
 
   const lines: string[] = [
     '# PromptBill',
     '',
-    `> ${seoCopy.metaDescription || 'LLM API token cost calculator, multi-provider inference endpoint comparator, and model benchmark ledger.'}`,
+    '> LLM API token cost calculator, multi-provider inference endpoint comparator, and model benchmark ledger.',
     '',
     '## Core Pages',
     `- [Home](${SITE_URL}/): Overview, pricing comparison, and cost estimator.`,
