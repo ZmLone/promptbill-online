@@ -420,12 +420,12 @@ export function HomeInteractiveWorkbench({
     <section
       id="estimator"
       aria-labelledby="quick-estimator-heading"
-      className="pb-calculator-shell relative overflow-hidden rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
+      className="pb-calculator-shell relative rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
       {/* Vivid Diagonal Corner-to-Corner Colorful Wave */}
       <div
         aria-hidden="true"
-        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden"
+        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden rounded-[28px] opacity-75"
       >
         <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-400/40 via-cyan-400/30 to-transparent blur-2xl" />
         <svg
@@ -477,7 +477,7 @@ export function HomeInteractiveWorkbench({
                 Live Math
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+            <p className="text-xs sm:text-sm font-medium text-slate-700 mt-0.5">
               Estimate monthly API spend with prompt caching, batch discounts, and endpoint routing.
             </p>
           </div>
@@ -507,7 +507,7 @@ export function HomeInteractiveWorkbench({
             {exportMenuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl z-30 space-y-0.5"
+                className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-300 bg-white p-2 shadow-2xl z-50 space-y-1"
               >
                 <button
                   type="button"
@@ -518,7 +518,7 @@ export function HomeInteractiveWorkbench({
                   <FileSpreadsheet className="h-4 w-4 text-emerald-700 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Spreadsheet (.CSV)</div>
-                    <div className="text-[10px] font-normal text-slate-500">
+                    <div className="text-[11px] font-medium text-slate-600">
                       All inputs, rates &amp; 30-day total
                     </div>
                   </div>
@@ -533,7 +533,7 @@ export function HomeInteractiveWorkbench({
                   <FileJson className="h-4 w-4 text-indigo-600 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Structured Data (.JSON)</div>
-                    <div className="text-[10px] font-normal text-slate-500">
+                    <div className="text-[11px] font-medium text-slate-600">
                       Machine-readable quote object
                     </div>
                   </div>
@@ -548,7 +548,7 @@ export function HomeInteractiveWorkbench({
                   <FileText className="h-4 w-4 text-sky-600 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-slate-950">Report Note (.TXT)</div>
-                    <div className="text-[10px] font-normal text-slate-500">
+                    <div className="text-[11px] font-medium text-slate-600">
                       Clean text summary download
                     </div>
                   </div>
@@ -571,7 +571,7 @@ export function HomeInteractiveWorkbench({
                     <div className="text-slate-950">
                       {copiedSummary ? 'Copied to Clipboard' : 'Copy Summary'}
                     </div>
-                    <div className="text-[10px] font-normal text-slate-500">
+                    <div className="text-[11px] font-medium text-slate-600">
                       Paste into Slack, Notion, or docs
                     </div>
                   </div>
@@ -602,7 +602,7 @@ export function HomeInteractiveWorkbench({
                 <span className="text-xs font-bold tracking-tight truncate">{p.label}</span>
                 <span
                   className={`mt-1 font-mono text-[10px] truncate ${
-                    active ? 'text-emerald-300' : 'text-slate-500'
+                    active ? 'text-emerald-300' : 'text-slate-700 font-semibold'
                   }`}
                 >
                   {p.spec}
@@ -617,7 +617,7 @@ export function HomeInteractiveWorkbench({
             <div className="w-full rounded-2xl bg-white/90 ring-1 ring-slate-200/90 px-3.5 py-2.5 flex flex-col justify-between">
               <label
                 htmlFor="home-host-select"
-                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-1"
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 mb-1"
               >
                 <Server className="h-3 w-3 text-emerald-700" />
                 <span>Active Endpoint</span>
@@ -654,7 +654,7 @@ export function HomeInteractiveWorkbench({
             </div>
           ) : (
             <div className="w-full rounded-2xl bg-white/80 ring-1 ring-slate-200/80 px-3.5 py-2.5 flex flex-col justify-center">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
                 <Server className="h-3 w-3 text-emerald-700" />
                 <span>Single Host</span>
               </span>
@@ -675,7 +675,7 @@ export function HomeInteractiveWorkbench({
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="home-model-search"
-                  className="text-xs font-semibold text-slate-700"
+                  className="text-xs font-bold text-slate-800"
                 >
                   Search &amp; Select Model
                 </label>
@@ -698,7 +698,7 @@ export function HomeInteractiveWorkbench({
                   value={modelQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Type model name or provider (e.g. GPT-6.2, Claude, DeepSeek, Gemini)..."
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-600 focus:border-slate-900 focus:outline-none"
                 />
                 {modelQuery && (
                   <button
@@ -741,7 +741,7 @@ export function HomeInteractiveWorkbench({
             <div>
               <label
                 htmlFor="home-calls-day"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-800 mb-1.5"
               >
                 Requests / Day
               </label>
@@ -762,7 +762,7 @@ export function HomeInteractiveWorkbench({
             <div>
               <label
                 htmlFor="home-cache-pct"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-800 mb-1.5"
               >
                 Prompt Cache Hit Share
               </label>
@@ -786,7 +786,7 @@ export function HomeInteractiveWorkbench({
             <div>
               <label
                 htmlFor="home-input-tok"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-800 mb-1.5"
               >
                 Input Tokens / Request
               </label>
@@ -807,7 +807,7 @@ export function HomeInteractiveWorkbench({
             <div>
               <label
                 htmlFor="home-output-tok"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-800 mb-1.5"
               >
                 Output Tokens / Request
               </label>
