@@ -35,13 +35,31 @@ export interface NewsArticle {
   sourceUrls: { label: string; url: string }[];
 }
 
+export const EDITORIAL_AUTHOR_NAME = 'PromptBill Research';
+export const EDITORIAL_AUTHOR_URL = 'https://promptbill.online/methodology';
+
+function normalizeEditorialArticle(article: NewsArticle): NewsArticle {
+  const rawAuthor = (article.authorName || '').trim();
+  const isPersonalByline = !rawAuthor || /zeeshan|mushtaq|lone/i.test(rawAuthor);
+  return {
+    ...article,
+    authorName: isPersonalByline ? EDITORIAL_AUTHOR_NAME : rawAuthor,
+    authorUrl:
+      isPersonalByline || !article.authorUrl || /\/about\/?$/i.test(article.authorUrl)
+        ? EDITORIAL_AUTHOR_URL
+        : article.authorUrl,
+  };
+}
+
 export function getAllNewsArticles(): NewsArticle[] {
   const list = Array.isArray(newsRaw) ? (newsRaw as NewsArticle[]) : [];
-  return [...list].sort((a, b) => {
-    const featuredDiff = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
-    if (featuredDiff !== 0) return featuredDiff;
-    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-  });
+  return [...list]
+    .map(normalizeEditorialArticle)
+    .sort((a, b) => {
+      const featuredDiff = Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+      if (featuredDiff !== 0) return featuredDiff;
+      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+    });
 }
 
 export function getLatestNewsArticles(limit = 5): NewsArticle[] {

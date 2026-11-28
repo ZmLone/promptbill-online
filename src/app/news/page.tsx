@@ -1,26 +1,41 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
+  EDITORIAL_AUTHOR_NAME,
   formatNewsDate,
   formatUsdPer1M,
   getAllNewsArticles,
   type NewsCategory,
 } from '@/lib/news';
+import { ShareBar } from '@/components/news/ShareBar';
 
 export const metadata: Metadata = {
-  title: 'LLM API Pricing News & Model Updates | PromptBill',
+  title: 'LLM API Pricing News, Price Drops & Model Launches | PromptBill',
   description:
-    'Live log of LLM API price drops, new model launches, benchmark shifts, and third-party inference endpoint updates across OpenRouter, Together AI, DeepInfra, Fireworks, and Bedrock.',
+    'Daily tracked LLM API token price drops, new model launches, benchmark shifts, and endpoint rate updates across OpenRouter, Together AI, DeepInfra, Fireworks, and Bedrock.',
+  keywords: [
+    'LLM API pricing news',
+    'AI token price drop',
+    'new LLM models API cost',
+    'OpenRouter pricing updates',
+    'inference endpoint pricing',
+  ],
   alternates: {
     canonical: 'https://promptbill.online/news',
   },
   openGraph: {
-    title: 'LLM API Pricing News & Model Updates | PromptBill',
+    title: 'LLM API Pricing News, Price Drops & Model Launches | PromptBill',
     description:
-      'Verified LLM API rate changes, new model releases, and inference endpoint updates tracked on PromptBill.',
+      'Verified LLM API rate changes, new model releases, and inference endpoint updates tracked by PromptBill Research.',
     url: 'https://promptbill.online/news',
     siteName: 'PromptBill',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LLM API Pricing News & Model Updates | PromptBill',
+    description:
+      'Verified LLM API token price drops, model launches, and endpoint rate comparisons.',
   },
 };
 
@@ -47,10 +62,16 @@ export default function NewsIndexPage() {
     '@type': 'CollectionPage',
     name: 'LLM API Pricing News & Model Updates',
     description:
-      'Verified LLM API price changes, model launches, and endpoint updates tracked by PromptBill.',
+      'Verified LLM API price changes, model launches, and endpoint updates tracked by PromptBill Research.',
     url: 'https://promptbill.online/news',
+    inLanguage: 'en-US',
     isPartOf: {
       '@type': 'WebSite',
+      name: 'PromptBill',
+      url: 'https://promptbill.online',
+    },
+    publisher: {
+      '@type': 'Organization',
       name: 'PromptBill',
       url: 'https://promptbill.online',
     },
@@ -82,14 +103,14 @@ export default function NewsIndexPage() {
 
       <header className="max-w-3xl space-y-3 mb-10">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-          API Rate &amp; Release Wire
+          API Rate &amp; Release Wire · {EDITORIAL_AUTHOR_NAME}
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-950">
           LLM API Pricing &amp; Endpoint News
         </h1>
         <p className="text-base text-slate-600 leading-relaxed">
-          Verified per-1M token rate changes, new model rollouts, and inference endpoint updates
-          logged from PromptBill&apos;s catalog registry.
+          Verified per-1M token rate changes, new model rollouts, monthly cost benchmarks, and
+          inference endpoint updates tracked by {EDITORIAL_AUTHOR_NAME}.
         </p>
       </header>
 
@@ -105,113 +126,123 @@ export default function NewsIndexPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {articles.map((article) => (
-            <article
-              key={article.slug}
-              className="group rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs transition-all hover:border-slate-300 hover:shadow-md"
-            >
-              <div className="flex flex-wrap items-center gap-2.5 text-xs mb-3">
-                <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold ${categoryBadgeStyle(
-                    article.category
-                  )}`}
-                >
-                  {article.category}
-                </span>
-                {article.featured ? (
-                  <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-900 px-2.5 py-0.5 text-[11px] font-semibold text-white">
-                    Featured
+          {articles.map((article) => {
+            const articleUrl = `https://promptbill.online/news/${article.slug}`;
+            const authorLabel =
+              !article.authorName || /zeeshan|mushtaq|lone/i.test(article.authorName)
+                ? EDITORIAL_AUTHOR_NAME
+                : article.authorName;
+
+            return (
+              <article
+                key={article.slug}
+                className="group rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs transition-all hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="flex flex-wrap items-center gap-2.5 text-xs mb-3">
+                  <span
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold ${categoryBadgeStyle(
+                      article.category
+                    )}`}
+                  >
+                    {article.category}
                   </span>
+                  {article.featured ? (
+                    <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-900 px-2.5 py-0.5 text-[11px] font-semibold text-white">
+                      Featured
+                    </span>
+                  ) : null}
+                  <time dateTime={article.publishedAt} className="text-slate-500 font-medium">
+                    {formatNewsDate(article.publishedAt)}
+                  </time>
+                  <span className="text-slate-400">· {authorLabel}</span>
+                </div>
+
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-950 group-hover:text-slate-700 transition-colors">
+                  <Link href={`/news/${article.slug}`}>{article.title}</Link>
+                </h2>
+
+                <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed">
+                  {article.summary}
+                </p>
+
+                {article.keyTakeaways.length > 0 ? (
+                  <ul className="mt-4 space-y-1.5 text-xs sm:text-sm text-slate-700 list-disc pl-5">
+                    {article.keyTakeaways.slice(0, 3).map((point, idx) => (
+                      <li key={idx}>{point}</li>
+                    ))}
+                  </ul>
                 ) : null}
-                <time dateTime={article.publishedAt} className="text-slate-500 font-medium">
-                  {formatNewsDate(article.publishedAt)}
-                </time>
-                {article.authorName ? (
-                  <span className="text-slate-400">· By {article.authorName}</span>
-                ) : null}
-              </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-950 group-hover:text-slate-700 transition-colors">
-                <Link href={`/news/${article.slug}`}>{article.title}</Link>
-              </h2>
-
-              <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed">
-                {article.summary}
-              </p>
-
-              {article.priceDeltas.length > 0 ? (
-                <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/70">
-                  <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
-                    <thead className="bg-slate-100/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
-                      <tr>
-                        <th className="px-3.5 py-2.5">Model</th>
-                        <th className="px-3.5 py-2.5">Endpoint</th>
-                        <th className="px-3.5 py-2.5">Input / 1M</th>
-                        <th className="px-3.5 py-2.5">Output / 1M</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/70 bg-white font-mono">
-                      {article.priceDeltas.map((delta, i) => (
-                        <tr key={`${delta.modelSlug}-${i}`}>
-                          <td className="px-3.5 py-2.5 font-sans font-semibold text-slate-900">
-                            <Link
-                              href={`/models/${delta.modelSlug}`}
-                              className="hover:underline"
-                            >
-                              {delta.modelName}
-                            </Link>
-                          </td>
-                          <td className="px-3.5 py-2.5 font-sans text-slate-600">
-                            {delta.endpointHost || delta.provider}
-                          </td>
-                          <td className="px-3.5 py-2.5 text-slate-900">
-                            {delta.oldInputPer1M != null ? (
-                              <span className="text-slate-400 line-through mr-1.5">
-                                {formatUsdPer1M(delta.oldInputPer1M)}
-                              </span>
-                            ) : null}
-                            <span className="font-semibold">
-                              {formatUsdPer1M(delta.newInputPer1M)}
-                            </span>
-                          </td>
-                          <td className="px-3.5 py-2.5 text-slate-900">
-                            {delta.oldOutputPer1M != null ? (
-                              <span className="text-slate-400 line-through mr-1.5">
-                                {formatUsdPer1M(delta.oldOutputPer1M)}
-                              </span>
-                            ) : null}
-                            <span className="font-semibold">
-                              {formatUsdPer1M(delta.newOutputPer1M)}
-                            </span>
-                          </td>
+                {article.priceDeltas.length > 0 ? (
+                  <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/70">
+                    <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+                      <thead className="bg-slate-100/80 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                        <tr>
+                          <th className="px-3.5 py-2.5">Model</th>
+                          <th className="px-3.5 py-2.5">Endpoint</th>
+                          <th className="px-3.5 py-2.5">Input / 1M</th>
+                          <th className="px-3.5 py-2.5">Output / 1M</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : null}
+                      </thead>
+                      <tbody className="divide-y divide-slate-200/70 bg-white font-mono">
+                        {article.priceDeltas.map((delta, i) => (
+                          <tr key={`${delta.modelSlug}-${i}`}>
+                            <td className="px-3.5 py-2.5 font-sans font-semibold text-slate-900">
+                              <Link
+                                href={`/models/${delta.modelSlug}`}
+                                className="hover:underline"
+                              >
+                                {delta.modelName}
+                              </Link>
+                            </td>
+                            <td className="px-3.5 py-2.5 font-sans text-slate-600">
+                              {delta.endpointHost || delta.provider}
+                            </td>
+                            <td className="px-3.5 py-2.5 text-slate-900">
+                              {delta.oldInputPer1M != null ? (
+                                <span className="text-slate-400 line-through mr-1.5">
+                                  {formatUsdPer1M(delta.oldInputPer1M)}
+                                </span>
+                              ) : null}
+                              <span className="font-semibold">
+                                {formatUsdPer1M(delta.newInputPer1M)}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-2.5 text-slate-900">
+                              {delta.oldOutputPer1M != null ? (
+                                <span className="text-slate-400 line-through mr-1.5">
+                                  {formatUsdPer1M(delta.oldOutputPer1M)}
+                                </span>
+                              ) : null}
+                              <span className="font-semibold">
+                                {formatUsdPer1M(delta.newOutputPer1M)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
 
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
-                <div className="flex flex-wrap items-center gap-2">
-                  {article.relatedModelSlugs.map((slug) => (
-                    <Link
-                      key={slug}
-                      href={`/models/${slug}`}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono text-[11px] font-medium text-slate-700 hover:bg-slate-100"
-                    >
-                      /models/{slug}
-                    </Link>
-                  ))}
+                <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <ShareBar
+                    url={articleUrl}
+                    title={article.title}
+                    summary={article.summary}
+                    compact
+                  />
+
+                  <Link
+                    href={`/news/${article.slug}`}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-slate-900 hover:text-slate-600"
+                  >
+                    Read full analysis →
+                  </Link>
                 </div>
-                <Link
-                  href={`/news/${article.slug}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-900 hover:text-slate-600"
-                >
-                  Read full breakdown →
-                </Link>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </main>

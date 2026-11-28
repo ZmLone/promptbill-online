@@ -1231,25 +1231,72 @@ export function AdminRegistryClient({
         ? 'Benchmark Shift'
         : 'Endpoint Update';
 
+    const inRateLabel = newIn !== null ? `$${newIn}` : 'N/A';
+    const outRateLabel = newOut !== null ? `$${newOut}` : 'N/A';
+    const oldInLabel = oldIn !== null ? `$${oldIn}` : 'N/A';
+    const oldOutLabel = oldOut !== null ? `$${oldOut}` : 'N/A';
+
     const title =
       item.type === 'new_model'
-        ? `${item.modelName} Added to PromptBill Catalog`
+        ? `${item.modelName} API Pricing (${inRateLabel} In / ${outRateLabel} Out per 1M) & Launch Guide`
         : isPriceDrop
-        ? `${item.modelName} API Price Drop on OpenRouter`
-        : `${item.modelName} ${item.type === 'benchmark_update' ? 'Benchmark & Speed Update' : 'API Rate Update'}`;
+        ? `${item.modelName} API Price Drop: New Rates at ${inRateLabel} In / ${outRateLabel} Out per 1M`
+        : `${item.modelName} (${item.provider}) ${
+            item.type === 'benchmark_update' ? 'Benchmark & Throughput Update' : 'API Rate & Endpoint Update'
+          }`;
+
+    // Estimate 10M input + 2M output monthly workload cost when rates are known
+    const sample10MInputCost = newIn !== null ? Number((newIn * 10).toFixed(2)) : null;
+    const sample2MOutputCost = newOut !== null ? Number((newOut * 2).toFixed(2)) : null;
+    const sampleBundleCost =
+      sample10MInputCost !== null && sample2MOutputCost !== null
+        ? Number((sample10MInputCost + sample2MOutputCost).toFixed(2))
+        : null;
+
+    const oldBundleCost =
+      oldIn !== null && oldOut !== null
+        ? Number((oldIn * 10 + oldOut * 2).toFixed(2))
+        : null;
 
     const summary =
       item.type === 'new_model'
-        ? `New model ${item.modelName} (${item.provider}) approved and added to the PromptBill catalog${
-            newIn !== null && newOut !== null ? ` at $${newIn} / $${newOut} per 1M tokens` : ''
+        ? `${item.modelName} by ${item.provider} is now indexed on PromptBill at ${inRateLabel} per 1M input tokens and ${outRateLabel} per 1M output tokens. Compare endpoints, estimate monthly token spend, and benchmark performance.`
+        : `${item.modelName} (${item.provider}) updated API rates from ${oldInLabel} / ${oldOutLabel} to ${inRateLabel} / ${outRateLabel} per 1M tokens (input / output). See monthly workload cost impact and routing guidance.`;
+
+    const keyTakeaways = [
+      `${item.modelName} (${item.provider}) current tracked rates: ${inRateLabel} per 1M input tokens and ${outRateLabel} per 1M output tokens.`,
+      oldIn !== null || oldOut !== null
+        ? `Rate transition: input changed ${oldInLabel} → ${inRateLabel} per 1M; output changed ${oldOutLabel} → ${outRateLabel} per 1M.`
+        : `Context window: ${edits.contextWindow.trim() || item.draftModel?.contextWindow || 'Check model spec sheet'}.`,
+      sampleBundleCost !== null
+        ? `A typical production workload of 10M input + 2M output tokens per month costs ~$${sampleBundleCost}${
+            oldBundleCost !== null ? ` (vs. ~$${oldBundleCost} previously)` : ''
           }.`
-        : newIn !== null || newOut !== null
-        ? `${item.modelName} (${item.provider}) rate updated: input ${
-            oldIn !== null ? `$${oldIn}` : 'N/A'
-          } -> ${newIn !== null ? `$${newIn}` : 'N/A'}/1M, output ${
-            oldOut !== null ? `$${oldOut}` : 'N/A'
-          } -> ${newOut !== null ? `$${newOut}` : 'N/A'}/1M.`
-        : item.summary || `Approved ${item.type.replace('_', ' ')} for ${item.modelName} (${item.provider}).`;
+        : `Use PromptBill's Token Cost Calculator to model custom input-to-output token ratios and caching savings.`,
+      `Inspect live endpoint routing, latency, and throughput details on /models/${resolvedSlug}.`,
+    ];
+
+    const sections = [
+      {
+        heading: `${item.modelName} Pricing & Token Economics`,
+        body:
+          `${summary} For engineering teams building chat assistants, RAG pipelines, code agents, or batch classification jobs, token pricing splits directly between prompt (input) tokens and generated completion (output) tokens. Because output tokens often carry a higher per-million-token multiplier than input tokens, prompt length and response verbosity strongly shape total billable cost.`,
+      },
+      {
+        heading: 'Estimated Monthly Spend Across Common Workloads',
+        body:
+          sampleBundleCost !== null
+            ? `At 10 million input tokens and 2 million output tokens per month, ${item.modelName} costs approximately $${sampleBundleCost} before cache or batch discounts (input: $${sample10MInputCost}, output: $${sample2MOutputCost}). Scaling to 100 million input tokens and 20 million output tokens per month equates to roughly $${(
+                sampleBundleCost * 10
+              ).toFixed(2)} at base rates. If your application sends repeated system prompts or long context prefixes, prompt caching and batch APIs can lower effective spend further.`
+            : `Actual monthly spend for ${item.modelName} depends on your ratio of cached vs. uncached input tokens, average output token length, and whether you route through official provider APIs, inference clouds, or multi-model routers. Open the PromptBill Token Cost Calculator to test custom monthly token volumes.`,
+      },
+      {
+        heading: 'How to Route & Optimize Costs in Production',
+        body:
+          `Compare ${item.modelName} on /models/${resolvedSlug} and side-by-side against alternatives on /compare before locking in a default endpoint. Enable prompt caching where system prompts or retrieval contexts repeat across requests, keep system instructions concise, cap max output tokens to match task requirements, and re-check throughput and latency under peak traffic.`,
+      },
+    ];
 
     return {
       slug: `${resolvedSlug}-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${dateStamp}`,
@@ -1258,8 +1305,8 @@ export function AdminRegistryClient({
       category,
       publishedAt: nowIso,
       updatedAt: nowIso,
-      authorName: 'Zeeshan Mushtaq Lone',
-      authorUrl: 'https://promptbill.online/about',
+      authorName: 'PromptBill Research',
+      authorUrl: 'https://promptbill.online/methodology',
       featured: isPriceDrop || item.type === 'new_model',
       relatedModelSlugs: [resolvedSlug],
       priceDeltas:
@@ -1277,16 +1324,8 @@ export function AdminRegistryClient({
               },
             ]
           : [],
-      keyTakeaways: [
-        summary,
-        `Inspect live pricing, endpoints, and token cost estimates at /models/${resolvedSlug}.`,
-      ],
-      sections: [
-        {
-          heading: 'Approved Registry Change',
-          body: `${summary} View full endpoint comparisons and token calculations on PromptBill.`,
-        },
-      ],
+      keyTakeaways,
+      sections,
       sourceUrls: item.sourceUrl
         ? [{ label: 'Source Reference', url: item.sourceUrl }]
         : [{ label: 'OpenRouter Models API', url: 'https://openrouter.ai/api/v1/models' }],
@@ -1489,7 +1528,7 @@ export function AdminRegistryClient({
     setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
     setHasUnpublishedChanges(true);
     setStatusLog((prev) => [
-      `Approved: ${item.modelName} (${item.type.replace('_', ' ')}) + staged news draft "${autoDraft.title}"`,
+      `Approved: ${item.modelName} (${item.type.replace('_', ' ')}) + staged SEO news draft "${autoDraft.title}"`,
       ...prev,
     ]);
   }
@@ -2102,8 +2141,8 @@ export function AdminRegistryClient({
       category: newsForm.category,
       publishedAt: nowIso,
       updatedAt: nowIso,
-      authorName: 'Zeeshan Mushtaq Lone',
-      authorUrl: 'https://promptbill.online/about',
+      authorName: 'PromptBill Research',
+      authorUrl: 'https://promptbill.online/methodology',
       featured: newsForm.featured,
       relatedModelSlugs: slugs,
       priceDeltas,
