@@ -89,15 +89,12 @@ function escapeCsvCell(val: unknown): string {
   const str = val === null || val === undefined ? '' : String(val);
   const quote = String.fromCharCode(34);
   const doubleQuote = String.fromCharCode(34, 34);
-  const hasQuote = str.indexOf(quote) !== -1;
-  const hasComma = str.indexOf(',') !== -1;
-  const hasNewline = str.indexOf('\n') !== -1 || str.indexOf('\r') !== -1;
-  if (hasQuote || hasComma || hasNewline) {
-    return quote + str.split(quote).join(doubleQuote) + quote;
-  }
-  return str;
-}
-  return str;
+  const needsQuote =
+    str.indexOf(quote) !== -1 ||
+    str.indexOf(',') !== -1 ||
+    str.indexOf('\n') !== -1 ||
+    str.indexOf('\r') !== -1;
+  return needsQuote ? quote + str.split(quote).join(doubleQuote) + quote : str;
 }
 
 export function HomeInteractiveWorkbench({
