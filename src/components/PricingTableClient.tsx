@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import type { CatalogModel } from '../../lib/catalog';
+import type { CatalogModel } from '../lib/catalog';
 import {
   Search,
   ArrowUpRight,
