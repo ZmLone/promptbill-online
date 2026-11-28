@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { SiteFooter } from '../components/SiteFooter';
 import './globals.css';
 
 const inter = Inter({
@@ -59,9 +58,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen flex flex-col bg-white text-slate-950 font-sans antialiased selection:bg-slate-900 selection:text-white">
-        <div className="flex-1">{children}</div>
-        <SiteFooter />
+      <body className="min-h-screen bg-white text-slate-950 font-sans antialiased selection:bg-slate-900 selection:text-white">
+        {children}
       </body>
     </html>
   );
