@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import type { CatalogModel } from '../lib/catalog';
 import {
+  formatProviderName,
   toModelHistoryRecords,
   type ModelHistoryRecord,
   type PriceMetricKey,
@@ -72,7 +73,7 @@ export function PriceHistoryClient({
       const data = await res.json();
       if (res.ok && data.ok) {
         setSyncStatus(
-          `Synced ${data.trackedModels} OpenRouter models (${data.changesDetected} price changes recorded)`
+          `Synced ${data.trackedModels} models · ${data.changesDetected} rate updates · ${data.newModelsAdded} new`
         );
         loadHistory();
       } else {
@@ -85,17 +86,23 @@ export function PriceHistoryClient({
     }
   };
 
+  // Deduplicate provider names through canonical normalization so ~anthropic / anthropic never appear twice
   const providers = useMemo(() => {
     const names = new Set<string>();
     for (const r of records) {
-      if (r.provider) names.add(r.provider);
+      const canonical = formatProviderName(r.provider || 'Other');
+      if (canonical) names.add(canonical);
     }
     return ['all', ...Array.from(names).sort((a, b) => a.localeCompare(b))];
   }, [records]);
 
   const computedSeries = useMemo(() => {
     return records
-      .filter((r) => selectedProvider === 'all' || r.provider === selectedProvider)
+      .filter(
+        (r) =>
+          selectedProvider === 'all' ||
+          formatProviderName(r.provider) === selectedProvider
+      )
       .map((r) => {
         const pts = r.points.map((pt) => ({
           date: pt.date,
@@ -103,17 +110,22 @@ export function PriceHistoryClient({
         }));
         const firstVal = pts[0]?.val ?? 0;
         const lastVal = pts[pts.length - 1]?.val ?? 0;
-        const pctChange =
+        const rawPct =
           firstVal > 0 ? ((lastVal - firstVal) / firstVal) * 100 : 0;
+        const pctChange = Math.max(-100, Math.min(300, rawPct));
 
-        const normalizedPts = pts.map((pt) => ({
-          date: pt.date,
-          val: pt.val,
-          pctFromStart: firstVal > 0 ? ((pt.val - firstVal) / firstVal) * 100 : 0,
-        }));
+        const normalizedPts = pts.map((pt) => {
+          const rawPtPct = firstVal > 0 ? ((pt.val - firstVal) / firstVal) * 100 : 0;
+          return {
+            date: pt.date,
+            val: pt.val,
+            pctFromStart: Math.max(-100, Math.min(300, rawPtPct)),
+          };
+        });
 
         return {
           ...r,
+          provider: formatProviderName(r.provider),
           metricStart: firstVal,
           metricCurrent: lastVal,
           metricPctChange: pctChange,
@@ -160,7 +172,7 @@ export function PriceHistoryClient({
       }
     }
     const lower = minVal < 0 ? Math.max(-100, Math.floor(minVal / 20) * 20) : 0;
-    const upper = maxVal > 0 ? Math.ceil(maxVal / 20) * 20 : lower === 0 ? 100 : 0;
+    const upper = maxVal > 0 ? Math.min(300, Math.ceil(maxVal / 20) * 20) : lower === 0 ? 100 : 0;
     const finalUpper = upper === lower ? lower + 20 : upper;
 
     const steps = 5;
@@ -235,7 +247,6 @@ export function PriceHistoryClient({
       ? 'text-rose-600'
       : 'text-slate-950';
 
-  // Cap SVG line rendering to top 80 series when "All Providers" has 300+ OpenRouter models so DOM stays instant
   const chartSeries = useMemo(() => computedSeries.slice(0, 80), [computedSeries]);
 
   return (

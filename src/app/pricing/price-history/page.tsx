@@ -15,9 +15,9 @@ import { PriceHistoryClient } from '../../../components/PriceHistoryClient';
 export const revalidate = 3600;
 
 const BASE_URL = 'https://promptbill.online';
-const TITLE = 'LLM API Pricing History — Live OpenRouter & Multi-Provider Rate Tracker | PromptBill';
+const TITLE = 'LLM API Pricing History — Historical Input & Output Rate Changes Across Providers | PromptBill';
 const DESCRIPTION =
-  'Track live LLM API pricing history, automatic OpenRouter rate change detection, and multi-provider input and output price trends on PromptBill.';
+  'Historical LLM API pricing changes per 1 million input and output tokens across OpenAI, Anthropic, Google, DeepSeek, Mistral, and OpenRouter models, updated daily.';
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -103,9 +103,9 @@ export default async function Page() {
       },
       {
         '@type': 'Dataset',
-        name: 'PromptBill OpenRouter & Multi-Provider LLM Pricing History Dataset',
+        name: 'PromptBill LLM API Pricing History Dataset',
         description:
-          'Automated daily snapshots and historical rate revisions across OpenRouter and major LLM API providers.',
+          'Historical input and output token pricing shifts per 1M tokens across LLM API providers and OpenRouter.',
         url: `${BASE_URL}/pricing/price-history`,
         dateModified: latestDate,
         creator: {
@@ -124,10 +124,10 @@ export default async function Page() {
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'How does PromptBill automatically update LLM price history?',
+            name: 'How does PromptBill track LLM API price history over time?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'PromptBill polls OpenRouter’s public models pricing API daily, compares live per-1M input and output token rates against stored snapshots in Redis, and records a new timestamped data point whenever a provider changes a model’s price.',
+              text: 'PromptBill combines historical rate milestones for major LLM families with automated daily snapshots from OpenRouter and your catalog to show cumulative percentage shifts in input and output token prices.',
             },
           },
         ],
@@ -145,29 +145,37 @@ export default async function Page() {
 
         <PricingSectionNav active="price-history" />
 
-        <header className="text-center space-y-2 pt-2">
-          <h1 className="sr-only">LLM API Pricing History — OpenRouter &amp; Multi-Provider Tracker</h1>
-          <div>
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline underline-offset-4"
-            >
-              Click here to see the current prices for the major LLM APIs
-            </Link>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Last updated: {latestDate} · Auto-synced with OpenRouter Models API
+        {/* Centered SEO & GEO-Optimized Page Intro Heading & Summary */}
+        <header className="text-center max-w-3xl mx-auto space-y-2.5 pt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
+            LLM API Price History &amp; Token Rate Shifts
+          </h1>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            Track how per-1M input and output token prices have changed over time across Anthropic, OpenAI, Google, DeepSeek, Mistral, and OpenRouter models—combining historical rate milestones with automated daily price snapshots.
           </p>
+          <div className="pt-1 space-y-1">
+            <div>
+              <Link
+                href="/pricing"
+                className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline underline-offset-4"
+              >
+                Click here to see the current prices for the major LLM APIs
+              </Link>
+            </div>
+            <p className="text-xs text-slate-500">
+              Last updated: {latestDate} · Auto-synced daily with OpenRouter Models API
+            </p>
+          </div>
         </header>
 
         <PriceHistoryClient models={ALL_MODELS} initialRecords={initialRecords} />
 
         <footer className="border-t border-slate-200 pt-6 text-center max-w-2xl mx-auto space-y-2 text-xs text-slate-600">
           <h2 className="text-sm font-semibold text-slate-950">
-            Automated OpenRouter Price Change Detection
+            LLM API Price History Methodology &amp; Data Sources
           </h2>
           <p className="leading-relaxed">
-            PromptBill polls OpenRouter&apos;s public pricing feed and appends a new snapshot whenever a model&apos;s per-1M input or output rate changes. See{' '}
+            All historical charts normalize per-1M input or output token rates to percentage shifts from each model&apos;s earliest recorded rate and append new snapshots automatically when prices change. See{' '}
             <Link href="/methodology" className="underline underline-offset-2 text-slate-900 font-medium">
               Methodology
             </Link>
