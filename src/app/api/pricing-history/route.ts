@@ -11,9 +11,23 @@ import {
 
 export const revalidate = 3600;
 
+function getRedisWriteConfig() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  return { url, token };
+}
+
+function getRedisReadConfig() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_READ_ONLY_TOKEN;
+  return { url, token };
+}
+
 async function redisGet<T>(key: string): Promise<T | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const { url, token } = getRedisReadConfig();
   if (!url || !token) return null;
 
   try {
@@ -31,8 +45,7 @@ async function redisGet<T>(key: string): Promise<T | null> {
 }
 
 async function redisSet(key: string, value: unknown): Promise<void> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const { url, token } = getRedisWriteConfig();
   if (!url || !token) return;
 
   try {

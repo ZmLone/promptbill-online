@@ -9,9 +9,23 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+function getRedisWriteConfig() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  return { url, token };
+}
+
+function getRedisReadConfig() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_READ_ONLY_TOKEN;
+  return { url, token };
+}
+
 async function redisGet<T>(key: string): Promise<T | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const { url, token } = getRedisReadConfig();
   if (!url || !token) return null;
 
   const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
@@ -25,8 +39,7 @@ async function redisGet<T>(key: string): Promise<T | null> {
 }
 
 async function redisSet(key: string, value: unknown): Promise<boolean> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const { url, token } = getRedisWriteConfig();
   if (!url || !token) return false;
 
   const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
@@ -41,7 +54,6 @@ async function redisSet(key: string, value: unknown): Promise<boolean> {
 }
 
 export async function GET(request: Request) {
-  // Optional CRON_SECRET protection when triggered by Vercel Cron
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret) {
     const authHeader = request.headers.get('authorization');
