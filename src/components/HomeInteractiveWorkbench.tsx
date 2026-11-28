@@ -316,8 +316,7 @@ ${row.map(escapeCsvCell).join(',')}
       `30-Day Total: ${formatCurrency(breakdown.monthlyTotalCost)} (${formatCurrency(breakdown.costPer1KCalls)} / 1K calls)`,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join('
-'));
+      await navigator.clipboard.writeText(lines.join('\n'));
       setCopiedSummary(true);
       setTimeout(() => setCopiedSummary(false), 2000);
     } catch {
