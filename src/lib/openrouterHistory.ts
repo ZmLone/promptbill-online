@@ -128,13 +128,11 @@ export async function fetchOpenRouterLiveModels(): Promise<
 
   for (const item of rawList) {
     if (!item?.id || !item.pricing) continue;
-    // Skip :free or :extended routing aliases if desired, keep standard paid models
     if (item.id.endsWith(':free')) continue;
 
     const promptPerTok = Number(item.pricing.prompt);
     const completionPerTok = Number(item.pricing.completion);
 
-    // Exclude -1 dynamic router sentinels and invalid/zero prices
     if (
       !Number.isFinite(promptPerTok) ||
       !Number.isFinite(completionPerTok) ||
@@ -275,7 +273,7 @@ export function toModelHistoryRecords(
   if (entries.length > 0) {
     return entries
       .filter((item) => Array.isArray(item.points) && item.points.length > 0)
-      .map((item, idx) => {
+      .map((item, idx): ModelHistoryRecord => {
         const sortedPts = [...item.points].sort((a, b) => a.date.localeCompare(b.date));
         const first = sortedPts[0];
         const last = sortedPts[sortedPts.length - 1];
@@ -319,24 +317,23 @@ export function toModelHistoryRecords(
         Number.isFinite(m.inputPer1M) &&
         m.inputPer1M > 0
     )
-    .map((m, idx) => {
+    .map((m, idx): ModelHistoryRecord => {
       const verifiedDate = m.pricingProvenance?.lastVerified?.slice(0, 10) ?? '2026-11-28';
       const inRate = m.inputPer1M ?? 0;
       const outRate = m.outputPer1M ?? 0;
+      const fallbackPoint: PricePoint = {
+        date: verifiedDate,
+        inputPer1M: inRate,
+        outputPer1M: outRate,
+        source: 'catalog',
+      };
       return {
         id: m.id,
         slug: m.slug,
         name: m.name,
         provider: m.provider || 'Other',
         color: PALETTE[idx % PALETTE.length],
-        points: [
-          {
-            date: verifiedDate,
-            inputPer1M: inRate,
-            outputPer1M: outRate,
-            source: 'catalog',
-          },
-        ],
+        points: [fallbackPoint],
         startPrice: inRate,
         currentPrice: inRate,
         pctChange: 0,
