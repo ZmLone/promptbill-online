@@ -339,6 +339,93 @@ function extractModelKeyAndSlug(
   return { keyRaw: trimmed, slugGuess: slugify(trimmed) };
 }
 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface DuplicateMatchResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: any;
+  matchType: 'exact_slug' | 'exact_name' | 'near_match';
+  reason: string;
+}
+
+function normalizeModelComparable(raw: string): string {
+  return raw
+    .toLowerCase()
+    .trim()
+    .replace(/^[^/]+\//, '')
+    .replace(/\((?:free|beta|preview|latest)\)/gi, '')
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function detectCatalogDuplicate(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catalogModels: any[],
+  candidateName: string,
+  candidateSlug: string,
+  candidateProvider?: string
+): DuplicateMatchResult | null {
+  const cleanSlug = slugify(candidateSlug || candidateName);
+  const normName = normalizeModelComparable(candidateName);
+  const normSlug = normalizeModelComparable(cleanSlug);
+  const normProvider = (candidateProvider || '').trim().toLowerCase();
+
+  if (!cleanSlug && !normName) return null;
+
+  // 1. Exact slug or ID match
+  for (const m of catalogModels) {
+    if (!m) continue;
+    const mSlug = slugify(String(m.slug || m.id || ''));
+    if (cleanSlug && (m.slug === cleanSlug || m.id === cleanSlug || mSlug === cleanSlug)) {
+      return {
+        model: m,
+        matchType: 'exact_slug',
+        reason: `Exact slug/ID match with "${m.name}" (${m.slug})`,
+      };
+    }
+  }
+
+  // 2. Exact normalized name match
+  for (const m of catalogModels) {
+    if (!m) continue;
+    const mNormName = normalizeModelComparable(String(m.name || ''));
+    if (normName && mNormName === normName) {
+      return {
+        model: m,
+        matchType: 'exact_name',
+        reason: `Exact normalized name match with "${m.name}" (${m.slug})`,
+      };
+    }
+  }
+
+  // 3. Near-duplicate check (same provider + shared core identifier or prefix/suffix variant)
+  if (normName.length >= 5) {
+    for (const m of catalogModels) {
+      if (!m) continue;
+      const mProvider = String(m.provider || '').trim().toLowerCase();
+      const sameProvider = !normProvider || !mProvider || normProvider === mProvider;
+      if (!sameProvider) continue;
+
+      const mNormName = normalizeModelComparable(String(m.name || ''));
+      const mNormSlug = normalizeModelComparable(String(m.slug || ''));
+      if (
+        (mNormName.length >= 5 && (mNormName.includes(normName) || normName.includes(mNormName))) ||
+        (normSlug.length >= 5 &&
+          mNormSlug.length >= 5 &&
+          (mNormSlug.includes(normSlug) || normSlug.includes(mNormSlug)))
+      ) {
+        return {
+          model: m,
+          matchType: 'near_match',
+          reason: `Possible duplicate of existing ${m.provider} model "${m.name}" (${m.slug})`,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
 function EndpointEditorList({
   rows,
   onAdd,
@@ -1074,10 +1161,24 @@ export function AdminRegistryClient({
     return n > 1 ? Number((n / 100).toFixed(4)) : Number(n.toFixed(4));
   }
 
-  function approveItem(item: PendingQueueItem) {
+  function approveItem(item: PendingQueueItem, skipDuplicateConfirm = false) {
     const edits = getItemEdits(item);
     const nowIso = new Date().toISOString();
     const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
+
+    if (item.type === 'new_model' && !skipDuplicateConfirm) {
+      const candidateSlug = String(item.draftModel?.slug || item.modelSlug || item.modelId);
+      const candidateName = String(item.draftModel?.name || item.modelName);
+      const dup = detectCatalogDuplicate(models, candidateName, candidateSlug, item.provider);
+      if (dup) {
+        const proceed = window.confirm(
+          `Duplicate Warning: ${dup.reason}.\n\nExisting rates: $${dup.model.inputPer1M ?? 'N/A'} / $${dup.model.outputPer1M ?? 'N/A'} per 1M (${dup.model.evidence || 'Estimated'}).\n\nClick OK to approve and ${
+            dup.matchType === 'near_match' ? 'add alongside it' : 'replace the existing entry'
+          }, or Cancel to review first.`
+        );
+        if (!proceed) return;
+      }
+    }
 
     setModels((prevModels) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1271,8 +1372,27 @@ export function AdminRegistryClient({
   }
 
   function approveAllVisible() {
+    const dupItems = filteredPending.filter(
+      (item) =>
+        item.type === 'new_model' &&
+        detectCatalogDuplicate(
+          models,
+          String(item.draftModel?.name || item.modelName),
+          String(item.draftModel?.slug || item.modelSlug || item.modelId),
+          item.provider
+        ) !== null
+    );
+    if (dupItems.length > 0) {
+      const ok = window.confirm(
+        `${dupItems.length} visible new_model item(s) match existing models in your live catalog (${dupItems
+          .map((d) => d.modelName)
+          .slice(0, 5)
+          .join(', ')}).\n\nProceed with approving all ${filteredPending.length} visible item(s)?`
+      );
+      if (!ok) return;
+    }
     for (const item of filteredPending) {
-      approveItem(item);
+      approveItem(item, true);
     }
   }
 
@@ -1471,6 +1591,16 @@ export function AdminRegistryClient({
     if (!cleanName) return;
     const resolvedSlug = slugify(manualForm.slug.trim() || cleanName);
     if (!resolvedSlug) return;
+
+    const dup = detectCatalogDuplicate(models, cleanName, resolvedSlug, manualForm.provider);
+    if (dup) {
+      const ok = window.confirm(
+        `Duplicate Model Detected: ${dup.reason}.\n\nCurrent catalog entry: ${dup.model.name} (${dup.model.provider}) · In $${dup.model.inputPer1M ?? 'N/A'} / Out $${dup.model.outputPer1M ?? 'N/A'}.\n\nClick OK to continue and ${
+          dup.matchType === 'near_match' ? 'save this as a separate entry' : 'overwrite the existing model'
+        }, or Cancel to edit the existing model instead.`
+      );
+      if (!ok) return;
+    }
 
     const nowIso = new Date().toISOString();
     const status = manualForm.verified ? 'Verified' : 'Estimated';
@@ -1748,6 +1878,13 @@ export function AdminRegistryClient({
       ).length,
     [bulkPreview]
   );
+
+  const manualDuplicateMatch = useMemo(() => {
+    const cleanName = manualForm.name.trim();
+    const resolvedSlug = slugify(manualForm.slug.trim() || cleanName);
+    if (!cleanName && !resolvedSlug) return null;
+    return detectCatalogDuplicate(models, cleanName, resolvedSlug, manualForm.provider);
+  }, [models, manualForm.name, manualForm.slug, manualForm.provider]);
 
   if (!unlocked) {
     return (
@@ -2103,6 +2240,36 @@ export function AdminRegistryClient({
             </p>
           </div>
 
+          {manualDuplicateMatch ? (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3.5 flex flex-wrap items-center justify-between gap-3 text-amber-950">
+              <div className="space-y-0.5">
+                <div className="font-bold">
+                  Duplicate Warning:{' '}
+                  {manualDuplicateMatch.matchType === 'near_match'
+                    ? 'Similar Model Already Exists'
+                    : 'Model Already Exists in Catalog'}
+                </div>
+                <p className="text-[11px] text-amber-900">
+                  {manualDuplicateMatch.reason} · Provider: {manualDuplicateMatch.model.provider} ·
+                  Current Official In/Out: ${manualDuplicateMatch.model.inputPer1M ?? 'N/A'} / $
+                  {manualDuplicateMatch.model.outputPer1M ?? 'N/A'} (
+                  {manualDuplicateMatch.model.evidence || 'Estimated'}).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('catalog');
+                  setSearchQuery(manualDuplicateMatch.model.slug);
+                  startEditingLiveModel(manualDuplicateMatch.model);
+                }}
+                className="rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-[11px] font-bold text-amber-950 hover:bg-amber-100"
+              >
+                Edit Existing Model Instead
+              </button>
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <label className="space-y-1">
               <span className="font-semibold text-slate-700 block">Model Name *</span>
@@ -2337,10 +2504,21 @@ export function AdminRegistryClient({
               const edits = getItemEdits(item);
               const cur = item.currentValues || {};
               const prop = item.proposedValues || {};
+              const pendingDup =
+                item.type === 'new_model'
+                  ? detectCatalogDuplicate(
+                      models,
+                      String(item.draftModel?.name || item.modelName),
+                      String(item.draftModel?.slug || item.modelSlug || item.modelId),
+                      item.provider
+                    )
+                  : null;
               return (
                 <div
                   key={item.queueId}
-                  className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-4"
+                  className={`rounded-xl border bg-white p-4 sm:p-5 space-y-4 ${
+                    pendingDup ? 'border-amber-300' : 'border-slate-200'
+                  }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -2370,6 +2548,22 @@ export function AdminRegistryClient({
                         ) : null}
                       </div>
                       <p className="text-xs text-slate-700">{item.summary}</p>
+                      {pendingDup ? (
+                        <div className="mt-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-950">
+                          <span className="font-bold">
+                            {pendingDup.matchType === 'near_match'
+                              ? 'Possible Duplicate:'
+                              : 'Duplicate Match:'}
+                          </span>{' '}
+                          {pendingDup.reason} · Existing In/Out: $
+                          {pendingDup.model.inputPer1M ?? 'N/A'} / $
+                          {pendingDup.model.outputPer1M ?? 'N/A'} (
+                          {pendingDup.model.evidence || 'Estimated'}). Approving will{' '}
+                          {pendingDup.matchType === 'near_match'
+                            ? 'create a separate entry unless dismissed.'
+                            : 'overwrite that existing catalog record.'}
+                        </div>
+                      ) : null}
                       {Object.keys(cur).length > 0 || Object.keys(prop).length > 0 ? (
                         <div className="flex flex-wrap gap-3 pt-1 text-[11px] font-mono text-slate-600">
                           {item.type === 'price_update' ? (
