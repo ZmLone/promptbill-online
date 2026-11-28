@@ -2,34 +2,29 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../lib/catalog';
 import { SiteShell } from '../../components/SiteShell';
-import { PricingCleanClient } from '../../components/PricingCleanClient';
+import { PricingSectionNav } from '../../components/PricingSectionNav';
+import { LlmPricingTableClient } from '../../components/LlmPricingTableClient';
 
 const BASE_URL = 'https://promptbill.online';
-
-const PAGE_TITLE =
-  'API Pricing — LLM Tokens, Cheapest Models, Image Models, Subscriptions & History | PromptBill';
-const PAGE_DESCRIPTION =
-  'Compare LLM API token rates per 1M tokens, lowest-cost models, vision/image models, AI subscriptions, and catalog verification history on PromptBill.';
+const TITLE = 'LLM API Token Pricing — Input, Cached & Output Rates per 1M | PromptBill';
+const DESCRIPTION =
+  'Compare LLM API token pricing per 1 million input, cached input, output, and blended tokens across official APIs and inference endpoints on PromptBill.';
 
 export const metadata: Metadata = {
-  title: {
-    absolute: PAGE_TITLE,
-  },
-  description: PAGE_DESCRIPTION,
-  alternates: {
-    canonical: `${BASE_URL}/pricing`,
-  },
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  alternates: { canonical: `${BASE_URL}/pricing` },
   openGraph: {
     type: 'website',
     url: `${BASE_URL}/pricing`,
     siteName: 'PromptBill',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
+    title: TITLE,
+    description: DESCRIPTION,
   },
   twitter: {
     card: 'summary',
-    title: PAGE_TITLE,
-    description: PAGE_DESCRIPTION,
+    title: TITLE,
+    description: DESCRIPTION,
   },
 };
 
@@ -57,19 +52,19 @@ export default function Page() {
       {
         '@type': 'WebPage',
         url: `${BASE_URL}/pricing`,
-        name: PAGE_TITLE,
-        description: PAGE_DESCRIPTION,
+        name: TITLE,
+        description: DESCRIPTION,
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: `${BASE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'Pricing', item: `${BASE_URL}/pricing` },
+          { '@type': 'ListItem', position: 2, name: 'LLM Pricing', item: `${BASE_URL}/pricing` },
         ],
       },
       {
         '@type': 'ItemList',
-        name: 'PromptBill API Pricing Directory',
+        name: 'LLM API Token Pricing Directory',
         numberOfItems: ALL_MODELS.length,
         itemListElement: ALL_MODELS.map((m, idx) => ({
           '@type': 'ListItem',
@@ -77,6 +72,19 @@ export default function Page() {
           url: `${BASE_URL}/models/${m.slug}`,
           name: `${m.name} (${m.provider}) — In ${fmtRate(m.inputPer1M)} / Out ${fmtRate(m.outputPer1M)} per 1M`,
         })),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'How are LLM API token prices normalized on PromptBill?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'All LLM API token prices are normalized to USD per 1,000,000 input, cached input, output, and workload-blended tokens across official APIs and third-party inference hosts.',
+            },
+          },
+        ],
       },
     ],
   };
@@ -89,16 +97,17 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Centered Header (No Amber Box Above the Fold) */}
-        <header className="text-center max-w-2xl mx-auto space-y-3 pt-2">
+        <PricingSectionNav active="llm-pricing" />
+
+        <header className="text-center max-w-2xl mx-auto space-y-3">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
-            PromptBill · Rates per 1M Tokens
+            PromptBill · LLM API Token Rates
           </p>
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            API Pricing
+            LLM API Token Pricing
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Normalized token rates, lowest-cost models, image models, AI subscriptions, and verification history.
+            Normalized per-1M input, cached read, output, and blended token rates across official APIs and cloud inference endpoints.
           </p>
           <div className="pt-1 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-800 tabular-nums">
             <span>{ALL_MODELS.length} Models</span>
@@ -106,24 +115,22 @@ export default function Page() {
             <span>{providerCount} Providers</span>
             <span>{endpointCount} Endpoints</span>
           </div>
-          <div className="pt-1 flex flex-wrap items-center justify-center gap-5 text-xs font-medium">
-            <Link href="/#estimator" className="text-slate-900 underline underline-offset-4">
-              Spend Calculator
-            </Link>
-            <Link href="/leaderboard" className="text-slate-900 underline underline-offset-4">
-              Leaderboard
-            </Link>
-            <Link href="/compare" className="text-slate-900 underline underline-offset-4">
-              Compare
-            </Link>
-            <Link href="/methodology" className="text-slate-900 underline underline-offset-4">
-              Methodology
-            </Link>
-          </div>
         </header>
 
-        {/* Interactive Multi-View Pricing Client */}
-        <PricingCleanClient models={ALL_MODELS} />
+        <LlmPricingTableClient models={ALL_MODELS} defaultTier="all" />
+
+        <footer className="border-t border-slate-200 pt-6 text-center max-w-2xl mx-auto space-y-2 text-xs text-slate-600">
+          <h2 className="text-sm font-semibold text-slate-950">
+            Blended LLM Token Pricing Methodology
+          </h2>
+          <p className="leading-relaxed">
+            Blended cost per 1M tokens combines input tokens (adjusted by prompt cache hit share) with output tokens. Estimated values lack a verified primary timestamp; missing metrics show N/A.{' '}
+            <Link href="/methodology" className="underline underline-offset-2 text-slate-900 font-medium">
+              Methodology
+            </Link>
+            .
+          </p>
+        </footer>
       </div>
     </SiteShell>
   );
