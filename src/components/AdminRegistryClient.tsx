@@ -572,6 +572,8 @@ export interface AdminNewsArticleInput {
   sourceUrls: { label: string; url: string }[];
 }
 
+const ADMIN_DRAFT_STORAGE_KEY = 'promptbill_admin_staged_draft_v1';
+
 export function AdminRegistryClient({
   initialModels,
   initialPending,
@@ -681,6 +683,78 @@ export function AdminRegistryClient({
     verified: true,
     hostingEndpoints: [],
   });
+
+  const [draftRestored, setDraftRestored] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (!unlocked || draftRestored) return;
+    try {
+      const raw = window.localStorage.getItem(ADMIN_DRAFT_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (Array.isArray(saved.models) && saved.models.length > 0) {
+          setModels(saved.models);
+        }
+        if (Array.isArray(saved.pendingItems)) {
+          setPendingItems(saved.pendingItems);
+        }
+        if (saved.overrides && typeof saved.overrides === 'object') {
+          setOverrides(saved.overrides);
+        }
+        if (typeof saved.dismissedCount === 'number') {
+          setDismissedCount(saved.dismissedCount);
+        }
+        if (Array.isArray(saved.newsItems)) {
+          setNewsItems(saved.newsItems);
+        }
+        if (typeof saved.hasUnpublishedChanges === 'boolean') {
+          setHasUnpublishedChanges(saved.hasUnpublishedChanges);
+        }
+        if (saved.hasUnpublishedChanges) {
+          setStatusLog((prev) => [
+            'Restored unpublished staged changes from browser storage',
+            ...prev,
+          ]);
+        }
+      }
+    } catch {
+      // Ignore storage read errors
+    } finally {
+      setDraftRestored(true);
+    }
+  }, [unlocked, draftRestored]);
+
+  React.useEffect(() => {
+    if (!unlocked || !draftRestored) return;
+    try {
+      if (!hasUnpublishedChanges && newsItems.length === 0 && dismissedCount === 0) {
+        window.localStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY);
+        return;
+      }
+      window.localStorage.setItem(
+        ADMIN_DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          models,
+          pendingItems,
+          overrides,
+          dismissedCount,
+          newsItems,
+          hasUnpublishedChanges,
+        })
+      );
+    } catch {
+      // Ignore storage write errors
+    }
+  }, [
+    unlocked,
+    draftRestored,
+    hasUnpublishedChanges,
+    models,
+    pendingItems,
+    overrides,
+    dismissedCount,
+    newsItems,
+  ]);
 
   const allProviders = useMemo(() => {
     const set = new Set<string>();
@@ -1121,6 +1195,104 @@ export function AdminRegistryClient({
     return n > 1 ? Number((n / 100).toFixed(4)) : Number(n.toFixed(4));
   }
 
+  function buildAutoNewsDraftForApprovedItem(
+    item: PendingQueueItem,
+    edits: EditableOverrides
+  ): AdminNewsArticleInput {
+    const nowIso = new Date().toISOString();
+    const dateStamp = nowIso.slice(0, 10);
+    const cur = item.currentValues || {};
+    const prop = item.proposedValues || {};
+    const resolvedSlug = String(
+      item.draftModel?.slug || item.modelSlug || slugify(item.modelName || item.modelId)
+    );
+
+    const oldIn = parseOptionalNum(String(cur.routerInputPer1M ?? cur.inputPer1M ?? ''));
+    const newIn =
+      parseOptionalNum(edits.routerInput) ??
+      parseOptionalNum(edits.officialInput) ??
+      parseOptionalNum(String(prop.routerInputPer1M ?? prop.inputPer1M ?? ''));
+    const oldOut = parseOptionalNum(String(cur.routerOutputPer1M ?? cur.outputPer1M ?? ''));
+    const newOut =
+      parseOptionalNum(edits.routerOutput) ??
+      parseOptionalNum(edits.officialOutput) ??
+      parseOptionalNum(String(prop.routerOutputPer1M ?? prop.outputPer1M ?? ''));
+
+    const isPriceDrop =
+      (oldIn !== null && newIn !== null && newIn < oldIn) ||
+      (oldOut !== null && newOut !== null && newOut < oldOut);
+
+    const category: AdminNewsArticleInput['category'] =
+      item.type === 'new_model'
+        ? 'New Model'
+        : isPriceDrop
+        ? 'Price Drop'
+        : item.type === 'benchmark_update'
+        ? 'Benchmark Shift'
+        : 'Endpoint Update';
+
+    const title =
+      item.type === 'new_model'
+        ? `${item.modelName} Added to PromptBill Catalog`
+        : isPriceDrop
+        ? `${item.modelName} API Price Drop on OpenRouter`
+        : `${item.modelName} ${item.type === 'benchmark_update' ? 'Benchmark & Speed Update' : 'API Rate Update'}`;
+
+    const summary =
+      item.type === 'new_model'
+        ? `New model ${item.modelName} (${item.provider}) approved and added to the PromptBill catalog${
+            newIn !== null && newOut !== null ? ` at $${newIn} / $${newOut} per 1M tokens` : ''
+          }.`
+        : newIn !== null || newOut !== null
+        ? `${item.modelName} (${item.provider}) rate updated: input ${
+            oldIn !== null ? `$${oldIn}` : 'N/A'
+          } -> ${newIn !== null ? `$${newIn}` : 'N/A'}/1M, output ${
+            oldOut !== null ? `$${oldOut}` : 'N/A'
+          } -> ${newOut !== null ? `$${newOut}` : 'N/A'}/1M.`
+        : item.summary || `Approved ${item.type.replace('_', ' ')} for ${item.modelName} (${item.provider}).`;
+
+    return {
+      slug: `${resolvedSlug}-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${dateStamp}`,
+      title,
+      summary,
+      category,
+      publishedAt: nowIso,
+      updatedAt: nowIso,
+      authorName: 'Zeeshan Mushtaq Lone',
+      authorUrl: 'https://promptbill.online/about',
+      featured: isPriceDrop || item.type === 'new_model',
+      relatedModelSlugs: [resolvedSlug],
+      priceDeltas:
+        newIn !== null || newOut !== null
+          ? [
+              {
+                modelSlug: resolvedSlug,
+                modelName: item.modelName,
+                provider: item.provider,
+                endpointHost: 'OpenRouter',
+                oldInputPer1M: oldIn,
+                newInputPer1M: newIn,
+                oldOutputPer1M: oldOut,
+                newOutputPer1M: newOut,
+              },
+            ]
+          : [],
+      keyTakeaways: [
+        summary,
+        `Inspect live pricing, endpoints, and token cost estimates at /models/${resolvedSlug}.`,
+      ],
+      sections: [
+        {
+          heading: 'Approved Registry Change',
+          body: `${summary} View full endpoint comparisons and token calculations on PromptBill.`,
+        },
+      ],
+      sourceUrls: item.sourceUrl
+        ? [{ label: 'Source Reference', url: item.sourceUrl }]
+        : [{ label: 'OpenRouter Models API', url: 'https://openrouter.ai/api/v1/models' }],
+    };
+  }
+
   function approveItem(item: PendingQueueItem) {
     const edits = getItemEdits(item);
     const nowIso = new Date().toISOString();
@@ -1305,9 +1477,21 @@ export function AdminRegistryClient({
       return next;
     });
 
+    const autoDraft = buildAutoNewsDraftForApprovedItem(item, edits);
+    setNewsItems((prev) => {
+      const existingIdx = prev.findIndex((a) => a.slug === autoDraft.slug);
+      if (existingIdx >= 0) {
+        return prev.map((a, i) => (i === existingIdx ? autoDraft : a));
+      }
+      return [autoDraft, ...prev];
+    });
+
     setPendingItems((prev) => prev.filter((p) => p.queueId !== item.queueId));
     setHasUnpublishedChanges(true);
-    setStatusLog((prev) => [`Approved: ${item.modelName} (${item.type.replace('_', ' ')})`, ...prev]);
+    setStatusLog((prev) => [
+      `Approved: ${item.modelName} (${item.type.replace('_', ' ')}) + staged news draft "${autoDraft.title}"`,
+      ...prev,
+    ]);
   }
 
   function rejectItem(item: PendingQueueItem) {
@@ -1697,6 +1881,11 @@ export function AdminRegistryClient({
       if (res.ok && data.ok) {
         setHasUnpublishedChanges(false);
         setDismissedCount(0);
+        try {
+          window.localStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY);
+        } catch {
+          // Ignore storage errors
+        }
         setPublishBanner({ type: 'success', text: data.message });
       } else {
         setPublishBanner({
@@ -1947,6 +2136,7 @@ export function AdminRegistryClient({
         : [article, ...prev];
     });
     setHasUnpublishedChanges(true);
+    setStatusLog((prev) => [`Staged news post: "${cleanTitle}" (/news/${resolvedSlug})`, ...prev]);
   }
 
   return (
@@ -1990,6 +2180,25 @@ export function AdminRegistryClient({
             className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             Download models.json
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              downloadJsonFile(
+                'pending.json',
+                JSON.stringify(
+                  {
+                    updatedAt: new Date().toISOString(),
+                    items: pendingItems,
+                  },
+                  null,
+                  2
+                ) + '\n'
+              )
+            }
+            className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+          >
+            Download pending.json
           </button>
           <button
             type="button"
@@ -2577,6 +2786,13 @@ export function AdminRegistryClient({
                         className="min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                       >
                         Dismiss
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => draftNewsFromPendingItem(item)}
+                        className="min-h-[38px] rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100"
+                      >
+                        Draft News
                       </button>
                     </div>
                   </div>
