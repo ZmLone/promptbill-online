@@ -20,6 +20,11 @@ import {
   Gauge,
   Zap,
   AlertTriangle,
+  Search,
+  X,
+  Download,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 interface WorkloadPreset {
@@ -80,6 +85,15 @@ function fmtRate(val: number | null | undefined): string {
   return typeof val === 'number' && Number.isFinite(val) ? formatCurrency(val) : 'N/A';
 }
 
+function escapeCsvCell(val: unknown): string {
+  const str = val === null || val === undefined ? '' : String(val);
+  if (/[",
+]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
 export function HomeInteractiveWorkbench({
   models,
   externalSelectedSlug,
@@ -95,6 +109,7 @@ export function HomeInteractiveWorkbench({
   }, [models]);
 
   const [selectedSlug, setSelectedSlug] = useState<string>(defaultSlug);
+  const [modelQuery, setModelQuery] = useState<string>('');
   const [presetId, setPresetId] = useState<string>('rag');
   const [callsPerDay, setCallsPerDay] = useState<number>(2000);
   const [inputTokens, setInputTokens] = useState<number>(8000);
@@ -103,16 +118,34 @@ export function HomeInteractiveWorkbench({
   const [useBatch, setUseBatch] = useState<boolean>(false);
   const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
   const [customHostKey, setCustomHostKey] = useState<string>('');
+  const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
 
   useEffect(() => {
     if (externalSelectedSlug && models.some((m) => m.slug === externalSelectedSlug)) {
       setSelectedSlug(externalSelectedSlug);
+      setModelQuery('');
     }
   }, [externalSelectedSlug, models]);
 
+  const filteredModels = useMemo(() => {
+    const q = modelQuery.trim().toLowerCase();
+    if (!q) return models;
+    const matched = models.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.provider.toLowerCase().includes(q) ||
+        m.slug.toLowerCase().includes(q)
+    );
+    return matched.length > 0 ? matched : models;
+  }, [models, modelQuery]);
+
   const selectedModel = useMemo(
-    () => models.find((m) => m.slug === selectedSlug) ?? models[0],
-    [models, selectedSlug]
+    () =>
+      filteredModels.find((m) => m.slug === selectedSlug) ??
+      models.find((m) => m.slug === selectedSlug) ??
+      filteredModels[0] ??
+      models[0],
+    [filteredModels, models, selectedSlug]
   );
 
   useEffect(() => {
@@ -146,8 +179,8 @@ export function HomeInteractiveWorkbench({
       : endpointEval.cheapestQuote;
   }, [endpointEval, endpointMode, customHostKey]);
 
-  const modelDropdownRows = useMemo(() => {
-    return models.map((m) => {
+  const dropdownOptions = useMemo(() => {
+    return filteredModels.map((m) => {
       const evalPreview = evaluateModelEndpoints(m, {
         inputTokensPerCall: inputTokens,
         outputTokensPerCall: outputTokens,
@@ -159,12 +192,9 @@ export function HomeInteractiveWorkbench({
         endpointMode === 'first-party'
           ? evalPreview.firstPartyQuote
           : evalPreview.cheapestQuote;
-      return {
-        model: m,
-        chosen,
-      };
+      return { model: m, chosen };
     });
-  }, [models, inputTokens, outputTokens, callsPerDay, cachePct, useBatch, endpointMode]);
+  }, [filteredModels, inputTokens, outputTokens, callsPerDay, cachePct, useBatch, endpointMode]);
 
   if (!selectedModel || !endpointEval || !activeQuote) return null;
 
@@ -186,6 +216,21 @@ export function HomeInteractiveWorkbench({
     setCustomHostKey('');
   };
 
+  const handleSearchChange = (value: string) => {
+    setModelQuery(value);
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) return;
+    const match = models.find(
+      (m) =>
+        m.name.toLowerCase().includes(trimmed) ||
+        m.provider.toLowerCase().includes(trimmed) ||
+        m.slug.toLowerCase().includes(trimmed)
+    );
+    if (match) {
+      setSelectedSlug(match.slug);
+    }
+  };
+
   const activeEvidence =
     activeQuote.endpoint.evidenceStatus ?? selectedModel.pricingProvenance.status;
   const isVerified = activeEvidence === 'Verified';
@@ -204,13 +249,95 @@ export function HomeInteractiveWorkbench({
       ? Math.round((monthlySavings / firstCost) * 100)
       : 0;
 
+  const handleExportCsv = () => {
+    const headers = [
+      'Model',
+      'Provider',
+      'Endpoint Host',
+      'Endpoint Type',
+      'Provenance',
+      'Requests / Day',
+      'Input Tokens / Req',
+      'Output Tokens / Req',
+      'Cache Hit %',
+      'Batch %',
+      'Input / 1M (USD)',
+      'Cached Input / 1M (USD)',
+      'Output / 1M (USD)',
+      'Cost per 1K Calls (USD)',
+      'Estimated 30-Day Spend (USD)',
+      'Latency (ms)',
+      'Throughput (tok/s)',
+    ];
+
+    const row = [
+      selectedModel.name,
+      selectedModel.provider,
+      activeQuote.endpoint.host,
+      activeQuote.endpoint.providerType,
+      activeEvidence,
+      callsPerDay,
+      inputTokens,
+      outputTokens,
+      activeRates.cachedInputPer1M === null ? 0 : cachePct,
+      useBatch ? 100 : 0,
+      activeRates.inputPer1M ?? 'N/A',
+      activeRates.cachedInputPer1M ?? 'N/A',
+      activeRates.outputPer1M ?? 'N/A',
+      typeof breakdown.costPer1KCalls === 'number' ? breakdown.costPer1KCalls.toFixed(4) : 'N/A',
+      typeof breakdown.monthlyTotalCost === 'number' ? breakdown.monthlyTotalCost.toFixed(2) : 'N/A',
+      typeof activeQuote.latencyMs === 'number' ? activeQuote.latencyMs : 'N/A',
+      typeof activeQuote.tokPerSec === 'number' ? activeQuote.tokPerSec : 'N/A',
+    ];
+
+    const csv = `${headers.map(escapeCsvCell).join(',')}
+${row.map(escapeCsvCell).join(',')}
+`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `promptbill-${selectedModel.slug}-30d-estimate.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopySummary = async () => {
+    const lines = [
+      `PromptBill 30-Day Estimate — ${selectedModel.name} (${selectedModel.provider})`,
+      `Endpoint: ${activeQuote.endpoint.host} (${activeEvidence})`,
+      `Workload: ${callsPerDay.toLocaleString()} req/day · ${inputTokens.toLocaleString()} in · ${outputTokens.toLocaleString()} out · ${activeRates.cachedInputPer1M === null ? 0 : cachePct}% cached${useBatch ? ' · Batch' : ''}`,
+      `Rates: ${fmtRate(activeRates.inputPer1M)} in / ${fmtRate(activeRates.cachedInputPer1M)} cached / ${fmtRate(activeRates.outputPer1M)} out per 1M`,
+      `30-Day Total: ${formatCurrency(breakdown.monthlyTotalCost)} (${formatCurrency(breakdown.costPer1KCalls)} / 1K calls)`,
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('
+'));
+      setCopiedSummary(true);
+      setTimeout(() => setCopiedSummary(false), 2000);
+    } catch {
+      // Ignore clipboard permission errors
+    }
+  };
+
+  const noMatchInSearch =
+    modelQuery.trim().length > 0 &&
+    !models.some(
+      (m) =>
+        m.name.toLowerCase().includes(modelQuery.trim().toLowerCase()) ||
+        m.provider.toLowerCase().includes(modelQuery.trim().toLowerCase()) ||
+        m.slug.toLowerCase().includes(modelQuery.trim().toLowerCase())
+    );
+
   return (
     <section
       id="estimator"
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative overflow-hidden rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-      {/* Vivid Diagonal Corner-to-Corner Colorful Wave (Top-Left Emerald/Cyan/Sky -> Bottom-Right Violet/Rose/Amber) */}
+      {/* Vivid Diagonal Corner-to-Corner Colorful Wave */}
       <div
         aria-hidden="true"
         className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden"
@@ -247,8 +374,8 @@ export function HomeInteractiveWorkbench({
         <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-gradient-to-tl from-rose-500/32 via-violet-500/28 to-amber-400/28 blur-2xl" />
       </div>
 
-      {/* Calculator Header */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+      {/* Top Row: Title + Endpoint Mode + Export Actions */}
+      <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
             <Calculator className="h-5 w-5" />
@@ -266,21 +393,48 @@ export function HomeInteractiveWorkbench({
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Simulate production traffic with prompt caching, batch discounts, and official vs. cloud hosts.
+              Estimate monthly API spend with prompt caching, batch discounts, and endpoint routing.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <EndpointModeSwitcher mode={endpointMode} onChange={handleModeSwitch} />
+
+          <button
+            type="button"
+            onClick={handleCopySummary}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3.5 text-xs font-semibold text-slate-800 hover:bg-white transition-colors cursor-pointer"
+          >
+            {copiedSummary ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="text-emerald-800">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 text-slate-600" />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-slate-950 px-3.5 text-xs font-semibold text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <Download className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
-      {/* Workload Presets & Host Selector */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Aligned Control Row: Preset Pills (Left) & Endpoint Host (Right) */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+        <div className="lg:col-span-8 flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">
-            Workloads
+            Presets
           </span>
           {WORKLOAD_PRESETS.map((p) => {
             const active = presetId === p.id;
@@ -289,7 +443,7 @@ export function HomeInteractiveWorkbench({
                 key={p.id}
                 type="button"
                 onClick={() => applyPreset(p)}
-                className={`min-h-[36px] rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
+                className={`inline-flex h-9 items-center rounded-full px-3.5 text-xs font-semibold transition-all cursor-pointer ${
                   active
                     ? 'bg-slate-950 text-white shadow-sm'
                     : 'bg-white/90 ring-1 ring-slate-200/80 text-slate-700 hover:bg-white'
@@ -308,170 +462,223 @@ export function HomeInteractiveWorkbench({
           })}
         </div>
 
-        {hasMultipleHosts && (
-          <div className="flex items-center gap-2 text-xs">
-            <label
-              htmlFor="home-host-select"
-              className="inline-flex items-center gap-1.5 font-semibold text-slate-700 shrink-0"
-            >
+        <div className="lg:col-span-4 flex items-center lg:justify-end gap-2">
+          {hasMultipleHosts ? (
+            <div className="w-full flex items-center gap-2">
+              <label
+                htmlFor="home-host-select"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 shrink-0"
+              >
+                <Server className="h-3.5 w-3.5 text-emerald-700" />
+                <span>Endpoint</span>
+              </label>
+              <select
+                id="home-host-select"
+                value={getEndpointKey(activeQuote.endpoint, activeQuote.index)}
+                onChange={(e) => {
+                  setCustomHostKey(e.target.value);
+                  if (
+                    e.target.value ===
+                    getEndpointKey(
+                      endpointEval.firstPartyQuote.endpoint,
+                      endpointEval.firstPartyQuote.index
+                    )
+                  ) {
+                    setEndpointMode('first-party');
+                  } else {
+                    setEndpointMode('cheapest');
+                  }
+                }}
+                className="h-10 flex-1 min-w-0 rounded-xl border border-slate-200 bg-white/95 px-3 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
+              >
+                {endpointEval.quotes.map((q) => (
+                  <option
+                    key={getEndpointKey(q.endpoint, q.index)}
+                    value={getEndpointKey(q.endpoint, q.index)}
+                  >
+                    {q.endpoint.host} ({q.endpoint.providerType}) —{' '}
+                    {formatCurrency(q.breakdown.monthlyTotalCost)}/mo
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200/80 bg-white/80 px-3.5 text-xs font-medium text-slate-600">
               <Server className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Host:</span>
-            </label>
-            <select
-              id="home-host-select"
-              value={getEndpointKey(activeQuote.endpoint, activeQuote.index)}
-              onChange={(e) => {
-                setCustomHostKey(e.target.value);
-                if (
-                  e.target.value ===
-                  getEndpointKey(
-                    endpointEval.firstPartyQuote.endpoint,
-                    endpointEval.firstPartyQuote.index
-                  )
-                ) {
-                  setEndpointMode('first-party');
-                } else {
-                  setEndpointMode('cheapest');
-                }
-              }}
-              className="min-h-[38px] max-w-[270px] sm:max-w-xs rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
-            >
-              {endpointEval.quotes.map((q) => (
-                <option
-                  key={getEndpointKey(q.endpoint, q.index)}
-                  value={getEndpointKey(q.endpoint, q.index)}
-                >
-                  {q.endpoint.host} ({q.endpoint.providerType}) —{' '}
-                  {formatCurrency(q.breakdown.monthlyTotalCost)}/mo
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+              <span>Single endpoint: {activeQuote.endpoint.host}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Calculator Body */}
+      {/* Main Grid: Symmetrical Inputs (7 cols) + Dark Summary Card (5 cols) */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="home-model-select"
-              className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5"
-            >
-              <span>Select Model ({models.length} tracked)</span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600">
-                <ProviderLogo
-                  provider={selectedModel.provider}
-                  modelName={selectedModel.name}
-                  modelSlug={selectedModel.slug}
-                  size="sm"
+        <div className="lg:col-span-7 flex flex-col justify-between gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Search Model Input */}
+            <div className="sm:col-span-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="home-model-search"
+                  className="text-xs font-semibold text-slate-700"
+                >
+                  Search Model
+                </label>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                  <ProviderLogo
+                    provider={selectedModel.provider}
+                    modelName={selectedModel.name}
+                    modelSlug={selectedModel.slug}
+                    size="sm"
+                  />
+                  <span>{selectedModel.provider}</span>
+                </span>
+              </div>
+
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  id="home-model-search"
+                  type="text"
+                  value={modelQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Type model name or provider (e.g. GPT-6.2, Claude, DeepSeek, Gemini)..."
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 pl-10 pr-9 text-sm text-slate-950 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                 />
-                <span>{selectedModel.provider}</span>
-              </span>
-            </label>
-            <select
-              id="home-model-select"
-              value={selectedModel.slug}
-              onChange={(e) => setSelectedSlug(e.target.value)}
-              className="min-h-[46px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none transition-colors"
-            >
-              {modelDropdownRows.map(({ model: m, chosen }) => (
-                <option key={m.id} value={m.slug}>
-                  {m.name} ({m.provider}) — {fmtRate(chosen.modelView.inputPer1M)} /{' '}
-                  {fmtRate(chosen.modelView.outputPer1M)} per 1M via {chosen.endpoint.host}
-                </option>
-              ))}
-            </select>
+                {modelQuery && (
+                  <button
+                    type="button"
+                    aria-label="Clear model search"
+                    onClick={() => setModelQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Select Model Dropdown */}
+              <div className="mt-2.5">
+                <label
+                  htmlFor="home-model-select"
+                  className="sr-only"
+                >
+                  Select Model
+                </label>
+                <select
+                  id="home-model-select"
+                  value={selectedModel.slug}
+                  onChange={(e) => setSelectedSlug(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 text-sm font-semibold text-slate-950 shadow-2xs focus:border-slate-900 focus:outline-none"
+                >
+                  {dropdownOptions.map(({ model: m, chosen }) => (
+                    <option key={m.id} value={m.slug}>
+                      {m.name} ({m.provider}) — {fmtRate(chosen.modelView.inputPer1M)} /{' '}
+                      {fmtRate(chosen.modelView.outputPer1M)} per 1M via {chosen.endpoint.host}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {noMatchInSearch && (
+                <p className="mt-1.5 text-xs text-amber-800">
+                  No exact match for &ldquo;{modelQuery}&rdquo; — showing {selectedModel.name}.
+                </p>
+              )}
+            </div>
+
+            {/* Row 2: Requests / Day + Prompt Cache Hit Share */}
+            <div>
+              <label
+                htmlFor="home-calls-day"
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
+              >
+                Requests / Day
+              </label>
+              <input
+                id="home-calls-day"
+                type="number"
+                min={0}
+                step={100}
+                value={callsPerDay}
+                onChange={(e) => {
+                  setPresetId('custom');
+                  setCallsPerDay(Math.max(0, Number(e.target.value) || 0));
+                }}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="home-cache-pct"
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
+              >
+                Prompt Cache Hit Share
+              </label>
+              <select
+                id="home-cache-pct"
+                disabled={activeRates.cachedInputPer1M === null}
+                value={activeRates.cachedInputPer1M === null ? 0 : cachePct}
+                onChange={(e) => {
+                  setPresetId('custom');
+                  setCachePct(Number(e.target.value));
+                }}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-400 focus:border-slate-900 focus:outline-none"
+              >
+                <option value={0}>0% (No cache hits)</option>
+                <option value={20}>20% Cached reads</option>
+                <option value={50}>50% Cached reads</option>
+                <option value={80}>80% Cached reads</option>
+              </select>
+            </div>
+
+            {/* Row 3: Input Tokens / Request + Output Tokens / Request */}
+            <div>
+              <label
+                htmlFor="home-input-tok"
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
+              >
+                Input Tokens / Request
+              </label>
+              <input
+                id="home-input-tok"
+                type="number"
+                min={0}
+                step={250}
+                value={inputTokens}
+                onChange={(e) => {
+                  setPresetId('custom');
+                  setInputTokens(Math.max(0, Number(e.target.value) || 0));
+                }}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="home-output-tok"
+                className="block text-xs font-semibold text-slate-700 mb-1.5"
+              >
+                Output Tokens / Request
+              </label>
+              <input
+                id="home-output-tok"
+                type="number"
+                min={0}
+                step={50}
+                value={outputTokens}
+                onChange={(e) => {
+                  setPresetId('custom');
+                  setOutputTokens(Math.max(0, Number(e.target.value) || 0));
+                }}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
+              />
+            </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="home-calls-day"
-              className="block text-xs font-semibold text-slate-700 mb-1.5"
-            >
-              Requests / Day
-            </label>
-            <input
-              id="home-calls-day"
-              type="number"
-              min={0}
-              step={100}
-              value={callsPerDay}
-              onChange={(e) => {
-                setPresetId('custom');
-                setCallsPerDay(Math.max(0, Number(e.target.value) || 0));
-              }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="home-cache-pct"
-              className="block text-xs font-semibold text-slate-700 mb-1.5"
-            >
-              Prompt Cache Hit Share
-            </label>
-            <select
-              id="home-cache-pct"
-              disabled={activeRates.cachedInputPer1M === null}
-              value={activeRates.cachedInputPer1M === null ? 0 : cachePct}
-              onChange={(e) => {
-                setPresetId('custom');
-                setCachePct(Number(e.target.value));
-              }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 disabled:bg-slate-100 disabled:text-slate-400 focus:border-slate-900 focus:outline-none"
-            >
-              <option value={0}>0% (No cache hits)</option>
-              <option value={20}>20% Cached reads</option>
-              <option value={50}>50% Cached reads</option>
-              <option value={80}>80% Cached reads</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="home-input-tok"
-              className="block text-xs font-semibold text-slate-700 mb-1.5"
-            >
-              Input Tokens / Request
-            </label>
-            <input
-              id="home-input-tok"
-              type="number"
-              min={0}
-              step={250}
-              value={inputTokens}
-              onChange={(e) => {
-                setPresetId('custom');
-                setInputTokens(Math.max(0, Number(e.target.value) || 0));
-              }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="home-output-tok"
-              className="block text-xs font-semibold text-slate-700 mb-1.5"
-            >
-              Output Tokens / Request
-            </label>
-            <input
-              id="home-output-tok"
-              type="number"
-              min={0}
-              step={50}
-              value={outputTokens}
-              onChange={(e) => {
-                setPresetId('custom');
-                setOutputTokens(Math.max(0, Number(e.target.value) || 0));
-              }}
-              className="min-h-[44px] w-full rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 font-mono text-sm text-slate-950 focus:border-slate-900 focus:outline-none"
-            />
-          </div>
-
-          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/75 text-xs text-slate-600">
+          {/* Aligned Footer Strip: Source (Left) + Batch Toggle (Right) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/75 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
@@ -490,7 +697,7 @@ export function HomeInteractiveWorkbench({
               <button
                 type="button"
                 onClick={() => setUseBatch((v) => !v)}
-                className={`min-h-[34px] rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-colors cursor-pointer ${
                   useBatch
                     ? 'border-emerald-700 bg-emerald-50 text-emerald-900'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
@@ -506,6 +713,7 @@ export function HomeInteractiveWorkbench({
           </div>
         </div>
 
+        {/* Right Summary Card */}
         <div className="lg:col-span-5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white p-6 flex flex-col justify-between gap-5 shadow-xl">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 text-xs">
@@ -587,14 +795,14 @@ export function HomeInteractiveWorkbench({
           <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
             <Link
               href={`/models/${selectedModel.slug}`}
-              className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-400 px-4 py-2 text-xs sm:text-sm font-bold text-slate-950 hover:bg-emerald-300 transition-colors"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-400 px-4 text-xs sm:text-sm font-bold text-slate-950 hover:bg-emerald-300 transition-colors"
             >
               <span>Inspect Endpoints</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/compare"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-4 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
             >
               Compare
             </Link>
