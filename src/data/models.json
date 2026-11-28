@@ -10385,8 +10385,8 @@
       {
         "host": "OpenRouter",
         "providerType": "Router",
-        "inputPer1M": 0.066,
-        "outputPer1M": 0.097,
+        "inputPer1M": 0.085,
+        "outputPer1M": 0.125,
         "cachedInputPer1M": null,
         "cacheWritePer1M": null,
         "batchDiscount": null,
@@ -10396,7 +10396,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-28T11:16:42.421Z",
+        "lastVerified": "2026-11-28T15:06:16.338Z",
         "evidenceStatus": "Verified"
       }
     ],
