@@ -485,22 +485,22 @@ export function HomeInteractiveWorkbench({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <EndpointModeSwitcher mode={endpointMode} onChange={handleModeSwitch} />
 
           {/* Export Dropdown Menu with Multiple Formats */}
-          <div ref={exportDropdownRef} className="relative">
+          <div ref={exportDropdownRef} className="relative inline-flex items-center">
             <button
               type="button"
               aria-expanded={exportMenuOpen}
               aria-haspopup="menu"
               onClick={() => setExportMenuOpen((prev) => !prev)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-emerald-700 px-4 text-xs font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-700 px-4 text-xs font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer shadow-2xs"
             >
-              <Download className="h-3.5 w-3.5 text-white" />
+              <Download className="h-3.5 w-3.5 shrink-0 text-white" />
               <span>Export</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-emerald-100 transition-transform ${
+                className={`h-3.5 w-3.5 shrink-0 text-emerald-100 transition-transform ${
                   exportMenuOpen ? 'rotate-180' : ''
                 }`}
               />
