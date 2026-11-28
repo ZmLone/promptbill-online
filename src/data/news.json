@@ -6,6 +6,8 @@
     "category": "Endpoint Update",
     "publishedAt": "2026-11-28T09:00:00Z",
     "updatedAt": "2026-11-28T09:00:00Z",
+    "authorName": "Zeeshan Mushtaq Lone",
+    "authorUrl": "https://promptbill.online/about",
     "featured": true,
     "relatedModelSlugs": [
       "deepseek-v4-1-flash"
@@ -23,9 +25,9 @@
       }
     ],
     "keyTakeaways": [
-      "OpenRouter input pricing for DeepSeek V4.1 Flash moved slightly from $0.0507 to $0.051 per 1M tokens (+0.59%).",
-      "OpenRouter output pricing increased from $0.2028 to $0.567 per 1M tokens, raising cost on output-heavy agentic and completion workloads.",
-      "Always compare OpenRouter router rates against DeepSeek Official API and other hosting endpoints on PromptBill before locking production spend."
+      "OpenRouter input pricing for DeepSeek V4.1 Flash moved from $0.0507 to $0.051 per 1M tokens (+0.59%).",
+      "OpenRouter output pricing increased from $0.2028 to $0.567 per 1M tokens (+179.6%), raising cost on output-heavy agentic and completion workloads.",
+      "Compare OpenRouter router rates against DeepSeek Official API and other hosting endpoints on PromptBill before locking production spend."
     ],
     "sections": [
       {
@@ -55,6 +57,8 @@
     "category": "Endpoint Update",
     "publishedAt": "2026-11-27T12:00:00Z",
     "updatedAt": "2026-11-27T12:00:00Z",
+    "authorName": "Zeeshan Mushtaq Lone",
+    "authorUrl": "https://promptbill.online/about",
     "featured": false,
     "relatedModelSlugs": [
       "deepseek-v4-1-flash"

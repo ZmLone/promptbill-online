@@ -35,6 +35,8 @@ export interface NewsArticleItem {
   category: NewsCategory;
   publishedAt: string;
   updatedAt?: string;
+  authorName?: string;
+  authorUrl?: string;
   featured?: boolean;
   relatedModelSlugs: string[];
   priceDeltas?: NewsPriceDelta[];
@@ -74,6 +76,17 @@ export function getNewsByCategory(category?: string): NewsArticleItem[] {
   );
 }
 
+export function getRelatedNewsArticles(
+  currentSlug: string,
+  category: NewsCategory,
+  limit = 3
+): NewsArticleItem[] {
+  const others = ALL_ARTICLES.filter((a) => a.slug !== currentSlug);
+  const sameCategory = others.filter((a) => a.category === category);
+  const remaining = others.filter((a) => a.category !== category);
+  return [...sameCategory, ...remaining].slice(0, Math.max(0, limit));
+}
+
 export function formatNewsDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '2026-11-28';
@@ -84,4 +97,30 @@ export function formatRateUsd(val: number | null | undefined): string {
   if (typeof val !== 'number' || !Number.isFinite(val)) return 'N/A';
   if (val > 0 && val < 0.01) return `$${val.toFixed(4)}`;
   return `$${val.toFixed(2)}`;
+}
+
+export function formatRateCompact(val: number | null | undefined): string {
+  if (typeof val !== 'number' || !Number.isFinite(val)) return 'N/A';
+  if (val > 0 && val < 0.01) return `$${val.toFixed(4)}`;
+  const roundedTwo = Math.round(val * 100) / 100;
+  if (Math.abs(val - roundedTwo) < 1e-9) return `$${roundedTwo.toFixed(2)}`;
+  return `$${Number(val.toFixed(4))}`;
+}
+
+export function computePctDelta(
+  oldVal: number | null | undefined,
+  newVal: number | null | undefined
+): string | null {
+  if (
+    typeof oldVal !== 'number' ||
+    !Number.isFinite(oldVal) ||
+    oldVal <= 0 ||
+    typeof newVal !== 'number' ||
+    !Number.isFinite(newVal)
+  ) {
+    return null;
+  }
+  const pct = ((newVal - oldVal) / oldVal) * 100;
+  if (Math.abs(pct) < 0.05) return '0.0%';
+  return `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
 }
