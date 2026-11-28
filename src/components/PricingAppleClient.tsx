@@ -278,7 +278,10 @@ export function PricingAppleClient({ models }: { models: CatalogModel[] }) {
     const q = query.trim().toLowerCase();
     return models.filter((m) => {
       if (selectedProvider !== 'all' && m.provider !== selectedProvider) return false;
-      const mods = Array.isArray(m.modalities) ? m.modalities.map((x) => x.toLowerCase()) : [];
+      const rawModalities = (m as unknown as { modalities?: unknown }).modalities;
+      const mods = Array.isArray(rawModalities)
+        ? rawModalities.filter((x): x is string => typeof x === 'string').map((x) => x.toLowerCase())
+        : [];
       const supportsImage =
         mods.some((x) => x.includes('image') || x.includes('vision')) ||
         /vision|image|flux|gpt-4o|gpt-5|gpt-6|claude|gemini/i.test(`${m.name} ${m.slug}`);
