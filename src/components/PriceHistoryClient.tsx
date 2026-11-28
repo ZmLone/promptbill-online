@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import type { CatalogModel } from '../lib/catalog';
 import {
-  buildAllProviderHistory,
+  toModelHistoryRecords,
   type ModelHistoryRecord,
   type PriceMetricKey,
-} from '../lib/priceHistoryArchive';
+} from '../lib/openrouterHistory';
 
 function fmtRate(val: number | null | undefined): string {
   if (typeof val !== 'number' || !Number.isFinite(val)) return 'N/A';
@@ -25,30 +25,65 @@ function fmtShortDate(iso: string): string {
   return `${months[m]} ${d}`;
 }
 
-export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
-  const initialRecords = useMemo(() => buildAllProviderHistory(models), [models]);
-  const [records, setRecords] = useState<ModelHistoryRecord[]>(initialRecords);
+export function PriceHistoryClient({
+  models,
+  initialRecords,
+}: {
+  models: CatalogModel[];
+  initialRecords?: ModelHistoryRecord[];
+}) {
+  const fallbackRecords = useMemo(
+    () => initialRecords ?? toModelHistoryRecords({}, models),
+    [initialRecords, models]
+  );
+
+  const [records, setRecords] = useState<ModelHistoryRecord[]>(fallbackRecords);
   const [selectedProvider, setSelectedProvider] = useState<string>('all');
   const [metric, setMetric] = useState<PriceMetricKey>('input');
-  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [filterText, setFilterText] = useState<string>('');
   const [onlyChanged, setOnlyChanged] = useState<boolean>(false);
+  const [syncing, setSyncing] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
+  const loadHistory = useCallback(() => {
     fetch('/api/pricing-history')
       .then((res) => (res.ok ? res.json() : null))
       .then((payload) => {
-        if (!active || !payload || !Array.isArray(payload.series)) return;
+        if (!payload || !Array.isArray(payload.series)) return;
         setRecords(payload.series);
       })
       .catch(() => {
-        // Keep initial records on network fallback
+        // Keep current records
       });
-    return () => {
-      active = false;
-    };
   }, []);
+
+  useEffect(() => {
+    if (!initialRecords || initialRecords.length === 0) {
+      loadHistory();
+    }
+  }, [initialRecords, loadHistory]);
+
+  const handleManualSync = async () => {
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await fetch('/api/cron/sync-openrouter-prices?source=ui');
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setSyncStatus(
+          `Synced ${data.trackedModels} OpenRouter models (${data.changesDetected} price changes recorded)`
+        );
+        loadHistory();
+      } else {
+        setSyncStatus(data.error || 'Sync failed');
+      }
+    } catch {
+      setSyncStatus('Network error during OpenRouter sync');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const providers = useMemo(() => {
     const names = new Set<string>();
@@ -62,10 +97,10 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
     return records
       .filter((r) => selectedProvider === 'all' || r.provider === selectedProvider)
       .map((r) => {
-        const pts = r.points.map((pt) => {
-          const val = metric === 'input' ? pt.inputPer1M : pt.outputPer1M;
-          return { date: pt.date, val };
-        });
+        const pts = r.points.map((pt) => ({
+          date: pt.date,
+          val: metric === 'input' ? pt.inputPer1M : pt.outputPer1M,
+        }));
         const firstVal = pts[0]?.val ?? 0;
         const lastVal = pts[pts.length - 1]?.val ?? 0;
         const pctChange =
@@ -106,7 +141,7 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
       }
     }
     const sorted = Array.from(set).sort((a, b) => a.localeCompare(b));
-    return sorted.length > 0 ? sorted : ['2026-05-01', '2026-08-01', '2026-11-28'];
+    return sorted.length > 0 ? sorted : ['2026-11-28'];
   }, [computedSeries]);
 
   const dateIndexMap = useMemo(() => {
@@ -168,20 +203,22 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
   }, [timelineDates]);
 
   const hoveredItem = useMemo(
-    () => computedSeries.find((s) => s.slug === hoveredSlug) ?? null,
-    [computedSeries, hoveredSlug]
+    () => computedSeries.find((s) => s.id === hoveredId) ?? null,
+    [computedSeries, hoveredId]
   );
 
   const tableRows = useMemo(() => {
     const q = filterText.trim().toLowerCase();
     return computedSeries
       .filter((s) => {
-        if (onlyChanged && Math.abs(s.metricPctChange) < 0.05) return false;
+        if (onlyChanged && Math.abs(s.metricPctChange) < 0.05 && s.changeCount === 0) {
+          return false;
+        }
         if (!q) return true;
         return (
           s.name.toLowerCase().includes(q) ||
           s.provider.toLowerCase().includes(q) ||
-          s.slug.toLowerCase().includes(q)
+          s.id.toLowerCase().includes(q)
         );
       })
       .sort((a, b) => a.metricPctChange - b.metricPctChange);
@@ -198,16 +235,24 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
       ? 'text-rose-600'
       : 'text-slate-950';
 
+  // Cap SVG line rendering to top 80 series when "All Providers" has 300+ OpenRouter models so DOM stays instant
+  const chartSeries = useMemo(() => computedSeries.slice(0, 80), [computedSeries]);
+
   return (
     <div className="space-y-8">
       <section
-        aria-label="PromptBill Pricing History"
+        aria-label="OpenRouter & Provider Pricing History"
         className="border border-slate-200 rounded-xl bg-white p-5 sm:p-8"
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-100">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-950 tracking-tight">
-            PromptBill Pricing History
-          </h2>
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-950 tracking-tight">
+              OpenRouter &amp; LLM Pricing History
+            </h2>
+            {syncStatus && (
+              <p className="mt-1 text-xs text-emerald-700 font-medium">{syncStatus}</p>
+            )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <select
@@ -232,6 +277,15 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
               <option value="input">Input Price</option>
               <option value="output">Output Price</option>
             </select>
+
+            <button
+              type="button"
+              onClick={handleManualSync}
+              disabled={syncing}
+              className="h-10 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 disabled:opacity-50 px-3.5 text-xs font-semibold text-slate-900 transition-colors cursor-pointer"
+            >
+              {syncing ? 'Syncing...' : 'Sync OpenRouter Now'}
+            </button>
           </div>
         </div>
 
@@ -269,7 +323,7 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                 )} → ${fmtRate(hoveredItem.metricCurrent)} / 1M (${
                   hoveredItem.metricPctChange > 0 ? '+' : ''
                 }${hoveredItem.metricPctChange.toFixed(1)}%)`
-              : 'Hover any line or table row below to inspect historical rate shifts'}
+              : 'Auto-synced daily from OpenRouter API · Hover any line or row to inspect rate shifts'}
           </p>
         </div>
 
@@ -329,10 +383,10 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
               );
             })}
 
-            {computedSeries.map((series, sIdx) => {
+            {chartSeries.map((series, sIdx) => {
               if (series.normalizedPts.length === 0) return null;
-              const isHovered = hoveredSlug === series.slug;
-              const isDimmed = hoveredSlug !== null && !isHovered;
+              const isHovered = hoveredId === series.id;
+              const isDimmed = hoveredId !== null && !isHovered;
               const microOffset =
                 Math.abs(series.metricPctChange) < 0.05 ? ((sIdx % 5) - 2) * 0.6 : 0;
 
@@ -353,8 +407,8 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
               return (
                 <g
                   key={series.id}
-                  onMouseEnter={() => setHoveredSlug(series.slug)}
-                  onMouseLeave={() => setHoveredSlug(null)}
+                  onMouseEnter={() => setHoveredId(series.id)}
+                  onMouseLeave={() => setHoveredId(null)}
                   className="cursor-pointer"
                 >
                   <path
@@ -362,7 +416,7 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                     fill="none"
                     stroke={series.color}
                     strokeWidth={isHovered ? 3.5 : 2}
-                    strokeOpacity={isDimmed ? 0.2 : 0.9}
+                    strokeOpacity={isDimmed ? 0.2 : 0.85}
                   />
                   {series.normalizedPts.map((pt) => {
                     const cx = getX(pt.date);
@@ -372,7 +426,7 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                         key={`${series.id}-${pt.date}`}
                         cx={cx}
                         cy={cy}
-                        r={isHovered ? 4.2 : 2.8}
+                        r={isHovered ? 4.2 : 2.6}
                         fill={series.color}
                         fillOpacity={isDimmed ? 0.2 : 1}
                       />
@@ -385,11 +439,11 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
         </div>
       </section>
 
-      <section aria-label="Historical Rate Changes Table" className="space-y-4">
+      <section aria-label="Tracked OpenRouter & Provider Models" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-semibold text-slate-950">
-              All Recorded Rate Histories ({tableRows.length})
+              Tracked Models ({tableRows.length})
             </h2>
             <label className="inline-flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
               <input
@@ -406,9 +460,9 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
             type="search"
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
-            placeholder="Filter by model or provider..."
-            aria-label="Filter by model or provider"
-            className="h-9 w-full sm:w-64 border border-slate-300 bg-white px-3 text-sm text-slate-950 placeholder:text-slate-500 focus:border-slate-950 focus:outline-none"
+            placeholder="Filter by model, ID, or provider..."
+            aria-label="Filter by model, ID, or provider"
+            className="h-9 w-full sm:w-72 border border-slate-300 bg-white px-3 text-sm text-slate-950 placeholder:text-slate-500 focus:border-slate-950 focus:outline-none"
           />
         </div>
 
@@ -421,8 +475,8 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                 <th scope="col" className="py-3 px-4 text-right">Initial {metricTitle}</th>
                 <th scope="col" className="py-3 px-4 text-right">Current {metricTitle}</th>
                 <th scope="col" className="py-3 px-4 text-right">Change</th>
-                <th scope="col" className="py-3 px-4 text-right">Snapshots</th>
-                <th scope="col" className="py-3 px-4 text-right">Last Verified</th>
+                <th scope="col" className="py-3 px-4 text-right">Points</th>
+                <th scope="col" className="py-3 px-4 text-right">Last Checked</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 font-mono">
@@ -433,13 +487,13 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                   </td>
                 </tr>
               ) : (
-                tableRows.map((row, idx) => (
+                tableRows.slice(0, 150).map((row, idx) => (
                   <tr
                     key={row.id}
-                    onMouseEnter={() => setHoveredSlug(row.slug)}
-                    onMouseLeave={() => setHoveredSlug(null)}
+                    onMouseEnter={() => setHoveredId(row.id)}
+                    onMouseLeave={() => setHoveredId(null)}
                     className={`h-14 align-middle transition-colors ${
-                      hoveredSlug === row.slug
+                      hoveredId === row.id
                         ? 'bg-emerald-50/50'
                         : idx % 2 === 0
                         ? 'bg-white'
@@ -453,12 +507,15 @@ export function PriceHistoryClient({ models }: { models: CatalogModel[] }) {
                           className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: row.color }}
                         />
-                        <Link
-                          href={`/models/${row.slug}`}
-                          className="font-semibold text-slate-950 hover:underline underline-offset-2"
-                        >
-                          {row.name}
-                        </Link>
+                        <div>
+                          <Link
+                            href="/pricing"
+                            className="font-semibold text-slate-950 hover:underline underline-offset-2"
+                          >
+                            {row.name}
+                          </Link>
+                          <div className="text-[11px] font-mono text-slate-500">{row.id}</div>
+                        </div>
                       </div>
                     </th>
                     <td className="py-3 px-4 font-sans text-xs text-slate-700">{row.provider}</td>

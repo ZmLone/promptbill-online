@@ -1,14 +1,23 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ALL_MODELS } from '../../../lib/catalog';
+import {
+  fetchOpenRouterLiveModels,
+  mergeLiveWithStoredHistory,
+  REDIS_HISTORY_KEY,
+  toModelHistoryRecords,
+  type StoredModelHistory,
+} from '../../../lib/openrouterHistory';
 import { SiteShell } from '../../../components/SiteShell';
 import { PricingSectionNav } from '../../../components/PricingSectionNav';
 import { PriceHistoryClient } from '../../../components/PriceHistoryClient';
 
+export const revalidate = 3600;
+
 const BASE_URL = 'https://promptbill.online';
-const TITLE = 'LLM API Pricing History — Historical Rate Changes Across All Providers | PromptBill';
+const TITLE = 'LLM API Pricing History — Live OpenRouter & Multi-Provider Rate Tracker | PromptBill';
 const DESCRIPTION =
-  'Track LLM API pricing history, input and output price drops, and multi-provider token rate changes over time across OpenAI, Anthropic, Google, DeepSeek, Mistral, and more.';
+  'Track live LLM API pricing history, automatic OpenRouter rate change detection, and multi-provider input and output price trends on PromptBill.';
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -28,15 +37,42 @@ export const metadata: Metadata = {
   },
 };
 
-function fmtRate(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
+async function getInitialHistoryRecords() {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  let stored: Record<string, StoredModelHistory> = {};
+
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (url && token) {
+    try {
+      const res = await fetch(`${url}/get/${encodeURIComponent(REDIS_HISTORY_KEY)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        next: { revalidate: 3600 },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { result?: string | null };
+        if (data.result) {
+          stored = JSON.parse(data.result) as Record<string, StoredModelHistory>;
+        }
+      }
+    } catch {
+      // Ignore Redis read error and fall back to live OpenRouter fetch
+    }
+  }
+
+  try {
+    const liveModels = await fetchOpenRouterLiveModels();
+    const { updatedMap } = mergeLiveWithStoredHistory(stored, liveModels, todayIso);
+    return toModelHistoryRecords(updatedMap, ALL_MODELS);
+  } catch {
+    return toModelHistoryRecords(stored, ALL_MODELS);
+  }
 }
 
-export default function Page() {
-  const latestVerificationDate =
-    ALL_MODELS.map((m) => m.pricingProvenance?.lastVerified?.slice(0, 10) ?? '')
-      .filter(Boolean)
-      .sort((a, b) => b.localeCompare(a))[0] ?? '2026-11-28';
+export default async function Page() {
+  const initialRecords = await getInitialHistoryRecords();
+  const latestDate =
+    initialRecords[0]?.lastUpdated ?? new Date().toISOString().slice(0, 10);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -46,7 +82,7 @@ export default function Page() {
         url: `${BASE_URL}/pricing/price-history`,
         name: TITLE,
         description: DESCRIPTION,
-        dateModified: latestVerificationDate,
+        dateModified: latestDate,
       },
       {
         '@type': 'BreadcrumbList',
@@ -63,11 +99,11 @@ export default function Page() {
       },
       {
         '@type': 'Dataset',
-        name: 'PromptBill Multi-Provider LLM API Pricing History Dataset',
+        name: 'PromptBill OpenRouter & Multi-Provider LLM Pricing History Dataset',
         description:
-          'Historical input and output token rate changes per 1 million tokens across major LLM API providers.',
+          'Automated daily snapshots and historical rate revisions across OpenRouter and major LLM API providers.',
         url: `${BASE_URL}/pricing/price-history`,
-        dateModified: latestVerificationDate,
+        dateModified: latestDate,
         creator: {
           '@type': 'Organization',
           name: 'PromptBill',
@@ -76,37 +112,18 @@ export default function Page() {
         variableMeasured: [
           'Input token price per 1M tokens (USD)',
           'Output token price per 1M tokens (USD)',
-          'Historical percentage price change (%)',
+          'Cumulative percentage price change (%)',
         ],
-      },
-      {
-        '@type': 'ItemList',
-        name: 'LLM API Pricing History Models',
-        numberOfItems: ALL_MODELS.length,
-        itemListElement: ALL_MODELS.map((m, idx) => ({
-          '@type': 'ListItem',
-          position: idx + 1,
-          url: `${BASE_URL}/models/${m.slug}`,
-          name: `${m.name} (${m.provider}) — In ${fmtRate(m.inputPer1M)} / Out ${fmtRate(m.outputPer1M)} per 1M`,
-        })),
       },
       {
         '@type': 'FAQPage',
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'How have LLM API token prices changed across major providers?',
+            name: 'How does PromptBill automatically update LLM price history?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Across major providers including OpenAI, Anthropic, Google, DeepSeek, and Mistral, per-1M input and output token rates have declined significantly over successive model generations and tier revisions, which PromptBill plots as percentage changes over time.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'How does PromptBill record new daily price snapshots?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'PromptBill combines archived multi-month provider pricing timelines with automated daily catalog snapshots stored via its pricing history API endpoint.',
+              text: 'PromptBill polls OpenRouter’s public models pricing API daily, compares live per-1M input and output token rates against stored snapshots in Redis, and records a new timestamped data point whenever a provider changes a model’s price.',
             },
           },
         ],
@@ -125,7 +142,7 @@ export default function Page() {
         <PricingSectionNav active="price-history" />
 
         <header className="text-center space-y-2 pt-2">
-          <h1 className="sr-only">LLM API Pricing History Across All Providers</h1>
+          <h1 className="sr-only">LLM API Pricing History — OpenRouter &amp; Multi-Provider Tracker</h1>
           <div>
             <Link
               href="/pricing"
@@ -135,18 +152,18 @@ export default function Page() {
             </Link>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
-            Last updated: {latestVerificationDate}
+            Last updated: {latestDate} · Auto-synced with OpenRouter Models API
           </p>
         </header>
 
-        <PriceHistoryClient models={ALL_MODELS} />
+        <PriceHistoryClient models={ALL_MODELS} initialRecords={initialRecords} />
 
         <footer className="border-t border-slate-200 pt-6 text-center max-w-2xl mx-auto space-y-2 text-xs text-slate-600">
           <h2 className="text-sm font-semibold text-slate-950">
-            Multi-Provider LLM Price History Methodology
+            Automated OpenRouter Price Change Detection
           </h2>
           <p className="leading-relaxed">
-            Charts display cumulative percentage price changes per 1M input or output tokens across tracked providers, combining archived provider rate revisions with daily catalog snapshots. See{' '}
+            PromptBill polls OpenRouter&apos;s public pricing feed and appends a new snapshot whenever a model&apos;s per-1M input or output rate changes. See{' '}
             <Link href="/methodology" className="underline underline-offset-2 text-slate-900 font-medium">
               Methodology
             </Link>

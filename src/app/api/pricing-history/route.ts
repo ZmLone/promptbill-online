@@ -1,95 +1,90 @@
 import { NextResponse } from 'next/server';
 import { ALL_MODELS } from '../../../lib/catalog';
 import {
-  buildAllProviderHistory,
-  type HistoricalPricePoint,
-} from '../../../lib/priceHistoryArchive';
+  fetchOpenRouterLiveModels,
+  mergeLiveWithStoredHistory,
+  REDIS_HISTORY_KEY,
+  REDIS_META_KEY,
+  toModelHistoryRecords,
+  type StoredModelHistory,
+} from '../../../lib/openrouterHistory';
 
 export const revalidate = 3600;
 
-const REDIS_KEY = 'promptbill:pricing-history:snapshots:v1';
-
-async function readRedisSnapshots(): Promise<Record<string, HistoricalPricePoint[]>> {
+async function redisGet<T>(key: string): Promise<T | null> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return {};
+  if (!url || !token) return null;
 
   try {
-    const res = await fetch(`${url}/get/${encodeURIComponent(REDIS_KEY)}`, {
+    const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${token}` },
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return {};
+    if (!res.ok) return null;
     const data = (await res.json()) as { result?: string | null };
-    if (!data.result) return {};
-    const parsed = JSON.parse(data.result);
-    return parsed && typeof parsed === 'object' ? parsed : {};
+    if (!data.result) return null;
+    return JSON.parse(data.result) as T;
   } catch {
-    return {};
+    return null;
   }
 }
 
-async function writeTodaySnapshotIfNeeded(
-  existing: Record<string, HistoricalPricePoint[]>
-): Promise<Record<string, HistoricalPricePoint[]>> {
+async function redisSet(key: string, value: unknown): Promise<void> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  const today = new Date().toISOString().slice(0, 10);
+  if (!url || !token) return;
 
-  const next: Record<string, HistoricalPricePoint[]> = { ...existing };
-  let changed = false;
-
-  for (const m of ALL_MODELS) {
-    const inRate =
-      typeof m.inputPer1M === 'number' && Number.isFinite(m.inputPer1M)
-        ? m.inputPer1M
-        : null;
-    const outRate =
-      typeof m.outputPer1M === 'number' && Number.isFinite(m.outputPer1M)
-        ? m.outputPer1M
-        : null;
-    if (inRate === null && outRate === null) continue;
-
-    const list = Array.isArray(next[m.slug]) ? [...next[m.slug]] : [];
-    const alreadyHasToday = list.some((pt) => pt.date === today);
-    if (!alreadyHasToday) {
-      list.push({
-        date: today,
-        inputPer1M: inRate ?? 0,
-        outputPer1M: outRate ?? 0,
-        source: 'live-snapshot',
-      });
-      next[m.slug] = list.slice(-180);
-      changed = true;
-    }
+  try {
+    await fetch(`${url}/set/${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(JSON.stringify(value)),
+    });
+  } catch {
+    // Non-blocking fallback
   }
-
-  if (changed && url && token) {
-    try {
-      await fetch(`${url}/set/${encodeURIComponent(REDIS_KEY)}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(JSON.stringify(next)),
-      });
-    } catch {
-      // Non-blocking fallback
-    }
-  }
-
-  return next;
 }
 
 export async function GET() {
-  const existing = await readRedisSnapshots();
-  const mergedSnapshots = await writeTodaySnapshotIfNeeded(existing);
-  const series = buildAllProviderHistory(ALL_MODELS, mergedSnapshots);
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const stored = (await redisGet<Record<string, StoredModelHistory>>(REDIS_HISTORY_KEY)) ?? {};
 
-  return NextResponse.json({
-    updatedAt: new Date().toISOString(),
-    modelsCount: series.length,
-    series,
-  });
+  try {
+    const liveModels = await fetchOpenRouterLiveModels();
+    const { updatedMap, changesDetected, newModelsAdded } = mergeLiveWithStoredHistory(
+      stored,
+      liveModels,
+      todayIso
+    );
+
+    if (changesDetected > 0 || newModelsAdded > 0) {
+      await redisSet(REDIS_HISTORY_KEY, updatedMap);
+      await redisSet(REDIS_META_KEY, {
+        lastSyncedAt: new Date().toISOString(),
+        trackedModels: Object.keys(updatedMap).length,
+      });
+    }
+
+    const series = toModelHistoryRecords(updatedMap, ALL_MODELS);
+    return NextResponse.json({
+      source: 'openrouter+redis',
+      lastSyncedAt: new Date().toISOString(),
+      modelsCount: series.length,
+      changesDetected,
+      series,
+    });
+  } catch {
+    const series = toModelHistoryRecords(stored, ALL_MODELS);
+    return NextResponse.json({
+      source: Object.keys(stored).length > 0 ? 'redis-cache' : 'catalog-fallback',
+      lastSyncedAt: new Date().toISOString(),
+      modelsCount: series.length,
+      changesDetected: 0,
+      series,
+    });
+  }
 }

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-openrouter-prices",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
