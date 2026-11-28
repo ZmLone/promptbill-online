@@ -44,6 +44,10 @@ export function getAllNewsArticles(): NewsArticle[] {
   });
 }
 
+export function getLatestNewsArticles(limit = 5): NewsArticle[] {
+  return getAllNewsArticles().slice(0, limit);
+}
+
 export function getNewsArticleBySlug(slug: string): NewsArticle | undefined {
   return getAllNewsArticles().find((article) => article.slug === slug);
 }
