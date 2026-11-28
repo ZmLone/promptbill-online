@@ -1,11 +1,42 @@
 [
   {
+    "slug": "gpt-5-2-update-2026-11-28",
+    "title": "GPT-5.2 API Launch",
+    "summary": "New model (openai/gpt-5.2) · Router $1.75/$14 per 1M · Context 400K",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T17:22:55.523Z",
+    "updatedAt": "2026-11-28T17:23:10.624Z",
+    "authorName": "Zeeshan Mushtaq Lone",
+    "authorUrl": "https://promptbill.online/about",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-2"
+    ],
+    "priceDeltas": [],
+    "keyTakeaways": [
+      "GPT-5.2 (OpenAI) recorded a new model staged via PromptBill sync.",
+      "Compare endpoint pricing and token calculator estimates directly on /models/gpt-5-2."
+    ],
+    "sections": [
+      {
+        "heading": "What Changed & Workload Impact",
+        "body": "New model (openai/gpt-5.2) · Router $1.75/$14 per 1M · Context 400K"
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  },
+  {
     "slug": "qwen3-5-9b-endpoint-update-2026-11-28",
     "title": "Qwen3.5-9B API Rate Update",
     "summary": "Qwen3.5-9B (Qwen) rate updated: input $0.066 -> $0.085/1M, output $0.097 -> $0.125/1M.",
     "category": "Endpoint Update",
     "publishedAt": "2026-11-28T17:11:44.654Z",
-    "updatedAt": "2026-11-28T17:11:52.155Z",
+    "updatedAt": "2026-11-28T17:23:10.624Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": false,
@@ -47,7 +78,7 @@
     "summary": "New model GPT-5.2 Pro (OpenAI) approved and added to the PromptBill catalog at $21 / $168 per 1M tokens.",
     "category": "New Model",
     "publishedAt": "2026-11-28T17:09:20.270Z",
-    "updatedAt": "2026-11-28T17:11:52.155Z",
+    "updatedAt": "2026-11-28T17:23:10.624Z",
     "authorName": "Zeeshan Mushtaq Lone",
     "authorUrl": "https://promptbill.online/about",
     "featured": true,
