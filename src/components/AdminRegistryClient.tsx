@@ -372,7 +372,6 @@ function detectCatalogDuplicate(
 
   if (!cleanSlug && !normName) return null;
 
-  // 1. Exact slug or ID match
   for (const m of catalogModels) {
     if (!m) continue;
     const mSlug = slugify(String(m.slug || m.id || ''));
@@ -385,7 +384,6 @@ function detectCatalogDuplicate(
     }
   }
 
-  // 2. Exact normalized name match
   for (const m of catalogModels) {
     if (!m) continue;
     const mNormName = normalizeModelComparable(String(m.name || ''));
@@ -398,7 +396,6 @@ function detectCatalogDuplicate(
     }
   }
 
-  // 3. Near-duplicate check (same provider + shared core identifier or prefix/suffix variant)
   if (normName.length >= 5) {
     for (const m of catalogModels) {
       if (!m) continue;
@@ -1805,25 +1802,230 @@ export function AdminRegistryClient({
     URL.revokeObjectURL(url);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function buildApprovedShapeModelForPendingItem(item: PendingQueueItem, rankIndex: number): Record<string, any> {
+    const edits = getItemEdits(item);
+    const nowIso = item.detectedAt || new Date().toISOString();
+    const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
+
+    const scoreVal = parseOptionalNum(edits.score);
+    const speedVal = parseOptionalNum(edits.tokPerSec);
+    const offIn = parseOptionalNum(edits.officialInput);
+    const offOut = parseOptionalNum(edits.officialOutput);
+    const cachedIn = parseOptionalNum(edits.cachedInput);
+    const cacheWr = parseOptionalNum(edits.cacheWrite);
+    const rIn = parseOptionalNum(edits.routerInput);
+    const rOut = parseOptionalNum(edits.routerOutput);
+    const batchDisc = parseOptionalDiscount(edits.batchDiscount);
+    const ctxVal =
+      edits.contextWindow.trim() ||
+      (item.draftModel?.contextWindow ? String(item.draftModel.contextWindow) : null);
+
+    const existingModel =
+      models.find(
+        (m) =>
+          m &&
+          (m.slug === item.modelSlug ||
+            m.id === item.modelId ||
+            m.slug === item.draftModel?.slug ||
+            m.id === item.draftModel?.id)
+      ) || null;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const baseModel: Record<string, any> = {
+      ...(existingModel || {}),
+      ...(item.draftModel || {}),
+    };
+
+    const resolvedSlug = String(
+      baseModel.slug || item.modelSlug || slugify(item.modelName || item.modelId)
+    );
+    const resolvedId = String(baseModel.id || item.modelId || resolvedSlug);
+    const resolvedName = String(baseModel.name || item.modelName || resolvedSlug);
+    const resolvedProvider = String(baseModel.provider || item.provider || 'Unknown');
+
+    const endpoints: HostingEndpoint[] = Array.isArray(baseModel.hostingEndpoints)
+      ? [...baseModel.hostingEndpoints]
+      : [];
+
+    if (item.type === 'new_model') {
+      if (offIn !== null && offOut !== null) {
+        const offIdx = endpoints.findIndex((ep) => ep && ep.providerType === 'Official API');
+        const offEp: HostingEndpoint = {
+          ...(offIdx >= 0 ? endpoints[offIdx] : {}),
+          host: `${resolvedProvider} Official API`,
+          providerType: 'Official API',
+          inputPer1M: offIn,
+          cachedInputPer1M: cachedIn,
+          cacheWritePer1M: cacheWr,
+          outputPer1M: offOut,
+          batchDiscount: batchDisc,
+          latencyMs: offIdx >= 0 ? endpoints[offIdx].latencyMs ?? null : null,
+          notes: 'Pending approval (approved schema)',
+          currency: 'USD',
+          pricingUnit: 'per 1M tokens',
+          sourceUrl: item.sourceUrl || null,
+          lastVerified: nowIso,
+          evidenceStatus: provStatus,
+        };
+        if (offIdx >= 0) endpoints[offIdx] = offEp;
+        else endpoints.push(offEp);
+      }
+      if (rIn !== null && rOut !== null) {
+        const routerIdx = endpoints.findIndex(
+          (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
+        );
+        const routerEp: HostingEndpoint = {
+          ...(routerIdx >= 0 ? endpoints[routerIdx] : {}),
+          host: 'OpenRouter',
+          providerType: 'Router',
+          inputPer1M: rIn,
+          cachedInputPer1M: null,
+          cacheWritePer1M: null,
+          outputPer1M: rOut,
+          batchDiscount: null,
+          latencyMs: routerIdx >= 0 ? endpoints[routerIdx].latencyMs ?? null : null,
+          notes: 'Pending OpenRouter rate (approved schema)',
+          currency: 'USD',
+          pricingUnit: 'per 1M tokens',
+          sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
+          lastVerified: nowIso,
+          evidenceStatus: 'Verified',
+        };
+        if (routerIdx >= 0) endpoints[routerIdx] = routerEp;
+        else endpoints.push(routerEp);
+      }
+    } else if (item.type === 'price_update') {
+      const routerIdx = endpoints.findIndex(
+        (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
+      );
+      if (rIn !== null && rOut !== null) {
+        const updatedRouterEp: HostingEndpoint = {
+          ...(routerIdx >= 0 ? endpoints[routerIdx] : {}),
+          host: 'OpenRouter',
+          providerType: 'Router',
+          inputPer1M: rIn,
+          cachedInputPer1M: null,
+          cacheWritePer1M: null,
+          outputPer1M: rOut,
+          batchDiscount: null,
+          latencyMs: routerIdx >= 0 ? endpoints[routerIdx].latencyMs ?? null : null,
+          notes: 'Pending price update (approved schema)',
+          currency: 'USD',
+          pricingUnit: 'per 1M tokens',
+          sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
+          lastVerified: nowIso,
+          evidenceStatus: 'Verified',
+        };
+        if (routerIdx >= 0) endpoints[routerIdx] = updatedRouterEp;
+        else endpoints.push(updatedRouterEp);
+      }
+    }
+
+    const finalScore = scoreVal ?? (baseModel.score !== undefined ? baseModel.score : null);
+    const finalSpeed = speedVal ?? (baseModel.tokPerSec !== undefined ? baseModel.tokPerSec : null);
+    const finalCachedIn =
+      cachedIn ?? (baseModel.cachedInputPer1M !== undefined ? baseModel.cachedInputPer1M : null);
+    const finalCacheWr =
+      cacheWr ?? (baseModel.cacheWritePer1M !== undefined ? baseModel.cacheWritePer1M : null);
+    const finalBatchDisc =
+      batchDisc ?? (baseModel.batchDiscount !== undefined ? baseModel.batchDiscount : null);
+
+    const resolvedIn =
+      item.type === 'new_model'
+        ? offIn ?? rIn ?? (baseModel.inputPer1M ?? null)
+        : baseModel.inputPer1M ?? rIn ?? null;
+    const resolvedOut =
+      item.type === 'new_model'
+        ? offOut ?? rOut ?? (baseModel.outputPer1M ?? null)
+        : baseModel.outputPer1M ?? rOut ?? null;
+
+    const existingPriceProv = baseModel.pricingProvenance || {};
+    const existingBenchProv = baseModel.benchmarkProvenance || {};
+    const existingSpeedProv = baseModel.speedProvenance || {};
+
+    return {
+      ...baseModel,
+      id: resolvedId,
+      slug: resolvedSlug,
+      rank: typeof baseModel.rank === 'number' ? baseModel.rank : models.length + rankIndex + 1,
+      name: resolvedName,
+      provider: resolvedProvider,
+      providerSlug: baseModel.providerSlug || slugify(resolvedProvider),
+      family: baseModel.family ?? null,
+      license: baseModel.license ?? null,
+      evidence: edits.markVerified ? 'Verified' : baseModel.evidence || provStatus,
+      lifecycleStatus: baseModel.lifecycleStatus || 'Active',
+      archived: Boolean(baseModel.archived),
+      score: finalScore,
+      qualityScore: finalScore,
+      interval: baseModel.interval ?? null,
+      elo: baseModel.elo ?? null,
+      inputPer1M: resolvedIn,
+      cachedInputPer1M: finalCachedIn,
+      cacheWritePer1M: finalCacheWr,
+      outputPer1M: resolvedOut,
+      longContextMultiplierInput: baseModel.longContextMultiplierInput ?? null,
+      longContextMultiplierOutput: baseModel.longContextMultiplierOutput ?? null,
+      longContextThresholdTokens: baseModel.longContextThresholdTokens ?? null,
+      contextWindow: ctxVal,
+      maxOutputTokens: baseModel.maxOutputTokens ?? null,
+      tokPerSec: finalSpeed,
+      speedTokensPerSec: finalSpeed,
+      ag: baseModel.ag ?? null,
+      co: baseModel.co ?? null,
+      re: baseModel.re ?? null,
+      mm: baseModel.mm ?? null,
+      kn: baseModel.kn ?? null,
+      ml: baseModel.ml ?? null,
+      if: baseModel.if ?? null,
+      ma: baseModel.ma ?? null,
+      rpmLimit: baseModel.rpmLimit ?? null,
+      tpmLimit: baseModel.tpmLimit ?? null,
+      tpdLimit: baseModel.tpdLimit ?? null,
+      batchDiscount: finalBatchDisc,
+      tier: baseModel.tier ?? null,
+      bestFor: baseModel.bestFor ?? null,
+      notes: baseModel.notes || item.summary || 'Pending queue item formatted in approved models.json schema.',
+      pricingProvenance: {
+        status:
+          existingPriceProv.status ||
+          (resolvedIn !== null && resolvedOut !== null ? provStatus : 'Unavailable'),
+        sourceUrl: item.sourceUrl || existingPriceProv.sourceUrl || null,
+        lastVerified: existingPriceProv.lastVerified || nowIso,
+        currency: existingPriceProv.currency || 'USD',
+        pricingUnit: existingPriceProv.pricingUnit || 'per 1M tokens',
+        notes: existingPriceProv.notes || 'Pending queue item (approved schema)',
+      },
+      benchmarkProvenance: {
+        status:
+          existingBenchProv.status || (finalScore !== null ? provStatus : 'Unavailable'),
+        sourceUrl: existingBenchProv.sourceUrl ?? null,
+        lastVerified: existingBenchProv.lastVerified || (finalScore !== null ? nowIso : null),
+        notes:
+          existingBenchProv.notes ||
+          (finalScore !== null ? 'Pending queue item (approved schema)' : 'No benchmark score recorded.'),
+      },
+      speedProvenance: {
+        status:
+          existingSpeedProv.status || (finalSpeed !== null ? provStatus : 'Unavailable'),
+        sourceUrl: existingSpeedProv.sourceUrl ?? null,
+        lastVerified: existingSpeedProv.lastVerified || (finalSpeed !== null ? nowIso : null),
+        hardwareOrProvider: existingSpeedProv.hardwareOrProvider ?? null,
+        conditions: existingSpeedProv.conditions ?? null,
+        notes:
+          existingSpeedProv.notes ||
+          (finalSpeed !== null ? 'Pending queue item (approved schema)' : 'No speed measurement recorded.'),
+      },
+      priceHistory: Array.isArray(baseModel.priceHistory) ? baseModel.priceHistory : [],
+      hostingEndpoints: endpoints,
+    };
+  }
+
   function buildPendingModelsExportJson(): string {
-    const exportEntries = pendingItems.map((item) => {
-      const edits = getItemEdits(item);
-      return {
-        ...(item.draftModel || {}),
-        queueId: item.queueId,
-        type: item.type,
-        modelId: item.modelId,
-        slug: item.draftModel?.slug || item.modelSlug || item.modelId,
-        name: item.draftModel?.name || item.modelName,
-        provider: item.draftModel?.provider || item.provider,
-        detectedAt: item.detectedAt,
-        sourceUrl: item.sourceUrl ?? null,
-        summary: item.summary,
-        currentValues: item.currentValues ?? null,
-        proposedValues: item.proposedValues ?? null,
-        pendingEdits: edits,
-      };
-    });
+    const exportEntries = pendingItems.map((item, idx) =>
+      buildApprovedShapeModelForPendingItem(item, idx)
+    );
     return JSON.stringify(exportEntries, null, 2) + '\n';
   }
 
