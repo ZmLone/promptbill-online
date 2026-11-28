@@ -6,15 +6,16 @@ import { PricingCleanClient } from '../../components/PricingCleanClient';
 
 const BASE_URL = 'https://promptbill.online';
 
-const TITLE = 'API Pricing — LLM Tokens, Cheapest Models, Image Models, Subscriptions & History | PromptBill';
-const DESCRIPTION =
-  'Compare LLM API token pricing per 1 million tokens, lowest-cost models, image models, AI subscriptions, and verification history on PromptBill.';
+const PAGE_TITLE =
+  'API Pricing — LLM Tokens, Cheapest Models, Image Models, Subscriptions & History | PromptBill';
+const PAGE_DESCRIPTION =
+  'Compare LLM API token rates per 1M tokens, lowest-cost models, vision/image models, AI subscriptions, and catalog verification history on PromptBill.';
 
 export const metadata: Metadata = {
   title: {
-    absolute: TITLE,
+    absolute: PAGE_TITLE,
   },
-  description: DESCRIPTION,
+  description: PAGE_DESCRIPTION,
   alternates: {
     canonical: `${BASE_URL}/pricing`,
   },
@@ -22,13 +23,13 @@ export const metadata: Metadata = {
     type: 'website',
     url: `${BASE_URL}/pricing`,
     siteName: 'PromptBill',
-    title: TITLE,
-    description: DESCRIPTION,
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
   },
   twitter: {
     card: 'summary',
-    title: TITLE,
-    description: DESCRIPTION,
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
   },
 };
 
@@ -56,8 +57,8 @@ export default function Page() {
       {
         '@type': 'WebPage',
         url: `${BASE_URL}/pricing`,
-        name: TITLE,
-        description: DESCRIPTION,
+        name: PAGE_TITLE,
+        description: PAGE_DESCRIPTION,
       },
       {
         '@type': 'BreadcrumbList',
@@ -82,13 +83,13 @@ export default function Page() {
 
   return (
     <SiteShell hidePageHeader>
-      <div className="max-w-6xl mx-auto space-y-8 pb-10">
+      <div className="max-w-6xl mx-auto space-y-8 pb-12">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Centered Editorial Header */}
+        {/* Centered Header (No Amber Box Above the Fold) */}
         <header className="text-center max-w-2xl mx-auto space-y-3 pt-2">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
             PromptBill · Rates per 1M Tokens
@@ -97,26 +98,31 @@ export default function Page() {
             API Pricing
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Normalized token rates, lowest-cost models, image models, AI subscriptions, and verification dates.
+            Normalized token rates, lowest-cost models, image models, AI subscriptions, and verification history.
           </p>
-          <div className="pt-1 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-800">
+          <div className="pt-1 flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-slate-800 tabular-nums">
             <span>{ALL_MODELS.length} Models</span>
             <span>{verifiedCount} Verified</span>
             <span>{providerCount} Providers</span>
             <span>{endpointCount} Endpoints</span>
           </div>
+          <div className="pt-1 flex flex-wrap items-center justify-center gap-5 text-xs font-medium">
+            <Link href="/#estimator" className="text-slate-900 underline underline-offset-4">
+              Spend Calculator
+            </Link>
+            <Link href="/leaderboard" className="text-slate-900 underline underline-offset-4">
+              Leaderboard
+            </Link>
+            <Link href="/compare" className="text-slate-900 underline underline-offset-4">
+              Compare
+            </Link>
+            <Link href="/methodology" className="text-slate-900 underline underline-offset-4">
+              Methodology
+            </Link>
+          </div>
         </header>
 
-        {/* Provenance Notice */}
-        <div className="border border-amber-300 bg-amber-50/70 px-4 py-3 text-xs sm:text-sm text-amber-950 text-center">
-          <strong>Provenance Notice:</strong> Values marked <strong>Estimated</strong> lack a verified primary source URL or check timestamp in the current catalog snapshot. Missing values show <strong>N/A</strong>. See{' '}
-          <Link href="/methodology" className="font-semibold underline underline-offset-2">
-            Methodology
-          </Link>
-          .
-        </div>
-
-        {/* Uniform Pricing Client */}
+        {/* Interactive Multi-View Pricing Client */}
         <PricingCleanClient models={ALL_MODELS} />
       </div>
     </SiteShell>
