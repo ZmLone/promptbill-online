@@ -1,39 +1,64 @@
-import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const sans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-sans',
-  display: 'swap',
-});
-
-const mono = JetBrains_Mono({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-mono',
+  variable: '--font-inter',
   display: 'swap',
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
+
+const BASE_URL = 'https://promptbill.online';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://promptbill.online'),
+  metadataBase: new URL(BASE_URL),
   title: {
-    default: 'PromptBill — LLM API Pricing, Multi-Endpoint Rates & Token Calculator',
+    default: 'PromptBill — LLM API Pricing, Token Cost Calculator & Benchmark Catalog',
     template: '%s | PromptBill',
   },
   description:
-    'Live LLM API token pricing per 1M tokens across official APIs and inference clouds, 30-day cost calculator with caching & batch discounts, and benchmark rankings.',
+    'Compare LLM API token pricing per 1M tokens, benchmark scores, inference endpoints, and 30-day API spend across providers on PromptBill.',
+  alternates: {
+    canonical: BASE_URL,
+  },
+  openGraph: {
+    type: 'website',
+    url: BASE_URL,
+    siteName: 'PromptBill',
+    title: 'PromptBill — LLM API Pricing, Token Cost Calculator & Benchmark Catalog',
+    description:
+      'Compare LLM API token pricing per 1M tokens, benchmark scores, inference endpoints, and 30-day API spend across providers on PromptBill.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PromptBill — LLM API Pricing, Token Cost Calculator & Benchmark Catalog',
+    description:
+      'Compare LLM API token pricing per 1M tokens, benchmark scores, inference endpoints, and 30-day API spend across providers on PromptBill.',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body className="font-sans antialiased bg-[#fbfbfd] text-slate-900 selection:bg-emerald-200/70 selection:text-slate-950">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-white text-slate-950 font-sans antialiased selection:bg-slate-900 selection:text-white">
         {children}
       </body>
     </html>
