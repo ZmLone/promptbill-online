@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-28T16:55:35.607Z",
+  "updatedAt": "2026-11-28T17:09:50.237Z",
   "items": [
     {
       "queueId": "new:gpt-5-2",
@@ -1766,6 +1766,29 @@
             "evidenceStatus": "Verified"
           }
         ]
+      }
+    },
+    {
+      "queueId": "price:qwen3-5-9b",
+      "type": "price_update",
+      "detectedAt": "2026-11-28T12:50:54.041Z",
+      "modelId": "qwen3-5-9b",
+      "modelSlug": "qwen3-5-9b",
+      "modelName": "Qwen3.5-9B",
+      "provider": "Qwen",
+      "sourceUrl": "https://openrouter.ai/api/v1/models",
+      "summary": "OpenRouter price: $0.066/$0.097 -> $0.085/$0.125 per 1M",
+      "currentValues": {
+        "routerInputPer1M": 0.066,
+        "routerOutputPer1M": 0.097,
+        "officialInputPer1M": 0.08,
+        "officialOutputPer1M": 0.13
+      },
+      "proposedValues": {
+        "routerInputPer1M": 0.085,
+        "routerOutputPer1M": 0.125,
+        "remoteModelId": "qwen/qwen3.5-9b",
+        "lastVerified": "2026-11-28T12:50:54.041Z"
       }
     }
   ]
