@@ -422,47 +422,99 @@ export function HomeInteractiveWorkbench({
       aria-labelledby="quick-estimator-heading"
       className="pb-calculator-shell relative rounded-[28px] bg-white p-5 sm:p-8 space-y-6"
     >
-      {/* Vivid Diagonal Corner-to-Corner Colorful Wave */}
+      {/* Strictly Frame-Contained Colored Diagonal Binary (0 1 0 1) Wave */}
       <div
         aria-hidden="true"
-        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden rounded-[28px] opacity-75"
+        className="pb-diagonal-wave pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]"
       >
-        <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-400/40 via-cyan-400/30 to-transparent blur-2xl" />
         <svg
-          viewBox="0 0 1200 600"
+          viewBox="0 0 1200 640"
           preserveAspectRatio="none"
-          className="absolute inset-0 h-full w-full"
+          className="h-full w-full block"
         >
           <defs>
-            <linearGradient id="pbVividDiag1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.34" />
-              <stop offset="32%" stopColor="#06B6D4" stopOpacity="0.28" />
-              <stop offset="66%" stopColor="#8B5CF6" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.34" />
+            <clipPath id="pbCalcFrameClip">
+              <rect x="0" y="0" width="1200" height="640" rx="28" ry="28" />
+            </clipPath>
+            <linearGradient id="pbBinaryWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
+              <stop offset="32%" stopColor="#06B6D4" stopOpacity="0.18" />
+              <stop offset="68%" stopColor="#8B5CF6" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.22" />
             </linearGradient>
-            <linearGradient id="pbVividDiag2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#34D399" stopOpacity="0.28" />
-              <stop offset="45%" stopColor="#3B82F6" stopOpacity="0.22" />
-              <stop offset="78%" stopColor="#EC4899" stopOpacity="0.24" />
-              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.32" />
+            <linearGradient id="pbBinaryTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#059669" stopOpacity="0.42" />
+              <stop offset="35%" stopColor="#0284C7" stopOpacity="0.38" />
+              <stop offset="70%" stopColor="#7C3AED" stopOpacity="0.38" />
+              <stop offset="100%" stopColor="#E11D48" stopOpacity="0.42" />
             </linearGradient>
+            <path
+              id="pbBinaryArc1"
+              d="M -20,25 C 280,85 370,335 670,365 C 935,390 1045,515 1220,615"
+            />
+            <path
+              id="pbBinaryArc2"
+              d="M -20,95 C 265,165 365,410 665,440 C 925,465 1035,565 1220,655"
+            />
+            <path
+              id="pbBinaryArc3"
+              d="M 40,-15 C 330,45 425,275 715,305 C 965,330 1070,450 1230,545"
+            />
           </defs>
-          <path
-            d="M-60,-30 C230,50 310,330 640,355 C940,375 1040,520 1260,630 L1260,420 C1020,330 890,190 610,170 C310,150 200,-20 -60,-130 Z"
-            fill="url(#pbVividDiag1)"
-          />
-          <path
-            d="M-80,90 C220,180 390,430 720,455 C980,475 1090,565 1260,660 L1260,515 C1060,420 920,295 660,270 C350,245 180,45 -80,-35 Z"
-            fill="url(#pbVividDiag2)"
-          />
+
+          <g clipPath="url(#pbCalcFrameClip)">
+            {/* Soft Diagonal Color Wave Ribbon */}
+            <path
+              d="M 0,0 L 210,0 C 420,145 530,275 780,310 C 985,338 1100,435 1200,520 L 1200,640 L 970,640 C 770,510 645,395 405,360 C 205,330 95,215 0,115 Z"
+              fill="url(#pbBinaryWaveGrad)"
+            />
+
+            {/* Colored 0 1 0 1 Binary Stream Flowing Along the Diagonal Wave */}
+            <text
+              fill="url(#pbBinaryTextGrad)"
+              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              fontSize="14"
+              fontWeight="700"
+              letterSpacing="5"
+            >
+              <textPath href="#pbBinaryArc1" startOffset="2%">
+                0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1
+              </textPath>
+            </text>
+
+            <text
+              fill="url(#pbBinaryTextGrad)"
+              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              fontSize="13"
+              fontWeight="700"
+              letterSpacing="6"
+              opacity="0.82"
+            >
+              <textPath href="#pbBinaryArc2" startOffset="4%">
+                1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0 1 0 0 1 1 0 1 0 1 0 0 1 0 1 1 0
+              </textPath>
+            </text>
+
+            <text
+              fill="url(#pbBinaryTextGrad)"
+              fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
+              fontSize="12"
+              fontWeight="600"
+              letterSpacing="6"
+              opacity="0.72"
+            >
+              <textPath href="#pbBinaryArc3" startOffset="1%">
+                0 1 1 0 1 0 0 1 0 1 0 1 1 0 1 0 0 1 1 0 0 1 0 1 0 1 1 0 1 0 0 1 0 1 1 0 1 0 0 1 0 1 0 1 1 0 1 0 0 1
+              </textPath>
+            </text>
+          </g>
         </svg>
-        <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-gradient-to-tl from-rose-500/32 via-violet-500/28 to-amber-400/28 blur-2xl" />
       </div>
 
       {/* Top Row: Title + Endpoint Switcher + Export Dropdown */}
       <div className="relative z-40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600/15 text-emerald-800 ring-1 ring-inset ring-emerald-600/30">
             <Calculator className="h-5 w-5" />
           </div>
           <div>
@@ -493,12 +545,12 @@ export function HomeInteractiveWorkbench({
               aria-expanded={exportMenuOpen}
               aria-haspopup="menu"
               onClick={() => setExportMenuOpen((prev) => !prev)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-slate-950 px-4 text-xs font-semibold text-white hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-700/30 bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs"
             >
-              <Download className="h-3.5 w-3.5 text-emerald-400" />
+              <Download className="h-3.5 w-3.5 text-white" />
               <span>Export</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-slate-300 transition-transform ${
+                className={`h-3.5 w-3.5 text-emerald-100 transition-transform ${
                   exportMenuOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -595,14 +647,14 @@ export function HomeInteractiveWorkbench({
                 aria-pressed={active}
                 className={`rounded-2xl px-3.5 py-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
                   active
-                    ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-950'
+                    ? 'bg-emerald-50/95 text-slate-950 shadow-xs ring-2 ring-emerald-600'
                     : 'bg-white/90 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white hover:ring-slate-300'
                 }`}
               >
                 <span className="text-xs font-bold tracking-tight truncate">{p.label}</span>
                 <span
                   className={`mt-1 font-mono text-[10px] truncate ${
-                    active ? 'text-emerald-300' : 'text-slate-700 font-semibold'
+                    active ? 'text-emerald-800 font-bold' : 'text-slate-700 font-semibold'
                   }`}
                 >
                   {p.spec}
@@ -979,10 +1031,10 @@ export function HomeInteractiveWorkbench({
           <div className="relative z-10 flex flex-col sm:flex-row gap-2.5 pt-1">
             <Link
               href={`/models/${selectedModel.slug}`}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-4 text-xs sm:text-sm font-bold text-white hover:bg-slate-800 transition-colors"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-xs sm:text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-2xs"
             >
               <span>Inspect Endpoints</span>
-              <ArrowRight className="h-4 w-4 text-emerald-400" />
+              <ArrowRight className="h-4 w-4 text-white" />
             </Link>
             <Link
               href="/compare"

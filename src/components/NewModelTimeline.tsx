@@ -100,7 +100,7 @@ export function NewModelTimeline({
                 aria-pressed={isSelected}
                 className={`w-full text-left group rounded-2xl p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected
-                    ? 'bg-white ring-2 ring-slate-950 shadow-md -translate-y-0.5'
+                    ? 'bg-gradient-to-br from-white via-emerald-50/60 to-sky-50/50 ring-2 ring-emerald-600 shadow-md -translate-y-0.5'
                     : 'bg-white/75 hover:bg-white ring-1 ring-slate-200/80 hover:ring-slate-300'
                 }`}
               >
@@ -149,8 +149,8 @@ export function NewModelTimeline({
         })}
       </ol>
 
-      {/* Focused Release Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-2xl bg-slate-950 text-white p-5 sm:px-7 sm:py-5 shadow-md">
+      {/* Focused Release Bar — Bright High-Contrast Surface */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-2xl border border-emerald-600/25 bg-gradient-to-r from-emerald-50/80 via-white to-sky-50/75 text-slate-950 p-5 sm:px-7 sm:py-5 shadow-sm">
         <div className="flex items-start sm:items-center gap-4 min-w-0">
           <ProviderLogo
             provider={focusedModel.provider}
@@ -160,52 +160,52 @@ export function NewModelTimeline({
           />
           <div className="min-w-0 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base sm:text-lg font-extrabold tracking-tight text-white">
+              <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-950">
                 {focusedModel.name}
               </span>
-              <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-slate-200">
+              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
                 {focusedModel.provider}
               </span>
               {focusedModel.pricingProvenance?.status === 'Verified' ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-300">
-                  <CheckCircle2 className="h-3 w-3" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/12 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-700" />
                   Verified
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-amber-200">
-                  <Clock className="h-3 w-3" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-bold text-amber-900">
+                  <Clock className="h-3 w-3 text-amber-700" />
                   Estimated
                 </span>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300 font-mono">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-700 font-mono">
               <span>
-                In: <strong className="text-white">{fmtRate(focusedRates.inputPer1M)}</strong>/1M
+                In: <strong className="text-slate-950">{fmtRate(focusedRates.inputPer1M)}</strong>/1M
               </span>
               <span>
                 Cached:{' '}
-                <strong className="text-emerald-300">
+                <strong className="text-emerald-800">
                   {fmtRate(focusedRates.cachedInputPer1M)}
                 </strong>
                 /1M
               </span>
               <span>
-                Out: <strong className="text-white">{fmtRate(focusedRates.outputPer1M)}</strong>/1M
+                Out: <strong className="text-slate-950">{fmtRate(focusedRates.outputPer1M)}</strong>/1M
               </span>
               <span>Ctx: {focusedModel.contextWindow ?? 'N/A'}</span>
-              <span className="inline-flex items-center gap-1 text-slate-300">
-                <Server className="h-3 w-3 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 text-slate-700">
+                <Server className="h-3 w-3 text-emerald-700" />
                 {focusedRates.host}
               </span>
               {typeof focusedRates.latencyMs === 'number' && (
-                <span className="inline-flex items-center gap-1 text-emerald-300">
+                <span className="inline-flex items-center gap-1 text-emerald-800 font-semibold">
                   <Gauge className="h-3 w-3" />
                   &lt;{focusedRates.latencyMs}ms
                 </span>
               )}
               {typeof focusedRates.tokPerSec === 'number' && (
-                <span className="inline-flex items-center gap-1 text-emerald-300">
+                <span className="inline-flex items-center gap-1 text-indigo-800 font-semibold">
                   <Zap className="h-3 w-3" />~{focusedRates.tokPerSec} tok/s
                 </span>
               )}
@@ -218,7 +218,7 @@ export function NewModelTimeline({
             <button
               type="button"
               onClick={() => onSimulateModel(focusedModel.slug)}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-400 px-4 text-xs font-bold text-slate-950 hover:bg-emerald-300 transition-colors cursor-pointer"
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer shadow-2xs"
             >
               <Calculator className="h-3.5 w-3.5" />
               <span>Simulate in Calculator</span>
@@ -226,7 +226,7 @@ export function NewModelTimeline({
           )}
           <Link
             href={`/models/${focusedModel.slug}`}
-            className="inline-flex h-10 items-center justify-center gap-1 rounded-xl border border-slate-700 bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800 transition-colors"
+            className="inline-flex h-10 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white px-4 text-xs font-bold text-slate-900 hover:bg-slate-50 transition-colors"
           >
             <span>Model Specs</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
