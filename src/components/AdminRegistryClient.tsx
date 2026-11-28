@@ -1675,6 +1675,28 @@ export function AdminRegistryClient({
     URL.revokeObjectURL(url);
   }
 
+  function buildPendingModelsExportJson(): string {
+    const exportEntries = pendingItems.map((item) => {
+      const edits = getItemEdits(item);
+      return {
+        ...(item.draftModel || {}),
+        queueId: item.queueId,
+        type: item.type,
+        modelId: item.modelId,
+        slug: item.draftModel?.slug || item.modelSlug || item.modelId,
+        name: item.draftModel?.name || item.modelName,
+        provider: item.draftModel?.provider || item.provider,
+        detectedAt: item.detectedAt,
+        sourceUrl: item.sourceUrl ?? null,
+        summary: item.summary,
+        currentValues: item.currentValues ?? null,
+        proposedValues: item.proposedValues ?? null,
+        pendingEdits: edits,
+      };
+    });
+    return JSON.stringify(exportEntries, null, 2) + '\n';
+  }
+
   const filteredPending = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return pendingItems.filter((item) => {
@@ -1809,6 +1831,13 @@ export function AdminRegistryClient({
             className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             Download models.json
+          </button>
+          <button
+            type="button"
+            onClick={() => downloadJsonFile('pending-models.json', buildPendingModelsExportJson())}
+            className="min-h-[42px] rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-100"
+          >
+            Download Pending models.json ({pendingItems.length})
           </button>
           <button
             type="button"
