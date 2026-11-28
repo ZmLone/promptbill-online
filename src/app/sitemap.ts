@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { ALL_MODELS } from '../lib/catalog';
 import { getUniqueProviders, TIER_HUBS } from '../lib/hubs';
 import { REGISTRY_SNAPSHOT } from '../lib/modelRegistry';
+import { getAllNewsArticles, formatNewsDate } from '../lib/news';
 
 const BASE_URL = 'https://promptbill.online';
 const SNAPSHOT_UPDATED_AT = REGISTRY_SNAPSHOT.generatedMonthYear || '2026-11-27';
@@ -22,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, lastModified: catalogDate },
     { url: `${BASE_URL}/models`, lastModified: catalogDate },
+    { url: `${BASE_URL}/news`, lastModified: catalogDate },
     { url: `${BASE_URL}/leaderboard`, lastModified: catalogDate },
     { url: `${BASE_URL}/compare`, lastModified: catalogDate },
     { url: `${BASE_URL}/pricing`, lastModified: catalogDate },
@@ -63,5 +65,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: catalogDate,
   }));
 
-  return [...staticRoutes, ...modelRoutes, ...providerRoutes, ...tierRoutes];
+  const newsRoutes: MetadataRoute.Sitemap = getAllNewsArticles().map((article) => ({
+    url: `${BASE_URL}/news/${article.slug}`,
+    lastModified: formatNewsDate(article.updatedAt || article.publishedAt),
+  }));
+
+  return [...staticRoutes, ...newsRoutes, ...modelRoutes, ...providerRoutes, ...tierRoutes];
 }

@@ -3,6 +3,7 @@ import { after, NextResponse } from 'next/server';
 import { posthogLog, posthogLogProvider } from '../../../instrumentation';
 import { ALL_MODELS } from '../../lib/catalog';
 import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../../lib/modelRegistry';
+import { getLatestNewsArticles, formatNewsDate } from '../../lib/news';
 
 export const dynamic = 'force-static';
 
@@ -37,6 +38,7 @@ export async function GET() {
     '- [LLM Leaderboard](https://promptbill.online/leaderboard): Evidence-aware rankings showing scores, official API prices, and throughput where recorded.',
     '- [Head-to-Head Model Comparisons](https://promptbill.online/compare): Compare tracked models side-by-side.',
     '- [All Models Directory](https://promptbill.online/models): Full catalog of tracked models.',
+    '- [LLM API Pricing News](https://promptbill.online/news): Price updates, model releases, and endpoint changes.',
     '- [API Pricing](https://promptbill.online/pricing): Token pricing across providers and endpoints.',
     '- [LLM Selector](https://promptbill.online/tools/llm-selector): Filter models by workload, price, score, and license.',
     '- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts and input costs.',
@@ -49,6 +51,18 @@ export async function GET() {
     '',
     '## Tracked Models',
   ];
+
+  const latestNews = getLatestNewsArticles(10);
+  if (latestNews.length > 0) {
+    lines.push('', '## Latest Pricing & Model News');
+    for (const item of latestNews) {
+      lines.push(
+        `- [${item.title}](https://promptbill.online/news/${item.slug}) (${formatNewsDate(item.publishedAt)}, ${item.category}): ${item.summary}`
+      );
+    }
+  }
+
+  lines.push('', '## Tracked Models');
 
   for (const m of ALL_MODELS) {
     const ctxLabel = m.contextWindow ?? 'N/A';
