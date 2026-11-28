@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "slug": "gpt-5-2-pro-new-model-2026-11-28",
+    "title": "GPT-5.2 Pro Added to PromptBill Catalog",
+    "summary": "New model GPT-5.2 Pro (OpenAI) approved and added to the PromptBill catalog at $21 / $168 per 1M tokens.",
+    "category": "New Model",
+    "publishedAt": "2026-11-28T17:09:20.270Z",
+    "updatedAt": "2026-11-28T17:09:55.286Z",
+    "authorName": "Zeeshan Mushtaq Lone",
+    "authorUrl": "https://promptbill.online/about",
+    "featured": true,
+    "relatedModelSlugs": [
+      "gpt-5-2-pro"
+    ],
+    "priceDeltas": [
+      {
+        "modelSlug": "gpt-5-2-pro",
+        "modelName": "GPT-5.2 Pro",
+        "provider": "OpenAI",
+        "endpointHost": "OpenRouter",
+        "oldInputPer1M": null,
+        "newInputPer1M": 21,
+        "oldOutputPer1M": null,
+        "newOutputPer1M": 168
+      }
+    ],
+    "keyTakeaways": [
+      "New model GPT-5.2 Pro (OpenAI) approved and added to the PromptBill catalog at $21 / $168 per 1M tokens.",
+      "Inspect live pricing, endpoints, and token cost estimates at /models/gpt-5-2-pro."
+    ],
+    "sections": [
+      {
+        "heading": "Approved Registry Change",
+        "body": "New model GPT-5.2 Pro (OpenAI) approved and added to the PromptBill catalog at $21 / $168 per 1M tokens. View full endpoint comparisons and token calculations on PromptBill."
+      }
+    ],
+    "sourceUrls": [
+      {
+        "label": "Source Reference",
+        "url": "https://openrouter.ai/api/v1/models"
+      }
+    ]
+  }
+]
