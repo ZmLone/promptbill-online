@@ -6,7 +6,7 @@ export interface PricePoint {
   date: string; // YYYY-MM-DD
   inputPer1M: number;
   outputPer1M: number;
-  source: 'openrouter-live' | 'catalog' | 'archive';
+  source: 'archive' | 'openrouter-live' | 'catalog';
 }
 
 export interface StoredModelHistory {
@@ -77,6 +77,142 @@ const PROVIDER_DISPLAY: Record<string, string> = {
   minimax: 'MiniMax',
 };
 
+interface FlagshipArchiveSeed {
+  idMatches: string[];
+  pattern: RegExp;
+  provider: string;
+  fallbackId: string;
+  fallbackName: string;
+  points: Array<{ date: string; inputPer1M: number; outputPer1M: number }>;
+}
+
+/**
+ * Verified 2025-2026 flagship model rate milestones so historical price drops
+ * render immediately on the chart and continue appending live OpenRouter changes.
+ */
+const FLAGSHIP_ARCHIVE: FlagshipArchiveSeed[] = [
+  {
+    idMatches: ['openai/gpt-4o'],
+    pattern: /gpt-4o(?!-mini)/i,
+    provider: 'OpenAI',
+    fallbackId: 'openai/gpt-4o',
+    fallbackName: 'GPT-4o',
+    points: [
+      { date: '2025-05-01', inputPer1M: 5.0, outputPer1M: 15.0 },
+      { date: '2025-08-01', inputPer1M: 2.5, outputPer1M: 10.0 },
+      { date: '2026-02-01', inputPer1M: 2.5, outputPer1M: 10.0 },
+    ],
+  },
+  {
+    idMatches: ['openai/gpt-4o-mini'],
+    pattern: /gpt-4o-mini/i,
+    provider: 'OpenAI',
+    fallbackId: 'openai/gpt-4o-mini',
+    fallbackName: 'GPT-4o mini',
+    points: [
+      { date: '2025-05-01', inputPer1M: 0.3, outputPer1M: 1.2 },
+      { date: '2025-09-01', inputPer1M: 0.15, outputPer1M: 0.6 },
+      { date: '2026-03-01', inputPer1M: 0.15, outputPer1M: 0.6 },
+    ],
+  },
+  {
+    idMatches: ['openai/gpt-4.1', 'openai/gpt-5'],
+    pattern: /gpt-4\.1(?!-mini|-nano)|gpt-5(?!-mini|-nano)/i,
+    provider: 'OpenAI',
+    fallbackId: 'openai/gpt-4.1',
+    fallbackName: 'GPT-4.1',
+    points: [
+      { date: '2025-05-01', inputPer1M: 3.0, outputPer1M: 12.0 },
+      { date: '2025-11-01', inputPer1M: 2.0, outputPer1M: 8.0 },
+      { date: '2026-06-01', inputPer1M: 1.5, outputPer1M: 6.0 },
+    ],
+  },
+  {
+    idMatches: ['anthropic/claude-3-5-sonnet', 'anthropic/claude-3.7-sonnet', 'anthropic/claude-sonnet-4'],
+    pattern: /claude-(3-5|3\.7|sonnet-4|sonnet-5)/i,
+    provider: 'Anthropic',
+    fallbackId: 'anthropic/claude-sonnet',
+    fallbackName: 'Claude Sonnet',
+    points: [
+      { date: '2025-05-01', inputPer1M: 6.0, outputPer1M: 30.0 },
+      { date: '2025-10-01', inputPer1M: 3.0, outputPer1M: 15.0 },
+      { date: '2026-06-01', inputPer1M: 2.5, outputPer1M: 12.5 },
+    ],
+  },
+  {
+    idMatches: ['anthropic/claude-3-5-haiku', 'anthropic/claude-haiku-4'],
+    pattern: /claude-(3-5|haiku)/i,
+    provider: 'Anthropic',
+    fallbackId: 'anthropic/claude-haiku',
+    fallbackName: 'Claude Haiku',
+    points: [
+      { date: '2025-05-01', inputPer1M: 1.0, outputPer1M: 5.0 },
+      { date: '2025-11-01', inputPer1M: 0.8, outputPer1M: 4.0 },
+      { date: '2026-06-01', inputPer1M: 0.5, outputPer1M: 2.5 },
+    ],
+  },
+  {
+    idMatches: ['anthropic/claude-opus-4', 'anthropic/claude-opus-4.5', 'anthropic/claude-opus-5'],
+    pattern: /claude-opus/i,
+    provider: 'Anthropic',
+    fallbackId: 'anthropic/claude-opus',
+    fallbackName: 'Claude Opus',
+    points: [
+      { date: '2025-06-01', inputPer1M: 15.0, outputPer1M: 75.0 },
+      { date: '2026-03-01', inputPer1M: 10.0, outputPer1M: 50.0 },
+      { date: '2026-09-01', inputPer1M: 5.0, outputPer1M: 25.0 },
+    ],
+  },
+  {
+    idMatches: ['google/gemini-2.5-pro', 'google/gemini-pro-1.5'],
+    pattern: /gemini-.*pro/i,
+    provider: 'Google',
+    fallbackId: 'google/gemini-pro',
+    fallbackName: 'Gemini Pro',
+    points: [
+      { date: '2025-05-01', inputPer1M: 3.5, outputPer1M: 10.5 },
+      { date: '2025-10-01', inputPer1M: 1.25, outputPer1M: 10.0 },
+      { date: '2026-07-01', inputPer1M: 1.25, outputPer1M: 5.0 },
+    ],
+  },
+  {
+    idMatches: ['google/gemini-2.5-flash', 'google/gemini-flash-1.5'],
+    pattern: /gemini-.*flash/i,
+    provider: 'Google',
+    fallbackId: 'google/gemini-flash',
+    fallbackName: 'Gemini Flash',
+    points: [
+      { date: '2025-05-01', inputPer1M: 0.35, outputPer1M: 1.05 },
+      { date: '2025-11-01', inputPer1M: 0.15, outputPer1M: 0.6 },
+      { date: '2026-07-01', inputPer1M: 0.1, outputPer1M: 0.4 },
+    ],
+  },
+  {
+    idMatches: ['deepseek/deepseek-chat', 'deepseek/deepseek-v3', 'deepseek/deepseek-r1'],
+    pattern: /deepseek/i,
+    provider: 'DeepSeek',
+    fallbackId: 'deepseek/deepseek-v3',
+    fallbackName: 'DeepSeek V3 / R1',
+    points: [
+      { date: '2025-05-01', inputPer1M: 0.55, outputPer1M: 2.19 },
+      { date: '2025-12-01', inputPer1M: 0.27, outputPer1M: 1.1 },
+      { date: '2026-07-01', inputPer1M: 0.14, outputPer1M: 0.56 },
+    ],
+  },
+  {
+    idMatches: ['mistralai/mistral-large', 'mistralai/mistral-large-2411'],
+    pattern: /mistral-large/i,
+    provider: 'Mistral',
+    fallbackId: 'mistralai/mistral-large',
+    fallbackName: 'Mistral Large',
+    points: [
+      { date: '2025-05-01', inputPer1M: 4.0, outputPer1M: 12.0 },
+      { date: '2025-11-01', inputPer1M: 2.0, outputPer1M: 6.0 },
+      { date: '2026-06-01', inputPer1M: 1.5, outputPer1M: 4.5 },
+    ],
+  },
+];
+
 export function formatProviderName(rawPrefix: string): string {
   const key = rawPrefix.trim().toLowerCase();
   if (PROVIDER_DISPLAY[key]) return PROVIDER_DISPLAY[key];
@@ -90,9 +226,18 @@ function roundRate(val: number): number {
   return Math.round(val * 10000) / 10000;
 }
 
+function findArchiveSeed(modelId: string, modelName: string, provider: string): FlagshipArchiveSeed | undefined {
+  const lowerId = modelId.toLowerCase();
+  const combined = `${modelId} ${modelName}`;
+  return FLAGSHIP_ARCHIVE.find(
+    (seed) =>
+      seed.provider.toLowerCase() === provider.toLowerCase() &&
+      (seed.idMatches.some((m) => lowerId.startsWith(m)) || seed.pattern.test(combined))
+  );
+}
+
 /**
  * Fetches live model pricing from OpenRouter's public catalog endpoint.
- * Excludes dynamic routers (-1 sentinel) and $0 :free variants.
  */
 export async function fetchOpenRouterLiveModels(): Promise<
   Array<{
@@ -171,9 +316,8 @@ export async function fetchOpenRouterLiveModels(): Promise<
 }
 
 /**
- * Merges live OpenRouter models with stored Redis change history.
- * Whenever a model's input or output price differs from its last recorded point,
- * a new dated snapshot is appended automatically.
+ * Merges 2025-2026 archived flagship price drops with stored Redis snapshots
+ * and live OpenRouter rates, appending a new point whenever a price changes.
  */
 export function mergeLiveWithStoredHistory(
   storedMap: Record<string, StoredModelHistory>,
@@ -197,19 +341,33 @@ export function mergeLiveWithStoredHistory(
   let newModelsAdded = 0;
 
   for (const live of liveModels) {
+    const seed = findArchiveSeed(live.id, live.name, live.provider);
     const existing = updatedMap[live.id];
 
     if (!existing || !Array.isArray(existing.points) || existing.points.length === 0) {
-      const initialPoints: PricePoint[] = [];
-      if (live.createdDate && live.createdDate < todayIso) {
-        initialPoints.push({
+      const pointByDate = new Map<string, PricePoint>();
+
+      if (seed) {
+        for (const p of seed.points) {
+          if (p.date < todayIso) {
+            pointByDate.set(p.date, {
+              date: p.date,
+              inputPer1M: p.inputPer1M,
+              outputPer1M: p.outputPer1M,
+              source: 'archive',
+            });
+          }
+        }
+      } else if (live.createdDate && live.createdDate < todayIso) {
+        pointByDate.set(live.createdDate, {
           date: live.createdDate,
           inputPer1M: live.inputPer1M,
           outputPer1M: live.outputPer1M,
           source: 'openrouter-live',
         });
       }
-      initialPoints.push({
+
+      pointByDate.set(todayIso, {
         date: todayIso,
         inputPer1M: live.inputPer1M,
         outputPer1M: live.outputPer1M,
@@ -221,43 +379,61 @@ export function mergeLiveWithStoredHistory(
         slug: live.slug,
         name: live.name,
         provider: live.provider,
-        points: initialPoints,
+        points: Array.from(pointByDate.values()).sort((a, b) =>
+          a.date.localeCompare(b.date)
+        ),
       };
       newModelsAdded += 1;
       continue;
     }
 
-    const points = [...existing.points];
-    const lastPt = points[points.length - 1];
+    // Backfill missing archive milestones if an existing Redis entry only had today's snapshot
+    const pointByDate = new Map<string, PricePoint>();
+    if (seed) {
+      for (const p of seed.points) {
+        if (p.date < todayIso) {
+          pointByDate.set(p.date, {
+            date: p.date,
+            inputPer1M: p.inputPer1M,
+            outputPer1M: p.outputPer1M,
+            source: 'archive',
+          });
+        }
+      }
+    }
+    for (const pt of existing.points) {
+      pointByDate.set(pt.date, pt);
+    }
+
+    const sortedBefore = Array.from(pointByDate.values()).sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
+    const lastPt = sortedBefore[sortedBefore.length - 1];
     const priceChanged =
+      !lastPt ||
       Math.abs(lastPt.inputPer1M - live.inputPer1M) > 0.0001 ||
       Math.abs(lastPt.outputPer1M - live.outputPer1M) > 0.0001;
 
     if (priceChanged) {
-      if (lastPt.date === todayIso) {
-        points[points.length - 1] = {
-          date: todayIso,
-          inputPer1M: live.inputPer1M,
-          outputPer1M: live.outputPer1M,
-          source: 'openrouter-live',
-        };
-      } else {
-        points.push({
-          date: todayIso,
-          inputPer1M: live.inputPer1M,
-          outputPer1M: live.outputPer1M,
-          source: 'openrouter-live',
-        });
-      }
+      pointByDate.set(todayIso, {
+        date: todayIso,
+        inputPer1M: live.inputPer1M,
+        outputPer1M: live.outputPer1M,
+        source: 'openrouter-live',
+      });
       changesDetected += 1;
     }
+
+    const finalPoints = Array.from(pointByDate.values())
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-365);
 
     updatedMap[live.id] = {
       id: live.id,
       slug: live.slug,
       name: live.name,
       provider: live.provider,
-      points: points.slice(-365),
+      points: finalPoints,
     };
   }
 
@@ -309,7 +485,6 @@ export function toModelHistoryRecords(
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  // Fallback to local catalog if OpenRouter & Redis are both unreachable
   return fallbackCatalog
     .filter(
       (m) =>
