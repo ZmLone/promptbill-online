@@ -42,6 +42,7 @@ const MORE_COLUMNS: {
     heading: 'Tools & Calculators',
     links: [
       { label: 'API Pricing & Rates', href: '/pricing' },
+      { label: 'LLM API News', href: '/news' },
       { label: 'LLM Selector', href: '/tools/llm-selector' },
       { label: 'Token Counter', href: '/tools/token-counter' },
       { label: 'Routing Simulator', href: '/tools/routing-simulator' },
@@ -286,44 +287,162 @@ export function SiteShell({
         {children}
       </main>
 
-      <footer className="border-t border-slate-200/70 bg-white py-10 text-xs text-slate-600">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="font-bold text-slate-950 text-sm">PromptBill</div>
-              <p className="text-slate-500">
-                Verified LLM API token pricing, caching &amp; batch cost math, and multi-endpoint benchmarks.
+      <footer
+        aria-label="Site footer"
+        className="border-t border-slate-200/80 bg-white py-12 text-xs text-slate-600"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-4 space-y-2.5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-950 font-mono text-[11px] font-bold text-white">
+                  PB
+                </span>
+                <span className="font-bold text-slate-950 text-sm">PromptBill</span>
+              </div>
+              <p className="text-slate-500 leading-relaxed max-w-sm">
+                Verified LLM API token pricing, caching &amp; batch cost math, and multi-endpoint
+                benchmarks across Official APIs, Inference Clouds, and Routers.
               </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <a
+                  href="/sitemap.xml"
+                  className="inline-flex min-h-[34px] items-center gap-1 rounded-full border border-slate-200 bg-slate-50/70 px-3 py-1 font-mono text-[11px] text-slate-700 hover:bg-slate-100"
+                >
+                  Sitemap <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href="/llms.txt"
+                  className="inline-flex min-h-[34px] items-center gap-1 rounded-full border border-slate-200 bg-slate-50/70 px-3 py-1 font-mono text-[11px] text-slate-700 hover:bg-slate-100"
+                >
+                  llms.txt <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <a
-                href="/sitemap.xml"
-                className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
-              >
-                Sitemap <ExternalLink className="w-3 h-3" />
-              </a>
-              <a
-                href="/llms.txt"
-                className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 font-mono text-[11px] text-slate-700 hover:bg-slate-50"
-              >
-                llms.txt <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
+
+            <nav aria-label="Models and pricing" className="lg:col-span-2 space-y-2.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
+                Catalog &amp; News
+              </h2>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link href="/models" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Models Directory
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/leaderboard" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Leaderboard
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/compare" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Compare Models
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    API Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/news" prefetch={true} className="inline-flex py-1 font-semibold text-emerald-800 hover:text-emerald-950">
+                    LLM API News
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            <nav aria-label="Cost tools" className="lg:col-span-2 space-y-2.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
+                Cost Tools
+              </h2>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link href="/tools/llm-selector" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    LLM Selector
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/tools/token-counter" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Token Counter
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/tools/routing-simulator" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Routing Simulator
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            <nav aria-label="Use-case guides" className="lg:col-span-2 space-y-2.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
+                Best-Of Guides
+              </h2>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link href="/best-llms-for-coding" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Best for Coding
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/best-open-weight-llms" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Best Open-Weight
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cheapest-llms-for-classification" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Cheapest Classification
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/fastest-llms-tokens-per-second" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Fastest (tok/s)
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            <nav aria-label="Company and methodology" className="lg:col-span-2 space-y-2.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
+                Trust &amp; Info
+              </h2>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link href="/methodology" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Methodology
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    About PromptBill
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/advertise" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Advertise
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy-policy" prefetch={true} className="inline-flex py-1 hover:text-slate-950">
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-5 text-slate-600">
-            <Link href="/leaderboard" prefetch={true} className="hover:text-slate-950">Leaderboard</Link>
-            <Link href="/compare" prefetch={true} className="hover:text-slate-950">Compare</Link>
-            <Link href="/pricing" prefetch={true} className="hover:text-slate-950">API Pricing</Link>
-            <Link href="/models" prefetch={true} className="hover:text-slate-950">Models</Link>
-            <Link href="/best-llms-for-coding" prefetch={true} className="hover:text-slate-950">Coding</Link>
-            <Link href="/tools/llm-selector" prefetch={true} className="hover:text-slate-950">Selector</Link>
-            <Link href="/tools/token-counter" prefetch={true} className="hover:text-slate-950">Token Counter</Link>
-            <Link href="/tools/routing-simulator" prefetch={true} className="hover:text-slate-950">Routing</Link>
-            <Link href="/methodology" prefetch={true} className="hover:text-slate-950">Methodology</Link>
-            <Link href="/about" prefetch={true} className="hover:text-slate-950">About</Link>
-            <Link href="/contact" prefetch={true} className="hover:text-slate-950">Contact</Link>
-            <Link href="/privacy-policy" prefetch={true} className="hover:text-slate-950">Privacy Policy</Link>
+          <div className="border-t border-slate-100 pt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+            <span>
+              PromptBill · Normalized USD per 1M token pricing &amp; LLM benchmark intelligence.
+            </span>
+            <span>All token rates normalized per 1,000,000 tokens (USD).</span>
           </div>
         </div>
       </footer>
