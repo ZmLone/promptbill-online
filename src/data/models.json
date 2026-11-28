@@ -12648,7 +12648,7 @@
   {
     "id": "gpt-5-2-pro",
     "slug": "gpt-5-2-pro",
-    "rank": 119,
+    "rank": 120,
     "name": "GPT-5.2 Pro",
     "provider": "OpenAI",
     "providerSlug": "openai",
@@ -12688,7 +12688,7 @@
     "pricingProvenance": {
       "status": "Estimated",
       "sourceUrl": "https://openrouter.ai/api/v1/models",
-      "lastVerified": "2026-11-28T16:54:27.776Z",
+      "lastVerified": "2026-11-28T17:09:20.270Z",
       "currency": "USD",
       "pricingUnit": "per 1M tokens",
       "notes": "Approved via PromptBill Admin"
@@ -12722,7 +12722,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-28T16:54:27.776Z",
+        "lastVerified": "2026-11-28T17:09:20.270Z",
         "evidenceStatus": "Estimated"
       },
       {
@@ -12738,7 +12738,7 @@
         "currency": "USD",
         "pricingUnit": "per 1M tokens",
         "sourceUrl": "https://openrouter.ai/api/v1/models",
-        "lastVerified": "2026-11-28T16:54:27.776Z",
+        "lastVerified": "2026-11-28T17:09:20.270Z",
         "evidenceStatus": "Verified"
       }
     ],
