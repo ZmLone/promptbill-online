@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const GITHUB_OWNER = 'ZmLone';
-const GITHUB_REPO = 'tokenledger';
+const GITHUB_REPO = 'promptbill-online';
 const GITHUB_BRANCH = 'main';
 
 interface PublishRequestBody {
@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       updatedFiles,
-      message: `Committed ${updatedFiles.join(', ')} to ZmLone/tokenledger (main). Vercel will rebuild automatically.`,
+      message: `Committed ${updatedFiles.join(', ')} to ZmLone/promptbill-online (main). Vercel will rebuild automatically.`,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'GitHub publish error';

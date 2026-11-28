@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle } from '@/lib/news';
 
 const GITHUB_OWNER = 'ZmLone';
-const GITHUB_REPO = 'tokenledger';
+const GITHUB_REPO = 'promptbill-online';
 const GITHUB_BRANCH = 'main';
 const NEWS_FILE_PATH = 'src/data/news.json';
 
