@@ -1,102 +1,70 @@
-import { SeverityNumber } from '@opentelemetry/api-logs';
-import { after, NextResponse } from 'next/server';
-import { posthogLog, posthogLogProvider } from '../../../instrumentation';
+import { NextResponse } from 'next/server';
 import { ALL_MODELS } from '../../lib/catalog';
 import { REGISTRY_SNAPSHOT, buildDynamicSeoCopy } from '../../lib/modelRegistry';
 import { getLatestNewsArticles, formatNewsDate } from '../../lib/news';
 
 export const dynamic = 'force-static';
 
-function fmtScore(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? val.toFixed(1) : 'N/A';
-}
-
-function fmtPrice(val: number | null): string {
-  return typeof val === 'number' && Number.isFinite(val) ? `$${val.toFixed(2)}` : 'N/A';
-}
+const SITE_URL = 'https://promptbill.online';
 
 export async function GET() {
-  posthogLog.emit({
-    body: 'llms.txt generation started',
-    severityNumber: SeverityNumber.INFO,
-    attributes: { route: '/llms.txt' },
-  });
+  const seoCopy = buildDynamicSeoCopy();
+  const latestNews = getLatestNewsArticles(10);
+  const modelCount = Array.isArray(ALL_MODELS) ? ALL_MODELS.length : 0;
 
-  const copy = buildDynamicSeoCopy(REGISTRY_SNAPSHOT.generatedMonthYear);
   const lines: string[] = [
     '# PromptBill',
     '',
-    `> LLM API pricing reference, benchmark overview, token counter, and routing simulator at https://promptbill.online (${copy.monthYear}).`,
+    `> ${seoCopy.metaDescription || 'LLM API token cost calculator, multi-provider inference endpoint comparator, and model benchmark ledger.'}`,
     '',
-    '## Snapshot Summary',
-    `- ${copy.codingLeaderLine}`,
-    `- ${copy.valueLeaderLine}`,
-    `- ${copy.speedLeaderLine}`,
+    '## Core Pages',
+    `- [Home](${SITE_URL}/): Overview, pricing comparison, and cost estimator.`,
+    `- [Model Catalog](${SITE_URL}/models): Searchable benchmark and pricing ledger (${modelCount} indexed models).`,
+    `- [Token Cost Calculator](${SITE_URL}/calculator): Estimate input, output, and cached token spend across providers.`,
+    `- [Head-to-Head Model Comparison](${SITE_URL}/compare): Compare model pricing, context windows, and benchmark scores.`,
+    `- [LLM Selector Tool](${SITE_URL}/tools/llm-selector): Match workloads and budgets to recommended models.`,
+    `- [Pricing & Endpoint News](${SITE_URL}/news): Latest verified LLM API price shifts, launches, and endpoint updates.`,
     '',
-    '## Core Pages & Tools',
-    '- [PromptBill Home](https://promptbill.online/): Dedicated hub for rankings, comparisons, pricing, and tools.',
-    '- [LLM Leaderboard](https://promptbill.online/leaderboard): Evidence-aware rankings showing scores, official API prices, and throughput where recorded.',
-    '- [Head-to-Head Model Comparisons](https://promptbill.online/compare): Compare tracked models side-by-side.',
-    '- [All Models Directory](https://promptbill.online/models): Full catalog of tracked models.',
-    '- [LLM API Pricing News](https://promptbill.online/news): Price updates, model releases, and endpoint changes.',
-    '- [API Pricing](https://promptbill.online/pricing): Token pricing across providers and endpoints.',
-    '- [LLM Selector](https://promptbill.online/tools/llm-selector): Filter models by workload, price, score, and license.',
-    '- [Token Counter](https://promptbill.online/tools/token-counter): Estimate prompt token counts and input costs.',
-    '- [Routing Simulator](https://promptbill.online/tools/routing-simulator): Estimate cost differences from routing requests across models.',
-    '',
-    '## Pricing & Benchmark Methodology',
-    '- Normalization: All token prices are normalized to USD per 1,000,000 (1M) input, cached-read, and output tokens.',
-    '- Provenance Labels: Official prices reflect first-party provider rate cards; Router prices reflect third-party aggregators (e.g., OpenRouter); Estimated values are marked explicitly.',
-    '- Full Machine Index: https://promptbill.online/llms.txt',
-    '',
-    '## Tracked Models',
+    '## Latest Pricing & Endpoint News',
   ];
 
-  const latestNews = getLatestNewsArticles(10);
-  if (latestNews.length > 0) {
-    lines.push('', '## Latest Pricing & Model News');
-    for (const item of latestNews) {
+  if (latestNews.length === 0) {
+    lines.push(`- [Pricing & Endpoint News](${SITE_URL}/news)`);
+  } else {
+    for (const article of latestNews) {
+      const dateStr = formatNewsDate(article.publishedAt);
+      const categoryPrefix = article.category ? `[${article.category}] ` : '';
       lines.push(
-        `- [${item.title}](https://promptbill.online/news/${item.slug}) (${formatNewsDate(item.publishedAt)}, ${item.category}): ${item.summary}`
+        `- [${categoryPrefix}${article.title} (${dateStr})](${SITE_URL}/news/${article.slug}): ${article.summary}`
       );
     }
   }
 
-  lines.push('', '## Tracked Models');
+  lines.push('');
+  lines.push('## Indexed Models');
 
-  for (const m of ALL_MODELS) {
-    const ctxLabel = m.contextWindow ?? 'N/A';
-    const speedLabel = typeof m.tokPerSec === 'number' && Number.isFinite(m.tokPerSec) ? `${m.tokPerSec} tok/s` : 'N/A';
-    const pricingStatus = m.pricingProvenance?.status ?? m.evidence ?? 'Estimated';
-    const routerEp = Array.isArray(m.hostingEndpoints)
-      ? m.hostingEndpoints.find((ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || ''))))
-      : undefined;
-    const routerLabel =
-      routerEp && typeof routerEp.inputPer1M === 'number' && typeof routerEp.outputPer1M === 'number'
-        ? `, Router In/Out ${fmtPrice(routerEp.inputPer1M)}/${fmtPrice(routerEp.outputPer1M)} per 1M`
-        : '';
-
-    lines.push(
-      `- [${m.name}](https://promptbill.online/models/${m.slug}): ${m.provider} — Score ${fmtScore(m.score)} (${m.benchmarkProvenance.status}), Official In/Out ${fmtPrice(m.inputPer1M)}/${fmtPrice(m.outputPer1M)} per 1M (${pricingStatus})${routerLabel}, Cached Read ${fmtPrice(m.cachedInputPer1M)}/1M, Context ${ctxLabel}, Speed ${speedLabel} (${m.speedProvenance.status}).`
-    );
+  if (Array.isArray(ALL_MODELS)) {
+    for (const model of ALL_MODELS as Array<{
+      name?: string;
+      slug?: string;
+      provider?: string;
+    }>) {
+      if (!model?.slug) continue;
+      const label = model.name ? `${model.name}${model.provider ? ` (${model.provider})` : ''}` : model.slug;
+      lines.push(`- [${label}](${SITE_URL}/models/${model.slug})`);
+    }
   }
 
-  posthogLog.emit({
-    body: 'llms.txt generation completed',
-    severityNumber: SeverityNumber.INFO,
-    attributes: {
-      route: '/llms.txt',
-      model_count: ALL_MODELS.length,
-    },
-  });
-
-  after(() => posthogLogProvider.forceFlush().catch(() => {}));
+  if (REGISTRY_SNAPSHOT?.generatedAt) {
+    lines.push('');
+    lines.push(`Registry snapshot updated: ${REGISTRY_SNAPSHOT.generatedAt}`);
+  }
 
   return new NextResponse(lines.join('\n'), {
     status: 200,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
     },
   });
 }
