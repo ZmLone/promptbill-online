@@ -339,90 +339,6 @@ function extractModelKeyAndSlug(
   return { keyRaw: trimmed, slugGuess: slugify(trimmed) };
 }
 
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface DuplicateMatchResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: any;
-  matchType: 'exact_slug' | 'exact_name' | 'near_match';
-  reason: string;
-}
-
-function normalizeModelComparable(raw: string): string {
-  return raw
-    .toLowerCase()
-    .trim()
-    .replace(/^[^/]+\//, '')
-    .replace(/\((?:free|beta|preview|latest)\)/gi, '')
-    .replace(/[^a-z0-9]+/g, '');
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function detectCatalogDuplicate(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  catalogModels: any[],
-  candidateName: string,
-  candidateSlug: string,
-  candidateProvider?: string
-): DuplicateMatchResult | null {
-  const cleanSlug = slugify(candidateSlug || candidateName);
-  const normName = normalizeModelComparable(candidateName);
-  const normSlug = normalizeModelComparable(cleanSlug);
-  const normProvider = (candidateProvider || '').trim().toLowerCase();
-
-  if (!cleanSlug && !normName) return null;
-
-  for (const m of catalogModels) {
-    if (!m) continue;
-    const mSlug = slugify(String(m.slug || m.id || ''));
-    if (cleanSlug && (m.slug === cleanSlug || m.id === cleanSlug || mSlug === cleanSlug)) {
-      return {
-        model: m,
-        matchType: 'exact_slug',
-        reason: `Exact slug/ID match with "${m.name}" (${m.slug})`,
-      };
-    }
-  }
-
-  for (const m of catalogModels) {
-    if (!m) continue;
-    const mNormName = normalizeModelComparable(String(m.name || ''));
-    if (normName && mNormName === normName) {
-      return {
-        model: m,
-        matchType: 'exact_name',
-        reason: `Exact normalized name match with "${m.name}" (${m.slug})`,
-      };
-    }
-  }
-
-  if (normName.length >= 5) {
-    for (const m of catalogModels) {
-      if (!m) continue;
-      const mProvider = String(m.provider || '').trim().toLowerCase();
-      const sameProvider = !normProvider || !mProvider || normProvider === mProvider;
-      if (!sameProvider) continue;
-
-      const mNormName = normalizeModelComparable(String(m.name || ''));
-      const mNormSlug = normalizeModelComparable(String(m.slug || ''));
-      if (
-        (mNormName.length >= 5 && (mNormName.includes(normName) || normName.includes(mNormName))) ||
-        (normSlug.length >= 5 &&
-          mNormSlug.length >= 5 &&
-          (mNormSlug.includes(normSlug) || normSlug.includes(mNormSlug)))
-      ) {
-        return {
-          model: m,
-          matchType: 'near_match',
-          reason: `Possible duplicate of existing ${m.provider} model "${m.name}" (${m.slug})`,
-        };
-      }
-    }
-  }
-
-  return null;
-}
-
 function EndpointEditorList({
   rows,
   onAdd,
@@ -630,6 +546,32 @@ function EndpointEditorList({
   );
 }
 
+export interface AdminNewsArticleInput {
+  slug: string;
+  title: string;
+  summary: string;
+  category: 'Price Drop' | 'New Model' | 'Benchmark Shift' | 'Deprecation' | 'Endpoint Update';
+  publishedAt: string;
+  updatedAt?: string;
+  authorName?: string;
+  authorUrl?: string;
+  featured?: boolean;
+  relatedModelSlugs: string[];
+  priceDeltas: {
+    modelSlug: string;
+    modelName: string;
+    provider: string;
+    endpointHost?: string;
+    oldInputPer1M?: number | null;
+    newInputPer1M: number | null;
+    oldOutputPer1M?: number | null;
+    newOutputPer1M: number | null;
+  }[];
+  keyTakeaways: string[];
+  sections: { heading: string; body: string }[];
+  sourceUrls: { label: string; url: string }[];
+}
+
 export function AdminRegistryClient({
   initialModels,
   initialPending,
@@ -645,9 +587,30 @@ export function AdminRegistryClient({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [models, setModels] = useState<any[]>(initialModels);
   const [pendingItems, setPendingItems] = useState<PendingQueueItem[]>(initialPending.items || []);
+  const [newsItems, setNewsItems] = useState<AdminNewsArticleInput[]>([]);
+  const [newsForm, setNewsForm] = useState({
+    title: '',
+    slug: '',
+    category: 'Price Drop' as AdminNewsArticleInput['category'],
+    summary: '',
+    relatedModelSlugs: '',
+    modelName: '',
+    provider: '',
+    endpointHost: 'OpenRouter',
+    oldInput: '',
+    newInput: '',
+    oldOutput: '',
+    newOutput: '',
+    keyTakeawaysText: '',
+    sectionHeading: 'Pricing & Workload Impact',
+    sectionBody: '',
+    sourceLabel: 'OpenRouter Models API',
+    sourceUrl: 'https://openrouter.ai/api/v1/models',
+    featured: true,
+  });
   const [activeTab, setActiveTab] = useState<
     'all' | 'new_model' | 'price_update' | 'benchmark_update' | 'catalog' | 'bulk_import' | 'manual_add'
-  >('all');
+   | 'news'>('all');
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [providerFilter, setProviderFilter] = useState<string>('ALL');
@@ -1158,24 +1121,10 @@ export function AdminRegistryClient({
     return n > 1 ? Number((n / 100).toFixed(4)) : Number(n.toFixed(4));
   }
 
-  function approveItem(item: PendingQueueItem, skipDuplicateConfirm = false) {
+  function approveItem(item: PendingQueueItem) {
     const edits = getItemEdits(item);
     const nowIso = new Date().toISOString();
     const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
-
-    if (item.type === 'new_model' && !skipDuplicateConfirm) {
-      const candidateSlug = String(item.draftModel?.slug || item.modelSlug || item.modelId);
-      const candidateName = String(item.draftModel?.name || item.modelName);
-      const dup = detectCatalogDuplicate(models, candidateName, candidateSlug, item.provider);
-      if (dup) {
-        const proceed = window.confirm(
-          `Duplicate Warning: ${dup.reason}.\n\nExisting rates: $${dup.model.inputPer1M ?? 'N/A'} / $${dup.model.outputPer1M ?? 'N/A'} per 1M (${dup.model.evidence || 'Estimated'}).\n\nClick OK to approve and ${
-            dup.matchType === 'near_match' ? 'add alongside it' : 'replace the existing entry'
-          }, or Cancel to review first.`
-        );
-        if (!proceed) return;
-      }
-    }
 
     setModels((prevModels) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1369,27 +1318,8 @@ export function AdminRegistryClient({
   }
 
   function approveAllVisible() {
-    const dupItems = filteredPending.filter(
-      (item) =>
-        item.type === 'new_model' &&
-        detectCatalogDuplicate(
-          models,
-          String(item.draftModel?.name || item.modelName),
-          String(item.draftModel?.slug || item.modelSlug || item.modelId),
-          item.provider
-        ) !== null
-    );
-    if (dupItems.length > 0) {
-      const ok = window.confirm(
-        `${dupItems.length} visible new_model item(s) match existing models in your live catalog (${dupItems
-          .map((d) => d.modelName)
-          .slice(0, 5)
-          .join(', ')}).\n\nProceed with approving all ${filteredPending.length} visible item(s)?`
-      );
-      if (!ok) return;
-    }
     for (const item of filteredPending) {
-      approveItem(item, true);
+      approveItem(item);
     }
   }
 
@@ -1589,16 +1519,6 @@ export function AdminRegistryClient({
     const resolvedSlug = slugify(manualForm.slug.trim() || cleanName);
     if (!resolvedSlug) return;
 
-    const dup = detectCatalogDuplicate(models, cleanName, resolvedSlug, manualForm.provider);
-    if (dup) {
-      const ok = window.confirm(
-        `Duplicate Model Detected: ${dup.reason}.\n\nCurrent catalog entry: ${dup.model.name} (${dup.model.provider}) · In $${dup.model.inputPer1M ?? 'N/A'} / Out $${dup.model.outputPer1M ?? 'N/A'}.\n\nClick OK to continue and ${
-          dup.matchType === 'near_match' ? 'save this as a separate entry' : 'overwrite the existing model'
-        }, or Cancel to edit the existing model instead.`
-      );
-      if (!ok) return;
-    }
-
     const nowIso = new Date().toISOString();
     const status = manualForm.verified ? 'Verified' : 'Estimated';
     const inVal = parseOptionalNum(manualForm.inputPer1M);
@@ -1760,6 +1680,7 @@ export function AdminRegistryClient({
         null,
         2
       ) + '\n';
+    const newsJsonContent = JSON.stringify(newsItems, null, 2) + '\n';
 
     try {
       const res = await fetch('/api/admin/publish', {
@@ -1769,6 +1690,7 @@ export function AdminRegistryClient({
           adminPassword,
           modelsJsonContent,
           pendingJsonContent,
+          newsJsonContent,
         }),
       });
       const data = await res.json();
@@ -1800,233 +1722,6 @@ export function AdminRegistryClient({
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function buildApprovedShapeModelForPendingItem(item: PendingQueueItem, rankIndex: number): Record<string, any> {
-    const edits = getItemEdits(item);
-    const nowIso = item.detectedAt || new Date().toISOString();
-    const provStatus = edits.markVerified ? 'Verified' : 'Estimated';
-
-    const scoreVal = parseOptionalNum(edits.score);
-    const speedVal = parseOptionalNum(edits.tokPerSec);
-    const offIn = parseOptionalNum(edits.officialInput);
-    const offOut = parseOptionalNum(edits.officialOutput);
-    const cachedIn = parseOptionalNum(edits.cachedInput);
-    const cacheWr = parseOptionalNum(edits.cacheWrite);
-    const rIn = parseOptionalNum(edits.routerInput);
-    const rOut = parseOptionalNum(edits.routerOutput);
-    const batchDisc = parseOptionalDiscount(edits.batchDiscount);
-    const ctxVal =
-      edits.contextWindow.trim() ||
-      (item.draftModel?.contextWindow ? String(item.draftModel.contextWindow) : null);
-
-    const existingModel =
-      models.find(
-        (m) =>
-          m &&
-          (m.slug === item.modelSlug ||
-            m.id === item.modelId ||
-            m.slug === item.draftModel?.slug ||
-            m.id === item.draftModel?.id)
-      ) || null;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const baseModel: Record<string, any> = {
-      ...(existingModel || {}),
-      ...(item.draftModel || {}),
-    };
-
-    const resolvedSlug = String(
-      baseModel.slug || item.modelSlug || slugify(item.modelName || item.modelId)
-    );
-    const resolvedId = String(baseModel.id || item.modelId || resolvedSlug);
-    const resolvedName = String(baseModel.name || item.modelName || resolvedSlug);
-    const resolvedProvider = String(baseModel.provider || item.provider || 'Unknown');
-
-    const endpoints: HostingEndpoint[] = Array.isArray(baseModel.hostingEndpoints)
-      ? [...baseModel.hostingEndpoints]
-      : [];
-
-    if (item.type === 'new_model') {
-      if (offIn !== null && offOut !== null) {
-        const offIdx = endpoints.findIndex((ep) => ep && ep.providerType === 'Official API');
-        const offEp: HostingEndpoint = {
-          ...(offIdx >= 0 ? endpoints[offIdx] : {}),
-          host: `${resolvedProvider} Official API`,
-          providerType: 'Official API',
-          inputPer1M: offIn,
-          cachedInputPer1M: cachedIn,
-          cacheWritePer1M: cacheWr,
-          outputPer1M: offOut,
-          batchDiscount: batchDisc,
-          latencyMs: offIdx >= 0 ? endpoints[offIdx].latencyMs ?? null : null,
-          notes: 'Pending approval (approved schema)',
-          currency: 'USD',
-          pricingUnit: 'per 1M tokens',
-          sourceUrl: item.sourceUrl || null,
-          lastVerified: nowIso,
-          evidenceStatus: provStatus,
-        };
-        if (offIdx >= 0) endpoints[offIdx] = offEp;
-        else endpoints.push(offEp);
-      }
-      if (rIn !== null && rOut !== null) {
-        const routerIdx = endpoints.findIndex(
-          (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
-        );
-        const routerEp: HostingEndpoint = {
-          ...(routerIdx >= 0 ? endpoints[routerIdx] : {}),
-          host: 'OpenRouter',
-          providerType: 'Router',
-          inputPer1M: rIn,
-          cachedInputPer1M: null,
-          cacheWritePer1M: null,
-          outputPer1M: rOut,
-          batchDiscount: null,
-          latencyMs: routerIdx >= 0 ? endpoints[routerIdx].latencyMs ?? null : null,
-          notes: 'Pending OpenRouter rate (approved schema)',
-          currency: 'USD',
-          pricingUnit: 'per 1M tokens',
-          sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
-          lastVerified: nowIso,
-          evidenceStatus: 'Verified',
-        };
-        if (routerIdx >= 0) endpoints[routerIdx] = routerEp;
-        else endpoints.push(routerEp);
-      }
-    } else if (item.type === 'price_update') {
-      const routerIdx = endpoints.findIndex(
-        (ep) => ep && (ep.providerType === 'Router' || /openrouter/i.test(String(ep.host || '')))
-      );
-      if (rIn !== null && rOut !== null) {
-        const updatedRouterEp: HostingEndpoint = {
-          ...(routerIdx >= 0 ? endpoints[routerIdx] : {}),
-          host: 'OpenRouter',
-          providerType: 'Router',
-          inputPer1M: rIn,
-          cachedInputPer1M: null,
-          cacheWritePer1M: null,
-          outputPer1M: rOut,
-          batchDiscount: null,
-          latencyMs: routerIdx >= 0 ? endpoints[routerIdx].latencyMs ?? null : null,
-          notes: 'Pending price update (approved schema)',
-          currency: 'USD',
-          pricingUnit: 'per 1M tokens',
-          sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
-          lastVerified: nowIso,
-          evidenceStatus: 'Verified',
-        };
-        if (routerIdx >= 0) endpoints[routerIdx] = updatedRouterEp;
-        else endpoints.push(updatedRouterEp);
-      }
-    }
-
-    const finalScore = scoreVal ?? (baseModel.score !== undefined ? baseModel.score : null);
-    const finalSpeed = speedVal ?? (baseModel.tokPerSec !== undefined ? baseModel.tokPerSec : null);
-    const finalCachedIn =
-      cachedIn ?? (baseModel.cachedInputPer1M !== undefined ? baseModel.cachedInputPer1M : null);
-    const finalCacheWr =
-      cacheWr ?? (baseModel.cacheWritePer1M !== undefined ? baseModel.cacheWritePer1M : null);
-    const finalBatchDisc =
-      batchDisc ?? (baseModel.batchDiscount !== undefined ? baseModel.batchDiscount : null);
-
-    const resolvedIn =
-      item.type === 'new_model'
-        ? offIn ?? rIn ?? (baseModel.inputPer1M ?? null)
-        : baseModel.inputPer1M ?? rIn ?? null;
-    const resolvedOut =
-      item.type === 'new_model'
-        ? offOut ?? rOut ?? (baseModel.outputPer1M ?? null)
-        : baseModel.outputPer1M ?? rOut ?? null;
-
-    const existingPriceProv = baseModel.pricingProvenance || {};
-    const existingBenchProv = baseModel.benchmarkProvenance || {};
-    const existingSpeedProv = baseModel.speedProvenance || {};
-
-    return {
-      ...baseModel,
-      id: resolvedId,
-      slug: resolvedSlug,
-      rank: typeof baseModel.rank === 'number' ? baseModel.rank : models.length + rankIndex + 1,
-      name: resolvedName,
-      provider: resolvedProvider,
-      providerSlug: baseModel.providerSlug || slugify(resolvedProvider),
-      family: baseModel.family ?? null,
-      license: baseModel.license ?? null,
-      evidence: edits.markVerified ? 'Verified' : baseModel.evidence || provStatus,
-      lifecycleStatus: baseModel.lifecycleStatus || 'Active',
-      archived: Boolean(baseModel.archived),
-      score: finalScore,
-      qualityScore: finalScore,
-      interval: baseModel.interval ?? null,
-      elo: baseModel.elo ?? null,
-      inputPer1M: resolvedIn,
-      cachedInputPer1M: finalCachedIn,
-      cacheWritePer1M: finalCacheWr,
-      outputPer1M: resolvedOut,
-      longContextMultiplierInput: baseModel.longContextMultiplierInput ?? null,
-      longContextMultiplierOutput: baseModel.longContextMultiplierOutput ?? null,
-      longContextThresholdTokens: baseModel.longContextThresholdTokens ?? null,
-      contextWindow: ctxVal,
-      maxOutputTokens: baseModel.maxOutputTokens ?? null,
-      tokPerSec: finalSpeed,
-      speedTokensPerSec: finalSpeed,
-      ag: baseModel.ag ?? null,
-      co: baseModel.co ?? null,
-      re: baseModel.re ?? null,
-      mm: baseModel.mm ?? null,
-      kn: baseModel.kn ?? null,
-      ml: baseModel.ml ?? null,
-      if: baseModel.if ?? null,
-      ma: baseModel.ma ?? null,
-      rpmLimit: baseModel.rpmLimit ?? null,
-      tpmLimit: baseModel.tpmLimit ?? null,
-      tpdLimit: baseModel.tpdLimit ?? null,
-      batchDiscount: finalBatchDisc,
-      tier: baseModel.tier ?? null,
-      bestFor: baseModel.bestFor ?? null,
-      notes: baseModel.notes || item.summary || 'Pending queue item formatted in approved models.json schema.',
-      pricingProvenance: {
-        status:
-          existingPriceProv.status ||
-          (resolvedIn !== null && resolvedOut !== null ? provStatus : 'Unavailable'),
-        sourceUrl: item.sourceUrl || existingPriceProv.sourceUrl || null,
-        lastVerified: existingPriceProv.lastVerified || nowIso,
-        currency: existingPriceProv.currency || 'USD',
-        pricingUnit: existingPriceProv.pricingUnit || 'per 1M tokens',
-        notes: existingPriceProv.notes || 'Pending queue item (approved schema)',
-      },
-      benchmarkProvenance: {
-        status:
-          existingBenchProv.status || (finalScore !== null ? provStatus : 'Unavailable'),
-        sourceUrl: existingBenchProv.sourceUrl ?? null,
-        lastVerified: existingBenchProv.lastVerified || (finalScore !== null ? nowIso : null),
-        notes:
-          existingBenchProv.notes ||
-          (finalScore !== null ? 'Pending queue item (approved schema)' : 'No benchmark score recorded.'),
-      },
-      speedProvenance: {
-        status:
-          existingSpeedProv.status || (finalSpeed !== null ? provStatus : 'Unavailable'),
-        sourceUrl: existingSpeedProv.sourceUrl ?? null,
-        lastVerified: existingSpeedProv.lastVerified || (finalSpeed !== null ? nowIso : null),
-        hardwareOrProvider: existingSpeedProv.hardwareOrProvider ?? null,
-        conditions: existingSpeedProv.conditions ?? null,
-        notes:
-          existingSpeedProv.notes ||
-          (finalSpeed !== null ? 'Pending queue item (approved schema)' : 'No speed measurement recorded.'),
-      },
-      priceHistory: Array.isArray(baseModel.priceHistory) ? baseModel.priceHistory : [],
-      hostingEndpoints: endpoints,
-    };
-  }
-
-  function buildPendingModelsExportJson(): string {
-    const exportEntries = pendingItems.map((item, idx) =>
-      buildApprovedShapeModelForPendingItem(item, idx)
-    );
-    return JSON.stringify(exportEntries, null, 2) + '\n';
   }
 
   const filteredPending = useMemo(() => {
@@ -2081,13 +1776,6 @@ export function AdminRegistryClient({
     [bulkPreview]
   );
 
-  const manualDuplicateMatch = useMemo(() => {
-    const cleanName = manualForm.name.trim();
-    const resolvedSlug = slugify(manualForm.slug.trim() || cleanName);
-    if (!cleanName && !resolvedSlug) return null;
-    return detectCatalogDuplicate(models, cleanName, resolvedSlug, manualForm.provider);
-  }, [models, manualForm.name, manualForm.slug, manualForm.provider]);
-
   if (!unlocked) {
     return (
       <div className="max-w-md mx-auto rounded-xl border border-slate-200 bg-white p-6 space-y-4">
@@ -2127,6 +1815,138 @@ export function AdminRegistryClient({
         </form>
       </div>
     );
+  }
+
+  function draftNewsFromPendingItem(item: PendingQueueItem) {
+    const cur = item.currentValues || {};
+    const prop = item.proposedValues || {};
+    const resolvedSlug = String(
+      item.draftModel?.slug || item.modelSlug || slugify(item.modelName || item.modelId)
+    );
+    const category: AdminNewsArticleInput['category'] =
+      item.type === 'new_model'
+        ? 'New Model'
+        : item.type === 'benchmark_update'
+        ? 'Benchmark Shift'
+        : 'Endpoint Update';
+
+    const rawOldIn = cur.routerInputPer1M ?? cur.inputPer1M;
+    const rawNewIn = prop.routerInputPer1M ?? prop.inputPer1M;
+    const rawOldOut = cur.routerOutputPer1M ?? cur.outputPer1M;
+    const rawNewOut = prop.routerOutputPer1M ?? prop.outputPer1M;
+
+    setNewsForm({
+      title: `${item.modelName} ${item.type === 'new_model' ? 'API Launch' : 'Rate & Endpoint Update'}`,
+      slug: `${resolvedSlug}-update-${new Date().toISOString().slice(0, 10)}`,
+      category,
+      summary:
+        item.summary ||
+        `Tracked ${item.type.replace('_', ' ')} for ${item.modelName} (${item.provider}) on PromptBill.`,
+      relatedModelSlugs: resolvedSlug,
+      modelName: item.modelName,
+      provider: item.provider,
+      endpointHost: 'OpenRouter',
+      oldInput: rawOldIn != null ? String(rawOldIn) : '',
+      newInput: rawNewIn != null ? String(rawNewIn) : '',
+      oldOutput: rawOldOut != null ? String(rawOldOut) : '',
+      newOutput: rawNewOut != null ? String(rawNewOut) : '',
+      keyTakeawaysText: [
+        `${item.modelName} (${item.provider}) recorded a ${item.type.replace('_', ' ')} staged via PromptBill sync.`,
+        `Compare endpoint pricing and token calculator estimates directly on /models/${resolvedSlug}.`,
+      ].join('\n'),
+      sectionHeading: 'What Changed & Workload Impact',
+      sectionBody:
+        item.summary ||
+        `Review updated per-1M token rates, context window, and endpoint availability for ${item.modelName} on PromptBill.`,
+      sourceLabel: 'Source Reference',
+      sourceUrl: item.sourceUrl || 'https://openrouter.ai/api/v1/models',
+      featured: true,
+    });
+    setActiveTab('news');
+  }
+
+  function handleAddNewsArticle(e: React.FormEvent) {
+    e.preventDefault();
+    const cleanTitle = newsForm.title.trim();
+    const cleanSummary = newsForm.summary.trim();
+    if (!cleanTitle || !cleanSummary) return;
+
+    const resolvedSlug = slugify(newsForm.slug.trim() || cleanTitle);
+    if (!resolvedSlug) return;
+
+    const nowIso = new Date().toISOString();
+    const slugs = newsForm.relatedModelSlugs
+      .split(',')
+      .map((s) => slugify(s.trim()))
+      .filter(Boolean);
+
+    const nIn = parseOptionalNum(newsForm.newInput);
+    const nOut = parseOptionalNum(newsForm.newOutput);
+    const oIn = parseOptionalNum(newsForm.oldInput);
+    const oOut = parseOptionalNum(newsForm.oldOutput);
+
+    const priceDeltas =
+      nIn !== null || nOut !== null
+        ? [
+            {
+              modelSlug: slugs[0] || resolvedSlug,
+              modelName: newsForm.modelName.trim() || cleanTitle,
+              provider: newsForm.provider.trim() || 'Provider',
+              endpointHost: newsForm.endpointHost.trim() || undefined,
+              oldInputPer1M: oIn,
+              newInputPer1M: nIn,
+              oldOutputPer1M: oOut,
+              newOutputPer1M: nOut,
+            },
+          ]
+        : [];
+
+    const takeaways = newsForm.keyTakeawaysText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const article: AdminNewsArticleInput = {
+      slug: resolvedSlug,
+      title: cleanTitle,
+      summary: cleanSummary,
+      category: newsForm.category,
+      publishedAt: nowIso,
+      updatedAt: nowIso,
+      authorName: 'Zeeshan Mushtaq Lone',
+      authorUrl: 'https://promptbill.online/about',
+      featured: newsForm.featured,
+      relatedModelSlugs: slugs,
+      priceDeltas,
+      keyTakeaways:
+        takeaways.length > 0
+          ? takeaways
+          : [cleanSummary, 'Check full per-1M endpoint rates and calculator tools on PromptBill.'],
+      sections: [
+        {
+          heading: newsForm.sectionHeading.trim() || 'Update Summary',
+          body:
+            newsForm.sectionBody.trim() ||
+            `${cleanSummary} View full model pricing and comparisons on PromptBill.`,
+        },
+      ],
+      sourceUrls: newsForm.sourceUrl.trim()
+        ? [
+            {
+              label: newsForm.sourceLabel.trim() || 'Source',
+              url: newsForm.sourceUrl.trim(),
+            },
+          ]
+        : [],
+    };
+
+    setNewsItems((prev) => {
+      const idx = prev.findIndex((a) => a.slug === resolvedSlug);
+      return idx >= 0
+        ? prev.map((a, i) => (i === idx ? { ...article, publishedAt: a.publishedAt } : a))
+        : [article, ...prev];
+    });
+    setHasUnpublishedChanges(true);
   }
 
   return (
@@ -2170,13 +1990,6 @@ export function AdminRegistryClient({
             className="min-h-[42px] rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50"
           >
             Download models.json
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadJsonFile('pending-models.json', buildPendingModelsExportJson())}
-            className="min-h-[42px] rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-semibold text-amber-950 hover:bg-amber-100"
-          >
-            Download Pending models.json ({pendingItems.length})
           </button>
           <button
             type="button"
@@ -2229,6 +2042,17 @@ export function AdminRegistryClient({
               {tab.label}
             </button>
           ))}
+            <button
+              type="button"
+              onClick={() => setActiveTab('news')}
+              className={`min-h-[42px] rounded-lg px-4 py-2 text-xs font-semibold border ${
+                activeTab === 'news'
+                  ? 'bg-emerald-900 text-white border-emerald-900'
+                  : 'bg-white text-emerald-900 border-emerald-300 hover:bg-emerald-50'
+              }`}
+            >
+              News Posts ({newsItems.length})
+            </button>
         </div>
 
         {activeTab !== 'catalog' &&
@@ -2441,36 +2265,6 @@ export function AdminRegistryClient({
               <strong>Publish Approved Changes to Website</strong> at the top.
             </p>
           </div>
-
-          {manualDuplicateMatch ? (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3.5 flex flex-wrap items-center justify-between gap-3 text-amber-950">
-              <div className="space-y-0.5">
-                <div className="font-bold">
-                  Duplicate Warning:{' '}
-                  {manualDuplicateMatch.matchType === 'near_match'
-                    ? 'Similar Model Already Exists'
-                    : 'Model Already Exists in Catalog'}
-                </div>
-                <p className="text-[11px] text-amber-900">
-                  {manualDuplicateMatch.reason} · Provider: {manualDuplicateMatch.model.provider} ·
-                  Current Official In/Out: ${manualDuplicateMatch.model.inputPer1M ?? 'N/A'} / $
-                  {manualDuplicateMatch.model.outputPer1M ?? 'N/A'} (
-                  {manualDuplicateMatch.model.evidence || 'Estimated'}).
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('catalog');
-                  setSearchQuery(manualDuplicateMatch.model.slug);
-                  startEditingLiveModel(manualDuplicateMatch.model);
-                }}
-                className="rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-[11px] font-bold text-amber-950 hover:bg-amber-100"
-              >
-                Edit Existing Model Instead
-              </button>
-            </div>
-          ) : null}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <label className="space-y-1">
@@ -2706,21 +2500,10 @@ export function AdminRegistryClient({
               const edits = getItemEdits(item);
               const cur = item.currentValues || {};
               const prop = item.proposedValues || {};
-              const pendingDup =
-                item.type === 'new_model'
-                  ? detectCatalogDuplicate(
-                      models,
-                      String(item.draftModel?.name || item.modelName),
-                      String(item.draftModel?.slug || item.modelSlug || item.modelId),
-                      item.provider
-                    )
-                  : null;
               return (
                 <div
                   key={item.queueId}
-                  className={`rounded-xl border bg-white p-4 sm:p-5 space-y-4 ${
-                    pendingDup ? 'border-amber-300' : 'border-slate-200'
-                  }`}
+                  className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -2750,22 +2533,6 @@ export function AdminRegistryClient({
                         ) : null}
                       </div>
                       <p className="text-xs text-slate-700">{item.summary}</p>
-                      {pendingDup ? (
-                        <div className="mt-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-950">
-                          <span className="font-bold">
-                            {pendingDup.matchType === 'near_match'
-                              ? 'Possible Duplicate:'
-                              : 'Duplicate Match:'}
-                          </span>{' '}
-                          {pendingDup.reason} · Existing In/Out: $
-                          {pendingDup.model.inputPer1M ?? 'N/A'} / $
-                          {pendingDup.model.outputPer1M ?? 'N/A'} (
-                          {pendingDup.model.evidence || 'Estimated'}). Approving will{' '}
-                          {pendingDup.matchType === 'near_match'
-                            ? 'create a separate entry unless dismissed.'
-                            : 'overwrite that existing catalog record.'}
-                        </div>
-                      ) : null}
                       {Object.keys(cur).length > 0 || Object.keys(prop).length > 0 ? (
                         <div className="flex flex-wrap gap-3 pt-1 text-[11px] font-mono text-slate-600">
                           {item.type === 'price_update' ? (
@@ -3365,6 +3132,270 @@ export function AdminRegistryClient({
           </ul>
         </div>
       ) : null}
+      {activeTab === 'news' ? (
+        <div className="space-y-6">
+          <form
+            onSubmit={handleAddNewsArticle}
+            className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 space-y-5 text-xs"
+          >
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Create or Stage /news Article (src/data/news.json)
+              </h3>
+              <p className="text-slate-600 mt-0.5">
+                Draft a pricing or model update here—or click <strong>Draft News</strong> on any
+                pending queue item—then publish changes to GitHub.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">Headline / Title *</span>
+                <input
+                  type="text"
+                  required
+                  value={newsForm.title}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="DeepSeek V4.1 Flash Rate Shift"
+                  className="w-full min-h-[40px] rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                />
+              </label>
+
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">URL Slug (/news/[slug])</span>
+                <input
+                  type="text"
+                  value={newsForm.slug}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, slug: e.target.value }))}
+                  placeholder="auto-generated from title"
+                  className="w-full min-h-[40px] rounded-lg border border-slate-300 px-3 py-2 font-mono text-slate-900"
+                />
+              </label>
+
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">Category</span>
+                <select
+                  value={newsForm.category}
+                  onChange={(e) =>
+                    setNewsForm((f) => ({
+                      ...f,
+                      category: e.target.value as AdminNewsArticleInput['category'],
+                    }))
+                  }
+                  className="w-full min-h-[40px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900"
+                >
+                  <option value="Price Drop">Price Drop</option>
+                  <option value="New Model">New Model</option>
+                  <option value="Endpoint Update">Endpoint Update</option>
+                  <option value="Benchmark Shift">Benchmark Shift</option>
+                  <option value="Deprecation">Deprecation</option>
+                </select>
+              </label>
+
+              <label className="block space-y-1 sm:col-span-2">
+                <span className="font-semibold text-slate-700">Summary *</span>
+                <input
+                  type="text"
+                  required
+                  value={newsForm.summary}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, summary: e.target.value }))}
+                  placeholder="Concise summary of the rate or model update..."
+                  className="w-full min-h-[40px] rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                />
+              </label>
+
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">
+                  Related Model Slugs (comma-separated)
+                </span>
+                <input
+                  type="text"
+                  value={newsForm.relatedModelSlugs}
+                  onChange={(e) =>
+                    setNewsForm((f) => ({ ...f, relatedModelSlugs: e.target.value }))
+                  }
+                  placeholder="deepseek-v4-1-flash"
+                  className="w-full min-h-[40px] rounded-lg border border-slate-300 px-3 py-2 font-mono text-slate-900"
+                />
+              </label>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+              <div className="font-bold text-slate-800">
+                Optional Rate Delta Row (USD per 1M Tokens)
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-mono">
+                <label className="block space-y-1 font-sans">
+                  <span className="text-[11px] font-semibold text-slate-600">Model Name</span>
+                  <input
+                    type="text"
+                    value={newsForm.modelName}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, modelName: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1 font-sans">
+                  <span className="text-[11px] font-semibold text-slate-600">Endpoint</span>
+                  <input
+                    type="text"
+                    value={newsForm.endpointHost}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, endpointHost: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[11px] font-sans font-semibold text-slate-600">
+                    Old In / 1M
+                  </span>
+                  <input
+                    type="text"
+                    value={newsForm.oldInput}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, oldInput: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[11px] font-sans font-semibold text-slate-600">
+                    New In / 1M
+                  </span>
+                  <input
+                    type="text"
+                    value={newsForm.newInput}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, newInput: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[11px] font-sans font-semibold text-slate-600">
+                    Old Out / 1M
+                  </span>
+                  <input
+                    type="text"
+                    value={newsForm.oldOutput}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, oldOutput: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-[11px] font-sans font-semibold text-slate-600">
+                    New Out / 1M
+                  </span>
+                  <input
+                    type="text"
+                    value={newsForm.newOutput}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, newOutput: e.target.value }))}
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-900"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">
+                  Key Takeaways (one per line)
+                </span>
+                <textarea
+                  rows={4}
+                  value={newsForm.keyTakeawaysText}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, keyTakeawaysText: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                />
+              </label>
+
+              <div className="space-y-2.5">
+                <label className="block space-y-1">
+                  <span className="font-semibold text-slate-700">Section Heading</span>
+                  <input
+                    type="text"
+                    value={newsForm.sectionHeading}
+                    onChange={(e) =>
+                      setNewsForm((f) => ({ ...f, sectionHeading: e.target.value }))
+                    }
+                    className="w-full min-h-[38px] rounded-lg border border-slate-300 px-3 py-1.5 text-slate-900"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="font-semibold text-slate-700">Article Body</span>
+                  <textarea
+                    rows={3}
+                    value={newsForm.sectionBody}
+                    onChange={(e) => setNewsForm((f) => ({ ...f, sectionBody: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">Source Label</span>
+                <input
+                  type="text"
+                  value={newsForm.sourceLabel}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, sourceLabel: e.target.value }))}
+                  className="w-full min-h-[38px] rounded-lg border border-slate-300 px-3 py-1.5 text-slate-900"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="font-semibold text-slate-700">Source URL</span>
+                <input
+                  type="url"
+                  value={newsForm.sourceUrl}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, sourceUrl: e.target.value }))}
+                  className="w-full min-h-[38px] rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-slate-900"
+                />
+              </label>
+              <label className="inline-flex min-h-[38px] items-center gap-2 font-semibold text-slate-800">
+                <input
+                  type="checkbox"
+                  checked={newsForm.featured}
+                  onChange={(e) => setNewsForm((f) => ({ ...f, featured: e.target.checked }))}
+                  className="rounded border-slate-300"
+                />
+                <span>Feature at top of /news</span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="min-h-[42px] rounded-xl bg-emerald-900 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800"
+            >
+              Stage News Post
+            </button>
+          </form>
+
+          <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 text-xs">
+            <h4 className="font-bold text-slate-900">Staged News Posts ({newsItems.length})</h4>
+            <div className="divide-y divide-slate-100">
+              {newsItems.map((art) => (
+                <div
+                  key={art.slug}
+                  className="py-3 first:pt-0 last:pb-0 flex flex-wrap items-center justify-between gap-3"
+                >
+                  <div>
+                    <div className="font-bold text-slate-900">{art.title}</div>
+                    <div className="font-mono text-[11px] text-slate-500">
+                      /news/{art.slug} · {art.category}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewsItems((prev) => prev.filter((x) => x.slug !== art.slug));
+                      setHasUnpublishedChanges(true);
+                    }}
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
     </div>
   );
 }

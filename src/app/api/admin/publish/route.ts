@@ -1,223 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-interface PublishBody {
-  adminPassword?: string;
-  modelsJsonContent?: string;
-  pendingJsonContent?: string;
-  commitMessage?: string;
-}
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ZmLone';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'tokenledger';
+const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+const MODELS_PATH = process.env.MODELS_JSON_PATH || 'src/data/models.json';
+const PENDING_PATH = process.env.PENDING_JSON_PATH || 'src/data/pending-models.json';
+const NEWS_PATH = process.env.NEWS_JSON_PATH || 'src/data/news.json';
 
-interface GitHubReadResult {
-  exists: boolean;
-  sha: string | null;
-}
-
-async function getGitHubFileSha(
-  owner: string,
-  repo: string,
-  branch: string,
-  filePath: string,
+async function upsertGitHubFile(
   token: string,
-  allowMissing = false
-): Promise<GitHubReadResult> {
-  const res = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${encodeURIComponent(branch)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-      cache: 'no-store',
-    }
-  );
-  if (res.status === 404 && allowMissing) {
-    return { exists: false, sha: null };
-  }
-  if (!res.ok) {
-    throw new Error(`Failed to read ${filePath} from GitHub (${res.status})`);
-  }
-  const data = await res.json();
-  return { exists: true, sha: data.sha as string };
-}
-
-async function putGitHubFile(
-  owner: string,
-  repo: string,
-  branch: string,
   filePath: string,
   content: string,
-  message: string,
-  sha: string | null,
-  token: string
+  commitMessage: string
 ) {
-  const encoded = Buffer.from(content, 'utf8').toString('base64');
-  const payload: Record<string, string> = {
-    message,
-    content: encoded,
-    branch,
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28',
   };
-  if (sha) {
-    payload.sha = sha;
+
+  let existingSha: string | undefined;
+  const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
+    headers,
+    cache: 'no-store',
+  });
+  if (getRes.ok) {
+    const existingData = (await getRes.json()) as { sha?: string };
+    existingSha = existingData.sha;
   }
 
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
+  const encodedContent = Buffer.from(content, 'utf8').toString('base64');
+  const putRes = await fetch(apiUrl, {
     method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'Content-Type': 'application/json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-    body: JSON.stringify(payload),
+    headers,
+    body: JSON.stringify({
+      message: commitMessage,
+      content: encodedContent,
+      branch: GITHUB_BRANCH,
+      ...(existingSha ? { sha: existingSha } : {}),
+    }),
   });
 
-  if (res.status === 409) {
-    throw new Error(
-      `Conflict while updating ${filePath}: another commit updated '${branch}' while you were editing. Refresh /admin to load the latest state and re-apply your changes.`
-    );
-  }
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Failed to update ${filePath} on GitHub (${res.status}): ${errText}`);
+  if (!putRes.ok) {
+    const errText = await putRes.text();
+    throw new Error(`GitHub write failed for ${filePath} (${putRes.status}): ${errText}`);
   }
 }
 
 export async function POST(req: NextRequest) {
-  let body: PublishBody;
   try {
-    body = (await req.json()) as PublishBody;
-  } catch {
-    return NextResponse.json({ ok: false, error: 'Invalid JSON request body.' }, { status: 400 });
-  }
+    const body = (await req.json()) as {
+      adminPassword?: string;
+      modelsJsonContent?: string;
+      pendingJsonContent?: string;
+      newsJsonContent?: string;
+      commitMessage?: string;
+    };
 
-  const expectedPassword = process.env.ADMIN_PASSWORD;
-  if (!expectedPassword) {
-    return NextResponse.json(
-      {
-        ok: false,
-        needsSetup: true,
-        error: 'ADMIN_PASSWORD is not configured in Vercel Environment Variables yet.',
-      },
-      { status: 503 }
-    );
-  }
+    const expectedPassword = process.env.ADMIN_PASSWORD;
+    const githubToken = process.env.GITHUB_TOKEN;
 
-  if (!body.adminPassword || body.adminPassword !== expectedPassword) {
-    return NextResponse.json({ ok: false, error: 'Incorrect admin password.' }, { status: 401 });
-  }
-
-  const modelsJsonContent = body.modelsJsonContent;
-  const pendingJsonContent = body.pendingJsonContent;
-  if (!modelsJsonContent || !pendingJsonContent) {
-    return NextResponse.json(
-      { ok: false, error: 'Missing modelsJsonContent or pendingJsonContent.' },
-      { status: 400 }
-    );
-  }
-
-  let modelCount = 0;
-  try {
-    const parsedModels = JSON.parse(modelsJsonContent);
-    if (!Array.isArray(parsedModels) || parsedModels.length === 0) {
+    if (!expectedPassword || !body.adminPassword || body.adminPassword !== expectedPassword) {
+      return NextResponse.json({ error: 'Unauthorized: invalid admin password.' }, { status: 401 });
+    }
+    if (!githubToken) {
       return NextResponse.json(
-        { ok: false, error: 'Refusing to publish empty or invalid models.json array.' },
-        { status: 400 }
+        { error: 'Server misconfiguration: GITHUB_TOKEN is not set.' },
+        { status: 500 }
       );
     }
 
-    const seenSlugs = new Set<string>();
-    for (const entry of parsedModels) {
-      if (!entry || typeof entry !== 'object' || !entry.slug || !entry.name) {
-        return NextResponse.json(
-          { ok: false, error: 'Invalid model record detected (missing required slug or name).' },
-          { status: 400 }
-        );
-      }
-      const slug = String(entry.slug);
-      if (seenSlugs.has(slug)) {
-        return NextResponse.json(
-          { ok: false, error: `Duplicate model slug detected in payload: ${slug}` },
-          { status: 400 }
-        );
-      }
-      seenSlugs.add(slug);
+    const msg =
+      body.commitMessage?.trim() || 'chore(admin): publish PromptBill catalog, queue & news';
+
+    if (typeof body.modelsJsonContent === 'string') {
+      await upsertGitHubFile(githubToken, MODELS_PATH, body.modelsJsonContent, msg);
     }
-    modelCount = parsedModels.length;
-
-    const parsedPending = JSON.parse(pendingJsonContent);
-    if (!parsedPending || typeof parsedPending !== 'object' || !Array.isArray(parsedPending.items)) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid pending-registry.json structure (expected { updatedAt, items[] }).' },
-        { status: 400 }
-      );
+    if (typeof body.pendingJsonContent === 'string') {
+      await upsertGitHubFile(githubToken, PENDING_PATH, body.pendingJsonContent, msg);
     }
-  } catch {
-    return NextResponse.json({ ok: false, error: 'Invalid JSON payload.' }, { status: 400 });
-  }
-
-  const githubToken = process.env.GITHUB_TOKEN;
-  const owner = process.env.GITHUB_REPO_OWNER || 'ZmLone';
-  const repo = process.env.GITHUB_REPO_NAME || 'tokenledger';
-  const branch = process.env.GITHUB_REPO_BRANCH || 'main';
-
-  if (!githubToken) {
-    return NextResponse.json(
-      {
-        ok: false,
-        needsSetup: true,
-        error:
-          'GITHUB_TOKEN is not configured in Vercel Environment Variables yet. Use Download JSON fallback or add GITHUB_TOKEN for 1-click publish.',
-      },
-      { status: 503 }
-    );
-  }
-
-  try {
-    const commitMsg =
-      body.commitMessage || 'chore(admin): publish approved LLM models, prices & benchmarks';
-
-    const [modelsFile, pendingFile] = await Promise.all([
-      getGitHubFileSha(owner, repo, branch, 'src/data/models.json', githubToken, false),
-      getGitHubFileSha(owner, repo, branch, 'src/data/pending-registry.json', githubToken, true),
-    ]);
-
-    await putGitHubFile(
-      owner,
-      repo,
-      branch,
-      'src/data/models.json',
-      modelsJsonContent.endsWith('\n') ? modelsJsonContent : modelsJsonContent + '\n',
-      commitMsg,
-      modelsFile.sha,
-      githubToken
-    );
-
-    await putGitHubFile(
-      owner,
-      repo,
-      branch,
-      'src/data/pending-registry.json',
-      pendingJsonContent.endsWith('\n') ? pendingJsonContent : pendingJsonContent + '\n',
-      `${commitMsg} (sync pending queue)`,
-      pendingFile.sha,
-      githubToken
-    );
+    if (typeof body.newsJsonContent === 'string') {
+      await upsertGitHubFile(githubToken, NEWS_PATH, body.newsJsonContent, msg);
+    }
 
     return NextResponse.json({
       ok: true,
-      publishedCount: modelCount,
-      message: `Committed ${modelCount} model(s) & queue state to GitHub (${owner}/${repo}@${branch}). Vercel is automatically deploying promptbill.online now!`,
+      message: 'Published updates to GitHub. Vercel deployment will start automatically.',
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'GitHub commit failed.';
-    const status = msg.startsWith('Conflict while updating') ? 409 : 500;
-    return NextResponse.json(
-      {
-        ok: false,
-        error: msg,
-      },
-      { status }
-    );
+    const message = err instanceof Error ? err.message : 'Unknown error publishing changes.';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
