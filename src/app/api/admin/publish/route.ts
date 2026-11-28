@@ -153,11 +153,11 @@ export async function POST(req: NextRequest) {
       JSON.parse(payload.pendingJsonContent);
       await putFileToGitHub(
         githubToken,
-        'src/data/pending.json',
+        'src/data/pending-registry.json',
         payload.pendingJsonContent,
         'chore(admin): sync pending queue pending.json'
       );
-      updatedFiles.push('src/data/pending.json');
+      updatedFiles.push('src/data/pending-registry.json');
     }
 
     if (typeof payload.newsJsonContent === 'string' && payload.newsJsonContent.trim()) {
