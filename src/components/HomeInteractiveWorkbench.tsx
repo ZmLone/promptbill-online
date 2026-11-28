@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { CatalogModel } from '../lib/catalog';
 import { formatCurrency } from '../lib/pricingEngine';
@@ -23,6 +23,10 @@ import {
   Search,
   X,
   Download,
+  ChevronDown,
+  FileSpreadsheet,
+  FileJson,
+  FileText,
   Copy,
   Check,
 } from 'lucide-react';
@@ -30,7 +34,7 @@ import {
 interface WorkloadPreset {
   id: string;
   label: string;
-  detail: string;
+  spec: string;
   inputTokens: number;
   outputTokens: number;
   callsPerDay: number;
@@ -42,7 +46,7 @@ const WORKLOAD_PRESETS: WorkloadPreset[] = [
   {
     id: 'chat',
     label: 'Support Chat',
-    detail: '2K in · 400 out · 3K/day',
+    spec: '2K in · 400 out · 3K/d',
     inputTokens: 2000,
     outputTokens: 400,
     callsPerDay: 3000,
@@ -52,7 +56,7 @@ const WORKLOAD_PRESETS: WorkloadPreset[] = [
   {
     id: 'rag',
     label: 'RAG / Doc Q&A',
-    detail: '8K in · 600 out · 2K/day',
+    spec: '8K in · 600 out · 2K/d',
     inputTokens: 8000,
     outputTokens: 600,
     callsPerDay: 2000,
@@ -62,7 +66,7 @@ const WORKLOAD_PRESETS: WorkloadPreset[] = [
   {
     id: 'coding',
     label: 'Code Agent',
-    detail: '24K in · 1.5K out · 800/day',
+    spec: '24K in · 1.5K out · 800/d',
     inputTokens: 24000,
     outputTokens: 1500,
     callsPerDay: 800,
@@ -72,7 +76,7 @@ const WORKLOAD_PRESETS: WorkloadPreset[] = [
   {
     id: 'batch',
     label: 'Batch Classify',
-    detail: '1.2K in · 80 out · 25K/day',
+    spec: '1.2K in · 80 out · 25K/d',
     inputTokens: 1200,
     outputTokens: 80,
     callsPerDay: 25000,
@@ -95,6 +99,18 @@ function escapeCsvCell(val: unknown): string {
     str.indexOf('\n') !== -1 ||
     str.indexOf('\r') !== -1;
   return needsQuote ? quote + str.split(quote).join(doubleQuote) + quote : str;
+}
+
+function triggerFileDownload(filename: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export function HomeInteractiveWorkbench({
@@ -121,7 +137,24 @@ export function HomeInteractiveWorkbench({
   const [useBatch, setUseBatch] = useState<boolean>(false);
   const [endpointMode, setEndpointMode] = useState<EndpointSelectionMode>('cheapest');
   const [customHostKey, setCustomHostKey] = useState<string>('');
+  const [exportMenuOpen, setExportMenuOpen] = useState<boolean>(false);
   const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
+
+  const exportDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!exportMenuOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (
+        exportDropdownRef.current &&
+        !exportDropdownRef.current.contains(e.target as Node)
+      ) {
+        setExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [exportMenuOpen]);
 
   useEffect(() => {
     if (externalSelectedSlug && models.some((m) => m.slug === externalSelectedSlug)) {
@@ -204,6 +237,8 @@ export function HomeInteractiveWorkbench({
   const breakdown = activeQuote.breakdown;
   const activeRates = activeQuote.modelView;
   const hasMultipleHosts = endpointEval.quotes.length > 1;
+  const effectiveCachePct = activeRates.cachedInputPer1M === null ? 0 : cachePct;
+  const effectiveBatchPct = useBatch ? 100 : 0;
 
   const applyPreset = (p: WorkloadPreset) => {
     setPresetId(p.id);
@@ -252,6 +287,16 @@ export function HomeInteractiveWorkbench({
       ? Math.round((monthlySavings / firstCost) * 100)
       : 0;
 
+  const buildSummaryText = () =>
+    [
+      `PromptBill 30-Day Estimate — ${selectedModel.name} (${selectedModel.provider})`,
+      `Endpoint: ${activeQuote.endpoint.host} (${activeQuote.endpoint.providerType}) · ${activeEvidence}`,
+      `Workload: ${callsPerDay.toLocaleString()} req/day · ${inputTokens.toLocaleString()} in · ${outputTokens.toLocaleString()} out · ${effectiveCachePct}% cached · ${effectiveBatchPct}% batch`,
+      `Rates (/1M): Input ${fmtRate(activeRates.inputPer1M)} | Cached ${fmtRate(activeRates.cachedInputPer1M)} | Output ${fmtRate(activeRates.outputPer1M)}`,
+      `Cost per 1K Calls: ${formatCurrency(breakdown.costPer1KCalls)}`,
+      `Estimated 30-Day Spend: ${formatCurrency(breakdown.monthlyTotalCost)}`,
+    ].join('\n');
+
   const handleExportCsv = () => {
     const headers = [
       'Model',
@@ -272,7 +317,6 @@ export function HomeInteractiveWorkbench({
       'Latency (ms)',
       'Throughput (tok/s)',
     ];
-
     const row = [
       selectedModel.name,
       selectedModel.provider,
@@ -282,8 +326,8 @@ export function HomeInteractiveWorkbench({
       callsPerDay,
       inputTokens,
       outputTokens,
-      activeRates.cachedInputPer1M === null ? 0 : cachePct,
-      useBatch ? 100 : 0,
+      effectiveCachePct,
+      effectiveBatchPct,
       activeRates.inputPer1M ?? 'N/A',
       activeRates.cachedInputPer1M ?? 'N/A',
       activeRates.outputPer1M ?? 'N/A',
@@ -292,36 +336,75 @@ export function HomeInteractiveWorkbench({
       typeof activeQuote.latencyMs === 'number' ? activeQuote.latencyMs : 'N/A',
       typeof activeQuote.tokPerSec === 'number' ? activeQuote.tokPerSec : 'N/A',
     ];
+    const csv = `${headers.map(escapeCsvCell).join(',')}\n${row.map(escapeCsvCell).join(',')}\n`;
+    triggerFileDownload(
+      `promptbill-${selectedModel.slug}-30d-estimate.csv`,
+      csv,
+      'text/csv;charset=utf-8;'
+    );
+    setExportMenuOpen(false);
+  };
 
-    const csv = `${headers.map(escapeCsvCell).join(',')}
-${row.map(escapeCsvCell).join(',')}
-`;
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `promptbill-${selectedModel.slug}-30d-estimate.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleExportJson = () => {
+    const payload = {
+      generatedBy: 'PromptBill (https://promptbill.online)',
+      model: {
+        slug: selectedModel.slug,
+        name: selectedModel.name,
+        provider: selectedModel.provider,
+        contextWindow: selectedModel.contextWindow ?? null,
+      },
+      endpoint: {
+        host: activeQuote.endpoint.host,
+        providerType: activeQuote.endpoint.providerType,
+        evidenceStatus: activeEvidence,
+        latencyMs: activeQuote.latencyMs ?? null,
+        tokPerSec: activeQuote.tokPerSec ?? null,
+      },
+      workload: {
+        callsPerDay,
+        inputTokensPerCall: inputTokens,
+        outputTokensPerCall: outputTokens,
+        cacheHitPercent: effectiveCachePct,
+        batchPercent: effectiveBatchPct,
+      },
+      ratesPer1M: {
+        input: activeRates.inputPer1M ?? null,
+        cachedInput: activeRates.cachedInputPer1M ?? null,
+        output: activeRates.outputPer1M ?? null,
+      },
+      estimate30Day: {
+        costPer1KCalls: breakdown.costPer1KCalls ?? null,
+        monthlyTotalCost: breakdown.monthlyTotalCost ?? null,
+        currency: 'USD',
+      },
+    };
+    triggerFileDownload(
+      `promptbill-${selectedModel.slug}-30d-estimate.json`,
+      JSON.stringify(payload, null, 2),
+      'application/json;charset=utf-8;'
+    );
+    setExportMenuOpen(false);
+  };
+
+  const handleExportTxt = () => {
+    triggerFileDownload(
+      `promptbill-${selectedModel.slug}-30d-estimate.txt`,
+      `${buildSummaryText()}\n`,
+      'text/plain;charset=utf-8;'
+    );
+    setExportMenuOpen(false);
   };
 
   const handleCopySummary = async () => {
-    const lines = [
-      `PromptBill 30-Day Estimate — ${selectedModel.name} (${selectedModel.provider})`,
-      `Endpoint: ${activeQuote.endpoint.host} (${activeEvidence})`,
-      `Workload: ${callsPerDay.toLocaleString()} req/day · ${inputTokens.toLocaleString()} in · ${outputTokens.toLocaleString()} out · ${activeRates.cachedInputPer1M === null ? 0 : cachePct}% cached${useBatch ? ' · Batch' : ''}`,
-      `Rates: ${fmtRate(activeRates.inputPer1M)} in / ${fmtRate(activeRates.cachedInputPer1M)} cached / ${fmtRate(activeRates.outputPer1M)} out per 1M`,
-      `30-Day Total: ${formatCurrency(breakdown.monthlyTotalCost)} (${formatCurrency(breakdown.costPer1KCalls)} / 1K calls)`,
-    ];
     try {
-      await navigator.clipboard.writeText(lines.join('\n'));
+      await navigator.clipboard.writeText(buildSummaryText());
       setCopiedSummary(true);
       setTimeout(() => setCopiedSummary(false), 2000);
     } catch {
-      // Ignore clipboard permission errors
+      // Ignore clipboard errors
     }
+    setExportMenuOpen(false);
   };
 
   const noMatchInSearch =
@@ -376,8 +459,8 @@ ${row.map(escapeCsvCell).join(',')}
         <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-gradient-to-tl from-rose-500/32 via-violet-500/28 to-amber-400/28 blur-2xl" />
       </div>
 
-      {/* Top Row: Title + Endpoint Mode + Export Actions */}
-      <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+      {/* Top Row: Title + Endpoint Switcher + Export Dropdown */}
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400 shadow-sm">
             <Calculator className="h-5 w-5" />
@@ -400,44 +483,108 @@ ${row.map(escapeCsvCell).join(',')}
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <EndpointModeSwitcher mode={endpointMode} onChange={handleModeSwitch} />
 
-          <button
-            type="button"
-            onClick={handleCopySummary}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3.5 text-xs font-semibold text-slate-800 hover:bg-white transition-colors cursor-pointer"
-          >
-            {copiedSummary ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-emerald-700" />
-                <span className="text-emerald-800">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-3.5 w-3.5 text-slate-600" />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
+          {/* Export Dropdown Menu with Multiple Formats */}
+          <div ref={exportDropdownRef} className="relative">
+            <button
+              type="button"
+              aria-expanded={exportMenuOpen}
+              aria-haspopup="menu"
+              onClick={() => setExportMenuOpen((prev) => !prev)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-slate-950 px-4 text-xs font-semibold text-white hover:bg-slate-800 transition-colors cursor-pointer shadow-2xs"
+            >
+              <Download className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Export</span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 text-slate-300 transition-transform ${
+                  exportMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
 
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-slate-950 px-3.5 text-xs font-semibold text-white hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            <Download className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Export CSV</span>
-          </button>
+            {exportMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl z-30 space-y-0.5"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleExportCsv}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <FileSpreadsheet className="h-4 w-4 text-emerald-700 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-slate-950">Spreadsheet (.CSV)</div>
+                    <div className="text-[10px] font-normal text-slate-500">
+                      All inputs, rates &amp; 30-day total
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleExportJson}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <FileJson className="h-4 w-4 text-indigo-600 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-slate-950">Structured Data (.JSON)</div>
+                    <div className="text-[10px] font-normal text-slate-500">
+                      Machine-readable quote object
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleExportTxt}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <FileText className="h-4 w-4 text-sky-600 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-slate-950">Report Note (.TXT)</div>
+                    <div className="text-[10px] font-normal text-slate-500">
+                      Clean text summary download
+                    </div>
+                  </div>
+                </button>
+
+                <div className="my-1 border-t border-slate-100" />
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={handleCopySummary}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  {copiedSummary ? (
+                    <Check className="h-4 w-4 text-emerald-700 shrink-0" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-slate-500 shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-slate-950">
+                      {copiedSummary ? 'Copied to Clipboard' : 'Copy Summary'}
+                    </div>
+                    <div className="text-[10px] font-normal text-slate-500">
+                      Paste into Slack, Notion, or docs
+                    </div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Aligned Control Row: Preset Pills (Left) & Endpoint Host (Right) */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-        <div className="lg:col-span-8 flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">
-            Presets
-          </span>
+      {/* Refined 4-Card Preset Strip + Aligned Endpoint Selector */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {WORKLOAD_PRESETS.map((p) => {
             const active = presetId === p.id;
             return (
@@ -445,34 +592,35 @@ ${row.map(escapeCsvCell).join(',')}
                 key={p.id}
                 type="button"
                 onClick={() => applyPreset(p)}
-                className={`inline-flex h-9 items-center rounded-full px-3.5 text-xs font-semibold transition-all cursor-pointer ${
+                aria-pressed={active}
+                className={`rounded-2xl px-3.5 py-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
                   active
-                    ? 'bg-slate-950 text-white shadow-sm'
-                    : 'bg-white/90 ring-1 ring-slate-200/80 text-slate-700 hover:bg-white'
+                    ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-950'
+                    : 'bg-white/90 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white hover:ring-slate-300'
                 }`}
               >
-                <span>{p.label}</span>
+                <span className="text-xs font-bold tracking-tight truncate">{p.label}</span>
                 <span
-                  className={`hidden sm:inline ml-1.5 font-mono text-[11px] ${
-                    active ? 'text-slate-300' : 'text-slate-500'
+                  className={`mt-1 font-mono text-[10px] truncate ${
+                    active ? 'text-emerald-300' : 'text-slate-500'
                   }`}
                 >
-                  {p.detail}
+                  {p.spec}
                 </span>
               </button>
             );
           })}
         </div>
 
-        <div className="lg:col-span-4 flex items-center lg:justify-end gap-2">
+        <div className="lg:col-span-4 flex items-center">
           {hasMultipleHosts ? (
-            <div className="w-full flex items-center gap-2">
+            <div className="w-full rounded-2xl bg-white/90 ring-1 ring-slate-200/90 px-3.5 py-2.5 flex flex-col justify-between">
               <label
                 htmlFor="home-host-select"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 shrink-0"
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-1"
               >
-                <Server className="h-3.5 w-3.5 text-emerald-700" />
-                <span>Endpoint</span>
+                <Server className="h-3 w-3 text-emerald-700" />
+                <span>Active Endpoint</span>
               </label>
               <select
                 id="home-host-select"
@@ -491,7 +639,7 @@ ${row.map(escapeCsvCell).join(',')}
                     setEndpointMode('cheapest');
                   }
                 }}
-                className="h-10 flex-1 min-w-0 rounded-xl border border-slate-200 bg-white/95 px-3 text-xs font-semibold text-slate-900 focus:border-slate-900 focus:outline-none"
+                className="w-full bg-transparent text-xs font-bold text-slate-950 focus:outline-none truncate"
               >
                 {endpointEval.quotes.map((q) => (
                   <option
@@ -505,9 +653,14 @@ ${row.map(escapeCsvCell).join(',')}
               </select>
             </div>
           ) : (
-            <div className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200/80 bg-white/80 px-3.5 text-xs font-medium text-slate-600">
-              <Server className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Single endpoint: {activeQuote.endpoint.host}</span>
+            <div className="w-full rounded-2xl bg-white/80 ring-1 ring-slate-200/80 px-3.5 py-2.5 flex flex-col justify-center">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                <Server className="h-3 w-3 text-emerald-700" />
+                <span>Single Host</span>
+              </span>
+              <span className="mt-1 text-xs font-bold text-slate-900 truncate">
+                {activeQuote.endpoint.host}
+              </span>
             </div>
           )}
         </div>
@@ -517,14 +670,14 @@ ${row.map(escapeCsvCell).join(',')}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 flex flex-col justify-between gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Search Model Input */}
+            {/* Search Model + Select Model */}
             <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="home-model-search"
                   className="text-xs font-semibold text-slate-700"
                 >
-                  Search Model
+                  Search &amp; Select Model
                 </label>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
                   <ProviderLogo
@@ -559,12 +712,8 @@ ${row.map(escapeCsvCell).join(',')}
                 )}
               </div>
 
-              {/* Select Model Dropdown */}
               <div className="mt-2.5">
-                <label
-                  htmlFor="home-model-select"
-                  className="sr-only"
-                >
+                <label htmlFor="home-model-select" className="sr-only">
                   Select Model
                 </label>
                 <select
@@ -589,7 +738,6 @@ ${row.map(escapeCsvCell).join(',')}
               )}
             </div>
 
-            {/* Row 2: Requests / Day + Prompt Cache Hit Share */}
             <div>
               <label
                 htmlFor="home-calls-day"
@@ -621,7 +769,7 @@ ${row.map(escapeCsvCell).join(',')}
               <select
                 id="home-cache-pct"
                 disabled={activeRates.cachedInputPer1M === null}
-                value={activeRates.cachedInputPer1M === null ? 0 : cachePct}
+                value={effectiveCachePct}
                 onChange={(e) => {
                   setPresetId('custom');
                   setCachePct(Number(e.target.value));
@@ -635,7 +783,6 @@ ${row.map(escapeCsvCell).join(',')}
               </select>
             </div>
 
-            {/* Row 3: Input Tokens / Request + Output Tokens / Request */}
             <div>
               <label
                 htmlFor="home-input-tok"
@@ -679,7 +826,6 @@ ${row.map(escapeCsvCell).join(',')}
             </div>
           </div>
 
-          {/* Aligned Footer Strip: Source (Left) + Batch Toggle (Right) */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/75 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               {isVerified ? (
